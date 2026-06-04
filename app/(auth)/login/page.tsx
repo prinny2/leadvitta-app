@@ -19,7 +19,7 @@ function LoginInner() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
-  const [erro, setErro] = useState("");
+  const [erro, setErro] = useState(params.get("erro") || "");
 
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
