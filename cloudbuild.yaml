@@ -27,7 +27,7 @@ steps:
       - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
 
   # 3) Deploy no Cloud Run
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:502.0.0  # pinado p/ build reproduzível
     entrypoint: gcloud
     args:
       - run

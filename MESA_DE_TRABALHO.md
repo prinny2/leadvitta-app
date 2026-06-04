@@ -7,7 +7,7 @@
 
 ## 1. O que é (em 3 linhas)
 
-Micro-SaaS para **clínicas de estética**. Gera respostas de WhatsApp em 3 variantes (curta / consultiva / fechamento), quebra de objeções, follow-up e scripts — com **IA (Claude)** e guardrails de compliance. É a **cara/nicho estética do Núcleo**. Oferta: _"experimenta; gostou, fica"_.
+Micro-SaaS para **clínicas de estética**. Gera respostas de WhatsApp em 3 variantes (curta / consultiva / fechamento), quebra de objeções, follow-up e scripts — com **IA (Claude)** e guardrails de compliance. É a **cara/nicho de estética do Núcleo**. Oferta: _"experimenta; gostou, fica"_.
 
 ---
 
