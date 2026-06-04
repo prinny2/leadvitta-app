@@ -1,3 +1,5 @@
+export type ComoChamar = "linda" | "amor" | "nome" | "nenhum";
+
 export type Clinica = {
   nome_clinica: string;
   cidade: string;
@@ -6,8 +8,8 @@ export type Clinica = {
   procedimentos: string[];
   /** 0 = bem íntimo, 100 = formal. */
   formalidade: number;
-  /** Como chamar a cliente: 'linda' | 'amor' | 'nome' | 'nenhum'. */
-  como_chamar: string;
+  /** Como chamar a cliente. */
+  como_chamar: ComoChamar;
   /** CTA padrão da clínica (texto). */
   cta_preferido: string;
   /** Já concluiu o onboarding (DNA da Clínica). */

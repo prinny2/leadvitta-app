@@ -9,9 +9,8 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
-    "@supabase/ssr": "^0.10.3",
-    "@supabase/supabase-js": "^2.107.0",
     "clsx": "^2.1.1",
+    "firebase": "^12.14.0",
     "lucide-react": "^1.17.0",
     "next": "^15.1.0",
     "openai": "^6.42.0",

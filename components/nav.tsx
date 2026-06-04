@@ -12,8 +12,9 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import { isSupabaseConfigured } from "@/lib/config";
-import { createClient } from "@/lib/supabase/client";
+import { signOut } from "firebase/auth";
+import { isFirebaseConfigured } from "@/lib/config";
+import { getFirebaseAuth } from "@/lib/firebase/client";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 
@@ -30,9 +31,11 @@ const links = [
 function useLogout() {
   const router = useRouter();
   return async () => {
-    if (isSupabaseConfigured) {
+    if (isFirebaseConfigured) {
       try {
-        await createClient().auth.signOut();
+        await signOut(getFirebaseAuth());
+        document.cookie =
+          "firebase_auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
       } catch {
         /* ignora */
       }

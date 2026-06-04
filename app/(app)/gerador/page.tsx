@@ -18,12 +18,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { CopyButton } from "@/components/copy-button";
+import { ResponseCard } from "@/components/response-card";
+import { AvisoIA } from "@/components/aviso-ia";
+import { LoadingRespostas } from "@/components/loading-respostas";
+import { EmptyState } from "@/components/empty-state";
 import { procedimentos } from "@/data/procedimentos";
 import { situacoes } from "@/data/situacoes";
 import { tons } from "@/data/tons";
 import { perfisCliente } from "@/data/perfis-cliente";
 import { objetivoOptions, oQueMelhorarOptions } from "@/data/opcoes";
-import { getClinica, addHistorico } from "@/lib/store";
+import { addHistorico } from "@/lib/store";
+import { useClinica } from "@/lib/hooks/use-clinica";
 import { cn } from "@/lib/utils";
 import type { Clinica, RespostaTripla, Variante } from "@/lib/types";
 
@@ -44,7 +49,7 @@ const VARIANTES: {
 ];
 
 export default function GeradorPage() {
-  const [clinica, setClinica] = useState<Clinica | null>(null);
+  const { clinica } = useClinica();
   const [modo, setModo] = useState<"gerar" | "reescrever">("gerar");
 
   const [nomeCliente, setNomeCliente] = useState("");
@@ -64,11 +69,8 @@ export default function GeradorPage() {
   const [salvo, setSalvo] = useState(false);
 
   useEffect(() => {
-    getClinica().then((c) => {
-      setClinica(c);
-      if (c.tom_padrao) setTom(c.tom_padrao);
-    });
-  }, []);
+    if (clinica?.tom_padrao) setTom(clinica.tom_padrao);
+  }, [clinica]);
 
   // Pré-preenchimento vindo do "Personalizar com IA" (Biblioteca de Objeções).
   useEffect(() => {
@@ -323,53 +325,35 @@ export default function GeradorPage() {
 
         {/* Resultados */}
         <div className="space-y-4">
-          {aviso && (
-            <div className="flex items-start gap-2 rounded-xl border border-lavender-200 bg-lavender-50 px-3.5 py-2.5 text-xs text-lavender-700">
-              <Info size={15} className="mt-0.5 shrink-0" />
-              <span>{aviso}</span>
-            </div>
-          )}
+          <AvisoIA aviso={aviso} />
 
-          {loading && (
-            <Card>
-              <CardBody className="flex flex-col items-center gap-3 py-14 text-muted">
-                <Loader2 size={28} className="animate-spin text-brand-400" />
-                <p className="text-sm">Escrevendo as melhores respostas...</p>
-              </CardBody>
-            </Card>
-          )}
+          {loading && <LoadingRespostas />}
 
           {!loading && respostas && (
             <>
               {VARIANTES.map((v) => (
-                <div key={v.key} className="rounded-2xl border border-brand-100 bg-white p-4 shadow-card">
-                  <div className="mb-2.5 flex items-start justify-between gap-3">
-                    <div>
-                      <div className={cn("text-sm font-semibold", v.accent === "lavender" ? "text-lavender-600" : "text-brand-600")}>
-                        {v.titulo}
-                      </div>
-                      <div className="text-xs text-muted">{v.descricao}</div>
-                    </div>
-                    <div className="flex shrink-0 gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => melhorar(v.key)}
-                        disabled={refinando !== null}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-50"
-                      >
-                        {refinando === v.key ? (
-                          <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                          <RefreshCw size={14} />
-                        )}
-                        Melhorar
-                      </button>
-                      <CopyButton text={respostas[v.key]} />
-                    </div>
+                <div key={v.key} className="relative">
+                  <ResponseCard
+                    titulo={v.titulo}
+                    descricao={v.descricao}
+                    texto={respostas[v.key]}
+                    accent={v.accent}
+                  />
+                  <div className="absolute right-14 top-4">
+                    <button
+                      type="button"
+                      onClick={() => melhorar(v.key)}
+                      disabled={refinando !== null}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-50"
+                    >
+                      {refinando === v.key ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <RefreshCw size={14} />
+                      )}
+                      Melhorar
+                    </button>
                   </div>
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
-                    {respostas[v.key]}
-                  </p>
                 </div>
               ))}
 
@@ -381,16 +365,16 @@ export default function GeradorPage() {
           )}
 
           {!loading && !respostas && (
-            <Card>
-              <CardBody className="flex flex-col items-center gap-3 py-14 text-center text-muted">
-                <MessageSquareText size={28} className="text-brand-300" />
-                <p className="max-w-xs text-sm">
+            <EmptyState
+              icon={MessageSquareText}
+              mensagem={
+                <>
                   Preencha ao lado e clique em{" "}
                   <strong>{modo === "reescrever" ? "Melhorar mensagem" : "Gerar respostas"}</strong>{" "}
                   para ver 3 opções prontas aqui.
-                </p>
-              </CardBody>
-            </Card>
+                </>
+              }
+            />
           )}
         </div>
       </div>

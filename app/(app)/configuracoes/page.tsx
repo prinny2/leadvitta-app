@@ -12,8 +12,9 @@ import { procedimentos } from "@/data/procedimentos";
 import { tons } from "@/data/tons";
 import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { getClinica, saveClinica } from "@/lib/store";
-import { isSupabaseConfigured } from "@/lib/config";
-import { createClient } from "@/lib/supabase/client";
+import { updatePassword } from "firebase/auth";
+import { isFirebaseConfigured } from "@/lib/config";
+import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -72,13 +73,14 @@ export default function ConfiguracoesPage() {
       setSenhaMsg("A senha precisa ter ao menos 6 caracteres.");
       return;
     }
-    const supabase = createClient();
-    const { error } = await supabase.auth.updateUser({ password: novaSenha });
-    if (error) {
-      setSenhaMsg("Erro: " + error.message);
-    } else {
+    try {
+      const user = getFirebaseAuth().currentUser;
+      if (!user) throw new Error("Não autenticado");
+      await updatePassword(user, novaSenha);
       setSenhaMsg("Senha atualizada com sucesso!");
       setNovaSenha("");
+    } catch (err) {
+      setSenhaMsg("Erro: " + (err instanceof Error ? err.message : "Tente novamente."));
     }
   }
 
@@ -251,7 +253,7 @@ export default function ConfiguracoesPage() {
         </Card>
       </form>
 
-      {isSupabaseConfigured && (
+      {isFirebaseConfigured && (
         <Card>
           <CardBody className="space-y-4">
             <CardTitle className="flex items-center gap-2">

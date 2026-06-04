@@ -1,11 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
-import {
-  aiModel,
-  openAIModel,
-  isAnthropicConfigured,
-  isOpenAIConfigured,
-} from "@/lib/config";
+import { aiModel, isAnthropicConfigured, isOpenAIConfigured } from "@/lib/config";
 import {
   SYSTEM_GERADOR,
   SYSTEM_REFINE,
@@ -23,131 +18,117 @@ import type {
   RespostaTripla,
 } from "@/lib/types";
 
-const TIMEOUT_MS = 25000; // 25 segundos
-
+// Clients
 let anthropicClient: Anthropic | null = null;
-function getAnthropic(): Anthropic {
+let openaiClient: OpenAI | null = null;
+
+function getAnthropic() {
   if (!anthropicClient) {
     anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   }
   return anthropicClient;
 }
 
-let openaiClient: OpenAI | null = null;
-function getOpenAI(): OpenAI {
+function getOpenAI() {
   if (!openaiClient) {
     openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
   return openaiClient;
 }
 
-/** Chama o Claude com prompt caching no system (estático) e devolve o texto. */
-async function callClaude(system: string, user: string): Promise<string> {
-  const signal = AbortSignal.timeout(TIMEOUT_MS);
-  try {
-    const resp = await getAnthropic().messages.create(
-      {
-        model: aiModel,
-        max_tokens: 1024,
-        temperature: 0.7,
-        system: [
-          { type: "text", text: system, cache_control: { type: "ephemeral" } },
-        ],
-        messages: [{ role: "user", content: user }],
-      },
-      { signal }
-    );
-    return resp.content
-      .map((b) => (b.type === "text" ? b.text : ""))
-      .join("")
-      .trim();
-  } catch (err: any) {
-    if (err.name === "AbortError") {
-      throw new Error("Anthropic: tempo esgotado (timeout).");
-    }
-    if (err.status === 401) {
-      throw new Error("Anthropic: chave de API inválida.");
-    }
-    if (err.status === 429) {
-      throw new Error("Anthropic: limite de requisições excedido (rate limit).");
-    }
-    throw err;
-  }
-}
-
-/** Chama a OpenAI (GPT-4o) e devolve o texto. */
-async function callOpenAI(system: string, user: string): Promise<string> {
-  const signal = AbortSignal.timeout(TIMEOUT_MS);
-  try {
-    const resp = await getOpenAI().chat.completions.create(
-      {
-        model: openAIModel,
-        max_tokens: 1024,
-        temperature: 0.7,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-      },
-      { signal }
-    );
-    return resp.choices[0]?.message?.content || "";
-  } catch (err: any) {
-    if (err.name === "AbortError") {
-      throw new Error("OpenAI: tempo esgotado (timeout).");
-    }
-    if (err.status === 401) {
-      throw new Error("OpenAI: chave de API inválida.");
-    }
-    if (err.status === 429) {
-      throw new Error("OpenAI: limite de requisições excedido (rate limit).");
-    }
-    throw err;
-  }
+/** 
+ * Executa uma Promise com timeout.
+ */
+async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  let timer: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`API Timeout após ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
 }
 
 /** 
- * Tenta chamar a IA configurada. Se falhar, tenta a outra (fallback). 
+ * Chama a IA disponível (OpenAI > Anthropic) e devolve o texto.
  */
-async function callAI(system: string, user: string): Promise<string> {
-  // Ordem de preferência: Anthropic -> OpenAI
-  if (isAnthropicConfigured) {
-    try {
-      return await callClaude(system, user);
-    } catch (err: any) {
-      console.warn("[callAI] Anthropic falhou, tentando OpenAI...", err.message);
-      if (isOpenAIConfigured) {
-        return await callOpenAI(system, user);
+async function callAI(system: string, user: string, retries = 1): Promise<string> {
+  const TIMEOUT_MS = 15000;
+
+  try {
+    // 1. Tenta OpenAI primeiro, se configurado
+    if (isOpenAIConfigured) {
+      try {
+        const resp = await withTimeout(
+          getOpenAI().chat.completions.create({
+            model: aiModel,
+            messages: [
+              { role: "system", content: system },
+              { role: "user", content: user },
+            ],
+            temperature: 0.7,
+            max_tokens: 1024,
+            response_format: { type: "json_object" }
+          }),
+          TIMEOUT_MS
+        );
+        return resp.choices[0].message.content || "";
+      } catch (err) {
+        console.warn("[callAI] OpenAI falhou. Tentando fallback para Anthropic se possível...", err);
+        if (!isAnthropicConfigured) throw err;
       }
-      throw err;
     }
-  }
 
-  if (isOpenAIConfigured) {
-    return await callOpenAI(system, user);
-  }
+    // 2. Tenta Anthropic (como primário ou fallback)
+    if (isAnthropicConfigured) {
+      // Ajusta o modelo caso o atual seja exclusivo da OpenAI
+      const fallbackModel = aiModel.startsWith("gpt") ? "claude-haiku-4-5" : aiModel;
+      
+      const resp = await withTimeout(
+        getAnthropic().messages.create({
+          model: fallbackModel,
+          max_tokens: 1024,
+          temperature: 0.7,
+          system: [
+            { type: "text", text: system, cache_control: { type: "ephemeral" } },
+          ],
+          messages: [{ role: "user", content: user }],
+        }),
+        TIMEOUT_MS
+      );
+      
+      return resp.content
+        .map((b) => (b.type === "text" ? b.text : ""))
+        .join("")
+        .trim();
+    }
 
-  throw new Error("Nenhum provedor de IA configurado.");
+    throw new Error("Nenhuma IA configurada (OpenAI ou Anthropic).");
+  } catch (err) {
+    if (retries > 0) {
+      console.warn(`[callAI] Tentando novamente... (Restam ${retries} tentativas)`);
+      return callAI(system, user, retries - 1);
+    }
+    throw err;
+  }
 }
 
 function parseJson<T>(text: string): T | null {
-  if (!text) return null;
-  
-  // Limpa possíveis wrappers de markdown
-  let clean = text.trim();
-  if (clean.startsWith("```")) {
-    clean = clean.replace(/^```(json)?\n?/, "").replace(/\n?```$/, "");
-  }
-
-  const match = clean.match(/\{[\s\S]*\}/);
+  // Tenta extrair qualquer coisa que se pareça com um bloco JSON.
+  // Resolve marcações Markdown indesejadas que LLMs frequentemente enviam.
+  const match = text.match(/\{[\s\S]*\}/);
   if (!match) return null;
   
+  let jsonString = match[0];
   try {
-    return JSON.parse(match[0]) as T;
-  } catch (err) {
-    console.error("[parseJson] erro ao parsear JSON:", err);
-    return null;
+    return JSON.parse(jsonString) as T;
+  } catch (e) {
+    console.warn("[parseJson] Falha no parse primário. Tentando limpar o JSON...", e);
+    // Tenta limpar quebras de linha que possam quebrar o parse
+    try {
+      jsonString = jsonString.replace(/\n/g, " ");
+      return JSON.parse(jsonString) as T;
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -166,7 +147,7 @@ export type GerarResultado = {
 export async function gerarRespostas(
   input: GerarInput
 ): Promise<GerarResultado> {
-  if (!isAnthropicConfigured && !isOpenAIConfigured) {
+  if (!isOpenAIConfigured && !isAnthropicConfigured) {
     return { respostas: mockGerador(input), mock: true };
   }
 
@@ -234,7 +215,7 @@ export type RefineResultado = { texto: string; mock: boolean; aviso?: string };
 export async function refinarResposta(
   input: RefineInput
 ): Promise<RefineResultado> {
-  if (!isAnthropicConfigured && !isOpenAIConfigured) {
+  if (!isOpenAIConfigured && !isAnthropicConfigured) {
     return { texto: mockRefine(input), mock: true };
   }
   try {
@@ -266,7 +247,7 @@ export type FollowUpResultado = {
 export async function gerarFollowUp(
   input: FollowUpInput
 ): Promise<FollowUpResultado> {
-  if (!isAnthropicConfigured && !isOpenAIConfigured) {
+  if (!isOpenAIConfigured && !isAnthropicConfigured) {
     return { mensagens: mockFollowup(input), mock: true };
   }
 
