@@ -8,8 +8,17 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") || "/dashboard";
 
   if (code && isSupabaseConfigured) {
-    const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    try {
+      const supabase = await createClient();
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (error) {
+        console.error("Erro no callback do Auth:", error.message);
+        return NextResponse.redirect(`${origin}/login?erro=${encodeURIComponent("Erro ao verificar o login. Tente novamente.")}`);
+      }
+    } catch (err) {
+      console.error("Exceção inesperada no callback do Auth:", err);
+      return NextResponse.redirect(`${origin}/login?erro=${encodeURIComponent("Ocorreu um erro inesperado. Tente novamente.")}`);
+    }
   }
 
   return NextResponse.redirect(`${origin}${next}`);
