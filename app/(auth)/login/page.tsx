@@ -4,12 +4,21 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
-import { isSupabaseConfigured, siteUrl } from "@/lib/config";
-import { createClient } from "@/lib/supabase/client";
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
+import { isFirebaseConfigured } from "@/lib/config";
+import { getFirebaseAuth } from "@/lib/firebase/client";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+function setAuthCookie() {
+  document.cookie = "firebase_auth=1; path=/; SameSite=Lax; max-age=604800";
+}
 
 function LoginInner() {
   const router = useRouter();
@@ -26,41 +35,38 @@ function LoginInner() {
     setErro("");
     setLoading(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password: senha,
-      });
-      if (error) {
-        setErro("E-mail ou senha inválidos.");
-        return;
-      }
+      await signInWithEmailAndPassword(getFirebaseAuth(), email, senha);
+      setAuthCookie();
       router.push(next);
       router.refresh();
+    } catch {
+      setErro("E-mail ou senha inválidos.");
     } finally {
       setLoading(false);
     }
   }
 
   async function google() {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent(next)}`,
-      },
-    });
+    setErro("");
+    try {
+      await signInWithPopup(getFirebaseAuth(), new GoogleAuthProvider());
+      setAuthCookie();
+      router.push(next);
+      router.refresh();
+    } catch {
+      setErro("Falha no login com Google.");
+    }
   }
 
-  if (!isSupabaseConfigured) {
+  if (!isFirebaseConfigured) {
     return (
       <Card className="w-full max-w-md">
         <CardBody className="space-y-4 text-center">
           <h1 className="font-serif text-2xl font-semibold text-ink">
-            Bem-vinda 💕
+            Bem-vinda
           </h1>
           <p className="text-sm text-muted">
-            O login fica disponível quando você configurar o Supabase. Por
+            O login fica disponível quando você configurar o Firebase. Por
             enquanto, explore o sistema completo no modo demonstração.
           </p>
           <Button

@@ -7,10 +7,10 @@ import {
   MessageSquareText,
   ShieldCheck,
 } from "lucide-react";
-import { isSupabaseConfigured } from "@/lib/config";
+import { isFirebaseConfigured } from "@/lib/config";
 import { Logo } from "@/components/logo";
 
-const comecarHref = isSupabaseConfigured ? "/signup" : "/dashboard";
+const comecarHref = isFirebaseConfigured ? "/signup" : "/dashboard";
 
 const dores = [
   "respostas para clientes que perguntam preço",

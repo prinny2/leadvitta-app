@@ -9,19 +9,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { ResponseCard } from "@/components/response-card";
+import { AvisoIA } from "@/components/aviso-ia";
+import { LoadingRespostas } from "@/components/loading-respostas";
+import { EmptyState } from "@/components/empty-state";
 import { followups } from "@/data/followups";
 import { procedimentos } from "@/data/procedimentos";
 import { tons } from "@/data/tons";
 import { followupContextoOptions } from "@/data/opcoes";
-import { getClinica, addHistorico } from "@/lib/store";
-import type { Clinica } from "@/lib/types";
+import { addHistorico } from "@/lib/store";
+import { useClinica } from "@/lib/hooks/use-clinica";
 
 const fupOptions = followups.map((f) => ({ value: f.id, label: f.label }));
 const procOptions = procedimentos.map((p) => ({ value: p.id, label: p.label }));
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
 
 export default function FollowUpPage() {
-  const [clinica, setClinica] = useState<Clinica | null>(null);
+  const { clinica } = useClinica();
   const [gatilho, setGatilho] = useState("sumiu_1d");
   const [contexto, setContexto] = useState("ela disse que ia pensar");
   const [procedimento, setProcedimento] = useState("");
@@ -35,11 +38,8 @@ export default function FollowUpPage() {
   const [mensagens, setMensagens] = useState<string[] | null>(null);
 
   useEffect(() => {
-    getClinica().then((c) => {
-      setClinica(c);
-      if (c.tom_padrao) setTom(c.tom_padrao);
-    });
-  }, []);
+    if (clinica?.tom_padrao) setTom(clinica.tom_padrao);
+  }, [clinica]);
 
   async function gerar() {
     setLoading(true);
@@ -161,21 +161,9 @@ export default function FollowUpPage() {
         </Card>
 
         <div className="space-y-4">
-          {aviso && (
-            <div className="flex items-start gap-2 rounded-xl border border-lavender-200 bg-lavender-50 px-3.5 py-2.5 text-xs text-lavender-700">
-              <Info size={15} className="mt-0.5 shrink-0" />
-              <span>{aviso}</span>
-            </div>
-          )}
+          <AvisoIA aviso={aviso} />
 
-          {loading && (
-            <Card>
-              <CardBody className="flex flex-col items-center gap-3 py-14 text-muted">
-                <Loader2 size={28} className="animate-spin text-brand-400" />
-                <p className="text-sm">Preparando mensagens de reativação...</p>
-              </CardBody>
-            </Card>
-          )}
+          {loading && <LoadingRespostas mensagem="Preparando mensagens de reativação..." />}
 
           {!loading &&
             mensagens &&
@@ -190,15 +178,15 @@ export default function FollowUpPage() {
             ))}
 
           {!loading && !mensagens && (
-            <Card>
-              <CardBody className="flex flex-col items-center gap-3 py-14 text-center text-muted">
-                <Clock size={28} className="text-brand-300" />
-                <p className="max-w-xs text-sm">
+            <EmptyState
+              icon={Clock}
+              mensagem={
+                <>
                   Escolha o tempo e o contexto e gere 3 mensagens prontas para
                   reativar a conversa.
-                </p>
-              </CardBody>
-            </Card>
+                </>
+              }
+            />
           )}
         </div>
       </div>
