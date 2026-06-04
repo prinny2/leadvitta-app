@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import Analytics from "@/components/Analytics";
 
 export const metadata: Metadata = {
   title: "LeadVitta — Responda melhor. Agende mais.",
@@ -28,6 +29,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-nude-50 font-sans text-ink antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   );

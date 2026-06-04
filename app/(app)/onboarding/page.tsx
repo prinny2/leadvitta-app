@@ -13,6 +13,7 @@ import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { getClinica, saveClinica } from "@/lib/store";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/components/Analytics";
 
 const TOTAL = 5;
 
@@ -60,6 +61,12 @@ export default function OnboardingPage() {
     setSalvando(true);
     try {
       await saveClinica({ ...c, onboarded });
+      // Evento de Lead p/ Meta Pixel + GA4 (dormente até os IDs serem configurados)
+      trackEvent("sign_up", {
+        method: "Onboarding Wizard",
+        city: c.cidade || undefined,
+        procedures_count: c.procedimentos?.length ?? 0,
+      });
       router.push("/gerador");
       router.refresh();
     } finally {
