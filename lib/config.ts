@@ -13,8 +13,11 @@ export const isSupabaseConfigured =
 /** True quando há chave da Anthropic (apenas no servidor). */
 export const isAnthropicConfigured = !!process.env.ANTHROPIC_API_KEY;
 
+/** True quando há chave da OpenAI (apenas no servidor). */
+export const isOpenAIConfigured = !!process.env.OPENAI_API_KEY;
+
 /** Modelo padrão da IA. */
-export const aiModel = process.env.AI_MODEL || "claude-haiku-4-5";
+export const aiModel = process.env.AI_MODEL || (isOpenAIConfigured ? "gpt-4o-mini" : "claude-haiku-4-5");
 
 /** URL pública do site (redirecionamento de OAuth). */
 export const siteUrl =
