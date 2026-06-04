@@ -1,6 +1,7 @@
 // Opções de configuração e de formulário (DNA da Clínica, objetivos, etc.).
+import type { ComoChamar } from "@/lib/types";
 
-export const comoChamarOptions = [
+export const comoChamarOptions: { value: ComoChamar; label: string }[] = [
   { value: "linda", label: "Linda" },
   { value: "amor", label: "Amor" },
   { value: "nome", label: "Pelo nome" },
