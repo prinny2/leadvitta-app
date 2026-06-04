@@ -37,6 +37,8 @@ steps:
       - --region=${_REGION}
       - --platform=managed
       - --allow-unauthenticated
+      - --port=8080            # casa com EXPOSE 8080 do Dockerfile
+      - --concurrency=80       # default explícito p/ deploys estáveis
 
 images:
   - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
