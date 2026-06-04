@@ -16,6 +16,8 @@ tsconfig.tsbuildinfo
 # Artefatos de outras ferramentas de IA / clones aninhados (não são código do app)
 /conductor/
 /prinny2/
+/.codex/
 /status.md
 /relatorio_atividades.txt
 /LeadVitta_Dossie_Completo.pdf
+.claude/scheduled_tasks.lock
