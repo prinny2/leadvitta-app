@@ -1,0 +1,45 @@
+# Deploy do LeadVitta no Cloud Run.
+# Uso: gcloud builds submit --config cloudbuild.yaml
+# Ajuste as substitutions para o seu projeto (confirme = onde o Núcleo já roda).
+# Segredos (ANTHROPIC_API_KEY etc.) NÃO ficam aqui — configure no serviço Cloud Run:
+#   gcloud run services update $_SERVICE --region $_REGION \
+#     --set-env-vars NEXT_PUBLIC_SITE_URL=https://SEU-SERVICO.run.app \
+#     --set-secrets ANTHROPIC_API_KEY=anthropic-api-key:latest
+
+substitutions:
+  _REGION: southamerica-east1
+  _SERVICE: leadvitta
+  _REPO: leadvitta
+
+steps:
+  # 1) Build da imagem (usa o Dockerfile existente)
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+      - .
+
+  # 2) Push para o Artifact Registry
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+
+  # 3) Deploy no Cloud Run
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:502.0.0  # pinado p/ build reproduzível
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+      - --region=${_REGION}
+      - --platform=managed
+      - --allow-unauthenticated
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+
+options:
+  logging: CLOUD_LOGGING_ONLY
