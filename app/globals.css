@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+}
+
+/* Gradiente suave de fundo (creme) */
+.bg-soft {
+  background: linear-gradient(180deg, #fbf9f3 0%, #f5f0e4 100%);
+}
+
+/* Hero claro com brilhos verde + dourado */
+.bg-hero {
+  background:
+    radial-gradient(1200px 500px at 12% -10%, rgba(14, 58, 48, 0.10), transparent 60%),
+    radial-gradient(1000px 520px at 100% 0%, rgba(189, 146, 57, 0.14), transparent 55%),
+    #fbf9f3;
+}
+
+/* Banda escura da marca (verde-escuro + brilho dourado) */
+.bg-brand-dark {
+  background:
+    radial-gradient(800px 420px at 82% 0%, rgba(205, 163, 71, 0.14), transparent 60%),
+    #0e3a30;
+}
+
+/* Scrollbar discreta dourada */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cda347 transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #cda347;
+  border-radius: 9999px;
+}
