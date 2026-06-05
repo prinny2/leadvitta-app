@@ -58,6 +58,7 @@ STRIPE_WEBHOOK_SECRET=
 STRIPE_CHECKOUT_MODE=payment
 STRIPE_PRICE_ID_START=
 STRIPE_PRICE_ID_PRO=
+STRIPE_PRICE_ID_PREMIUM=
 ```
 
 O checkout é iniciado em `POST /api/stripe/checkout`. O webhook público fica em:
