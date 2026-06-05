@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,9 +21,26 @@ export async function GET(req: Request) {
 
 // POST = mensagens recebidas. A Meta envia os eventos (mensagens das clientes) aqui.
 export async function POST(req: Request) {
+  const raw = await req.text();
+
+  // Valida a assinatura do Meta (X-Hub-Signature-256) quando WHATSAPP_APP_SECRET existe.
+  const appSecret = process.env.WHATSAPP_APP_SECRET;
+  if (appSecret) {
+    const sig = req.headers.get("x-hub-signature-256") || "";
+    const expected =
+      "sha256=" + crypto.createHmac("sha256", appSecret).update(raw).digest("hex");
+    const valid =
+      sig.length === expected.length &&
+      crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
+    if (!valid) {
+      console.warn("[whatsapp] assinatura inválida no webhook");
+      return new NextResponse("invalid signature", { status: 403 });
+    }
+  }
+
   let body: any;
   try {
-    body = await req.json();
+    body = JSON.parse(raw);
   } catch {
     return NextResponse.json({ ok: true });
   }

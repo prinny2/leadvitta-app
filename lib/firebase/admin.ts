@@ -15,12 +15,20 @@ function parseServiceAccount(): ServiceAccount | null {
   const rawBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_JSON_BASE64;
 
   if (rawJson || rawBase64) {
-    const raw = rawJson ?? Buffer.from(rawBase64 ?? "", "base64").toString("utf8");
-    const parsed = JSON.parse(raw) as ServiceAccount & { private_key?: string };
-    return {
-      ...parsed,
-      privateKey: parsed.privateKey ?? parsed.private_key,
-    };
+    try {
+      const raw = rawJson ?? Buffer.from(rawBase64 ?? "", "base64").toString("utf8");
+      const parsed = JSON.parse(raw) as ServiceAccount & { private_key?: string };
+      return {
+        ...parsed,
+        privateKey: parsed.privateKey ?? parsed.private_key,
+      };
+    } catch (e) {
+      console.error(
+        "[firebase/admin] FIREBASE_SERVICE_ACCOUNT_JSON inválido:",
+        e instanceof Error ? e.message : e
+      );
+      return null;
+    }
   }
 
   const projectId =

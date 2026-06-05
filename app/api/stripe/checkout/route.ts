@@ -5,7 +5,7 @@ import {
   getStripeCheckoutMode,
   parseBillingPlan,
 } from "@/lib/billing";
-import { siteUrl } from "@/lib/config";
+import { isStripeConfigured, siteUrl } from "@/lib/config";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { getStripe } from "@/lib/stripe/server";
 import { sendZapierEvent } from "@/lib/zapier";
@@ -43,6 +43,13 @@ export async function POST(request: Request) {
   if (!planConfig.priceId) {
     return NextResponse.json(
       { error: `STRIPE_PRICE_ID_${plan.toUpperCase()} não configurado.` },
+      { status: 503 }
+    );
+  }
+
+  if (!isStripeConfigured) {
+    return NextResponse.json(
+      { error: "Stripe não está configurado neste ambiente." },
       { status: 503 }
     );
   }
