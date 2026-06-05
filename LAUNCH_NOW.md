@@ -47,7 +47,7 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 
-# Firebase Admin (webhook precisa para atualizar Firestore)
+# Firebase Admin (o webhook é necessário para atualizar o Firestore)
 # Use FIREBASE_SERVICE_ACCOUNT_JSON para JSON inline (uma linha)
 # Use FIREBASE_SERVICE_ACCOUNT_JSON_BASE64 se o host não aceita multiline (ex: Vercel)
 FIREBASE_SERVICE_ACCOUNT_JSON=   # ou FIREBASE_SERVICE_ACCOUNT_JSON_BASE64
