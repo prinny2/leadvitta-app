@@ -16,7 +16,7 @@ export default {
           200: "#ebe3cf",
           300: "#ddd1b4",
         },
-        // Verde-escuro — cor primária da marca LeadVitta (token "brand")
+        // Verde-escuro — cor primária da marca LeadBellus (token "brand")
         brand: {
           50: "#f0f6f4",
           100: "#dcebe6",

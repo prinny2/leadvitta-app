@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Analytics from "@/components/Analytics";
 
 export const metadata: Metadata = {
-  title: "LeadVitta — Responda melhor. Agende mais.",
+  title: "LeadBellus — Responda melhor. Agende mais.",
   description:
     "Inteligência de conversão para clínicas de estética: gere respostas estratégicas para o WhatsApp, quebre objeções e transforme dúvidas em agendamentos.",
 };
