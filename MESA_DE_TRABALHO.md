@@ -107,8 +107,8 @@ Micro-SaaS para **clínicas de estética**. Gera respostas de WhatsApp em 3 vari
 
 ## 8. Pendências / Decisões em aberto
 
-- **Preço inconsistente:** landing `R$197/R$299`, oferta `R$397/mês`, rodapé `"a partir de R$49"`. → **Alinhar um número** (o Eduardo precisa disso pro anúncio).
-- **Nome:** `package.json` ainda é `respondeestetica-ia` (era RespondeEstética → virou LeadVitta).
+- **Preço inconsistente:** landing `R$197/R$297`, billing tem `R$397/mês` (premium), rodapé menciona `"a partir de R$49"` (futuro). → **Alinhar um número** (o Eduardo precisa disso pro anúncio).
+- ~~**Nome:** `package.json` ainda é `respondeestetica-ia` (era RespondeEstética → virou LeadVitta).~~ ✅ **Corrigido** - agora é `leadvitta-app`
 - **LeadVitta vs Núcleo:** fundir ou separar? (decisão estratégica)
 - **`NEXT_PUBLIC_SITE_URL`** precisa apontar pra **URL real do Cloud Run** (OAuth/redirects).
 - **Segredos no Cloud Run:** configurar uma vez via `gcloud run services update <SERVICE> --set-env-vars ...` (ou `--set-secrets` com Secret Manager). **Nunca** no `cloudbuild.yaml`.
