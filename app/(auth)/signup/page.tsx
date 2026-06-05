@@ -16,6 +16,19 @@ function setAuthCookie() {
   document.cookie = "firebase_auth=1; path=/; SameSite=Lax; max-age=604800";
 }
 
+async function notifyZapierSignup(idToken: string) {
+  await fetch("/api/zapier/lead", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ event: "signup.created" }),
+  }).catch(() => {
+    // Zapier é automação auxiliar; cadastro não deve falhar por isso.
+  });
+}
+
 export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -28,8 +41,13 @@ export default function SignupPage() {
     setErro("");
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(getFirebaseAuth(), email, senha);
+      const credential = await createUserWithEmailAndPassword(
+        getFirebaseAuth(),
+        email,
+        senha
+      );
       setAuthCookie();
+      notifyZapierSignup(await credential.user.getIdToken());
       router.push("/configuracoes");
       router.refresh();
     } catch (err: unknown) {

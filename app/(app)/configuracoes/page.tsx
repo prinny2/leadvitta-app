@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Check, Save, KeyRound, Wand2 } from "lucide-react";
+import { Loader2, Check, Save, KeyRound, Wand2, CreditCard } from "lucide-react";
 import { Card, CardBody, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { CheckoutButton } from "@/components/checkout-button";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
 
@@ -252,6 +253,48 @@ export default function ConfiguracoesPage() {
           </CardBody>
         </Card>
       </form>
+
+      <Card>
+        <CardBody className="space-y-4">
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard size={18} className="text-brand-500" /> Plano e pagamento
+          </CardTitle>
+          <p className="text-sm text-muted">
+            Stripe fica responsável pelo checkout seguro. O status do pagamento
+            volta pelo webhook e pode atualizar o Firebase quando o Admin SDK
+            estiver configurado na Vercel.
+          </p>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-brand-100 bg-nude-50 p-4">
+              <p className="text-sm font-medium text-muted">Plano Start</p>
+              <p className="font-serif text-3xl font-semibold text-ink">R$197</p>
+              <p className="mt-1 text-xs text-muted">
+                Para validar e começar com os geradores principais.
+              </p>
+              <CheckoutButton plan="start" variant="outline" className="mt-4 w-full">
+                Ir para checkout Start
+              </CheckoutButton>
+            </div>
+
+            <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
+              <p className="text-sm font-medium text-muted">Plano Pro</p>
+              <p className="font-serif text-3xl font-semibold text-ink">R$297</p>
+              <p className="mt-1 text-xs text-muted">
+                Produto completo com biblioteca, histórico e scripts.
+              </p>
+              <CheckoutButton plan="pro" className="mt-4 w-full">
+                Ir para checkout Pro
+              </CheckoutButton>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted">
+            Configure `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` e os Price IDs
+            na Vercel antes de vender em produção.
+          </p>
+        </CardBody>
+      </Card>
 
       {isFirebaseConfigured && (
         <Card>
