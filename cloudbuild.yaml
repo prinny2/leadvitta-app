@@ -1,4 +1,4 @@
-# Deploy do LeadVitta no Cloud Run.
+# Deploy do LeadBellus no Cloud Run.
 # Uso: gcloud builds submit --config cloudbuild.yaml
 # Ajuste as substitutions para o seu projeto (confirme = onde o Núcleo já roda).
 # Segredos (ANTHROPIC_API_KEY etc.) NÃO ficam aqui — configure no serviço Cloud Run:

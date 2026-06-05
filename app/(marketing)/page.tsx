@@ -165,7 +165,7 @@ export default function LandingPage() {
               Responda com segurança, acolhimento e estratégia
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-muted">
-              O LeadVitta te entrega, em segundos, a resposta certa para cada
+              O LeadBellus te entrega, em segundos, a resposta certa para cada
               situação:
             </p>
           </div>
@@ -197,12 +197,12 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="mt-8 grid gap-5 md:grid-cols-2">
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
           {/* Start */}
           <div className="rounded-3xl border border-brand-100 bg-white p-7">
             <p className="text-sm font-medium text-muted">Plano Start</p>
             <p className="mt-1 font-serif text-4xl font-semibold text-ink">
-              R$197
+              R$197<span className="text-lg font-normal text-muted">/mês</span>
             </p>
             <p className="mt-1 text-sm text-muted">Para validar e começar.</p>
             <ul className="mt-5 space-y-2 text-sm text-ink">
@@ -233,7 +233,7 @@ export default function LandingPage() {
             </span>
             <p className="text-sm font-medium text-muted">Plano Pro</p>
             <p className="mt-1 font-serif text-4xl font-semibold text-ink">
-              R$297
+              R$297<span className="text-lg font-normal text-muted">/mês</span>
             </p>
             <p className="mt-1 text-sm text-muted">O produto completo.</p>
             <ul className="mt-5 space-y-2 text-sm text-ink">
@@ -258,11 +258,35 @@ export default function LandingPage() {
               Quero o Pro <ArrowRight size={16} />
             </Link>
           </div>
+
+          {/* Premium */}
+          <div className="rounded-3xl border border-lavender-200 bg-gradient-to-br from-white to-lavender-50 p-7">
+            <p className="text-sm font-medium text-muted">Plano Premium</p>
+            <p className="mt-1 font-serif text-4xl font-semibold text-ink">
+              R$397<span className="text-lg font-normal text-muted">/mês</span>
+            </p>
+            <p className="mt-1 text-sm text-muted">Máximo desempenho e inteligência.</p>
+            <ul className="mt-5 space-y-2 text-sm text-ink">
+              {[
+                "Tudo do Pro",
+                "NLP avançado e score de intenção",
+                "Prioridade em novas funcionalidades",
+                "Suporte prioritário",
+                "Relatórios de conversão",
+              ].map((f) => (
+                <li key={f} className="flex items-center gap-2">
+                  <Check size={16} className="text-brand-500" /> {f}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href={comecarHref}
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-lavender-300 px-4 py-2.5 text-sm font-medium text-lavender-700 hover:bg-lavender-50"
+            >
+              Quero o Premium <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
-        <p className="mt-5 text-center text-xs text-muted">
-          Em breve: plano mensal a partir de R$49/mês com acesso contínuo e novas
-          respostas.
-        </p>
       </section>
 
       {/* Compliance / confiança */}
@@ -297,7 +321,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t border-brand-100 py-8 text-center text-xs text-muted">
-        LeadVitta · Inteligência de conversão para clínicas de estética —
+        LeadBellus · Inteligência de conversão para clínicas de estética —
         responda melhor e agende mais pelo WhatsApp.
       </footer>
     </div>
