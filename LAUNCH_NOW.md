@@ -47,7 +47,9 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 
-# Firebase Admin (webhook precisa)
+# Firebase Admin (webhook precisa para atualizar Firestore)
+# Use FIREBASE_SERVICE_ACCOUNT_JSON para JSON inline (uma linha)
+# Use FIREBASE_SERVICE_ACCOUNT_JSON_BASE64 se o host não aceita multiline (ex: Vercel)
 FIREBASE_SERVICE_ACCOUNT_JSON=   # ou FIREBASE_SERVICE_ACCOUNT_JSON_BASE64
 
 # Stripe
@@ -79,8 +81,11 @@ AI_MODEL=gpt-4o-mini
 
 ## 6. Pós-validação
 
-- [ ] Mudar de `sk_test` para `sk_live` quando pronto
+- [ ] Confirmar que **todos os testes acima passaram com chaves `sk_test`**
+- [ ] ⚠️ **Só mude para `sk_live` quando todos os cenários de teste estiverem OK** — chaves live cobram dinheiro real
+- [ ] Atualizar `STRIPE_SECRET_KEY` para `sk_live_...`
 - [ ] Atualizar webhook secret para o de produção
+- [ ] Fazer **Redeploy** na Vercel
 - [ ] Testar com clínica piloto real
 - [ ] WhatsApp manual (copiar/colar) já funciona — integração completa pode ficar para depois
 
