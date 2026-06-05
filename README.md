@@ -4,7 +4,7 @@ Micro-SaaS para clínicas e profissionais de estética responderem melhor no
 WhatsApp: gera respostas estratégicas, quebra objeções, faz follow-up e conduz a
 cliente até o agendamento com guardrails de compliance.
 
-Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase + OpenAI/Anthropic + Stripe + Zapier + Vercel**.
+Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase + OpenAI/Anthropic + Stripe + Zapier + Cloud Run**.
 
 ## Rodar local
 
@@ -89,15 +89,17 @@ ZAPIER_SHARED_SECRET=
 O app envia eventos de signup, checkout iniciado e checkout concluído. O segredo
 opcional vai dentro do payload para filtros/validações no Zap.
 
-## Deploy na Vercel
+## Deploy no Google Cloud Run
 
-1. Importe o repositório na Vercel.
-2. Configure todas as env vars em **Project Settings -> Environment Variables**.
-3. Defina `NEXT_PUBLIC_SITE_URL=https://SEU-DOMINIO`.
-4. Rode um redeploy depois de mudar qualquer `NEXT_PUBLIC_*`, porque essas vars
-   entram no build.
-5. Cadastre o webhook do Stripe apontando para `/api/stripe/webhook`.
-6. No Firebase Auth, adicione o domínio Vercel/domínio próprio aos domínios autorizados.
+1. Configure o projeto no Google Cloud Platform.
+2. Use o `cloudbuild.yaml` para fazer deploy via `gcloud builds submit --config cloudbuild.yaml`.
+3. Configure as variáveis de ambiente via `gcloud run services update` ou Secret Manager.
+4. Defina `NEXT_PUBLIC_SITE_URL` para a URL do Cloud Run.
+5. Redeploymente depois de mudar qualquer `NEXT_PUBLIC_*`, porque essas vars entram no build.
+6. Cadastre o webhook do Stripe apontando para `/api/stripe/webhook`.
+7. No Firebase Auth, adicione o domínio do Cloud Run aos domínios autorizados.
+
+Consulte `DEPLOY_STRIPE_VERCEL.md` para mais detalhes sobre integração do Stripe.
 
 ## Rotas principais
 
