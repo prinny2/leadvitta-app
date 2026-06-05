@@ -14,7 +14,7 @@ Micro-SaaS para **clínicas de estética**. Gera respostas de WhatsApp em 3 vari
 ## 2. Status — o que tem ✅ e o que falta ❌
 
 **✅ Pronto e funcionando:**
-- Landing page · Auth (Supabase email/senha + Google + **modo demo** sem login)
+- Landing page · Auth (Firebase email/senha + Google + **modo demo** sem login)
 - Onboarding (wizard 5 passos = DNA da clínica)
 - **Gerador IA** (3 variantes, refino, cache de prompt, denylist de compliance)
 - Objeções · Follow-up · Scripts · Histórico/favoritos · Configurações
@@ -38,15 +38,15 @@ Micro-SaaS para **clínicas de estética**. Gera respostas de WhatsApp em 3 vari
 |---|---|---|
 | **App** | Next.js 15 (App Router) + React 19 + TypeScript + TailwindCSS | — |
 | **IA** | Anthropic Claude | env `AI_MODEL` (default `claude-haiku-4-5`; subir p/ `claude-sonnet-4-6` em qualidade) |
-| **Dados/Auth** | Supabase (Postgres + RLS + Auth email/Google) | tabelas: `clinicas`, `historico_respostas` |
+| **Dados/Auth** | Firebase (Firestore + Auth email/Google) | coleções: `clinicas`, `historico_respostas` |
 | **Deploy** | Docker (`node:20-slim`, standalone) → Google Cloud Run | porta 8080, `node server.js` |
 | **Repo** | `prinny2/leadvitta-app` · branch `main` | pasta local: `Saas estética` (Desktop) |
 | **Notebook** | `notebook_nlp_leadvitta.ipynb` (Colab) | intent + sentimento PT-BR |
 
-**Contas/serviços necessários:** Google Cloud (Cloud Run) · Supabase · Anthropic · Meta Business/Ads _(Eduardo)_ · Google Analytics _(Eduardo)_ · Stripe _(futuro)_.
+**Contas/serviços necessários:** Google Cloud (Cloud Run) · Firebase · Anthropic · Meta Business/Ads _(Eduardo)_ · Google Analytics _(Eduardo)_ · Stripe _(futuro)_.
 
 **Variáveis de ambiente:**
-- Hoje: `ANTHROPIC_API_KEY` · `AI_MODEL` · `NEXT_PUBLIC_SUPABASE_URL` · `NEXT_PUBLIC_SUPABASE_ANON_KEY` · `NEXT_PUBLIC_SITE_URL`
+- Hoje: `ANTHROPIC_API_KEY` · `AI_MODEL` · `NEXT_PUBLIC_FIREBASE_*` (API_KEY, AUTH_DOMAIN, PROJECT_ID, etc.) · `FIREBASE_SERVICE_ACCOUNT_JSON` · `NEXT_PUBLIC_SITE_URL`
 - Futuras: `NEXT_PUBLIC_META_PIXEL_ID` · `NEXT_PUBLIC_GA4_ID` · `META_CAPI_ACCESS_TOKEN` · `STRIPE_*`
 
 > 🔐 **Credenciais SEMPRE em `C:\Users\vpaes\Credenciais\` — NUNCA no repo/chat/cloud.** Chave exposta = revogar.
@@ -59,7 +59,7 @@ Micro-SaaS para **clínicas de estética**. Gera respostas de WhatsApp em 3 vari
 |---|---|---|
 | **LOCAL** (sua máquina) | **Desenvolver e testar** | `npm run dev` → `localhost:3000`. Mexe em código, prompts, libs de conteúdo (`data/`), UI. Usa `.env.local`. Modo demo funciona sem chaves (dados ficam no navegador). |
 | **CLOUD RUN** | **Produção** (usuários reais) | Container porta 8080. É pra **onde o Eduardo manda o tráfego dos anúncios** → o **pixel precisa estar LIVE aqui**. Segredos via Cloud Run (não no `.env`). |
-| **SUPABASE** | Banco + Auth | Roda na **nuvem do Supabase, NÃO no Cloud Run**. Local e Cloud Run falam com o **mesmo projeto** (separar dev/prod depois, se precisar). |
+| **FIREBASE** | Banco + Auth | Roda na **nuvem do Firebase, NÃO no Cloud Run**. Local e Cloud Run falam com o **mesmo projeto** (separar dev/prod depois, se precisar). |
 | **ANTHROPIC** | API de IA | Externa; chamada feita pelo **servidor** (local ou Cloud Run), **nunca pelo browser**. |
 
 > ⚠️ **Núcleo (FastAPI)** é um **serviço separado** no Cloud Run (`nucleo-…run.app`). **Decisão em aberto:** LeadVitta fica separado / funde / vira a cara do Núcleo. **Recomendação:** manter separado agora, integrar via WhatsApp/link depois — não duplicar à toa.
@@ -69,7 +69,7 @@ Micro-SaaS para **clínicas de estética**. Gera respostas de WhatsApp em 3 vari
 ## 5. Divisão de trabalho
 
 **Vinícius — dev + produto:**
-- Código · IA/prompts · Supabase · deploy Cloud Run
+- Código · IA/prompts · Firebase · deploy Cloud Run
 - Implementar os **eventos de tracking** que o Eduardo pedir
 - Billing/Stripe · WhatsApp · roadmap de produto
 
