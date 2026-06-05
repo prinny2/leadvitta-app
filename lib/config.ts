@@ -26,3 +26,11 @@ export const aiModel = process.env.AI_MODEL || (isOpenAIConfigured ? "gpt-4o-min
 /** URL pública do site. */
 export const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+/** True quando há Stripe configurado no servidor. */
+export const isStripeConfigured =
+  !!process.env.STRIPE_SECRET_KEY &&
+  (!!process.env.STRIPE_PRICE_ID_START || !!process.env.STRIPE_PRICE_ID_PRO);
+
+/** True quando há webhook do Zapier configurado no servidor. */
+export const isZapierConfigured = !!process.env.ZAPIER_WEBHOOK_URL;
