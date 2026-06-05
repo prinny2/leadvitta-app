@@ -71,7 +71,7 @@ Copiar o segredo do endpoint e configurar no Cloud Run como `STRIPE_WEBHOOK_SECR
 3. Ir para configurações/assinatura.
 4. Clicar em um plano.
 5. Confirmar que abre o Checkout da Stripe.
-6. Concluir uma compra controlada ou usar ambiente test.
+6. Concluir uma compra controlada ou usar ambiente de teste.
 7. Confirmar retorno para `/configuracoes?checkout=sucesso&session_id=...`.
 8. Verificar na Stripe se o webhook retornou `200`.
 9. Verificar no Firebase/Firestore se o billing da clínica foi atualizado.
