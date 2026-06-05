@@ -60,9 +60,15 @@ export default {
           from: { opacity: "0", transform: "translateY(6px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-12px)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.35s ease-out both",
+        float: "float 7s ease-in-out infinite",
+        "float-delayed": "float 7s ease-in-out infinite 0.6s",
       },
     },
   },
