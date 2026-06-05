@@ -74,7 +74,7 @@ AI_MODEL=gpt-4o-mini
 - [ ] Fazer login (signup + email/senha)
 - [ ] Ir para `/configuracoes` → clicar em um plano
 - [ ] Confirmar que abre o Checkout da Stripe
-- [ ] Concluir compra (usar modo test ou compra controlada)
+- [ ] Concluir compra (usar modo teste ou compra controlada)
 - [ ] Confirmar retorno para `/configuracoes?checkout=sucesso&session_id=...`
 - [ ] Verificar na Stripe se o webhook retornou `200`
 - [ ] Verificar no Firestore se `clinicas/{uid}.billing` foi atualizado
