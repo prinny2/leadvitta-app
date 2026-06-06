@@ -345,7 +345,7 @@ export default function GeradorPage() {
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <p className="text-[10px] uppercase text-muted font-medium">Intenção</p>
-                    <p className="text-sm font-semibold text-ink capitalize">{nlp.intent?.replace("_", " ")}</p>
+                    <p className="text-sm font-semibold text-ink capitalize">{nlp.intent?.replace(/_/g, " ")}</p>
                   </div>
                   <div>
                     <p className="text-[10px] uppercase text-muted font-medium">Sentimento</p>

@@ -19,12 +19,10 @@ import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CheckoutButton } from "@/components/checkout-button";
 import { trackEvent } from "@/components/Analytics";
-import { useSearchParams } from "next/navigation";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
 
 export default function ConfiguracoesPage() {
-  const searchParams = useSearchParams();
   const [c, setC] = useState<Clinica>(clinicaVazia);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -41,11 +39,11 @@ export default function ConfiguracoesPage() {
     });
 
     // Tracking de compra concluída (Stripe redirect)
-    if (searchParams.get("checkout") === "sucesso") {
-      const sessionId = searchParams.get("session_id");
-      trackEvent("purchase", { stripe_session_id: sessionId });
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "sucesso") {
+      trackEvent("purchase", { stripe_session_id: params.get("session_id") });
     }
-  }, [searchParams]);
+  }, []);
 
   function set<K extends keyof Clinica>(key: K, value: Clinica[K]) {
     setC((prev) => ({ ...prev, [key]: value }));

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   Check,
   X,
@@ -10,6 +11,8 @@ import {
 import { isFirebaseConfigured } from "@/lib/config";
 import { Logo } from "@/components/logo";
 import { PlanCTA } from "@/components/plan-cta";
+import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
+import { LoadingRespostas } from "@/components/loading-respostas";
 
 const comecarHref = isFirebaseConfigured ? "/signup" : "/dashboard";
 
@@ -26,7 +29,11 @@ export default function LandingPage() {
   return (
     <div className="bg-nude-50">
       {/* Top nav */}
-      <header className="bg-hero">
+      <header className="relative overflow-hidden bg-hero">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-12 top-10 h-48 w-48 rounded-full bg-lavender-200/30 blur-3xl animate-float" />
+          <div className="absolute -right-12 top-20 h-56 w-56 rounded-full bg-brand-200/25 blur-3xl animate-float-delayed" />
+        </div>
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
           <Logo href="/" textClass="text-lg text-ink" />
           <div className="flex items-center gap-2">
@@ -65,12 +72,52 @@ export default function LandingPage() {
             >
               Quero responder melhor no WhatsApp <ArrowRight size={18} />
             </Link>
+            <Link
+              href="#demo"
+              className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-white/70 px-6 py-3 text-base font-medium text-ink hover:bg-white"
+            >
+              Ver demo <ArrowRight size={18} />
+            </Link>
             <span className="text-sm text-muted">
               Sem cartão para testar · pronto em minutos
             </span>
           </div>
         </section>
       </header>
+
+      {/* Demo */}
+      <section id="demo" className="mx-auto max-w-6xl px-4 py-16">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="font-serif text-3xl font-semibold text-ink">
+            Veja funcionando em 30 segundos
+          </h2>
+          <p className="mt-3 text-muted">
+            Simule uma conversa de WhatsApp, teste o tom e personalize a clínica
+            — sem login.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            {[
+              { id: "preco", label: "Perguntou preço" },
+              { id: "achou_caro", label: "Achou caro" },
+              { id: "sumiu", label: "Sumiu" },
+              { id: "medo", label: "Medo do procedimento" },
+            ].map((d) => (
+              <Link
+                key={d.id}
+                href={`/?demo=${d.id}#demo`}
+                className="rounded-full border border-brand-200 bg-white px-3 py-1.5 text-xs font-semibold text-ink hover:bg-brand-50"
+              >
+                {d.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="mt-10">
+          <Suspense fallback={<LoadingRespostas mensagem="Carregando a demo…" />}>
+            <LandingWhatsAppDemo />
+          </Suspense>
+        </div>
+      </section>
 
       {/* Dor */}
       <section className="mx-auto max-w-4xl px-4 py-16 text-center">
@@ -156,7 +203,7 @@ export default function LandingPage() {
           <div className="rounded-3xl border border-brand-100 bg-white p-7">
             <p className="text-sm font-medium text-muted">Plano Start</p>
             <p className="mt-1 font-serif text-4xl font-semibold text-ink">
-              R$197<span className="text-sm text-muted">/mês</span>
+              R$197<span className="text-lg font-normal text-muted">/mês</span>
             </p>
             <p className="mt-1 text-sm text-muted">Para validar e começar.</p>
             <ul className="mt-5 space-y-2 text-sm text-ink">
@@ -184,7 +231,7 @@ export default function LandingPage() {
           <div className="rounded-3xl border border-brand-100 bg-white p-7 shadow-sm">
             <p className="text-sm font-medium text-muted">Plano Pro</p>
             <p className="mt-1 font-serif text-4xl font-semibold text-ink">
-              R$297<span className="text-sm text-muted">/mês</span>
+              R$297<span className="text-lg font-normal text-muted">/mês</span>
             </p>
             <p className="mt-1 text-sm text-muted">Inteligência avançada.</p>
             <ul className="mt-5 space-y-2 text-sm text-ink">
@@ -215,7 +262,7 @@ export default function LandingPage() {
             </span>
             <p className="text-sm font-medium text-muted">Plano Premium</p>
             <p className="mt-1 font-serif text-4xl font-semibold text-ink">
-              R$397<span className="text-sm text-muted">/mês</span>
+              R$397<span className="text-lg font-normal text-muted">/mês</span>
             </p>
             <p className="mt-1 text-sm text-muted">Inteligência completa.</p>
             <ul className="mt-5 space-y-2 text-sm text-ink">
@@ -239,6 +286,7 @@ export default function LandingPage() {
               Quero o Premium <ArrowRight size={16} />
             </PlanCTA>
           </div>
+
         </div>
         <p className="mt-5 text-center text-xs text-muted">
           Planos mensais com acesso contínuo a todas as atualizações e novas respostas.

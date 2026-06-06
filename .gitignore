@@ -20,7 +20,7 @@ tsconfig.tsbuildinfo
 /status.md
 /relatorio_atividades.txt
 /LeadBellus_Dossie_Completo.pdf
-.claude/
+.claude/scheduled_tasks.lock
 /.codesight/
 /.snapshots/
 WhatsApp Image*

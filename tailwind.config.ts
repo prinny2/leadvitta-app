@@ -16,7 +16,7 @@ export default {
           200: "#DEE2E6",
           300: "#CED4DA",
         },
-        // Preto Dramático — cor primária da marca (token "brand")
+        // Preto Dramático — cor primária da marca LeadBellus (token "brand")
         brand: {
           50: "#E9ECEF",
           100: "#DEE2E6",
@@ -28,6 +28,7 @@ export default {
           700: "#121417",
           800: "#0A0B0D",
           900: "#000000",
+          dark: "#0A0B0D", // alias para fundo escuro (bg-brand-dark)
         },
         // Cinza Médio — cor de acento/contorno (token "lavender")
         lavender: {
@@ -60,9 +61,15 @@ export default {
           from: { opacity: "0", transform: "translateY(6px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-12px)" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.35s ease-out both",
+        float: "float 7s ease-in-out infinite",
+        "float-delayed": "float 7s ease-in-out infinite 0.6s",
       },
     },
   },
