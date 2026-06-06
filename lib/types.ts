@@ -46,6 +46,9 @@ export type HistoricoItem = {
   respostas: string[];
   created_at: string;
   favorito?: boolean;
+  intent?: string;
+  sentiment?: string;
+  score?: number;
 };
 
 export type GerarInput = {

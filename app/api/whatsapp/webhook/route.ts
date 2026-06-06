@@ -27,14 +27,25 @@ export async function POST(req: Request) {
   const appSecret = process.env.WHATSAPP_APP_SECRET;
   if (appSecret) {
     const sig = req.headers.get("x-hub-signature-256") || "";
-    const expected =
-      "sha256=" + crypto.createHmac("sha256", appSecret).update(raw).digest("hex");
-    const valid =
-      sig.length === expected.length &&
-      crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
-    if (!valid) {
-      console.warn("[whatsapp] assinatura inválida no webhook");
-      return new NextResponse("invalid signature", { status: 403 });
+    if (!sig) {
+      console.warn("[whatsapp] assinatura ausente no webhook");
+      return new NextResponse("signature missing", { status: 401 });
+    }
+
+    const hmac = crypto.createHmac("sha256", appSecret);
+    const digest = "sha256=" + hmac.update(raw).digest("hex");
+    
+    // timingSafeEqual requer buffers de mesmo tamanho.
+    try {
+      const sigBuffer = Buffer.from(sig);
+      const digestBuffer = Buffer.from(digest);
+      if (sigBuffer.length !== digestBuffer.length || !crypto.timingSafeEqual(sigBuffer, digestBuffer)) {
+        console.warn("[whatsapp] assinatura inválida no webhook");
+        return new NextResponse("invalid signature", { status: 401 });
+      }
+    } catch (e) {
+      console.error("[whatsapp] erro ao validar assinatura:", e);
+      return new NextResponse("signature validation error", { status: 500 });
     }
   }
 

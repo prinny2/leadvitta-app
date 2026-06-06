@@ -73,6 +73,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
 async function handleSubscriptionEvent(subscription: Stripe.Subscription) {
   const firebaseUid = subscription.metadata?.firebase_uid || undefined;
+  console.log(`[stripe.webhook] subscription ${subscription.id} status: ${subscription.status} for user: ${firebaseUid}`);
+
+  const currentPeriodEnd = subscription.items.data[0]?.current_period_end 
+    || (subscription as any).current_period_end;
 
   await updateClinicBilling(firebaseUid, {
     plan: subscription.metadata?.plan,
@@ -82,10 +86,8 @@ async function handleSubscriptionEvent(subscription: Stripe.Subscription) {
         ? subscription.customer
         : subscription.customer.id,
     stripe_subscription_id: subscription.id,
-    current_period_end: subscription.items.data[0]?.current_period_end
-      ? new Date(
-          subscription.items.data[0].current_period_end * 1000
-        ).toISOString()
+    current_period_end: currentPeriodEnd
+      ? new Date(currentPeriodEnd * 1000).toISOString()
       : undefined,
   });
 

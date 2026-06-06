@@ -30,7 +30,9 @@ export const siteUrl =
 /** True quando há Stripe configurado no servidor. */
 export const isStripeConfigured =
   !!process.env.STRIPE_SECRET_KEY &&
-  (!!process.env.STRIPE_PRICE_ID_START || !!process.env.STRIPE_PRICE_ID_PRO);
+  (!!process.env.STRIPE_PRICE_ID_START ||
+    !!process.env.STRIPE_PRICE_ID_PRO ||
+    !!process.env.STRIPE_PRICE_ID_PREMIUM);
 
 /** True quando há webhook do Zapier configurado no servidor. */
 export const isZapierConfigured = !!process.env.ZAPIER_WEBHOOK_URL;

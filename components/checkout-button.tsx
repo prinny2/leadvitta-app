@@ -6,6 +6,7 @@ import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import type { BillingPlan } from "@/lib/billing";
 import { Button, type ButtonProps } from "@/components/ui/button";
+import { trackEvent } from "./Analytics";
 
 type CheckoutButtonProps = Omit<ButtonProps, "onClick"> & {
   plan: BillingPlan;
@@ -25,6 +26,7 @@ export function CheckoutButton({
     setErro("");
 
     try {
+      trackEvent("initiate_checkout", { plan });
       const user = isFirebaseConfigured ? getFirebaseAuth().currentUser : null;
       const firebaseIdToken = user ? await user.getIdToken() : undefined;
 

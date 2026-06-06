@@ -3,7 +3,7 @@ import { scripts } from "@/data/scripts";
 import { CopyButton } from "@/components/copy-button";
 import { PrintButton } from "@/components/print-button";
 
-export const metadata = { title: "Scripts de Atendimento — LeadVitta" };
+export const metadata = { title: "Scripts de Atendimento — LeadBellus" };
 
 export default function ScriptsPage() {
   return (

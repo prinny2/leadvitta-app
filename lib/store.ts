@@ -82,7 +82,7 @@ export async function listHistorico(): Promise<HistoricoItem[]> {
 }
 
 export async function addHistorico(
-  item: Pick<HistoricoItem, "tipo" | "contexto" | "respostas">
+  item: Pick<HistoricoItem, "tipo" | "contexto" | "respostas" | "intent" | "sentiment" | "score">
 ): Promise<void> {
   if (isFirebaseConfigured) {
     const user = getFirebaseAuth().currentUser;

@@ -9,39 +9,39 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Fundo creme / ivory (token "nude")
+        // Escala de cinzas suaves para fundo (token "nude")
         nude: {
-          50: "#fbf9f3",
-          100: "#f5f0e4",
-          200: "#ebe3cf",
-          300: "#ddd1b4",
+          50: "#F8F9FA",
+          100: "#E9ECEF",
+          200: "#DEE2E6",
+          300: "#CED4DA",
         },
-        // Verde-escuro — cor primária da marca LeadVitta (token "brand")
+        // Preto Dramático — cor primária da marca (token "brand")
         brand: {
-          50: "#f0f6f4",
-          100: "#dcebe6",
-          200: "#b6d2c9",
-          300: "#82b0a4",
-          400: "#4f8d7e",
-          500: "#2a6f5e",
-          600: "#1c5a4b",
-          700: "#14463a",
-          800: "#0e3a30",
-          900: "#0b2a23",
+          50: "#E9ECEF",
+          100: "#DEE2E6",
+          200: "#CED4DA",
+          300: "#ADB5BD",
+          400: "#6C757D",
+          500: "#212529", // Core Black
+          600: "#1A1D21",
+          700: "#121417",
+          800: "#0A0B0D",
+          900: "#000000",
         },
-        // Dourado — cor de acento (token "lavender")
+        // Cinza Médio — cor de acento/contorno (token "lavender")
         lavender: {
-          50: "#faf4e6",
-          100: "#f3e7c8",
-          200: "#e7cf94",
-          300: "#dab863",
-          400: "#cda347",
-          500: "#bd9239",
-          600: "#9c7730",
-          700: "#7c5e28",
+          50: "#F8F9FA",
+          100: "#E9ECEF",
+          200: "#CED4DA",
+          300: "#ADB5BD",
+          400: "#6C757D",
+          500: "#495057",
+          600: "#343A40",
+          700: "#212529",
         },
-        ink: "#133127",
-        muted: "#6f7d76",
+        ink: "#212529",
+        muted: "#6C757D",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
@@ -52,8 +52,8 @@ export default {
         "3xl": "1.5rem",
       },
       boxShadow: {
-        soft: "0 4px 24px -8px rgba(14, 58, 48, 0.22)",
-        card: "0 2px 16px -6px rgba(19, 49, 39, 0.10)",
+        soft: "0 4px 24px -8px rgba(0, 0, 0, 0.12)",
+        card: "0 2px 16px -6px rgba(0, 0, 0, 0.08)",
       },
       keyframes: {
         "fade-in": {

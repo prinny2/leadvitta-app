@@ -66,6 +66,7 @@ export default function GeradorPage() {
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState("");
   const [respostas, setRespostas] = useState<RespostaTripla | null>(null);
+  const [nlp, setNlp] = useState<{ intent?: string; sentiment?: string; score?: number } | null>(null);
   const [salvo, setSalvo] = useState(false);
 
   useEffect(() => {
@@ -120,6 +121,7 @@ export default function GeradorPage() {
     setErro("");
     setAviso("");
     setRespostas(null);
+    setNlp(null);
     setSalvo(false);
     try {
       const res = await fetch("/api/generate", {
@@ -144,6 +146,7 @@ export default function GeradorPage() {
         return;
       }
       setRespostas(data.respostas);
+      setNlp({ intent: data.intent, sentiment: data.sentiment, score: data.score });
       if (data.mock) {
         setAviso(
           data.aviso ||
@@ -198,6 +201,9 @@ export default function GeradorPage() {
       tipo: modo === "reescrever" ? "reescrever" : "gerador",
       contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
       respostas: [respostas.curta, respostas.consultiva, respostas.persuasiva],
+      intent: nlp?.intent,
+      sentiment: nlp?.sentiment,
+      score: nlp?.score,
     });
     setSalvo(true);
     setTimeout(() => setSalvo(false), 2500);
@@ -328,6 +334,39 @@ export default function GeradorPage() {
           <AvisoIA aviso={aviso} />
 
           {loading && <LoadingRespostas />}
+
+          {!loading && nlp && (
+            <Card className="border-brand-200 bg-brand-50/30">
+              <CardBody className="py-4">
+                <div className="flex items-center gap-2 mb-2 text-brand-700">
+                  <Sparkles size={16} />
+                  <span className="text-xs font-bold uppercase tracking-wider">Lead Intelligence</span>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-[10px] uppercase text-muted font-medium">Intenção</p>
+                    <p className="text-sm font-semibold text-ink capitalize">{nlp.intent?.replace("_", " ")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase text-muted font-medium">Sentimento</p>
+                    <p className="text-sm font-semibold text-ink">{nlp.sentiment}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase text-muted font-medium">Prioridade</p>
+                    <div className="flex items-center gap-1.5">
+                       <div className="h-2 w-full bg-nude-200 rounded-full overflow-hidden max-w-[60px]">
+                          <div 
+                            className={cn("h-full transition-all", (nlp.score ?? 0) > 70 ? "bg-green-500" : (nlp.score ?? 0) > 40 ? "bg-amber-500" : "bg-brand-400")} 
+                            style={{ width: `${nlp.score}%` }} 
+                          />
+                       </div>
+                       <span className="text-sm font-bold text-ink">{nlp.score}%</span>
+                    </div>
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          )}
 
           {!loading && respostas && (
             <>

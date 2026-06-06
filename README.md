@@ -1,4 +1,4 @@
-# LeadVitta
+# LeadBellus
 
 Micro-SaaS para clínicas e profissionais de estética responderem melhor no
 WhatsApp: gera respostas estratégicas, quebra objeções, faz follow-up e conduz a
@@ -76,6 +76,29 @@ Eventos tratados:
 Quando houver Firebase Admin, o webhook grava eventos em `stripe_events` e atualiza
 `clinicas/{uid}.billing`. Também envia eventos ao Zapier quando configurado.
 
+### WhatsApp
+
+Para envio de mensagens e recebimento de webhooks da WhatsApp Cloud API, configure:
+
+```env
+WHATSAPP_TOKEN=
+WHATSAPP_PHONE_NUMBER_ID=
+WHATSAPP_VERIFY_TOKEN=
+WHATSAPP_APP_SECRET=
+```
+
+O webhook público fica em:
+
+```text
+https://SEU-DOMINIO/api/whatsapp/webhook
+```
+
+Comportamento atual:
+
+- `GET /api/whatsapp/webhook` valida o `hub.challenge` usando `WHATSAPP_VERIFY_TOKEN`
+- `POST /api/whatsapp/webhook` valida `X-Hub-Signature-256` quando `WHATSAPP_APP_SECRET` existir
+- as mensagens recebidas já são parseadas e registradas, prontas para a próxima etapa de resposta automática
+
 ### Zapier
 
 No Zapier, crie um Zap com **Webhooks by Zapier -> Catch Hook** e configure:
@@ -106,4 +129,5 @@ opcional vai dentro do payload para filtros/validações no Zap.
 - `/api/generate` e `/api/follow-up` IA
 - `/api/stripe/checkout` e `/api/stripe/webhook`
 - `/api/zapier/lead`
+- `/api/whatsapp/webhook`
 - `/api/health`

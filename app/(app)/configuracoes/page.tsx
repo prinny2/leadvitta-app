@@ -18,10 +18,13 @@ import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CheckoutButton } from "@/components/checkout-button";
+import { trackEvent } from "@/components/Analytics";
+import { useSearchParams } from "next/navigation";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
 
 export default function ConfiguracoesPage() {
+  const searchParams = useSearchParams();
   const [c, setC] = useState<Clinica>(clinicaVazia);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -36,7 +39,13 @@ export default function ConfiguracoesPage() {
       setC(v);
       setCarregando(false);
     });
-  }, []);
+
+    // Tracking de compra concluída (Stripe redirect)
+    if (searchParams.get("checkout") === "sucesso") {
+      const sessionId = searchParams.get("session_id");
+      trackEvent("purchase", { stripe_session_id: sessionId });
+    }
+  }, [searchParams]);
 
   function set<K extends keyof Clinica>(key: K, value: Clinica[K]) {
     setC((prev) => ({ ...prev, [key]: value }));
@@ -265,26 +274,37 @@ export default function ConfiguracoesPage() {
             estiver configurado na Vercel.
           </p>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-brand-100 bg-nude-50 p-4">
               <p className="text-sm font-medium text-muted">Plano Start</p>
-              <p className="font-serif text-3xl font-semibold text-ink">R$197</p>
+              <p className="font-serif text-3xl font-semibold text-ink">R$197<span className="text-sm text-muted">/mês</span></p>
               <p className="mt-1 text-xs text-muted">
-                Para validar e começar com os geradores principais.
+                Validar e começar.
               </p>
               <CheckoutButton plan="start" variant="outline" className="mt-4 w-full">
-                Ir para checkout Start
+                Checkout Start
               </CheckoutButton>
             </div>
 
             <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
               <p className="text-sm font-medium text-muted">Plano Pro</p>
-              <p className="font-serif text-3xl font-semibold text-ink">R$297</p>
+              <p className="font-serif text-3xl font-semibold text-ink">R$297<span className="text-sm text-muted">/mês</span></p>
               <p className="mt-1 text-xs text-muted">
-                Produto completo com biblioteca, histórico e scripts.
+                Inteligência avançada.
               </p>
               <CheckoutButton plan="pro" className="mt-4 w-full">
-                Ir para checkout Pro
+                Checkout Pro
+              </CheckoutButton>
+            </div>
+
+            <div className="rounded-2xl border border-brand-300 bg-gradient-to-br from-white to-brand-50 p-4">
+              <p className="text-sm font-medium text-muted">Plano Premium</p>
+              <p className="font-serif text-3xl font-semibold text-ink">R$397<span className="text-sm text-muted">/mês</span></p>
+              <p className="mt-1 text-xs text-muted">
+                Inteligência completa.
+              </p>
+              <CheckoutButton plan="premium" variant="outline" className="mt-4 w-full">
+                Checkout Premium
               </CheckoutButton>
             </div>
           </div>

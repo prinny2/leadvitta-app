@@ -1,4 +1,4 @@
--- Migration: score híbrido (inteligência de NLP do "leadvitta-brain")
+-- Migration: score híbrido (inteligência de NLP do "leadbellus-brain")
 -- Rodar no Supabase SQL Editor. Persiste intenção, sentimento e score combinado
 -- em historico_respostas para o dashboard exibir leads prioritários.
 

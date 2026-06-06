@@ -18,7 +18,7 @@ export async function sendZapierEvent(
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         event,
-        app: "leadvitta",
+        app: "leadbellus",
         sent_at: new Date().toISOString(),
         zapier_shared_secret: process.env.ZAPIER_SHARED_SECRET || undefined,
         ...payload,

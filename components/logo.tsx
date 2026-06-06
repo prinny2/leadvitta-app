@@ -3,7 +3,7 @@ import { Flower2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Marca LeadVitta — flor dourada sobre verde-escuro.
+ * Marca LeadBellus — flor dourada sobre verde-escuro.
  * Placeholder fiel à identidade; troque por um <svg> com o logo oficial quando tiver.
  */
 export function LogoMark({
@@ -28,7 +28,7 @@ export function LogoMark({
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("font-serif font-semibold tracking-tight", className)}>
-      Lead<span className="text-lavender-600">Vitta</span>
+      Lead<span className="text-lavender-600">Bellus</span>
     </span>
   );
 }
