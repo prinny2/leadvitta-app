@@ -136,7 +136,7 @@ export default function HistoricoPage() {
                   </span>
                   {item.intent && (
                     <span className="rounded-full bg-lavender-100 px-2.5 py-0.5 text-xs font-bold text-lavender-700 capitalize">
-                      {item.intent.replace("_", " ")}
+                      {item.intent.replace(/_/g, " ")}
                     </span>
                   )}
                   {item.score !== undefined && (
