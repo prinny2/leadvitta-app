@@ -1,0 +1,14 @@
+{
+  "indexes": [
+    {
+      "_comment": "Necessário para listHistorico() em lib/store.ts: where(user_id ==) + orderBy(created_at desc). Sem este índice a página de Histórico quebra em produção.",
+      "collectionGroup": "historico",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "user_id", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

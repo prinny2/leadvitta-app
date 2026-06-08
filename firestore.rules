@@ -1,0 +1,60 @@
+rules_version = '2';
+
+// Regras de segurança do Firestore — LeadBellus.
+// Princípio: cada clínica só enxerga os próprios dados; o campo de cobrança
+// (billing) só é gravável pelo servidor (Admin SDK ignora estas regras).
+// Deploy: firebase deploy --only firestore:rules
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Clínica (DNA / configurações) — o ID do doc é o uid do dono ----
+    match /clinicas/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      // O cliente pode criar/editar o próprio doc, MAS nunca o campo `billing`
+      // (status de assinatura). Isso impede o usuário de se auto-conceder plano.
+      // Só o webhook do Stripe (Admin SDK, que ignora regras) grava `billing`.
+      allow create: if request.auth != null
+                    && request.auth.uid == uid
+                    && !("billing" in request.resource.data);
+
+      allow update: if request.auth != null
+                    && request.auth.uid == uid
+                    && (
+                      !("billing" in request.resource.data)
+                      || request.resource.data.billing == resource.data.billing
+                    );
+
+      allow delete: if false;
+    }
+
+    // ---- Histórico de respostas — cada doc carrega user_id ----
+    match /historico/{docId} {
+      allow read: if request.auth != null
+                  && resource.data.user_id == request.auth.uid;
+
+      allow create: if request.auth != null
+                    && request.resource.data.user_id == request.auth.uid;
+
+      // Atualização (ex.: favoritar) e exclusão só pelo dono, sem trocar o user_id.
+      allow update: if request.auth != null
+                    && resource.data.user_id == request.auth.uid
+                    && request.resource.data.user_id == resource.data.user_id;
+
+      allow delete: if request.auth != null
+                    && resource.data.user_id == request.auth.uid;
+    }
+
+    // ---- Eventos do Stripe — gravados só pelo servidor (Admin SDK) ----
+    // O Admin SDK ignora as regras; o cliente nunca acessa.
+    match /stripe_events/{eventId} {
+      allow read, write: if false;
+    }
+
+    // ---- Negar tudo o mais por padrão ----
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
