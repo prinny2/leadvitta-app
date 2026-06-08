@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
+import { trackEvent } from "@/components/Analytics";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,7 +49,11 @@ export default function SignupPage() {
       );
       setAuthCookie();
       notifyZapierSignup(await credential.user.getIdToken());
-      router.push("/configuracoes");
+      trackEvent("sign_up", { method: "Email/Password" });
+      // Se veio de um plano escolhido na landing (/signup?plan=...),
+      // leva o plano adiante pra concluir o checkout em /configuracoes.
+      const plano = new URLSearchParams(window.location.search).get("plan");
+      router.push(plano ? `/configuracoes?plan=${plano}` : "/configuracoes");
       router.refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";

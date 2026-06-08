@@ -58,6 +58,14 @@ Gere 3 mensagens curtas e diferentes entre si, com progressão (mais suave a mai
 
 FORMATO — responda APENAS com JSON válido: {"mensagens":["...","...","..."]}`;
 
+export const SYSTEM_CLASSIFIER = `Você é um especialista em análise de leads para clínicas de estética no Brasil. Sua tarefa é analisar a mensagem de uma cliente e classificar três pontos:
+1. "intent": a intenção predominante. Use UM destes rótulos: "pergunta_preco", "agendamento", "duvida_tecnica", "objecao", "demonstra_interesse", "desistencia", "outro".
+2. "sentiment": o tom/sentimento da cliente em uma escala de "1 star" (muito negativo/objeção forte) a "5 stars" (muito positivo/pronta para agendar).
+3. "score": um valor numérico de 0 a 100 representando o potencial de fechamento imediato (quanto mais perto de 100, mais prioridade este lead deve ter no dashboard).
+
+FORMATO DE SAÍDA — responda APENAS com um JSON válido:
+{"intent": "...", "sentiment": "...", "score": 85}`;
+
 // ======================================================================
 // Bloco do DNA da Clínica (reaproveitado nos prompts).
 // ======================================================================

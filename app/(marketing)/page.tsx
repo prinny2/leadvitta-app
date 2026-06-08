@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/config";
 import { Logo } from "@/components/logo";
+import { PlanCTA } from "@/components/plan-cta";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 
@@ -218,75 +219,78 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
-            <Link
-              href={comecarHref}
-              className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 hover:bg-brand-50"
+            <PlanCTA
+              plan="start"
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 hover:bg-brand-50 disabled:opacity-60"
             >
               Começar com o Start
-            </Link>
+            </PlanCTA>
           </div>
 
           {/* Pro */}
-          <div className="relative rounded-3xl border-2 border-brand-300 bg-gradient-to-br from-white to-brand-50 p-7 shadow-soft">
-            <span className="absolute -top-3 right-6 rounded-full bg-brand-500 px-3 py-1 text-xs font-semibold text-white">
-              Mais escolhido
-            </span>
+          <div className="rounded-3xl border border-brand-100 bg-white p-7 shadow-sm">
             <p className="text-sm font-medium text-muted">Plano Pro</p>
             <p className="mt-1 font-serif text-4xl font-semibold text-ink">
               R$297<span className="text-lg font-normal text-muted">/mês</span>
             </p>
-            <p className="mt-1 text-sm text-muted">O produto completo.</p>
+            <p className="mt-1 text-sm text-muted">Inteligência avançada.</p>
             <ul className="mt-5 space-y-2 text-sm text-ink">
               {[
                 "Tudo do Start",
                 "Biblioteca completa de objeções",
                 "Scripts de atendimento",
                 "Histórico de respostas",
-                "Tons de voz + respostas por procedimento",
-                "Reativação e pós-atendimento",
-                "Atualizações por 12 meses",
+                "Tons de voz personalizados",
               ].map((f) => (
                 <li key={f} className="flex items-center gap-2">
                   <Check size={16} className="text-brand-500" /> {f}
                 </li>
               ))}
             </ul>
-            <Link
-              href={comecarHref}
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-soft hover:bg-brand-600"
+            <PlanCTA
+              plan="pro"
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 hover:bg-brand-50 disabled:opacity-60"
             >
-              Quero o Pro <ArrowRight size={16} />
-            </Link>
+              Quero o Pro
+            </PlanCTA>
           </div>
 
           {/* Premium */}
-          <div className="rounded-3xl border border-lavender-200 bg-gradient-to-br from-white to-lavender-50 p-7">
+          <div className="relative rounded-3xl border-2 border-brand-300 bg-gradient-to-br from-white to-brand-50 p-7 shadow-soft">
+            <span className="absolute -top-3 right-6 rounded-full bg-brand-500 px-3 py-1 text-xs font-semibold text-white">
+              Mais Inteligente
+            </span>
             <p className="text-sm font-medium text-muted">Plano Premium</p>
             <p className="mt-1 font-serif text-4xl font-semibold text-ink">
               R$397<span className="text-lg font-normal text-muted">/mês</span>
             </p>
-            <p className="mt-1 text-sm text-muted">Máximo desempenho e inteligência.</p>
+            <p className="mt-1 text-sm text-muted">Inteligência completa.</p>
             <ul className="mt-5 space-y-2 text-sm text-ink">
               {[
                 "Tudo do Pro",
-                "NLP avançado e score de intenção",
-                "Prioridade em novas funcionalidades",
+                "Inteligência de Leads (NLP)",
+                "Score de Prioridade automático",
+                "Classificação de Sentimento",
+                "Análise de Intenção",
                 "Suporte prioritário",
-                "Relatórios de conversão",
               ].map((f) => (
                 <li key={f} className="flex items-center gap-2">
                   <Check size={16} className="text-brand-500" /> {f}
                 </li>
               ))}
             </ul>
-            <Link
-              href={comecarHref}
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-lavender-300 px-4 py-2.5 text-sm font-medium text-lavender-700 hover:bg-lavender-50"
+            <PlanCTA
+              plan="premium"
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-soft hover:bg-brand-600 disabled:opacity-60"
             >
               Quero o Premium <ArrowRight size={16} />
-            </Link>
+            </PlanCTA>
           </div>
+
         </div>
+        <p className="mt-5 text-center text-xs text-muted">
+          Planos mensais com acesso contínuo a todas as atualizações e novas respostas.
+        </p>
       </section>
 
       {/* Compliance / confiança */}

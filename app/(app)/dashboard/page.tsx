@@ -71,6 +71,28 @@ export default function DashboardPage() {
         </h1>
       </header>
 
+      {/* Hero Intelligence */}
+      <div className="mb-8 rounded-3xl bg-brand-dark p-8 text-white shadow-soft overflow-hidden relative group">
+        <div className="absolute top-0 right-0 p-10 opacity-10 group-hover:scale-110 transition-transform">
+           <Sparkles size={120} />
+        </div>
+        <div className="relative z-10 max-w-lg">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-lavender-400/20 px-3 py-1 text-xs font-bold text-lavender-300 mb-4 border border-lavender-400/30">
+            <Sparkles size={14} /> NOVIDADE: LEAD BELLUS BRAIN
+          </span>
+          <h2 className="text-2xl font-serif font-semibold mb-3">Sua clínica agora tem Inteligência de Leads</h2>
+          <p className="text-nude-200 text-sm leading-relaxed mb-6">
+            O novo algoritmo de NLP classifica automaticamente a intenção, o sentimento e o score de prioridade de cada cliente. Responda primeiro a quem tem mais chance de fechar.
+          </p>
+          <Link 
+            href="/gerador" 
+            className="inline-flex items-center gap-2 bg-lavender-400 px-5 py-2.5 rounded-xl text-brand-900 font-bold text-sm hover:bg-lavender-300 transition-colors"
+          >
+            Testar Nova IA <ArrowRight size={16} />
+          </Link>
+        </div>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((c) => {
           const Icon = c.icon;

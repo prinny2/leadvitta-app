@@ -4,7 +4,7 @@ Micro-SaaS para clínicas e profissionais de estética responderem melhor no
 WhatsApp: gera respostas estratégicas, quebra objeções, faz follow-up e conduz a
 cliente até o agendamento com guardrails de compliance.
 
-Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase + OpenAI/Anthropic + Stripe + Zapier + Cloud Run**.
+Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase + OpenAI/Anthropic + Stripe + Zapier + Vercel**.
 
 ## Rodar local
 
@@ -58,7 +58,6 @@ STRIPE_WEBHOOK_SECRET=
 STRIPE_CHECKOUT_MODE=payment
 STRIPE_PRICE_ID_START=
 STRIPE_PRICE_ID_PRO=
-STRIPE_PRICE_ID_PREMIUM=
 ```
 
 O checkout é iniciado em `POST /api/stripe/checkout`. O webhook público fica em:
@@ -77,6 +76,29 @@ Eventos tratados:
 Quando houver Firebase Admin, o webhook grava eventos em `stripe_events` e atualiza
 `clinicas/{uid}.billing`. Também envia eventos ao Zapier quando configurado.
 
+### WhatsApp
+
+Para envio de mensagens e recebimento de webhooks da WhatsApp Cloud API, configure:
+
+```env
+WHATSAPP_TOKEN=
+WHATSAPP_PHONE_NUMBER_ID=
+WHATSAPP_VERIFY_TOKEN=
+WHATSAPP_APP_SECRET=
+```
+
+O webhook público fica em:
+
+```text
+https://SEU-DOMINIO/api/whatsapp/webhook
+```
+
+Comportamento atual:
+
+- `GET /api/whatsapp/webhook` valida o `hub.challenge` usando `WHATSAPP_VERIFY_TOKEN`
+- `POST /api/whatsapp/webhook` valida `X-Hub-Signature-256` quando `WHATSAPP_APP_SECRET` existir
+- as mensagens recebidas já são parseadas e registradas, prontas para a próxima etapa de resposta automática
+
 ### Zapier
 
 No Zapier, crie um Zap com **Webhooks by Zapier -> Catch Hook** e configure:
@@ -89,17 +111,15 @@ ZAPIER_SHARED_SECRET=
 O app envia eventos de signup, checkout iniciado e checkout concluído. O segredo
 opcional vai dentro do payload para filtros/validações no Zap.
 
-## Deploy no Google Cloud Run
+## Deploy na Vercel
 
-1. Configure o projeto no Google Cloud Platform.
-2. Use o `cloudbuild.yaml` para fazer deploy via `gcloud builds submit --config cloudbuild.yaml`.
-3. Configure as variáveis de ambiente via `gcloud run services update` ou Secret Manager.
-4. Defina `NEXT_PUBLIC_SITE_URL` para a URL do Cloud Run.
-5. Redeploymente depois de mudar qualquer `NEXT_PUBLIC_*`, porque essas vars entram no build.
-6. Cadastre o webhook do Stripe apontando para `/api/stripe/webhook`.
-7. No Firebase Auth, adicione o domínio do Cloud Run aos domínios autorizados.
-
-Consulte `DEPLOY_STRIPE_VERCEL.md` para mais detalhes sobre integração do Stripe.
+1. Importe o repositório na Vercel.
+2. Configure todas as env vars em **Project Settings -> Environment Variables**.
+3. Defina `NEXT_PUBLIC_SITE_URL=https://SEU-DOMINIO`.
+4. Rode um redeploy depois de mudar qualquer `NEXT_PUBLIC_*`, porque essas vars
+   entram no build.
+5. Cadastre o webhook do Stripe apontando para `/api/stripe/webhook`.
+6. No Firebase Auth, adicione o domínio Vercel/domínio próprio aos domínios autorizados.
 
 ## Rotas principais
 
@@ -109,4 +129,5 @@ Consulte `DEPLOY_STRIPE_VERCEL.md` para mais detalhes sobre integração do Stri
 - `/api/generate` e `/api/follow-up` IA
 - `/api/stripe/checkout` e `/api/stripe/webhook`
 - `/api/zapier/lead`
+- `/api/whatsapp/webhook`
 - `/api/health`

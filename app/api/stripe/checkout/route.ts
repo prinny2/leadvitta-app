@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     (typeof body.customerEmail === "string" ? body.customerEmail : undefined);
   const firebaseUid = decodedToken?.uid;
   const metadata = {
-    app: "leadvitta",
+    app: "leadbellus",
     plan,
     firebase_uid: firebaseUid ?? "",
     firebase_email: customerEmail ?? "",

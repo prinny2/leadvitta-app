@@ -20,5 +20,14 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "prinny2"]
+  "exclude": [
+    "node_modules",
+    "prinny2",
+    "**/* - Copia/**",
+    ".codex/**",
+    ".codesight/**",
+    ".qodo/**",
+    ".snapshots/**",
+    "conductor/**"
+  ]
 }
