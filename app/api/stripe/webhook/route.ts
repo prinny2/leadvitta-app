@@ -119,7 +119,7 @@ async function handleStripeEvent(event: Stripe.Event) {
 }
 
 export async function POST(request: Request) {
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
   if (!webhookSecret) {
     return NextResponse.json(
       { error: "STRIPE_WEBHOOK_SECRET não configurado." },
