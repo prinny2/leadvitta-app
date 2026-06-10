@@ -269,7 +269,7 @@ export default function ConfiguracoesPage() {
           <p className="text-sm text-muted">
             Stripe fica responsável pelo checkout seguro. O status do pagamento
             volta pelo webhook e pode atualizar o Firebase quando o Admin SDK
-            estiver configurado na Vercel.
+            estiver configurado no Cloud Run.
           </p>
 
           <div className="grid gap-3 sm:grid-cols-3">
@@ -309,7 +309,7 @@ export default function ConfiguracoesPage() {
 
           <p className="text-xs text-muted">
             Configure `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` e os Price IDs
-            na Vercel antes de vender em produção.
+            no Cloud Run antes de vender em produção.
           </p>
         </CardBody>
       </Card>
