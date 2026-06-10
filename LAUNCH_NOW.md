@@ -1,3 +1,5 @@
+> ⚠️ DESATUALIZADO — fonte da verdade: **ESTADO.md**
+
 # LeadBellus — Checklist de Lançamento MVP
 
 > Reescrito em **2026-06-09** com base em verificação ao vivo (ver `ESTADO.md`, fonte da verdade).
