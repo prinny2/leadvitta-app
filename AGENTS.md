@@ -85,3 +85,65 @@ docker run --rm -p 8080:8080 leadbellus
 ## TODO
 
 - Ainda não existe script de `lint` ou `test` no `package.json`; não documentar comandos de validação além de `npm run build` e do health check até isso existir.
+
+## Cursor Cloud specific instructions
+
+### Serviço local
+
+Monólito Next.js — **um único processo** cobre UI e APIs. Não há Postgres/Redis/Firebase emulador no repo.
+
+| Comando | Porta | Uso |
+|---|---|---|
+| `npm run dev` | 3000 | Desenvolvimento (HMR) |
+| `npm run start` | 3000 | Servir build de produção |
+| `docker run -p 8080:8080 leadbellus` | 8080 | Paridade com Cloud Run |
+
+### Node.js
+
+A VM pode vir com Node 22; o `Dockerfile` usa **Node 20**. Antes de `dev`/`build`, use:
+
+```bash
+export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 20
+```
+
+(`nvm install 20` na primeira sessão, se necessário.)
+
+### Modo demonstração (padrão na Cloud VM)
+
+Sem segredos o app funciona: login dispensado, dados em `localStorage`, IA mockada.
+
+```bash
+cp .env.local.example .env.local   # se ainda não existir
+```
+
+### Validar mudanças
+
+Não há `lint` nem `test`. Use:
+
+```bash
+npm run build
+curl http://localhost:3000/api/health
+```
+
+Para o fluxo central (gerador de respostas) em demo:
+
+```bash
+curl -sS -X POST http://localhost:3000/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"mensagemCliente":"Olá, quanto custa o botox?"}' | jq .mock
+# esperado: true (sem chaves de IA)
+```
+
+### Dev server em background
+
+Use tmux (não `block_until_ms: 0` solto):
+
+```bash
+tmux -f /exec-daemon/tmux.portal.conf new-session -d -s nextjs-dev-server -c /workspace
+tmux -f /exec-daemon/tmux.portal.conf send-keys -t nextjs-dev-server:0.0 \
+  'export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 20 && npm run dev' C-m
+```
+
+### Integrações externas (fora do escopo local mínimo)
+
+Firebase, Stripe, WhatsApp e Zapier são serviços cloud — não sobem localmente. Para E2E completo de billing/auth, o agente precisa de segredos do usuário; para features de UI/IA em demo, **só o Next.js basta**.
