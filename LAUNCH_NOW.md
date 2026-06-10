@@ -1,106 +1,49 @@
-> ⚠️ DESATUALIZADO — fonte da verdade: **ESTADO.md**
-
 # LeadBellus — Checklist de Lançamento MVP
 
-Status: **pronto para configuração de produção**.
+> Reescrito em **2026-06-09** com base em verificação ao vivo (ver `ESTADO.md`, fonte da verdade).
+> Deploy é **Cloud Run** (projeto `leadvitta-app`, serviço `leadbellus`, região `southamerica-east1`). Vercel é leftover — não usar.
 
----
+## ✅ Feito e VERIFICADO (não refazer)
 
-## 1. Stripe — Criar planos
+- [x] App **LIVE e cobrando**: https://leadbellus-87102725202.southamerica-east1.run.app (`/api/health` ok)
+- [x] IA gerando de verdade (OpenAI `gpt-4o-mini` primária + Anthropic fallback, ambas as chaves válidas)
+- [x] Stripe LIVE: 3 planos mensais (Start R$197 · Pro R$297 · Premium R$397), checkout abre sessão `cs_live_…`
+- [x] Webhook Stripe registrado + `whsec` real no serviço (4 eventos) — o buraco "paga e não entra" está fechado
+- [x] Firebase Admin no Cloud Run (grava `clinicas/{uid}.billing` via webhook)
+- [x] Hardening de API em produção (origin check, rate limit, limite de payload)
+- [x] Tracking no front: `sign_up`, `initiate_checkout`, `purchase`
+- [x] Landing v1.4 (visual premium) + funil: deslogado → `/signup?plan=X` → checkout
+- [x] Git alinhado com produção (PR #16 aberta e mergeável)
 
-- [ ] Criar produto **Start** no Stripe → R$197/mês (recorrente)
-- [ ] Criar produto **Pro** no Stripe → R$297/mês (recorrente)
-- [ ] Criar produto **Premium** no Stripe → R$397/mês (recorrente)
-- [ ] Anotar os `price_id` de cada plano
+## 🚀 Falta pro lançamento (nesta ordem)
 
-## 2. Stripe — Webhook
+1. [ ] **Pagamento teste ponta-a-ponta** (~30 min, dá pra fazer agora)
+   - Criar cupom 100% off no painel Stripe (`allow_promotion_codes` já está ligado)
+   - Signup real → escolher plano → concluir checkout com o cupom
+   - Conferir: webhook **Recent deliveries = 200** · Firestore `clinicas/{uid}.billing.status = active`
+2. [ ] **Merge da PR #16** (https://github.com/prinny2/leadvitta-app/pull/16)
+3. [ ] **Renomear conta Stripe** "LeadCare" → "LeadBellus" (Settings → Business → Public details) — é o nome que a clínica vê na fatura/extrato
+4. [ ] **Domínio `leadbellus.com.br`** — 4 registros DNS no Registro.br (Firebase Hosting → Cloud Run). *Opcional pro lançamento: o `.run.app` já vende.*
+5. [ ] **Falar com 1 clínica.** O único item que move MRR. Todo o resto desta página é suporte a este.
 
-- [ ] Criar endpoint em **Developers → Webhooks → Add endpoint**
-- [ ] URL: `https://SEU-DOMINIO/api/stripe/webhook`
-- [ ] Eventos mínimos:
-  - `checkout.session.completed`
-  - `customer.subscription.created`
-  - `customer.subscription.updated`
-  - `customer.subscription.deleted`
-  - `invoice.payment_succeeded`
-  - `invoice.payment_failed`
-- [ ] Copiar o `whsec_...` do endpoint
+## 🔜 Depois do lançamento (não bloqueia)
 
-## 3. Firebase
+- WhatsApp integrado (WIP do Codex — mover pra branch própria; decisão direta vs. Núcleo pendente)
+- Portal de assinatura Stripe (cancelar/trocar cartão) — backlog do Codex no `AGENTS.md`
+- Desconectar integração GitHub↔Vercel (ruído de deploy paralelo)
+- GA4 / Meta Pixel validados com o Eduardo quando houver tráfego
 
-- [ ] Criar projeto no Firebase Console (ou usar existente)
-- [ ] Ativar **Authentication** (Email/Senha + Google)
-- [ ] Ativar **Firestore Database**
-- [ ] Criar service account para Firebase Admin
-- [ ] Adicionar domínio Vercel aos domínios autorizados no Firebase Auth
-
-## 4. Vercel — Environment Variables
-
-Configurar em **Project → Settings → Environment Variables**:
-
-```env
-NEXT_PUBLIC_SITE_URL=https://seu-dominio.vercel.app
-
-# Firebase Client
-NEXT_PUBLIC_FIREBASE_API_KEY=
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
-NEXT_PUBLIC_FIREBASE_APP_ID=
-
-# Firebase Admin (webhook precisa para atualizar Firestore)
-# Use FIREBASE_SERVICE_ACCOUNT_JSON para JSON inline (uma linha)
-# Use FIREBASE_SERVICE_ACCOUNT_JSON_BASE64 se o host não aceita multiline (ex: Vercel)
-FIREBASE_SERVICE_ACCOUNT_JSON=   # ou FIREBASE_SERVICE_ACCOUNT_JSON_BASE64
-
-# Stripe
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_CHECKOUT_MODE=subscription
-STRIPE_PRICE_ID_START=price_...
-STRIPE_PRICE_ID_PRO=price_...
-STRIPE_PRICE_ID_PREMIUM=price_...
-
-# IA
-OPENAI_API_KEY=
-AI_MODEL=gpt-4o-mini
-```
-
-- [ ] Salvar todas as variáveis
-- [ ] Fazer **Redeploy** após salvar (obrigatório para `NEXT_PUBLIC_*`)
-
-## 5. Teste de produção controlado
-
-- [ ] Acessar o site em produção
-- [ ] Fazer login (signup + email/senha)
-- [ ] Ir para `/configuracoes` → clicar em um plano
-- [ ] Confirmar que abre o Checkout da Stripe
-- [ ] Concluir compra (usar modo teste ou compra controlada)
-- [ ] Confirmar retorno para `/configuracoes?checkout=sucesso&session_id=...`
-- [ ] Verificar na Stripe se o webhook retornou `200`
-- [ ] Verificar no Firestore se `clinicas/{uid}.billing` foi atualizado
-
-## 6. Pós-validação
-
-- [ ] Confirmar que **todos os testes acima passaram com chaves `sk_test`**
-- [ ] ⚠️ **Só mude para `sk_live` quando todos os cenários de teste estiverem OK** — chaves live cobram dinheiro real
-- [ ] Atualizar `STRIPE_SECRET_KEY` para `sk_live_...`
-- [ ] Atualizar webhook secret para o de produção
-- [ ] Fazer **Redeploy** na Vercel
-- [ ] Testar com clínica piloto real
-- [ ] WhatsApp manual (copiar/colar) já funciona — integração completa pode ficar para depois
-
-## Diagnóstico rápido
+## Diagnóstico rápido (Cloud Run)
 
 | Sintoma | Causa provável |
 |---|---|
-| Checkout retorna 503 | Variável Stripe ausente na Vercel |
-| Checkout retorna 400 plano inválido | Botão enviando plano diferente de `start`, `pro`, `premium` |
-| Webhook retorna 400 | `STRIPE_WEBHOOK_SECRET` errado |
-| Webhook retorna 404 | Deploy não subiu ou rota incorreta |
-| App não atualiza após compra | Firebase Admin não configurado |
+| Checkout retorna 503 | Env `STRIPE_*` ausente no serviço (`gcloud run services update --set-secrets/--update-env-vars`) |
+| Checkout retorna 401 | Usuário sem login — esperado; o front manda pro `/signup` |
+| Checkout retorna 403 | Chamada sem `Origin`/`Referer` válido (proteção do `api-security`) |
+| Webhook retorna 400 | `STRIPE_WEBHOOK_SECRET` errado (whsec de teste ≠ de produção) |
+| Paga mas conta não ativa | Firebase Admin sem credencial — conferir `firebase_admin_enabled` em `GET /api/config` |
+| Mudou `NEXT_PUBLIC_*` e nada aconteceu | É build-time: precisa de `gcloud builds submit`, não só `services update` |
 
 ---
 
-> O gargalo agora é **configurar produção e testar checkout**, não construir mais código.
+> O gargalo agora é **distribuição**, não código. Checklist técnico restante cabe numa tarde.
