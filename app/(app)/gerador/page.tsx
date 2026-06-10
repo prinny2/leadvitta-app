@@ -357,10 +357,10 @@ export default function GeradorPage() {
                        <div className="h-2 w-full bg-nude-200 rounded-full overflow-hidden max-w-[60px]">
                           <div 
                             className={cn("h-full transition-all", (nlp.score ?? 0) > 70 ? "bg-green-500" : (nlp.score ?? 0) > 40 ? "bg-amber-500" : "bg-brand-400")} 
-                            style={{ width: `${nlp.score}%` }} 
+                            style={{ width: `${nlp.score ?? 0}%` }}
                           />
                        </div>
-                       <span className="text-sm font-bold text-ink">{nlp.score}%</span>
+                       <span className="text-sm font-bold text-ink">{nlp.score ?? 0}%</span>
                     </div>
                   </div>
                 </div>

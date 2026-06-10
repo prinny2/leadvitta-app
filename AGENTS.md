@@ -21,14 +21,16 @@
 - Cada agente trabalha em **branch própria**; nunca commitar direto na branch que deploya.
 - ⛔ **Vercel**: NÃO usar (deploy leftover, split-brain de domínio). Deploy é **Cloud Run**.
 - ⛔ **Auth0**: branch `feat/auth0` está parada de propósito. Não retomar nem deployar.
+- **Firebase Auth é o auth oficial do v1.** Não adicionar `AUTH0_*`, dependência do Auth0 ou rotas `/auth/*` sem uma migração dedicada.
 - ⛔ Segredos: nunca em commit/chat/`cloudbuild.yaml`. Local → `C:\Users\vpaes\Credenciais\`; produção → Secret Manager.
 - `NEXT_PUBLIC_*` é build-time: mudar exige rebuild (`gcloud builds submit`), não só `services update`.
 
 ## Projeto
 
 - App Next.js 15 (App Router) com TypeScript e TailwindCSS.
-- O app roda sem chaves em modo demonstracao; nesse modo, os dados ficam no navegador.
+- O app roda sem chaves em modo demonstração; nesse modo, os dados ficam no navegador.
 - Use Node 20 para manter paridade com o `Dockerfile`.
+- Checkout, webhook Stripe, Firestore e Zapier autenticado ainda se apoiam na identidade do Firebase no v1.
 
 ## Comandos locais
 
@@ -40,13 +42,13 @@ npm run start
 ```
 
 - Desenvolvimento local: `http://localhost:3000`
-- Smoke check local ou em producao: `curl http://localhost:3000/api/health`
+- Smoke check local ou em produção: `curl http://localhost:3000/api/health`
 
 ## Ambiente
 
 - Copie `.env.local.example` para `.env.local`.
-- Variaveis `NEXT_PUBLIC_*` precisam existir no momento do build em producao.
-- Principais grupos de env usados pelo repo: Firebase (`NEXT_PUBLIC_FIREBASE_*` + credenciais Admin), IA (`OPENAI_API_KEY`/`ANTHROPIC_API_KEY`), Stripe, WhatsApp Cloud API, Zapier e analytics opcionais (`NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_META_PIXEL_ID`).
+- Variáveis `NEXT_PUBLIC_*` precisam existir no momento do build em produção.
+- Principais grupos de env vars usados pelo repo: Firebase (`NEXT_PUBLIC_FIREBASE_*` + credenciais Admin), IA (`OPENAI_API_KEY`/`ANTHROPIC_API_KEY`), Stripe, WhatsApp Cloud API, Zapier e analytics opcionais (`NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_META_PIXEL_ID`).
 
 ## Deploy
 
@@ -56,7 +58,7 @@ npm run start
 gcloud builds submit --config cloudbuild.yaml
 ```
 
-- Configure segredos e env vars do servico fora do `cloudbuild.yaml`, por exemplo:
+- Configure segredos e env vars do serviço fora do `cloudbuild.yaml`, por exemplo:
 
 ```bash
 gcloud run services update <SERVICE> --region <REGION> --set-env-vars NEXT_PUBLIC_SITE_URL=https://<HOST>
@@ -82,4 +84,4 @@ docker run --rm -p 8080:8080 leadbellus
 
 ## TODO
 
-- Ainda nao existe script de `lint` ou `test` no `package.json`; nao documentar comandos de validacao alem de `npm run build` e do health check ate isso existir.
+- Ainda não existe script de `lint` ou `test` no `package.json`; não documentar comandos de validação além de `npm run build` e do health check até isso existir.
