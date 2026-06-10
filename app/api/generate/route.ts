@@ -1,22 +1,32 @@
-import { NextResponse } from "next/server";
+import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { gerarRespostas, refinarResposta } from "@/lib/ai/provider";
 import type { GerarInput, RefineInput } from "@/lib/types";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  const originError = rejectCrossOriginRequest(req);
+  if (originError) return originError;
+
+  const rateLimitError = enforceRateLimit(req, {
+    bucket: "api-generate",
+    limit: 30,
+    windowMs: 60_000,
+  });
+  if (rateLimitError) return rateLimitError;
+
   try {
-    let body: Partial<GerarInput & RefineInput & { acao?: string }>;
-    try {
-      body = await req.json();
-    } catch {
-      return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
-    }
+    const parsed = await readJsonBody<
+      Partial<GerarInput & RefineInput & { acao?: string }>
+    >(req, 32_768);
+    if (parsed.error) return parsed.error;
+
+    const body = parsed.data ?? {};
 
     // Ação: "Melhorar essa resposta" (refina uma variante).
     if (body?.acao === "refinar") {
       if (!body.respostaAtual || !body.variante) {
-        return NextResponse.json(
+        return jsonNoStore(
           { error: "Resposta atual e variante são obrigatórias." },
           { status: 400 }
         );
@@ -33,11 +43,11 @@ export async function POST(req: Request) {
         mensagemCliente: body.mensagemCliente ?? "",
         clinica: body.clinica,
       });
-      return NextResponse.json(r);
+      return jsonNoStore(r);
     }
 
     if (!body?.mensagemCliente || !String(body.mensagemCliente).trim()) {
-      return NextResponse.json(
+      return jsonNoStore(
         { error: "Informe a mensagem da cliente." },
         { status: 400 }
       );
@@ -56,10 +66,10 @@ export async function POST(req: Request) {
       clinica: body.clinica,
     });
 
-    return NextResponse.json(result);
-  } catch (err: any) {
+    return jsonNoStore(result);
+  } catch (err: unknown) {
     console.error("[api/generate] erro fatal:", err);
-    return NextResponse.json(
+    return jsonNoStore(
       { error: "Erro interno do servidor." },
       { status: 500 }
     );

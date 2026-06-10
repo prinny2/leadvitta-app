@@ -1,3 +1,5 @@
+> ⚠️ DESATUALIZADO — fonte da verdade: **ESTADO.md**
+
 # LeadBellus — Checklist de Lançamento MVP
 
 Status: **pronto para configuração de produção**.

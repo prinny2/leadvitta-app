@@ -29,7 +29,7 @@ export const siteUrl =
 
 /** True quando há Stripe configurado no servidor. */
 export const isStripeConfigured =
-  !!process.env.STRIPE_SECRET_KEY &&
+  !!process.env.STRIPE_SECRET_KEY?.trim() &&
   (!!process.env.STRIPE_PRICE_ID_START ||
     !!process.env.STRIPE_PRICE_ID_PRO ||
     !!process.env.STRIPE_PRICE_ID_PREMIUM);

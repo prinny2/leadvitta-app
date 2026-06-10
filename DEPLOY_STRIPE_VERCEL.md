@@ -1,3 +1,5 @@
+> ⚠️ DESATUALIZADO — fonte da verdade: **ESTADO.md**. (Deploy é Cloud Run, NÃO Vercel.)
+
 # LeadVitta — Deploy Cloud Run + Stripe
 
 Checklist operacional para colocar a cobrança recorrente no ar no Google Cloud Run.

@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import Stripe from "stripe";
 import {
   getBillingPlan,
   getStripeCheckoutMode,
   parseBillingPlan,
 } from "@/lib/billing";
-import { isStripeConfigured, siteUrl } from "@/lib/config";
+import { isFirebaseConfigured, isStripeConfigured, siteUrl } from "@/lib/config";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { getStripe } from "@/lib/stripe/server";
 import { sendZapierEvent } from "@/lib/zapier";
@@ -27,34 +27,49 @@ function getBaseUrl(request: Request) {
 }
 
 export async function POST(request: Request) {
-  let body: CheckoutBody;
-  try {
-    body = (await request.json()) as CheckoutBody;
-  } catch {
-    return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
-  }
+  const originError = rejectCrossOriginRequest(request);
+  if (originError) return originError;
+
+  const rateLimitError = enforceRateLimit(request, {
+    bucket: "stripe-checkout",
+    limit: 10,
+    windowMs: 10 * 60_000,
+  });
+  if (rateLimitError) return rateLimitError;
+
+  const parsed = await readJsonBody<CheckoutBody>(request, 8_192);
+  if (parsed.error) return parsed.error;
+
+  const body = parsed.data ?? {};
 
   const plan = parseBillingPlan(body.plan);
   if (!plan) {
-    return NextResponse.json({ error: "Plano inválido." }, { status: 400 });
+    return jsonNoStore({ error: "Plano inválido." }, { status: 400 });
   }
 
   const planConfig = getBillingPlan(plan);
   if (!planConfig.priceId) {
-    return NextResponse.json(
+    return jsonNoStore(
       { error: `STRIPE_PRICE_ID_${plan.toUpperCase()} não configurado.` },
       { status: 503 }
     );
   }
 
   if (!isStripeConfigured) {
-    return NextResponse.json(
+    return jsonNoStore(
       { error: "Stripe não está configurado neste ambiente." },
       { status: 503 }
     );
   }
 
   const decodedToken = await verifyFirebaseIdToken(body.firebaseIdToken);
+  if (isFirebaseConfigured && !decodedToken?.uid) {
+    return jsonNoStore(
+      { error: "Faça login antes de iniciar o checkout." },
+      { status: 401 }
+    );
+  }
+
   const customerEmail =
     decodedToken?.email ||
     (typeof body.customerEmail === "string" ? body.customerEmail : undefined);
@@ -94,10 +109,10 @@ export async function POST(request: Request) {
       email: customerEmail,
     });
 
-    return NextResponse.json({ url: session.url });
+    return jsonNoStore({ url: session.url });
   } catch (err) {
     console.error("[stripe.checkout] erro ao criar sessão", err);
-    return NextResponse.json(
+    return jsonNoStore(
       { error: "Não foi possível iniciar o checkout." },
       { status: 500 }
     );

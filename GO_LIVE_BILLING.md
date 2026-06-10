@@ -1,3 +1,5 @@
+> ⚠️ DESATUALIZADO — fonte da verdade: **ESTADO.md** (billing já está LIVE e verificado)
+
 # 🚀 Go-Live do Billing (Stripe) — LeadBellus
 
 > Checklist operacional pra ligar o faturamento de verdade. O **código já está pronto**

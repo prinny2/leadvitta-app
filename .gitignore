@@ -18,9 +18,20 @@ tsconfig.tsbuildinfo
 /prinny2/
 /.codex/
 /status.md
+/ESTADO.md
 /relatorio_atividades.txt
 /LeadBellus_Dossie_Completo.pdf
 .claude/scheduled_tasks.lock
 /.codesight/
 /.snapshots/
 WhatsApp Image*
+/✦*.txt
+
+# Configs de editores/ferramentas de IA (por-dev, não são código do app)
+.cursor/
+.gemini/
+.vscode/
+.qodo/
+*.log
+/.codex-*
+/.mcp.json

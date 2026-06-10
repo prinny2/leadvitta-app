@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { sendZapierEvent } from "@/lib/zapier";
 
@@ -16,15 +16,28 @@ function getBearerToken(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const originError = rejectCrossOriginRequest(request);
+  if (originError) return originError;
+
+  const rateLimitError = enforceRateLimit(request, {
+    bucket: "zapier-lead",
+    limit: 12,
+    windowMs: 10 * 60_000,
+  });
+  if (rateLimitError) return rateLimitError;
+
   const decodedToken = await verifyFirebaseIdToken(getBearerToken(request));
   if (!decodedToken) {
-    return NextResponse.json(
+    return jsonNoStore(
       { error: "Firebase Admin/ID token obrigatório para enviar lead." },
       { status: 401 }
     );
   }
 
-  const body = (await request.json().catch(() => ({}))) as LeadBody;
+  const parsed = await readJsonBody<LeadBody>(request, 4_096);
+  if (parsed.error) return parsed.error;
+
+  const body = parsed.data ?? {};
   const event = body.event || "lead.created";
   const result = await sendZapierEvent(event, {
     firebase_uid: decodedToken.uid,
@@ -32,5 +45,5 @@ export async function POST(request: Request) {
     plan: body.plan,
   });
 
-  return NextResponse.json({ ok: result.sent, result });
+  return jsonNoStore({ ok: result.sent, result });
 }

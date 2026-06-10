@@ -1,3 +1,7 @@
+> ⚠️ DESATUALIZADO — fonte da verdade: **ESTADO.md**
+
+> ⚠️ DESATUALIZADO — fonte da verdade: ESTADO.md
+
 # 🛠️ Mesa de Trabalho — LeadBellus
 
 > Doc **operacional** do dia a dia (dev + ads). A estratégia/visão de longo prazo fica no vault Obsidian (`PLANO MASTER Monetização`).
