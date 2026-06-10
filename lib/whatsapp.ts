@@ -1,5 +1,5 @@
 // Integração com a WhatsApp Cloud API (Meta).
-// Credenciais via env (NUNCA commitar — vão no .env.local / Vercel):
+// Credenciais via env (NUNCA commitar — vão no .env.local / Cloud Run):
 //   WHATSAPP_TOKEN            -> token com permissão `whatsapp_business_messaging`
 //                               (NÃO é o token do CAPI/pixel — esse é só pra eventos de anúncio)
 //   WHATSAPP_PHONE_NUMBER_ID  -> ID do número (Meta -> WhatsApp -> API Setup)
