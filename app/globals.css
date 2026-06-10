@@ -30,6 +30,30 @@ body {
     #0e3a30;
 }
 
+/* Efeitos Premium */
+.glass-card {
+  @apply border border-white/20 bg-white/40 backdrop-blur-xl;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #cda347 0%, #b8860b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 6s ease-in-out infinite 3s;
+}
+
 /* Scrollbar discreta dourada */
 * {
   scrollbar-width: thin;

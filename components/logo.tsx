@@ -28,7 +28,7 @@ export function LogoMark({
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("font-serif font-semibold tracking-tight", className)}>
-      Lead<span className="text-lavender-600">Bellus</span>
+      Lead<span className="text-lavender-700">Bellus</span>
     </span>
   );
 }
