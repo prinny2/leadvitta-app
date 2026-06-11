@@ -1,48 +1,63 @@
-// Integração com a WhatsApp Cloud API (Meta).
+// Integração Twilio WhatsApp.
 // Credenciais via env (NUNCA commitar — vão no .env.local / Cloud Run):
-//   WHATSAPP_TOKEN            -> token com permissão `whatsapp_business_messaging`
-//                               (NÃO é o token do CAPI/pixel — esse é só pra eventos de anúncio)
-//   WHATSAPP_PHONE_NUMBER_ID  -> ID do número (Meta -> WhatsApp -> API Setup)
-//   WHATSAPP_VERIFY_TOKEN     -> string que VOCÊ inventa, usada pra verificar o webhook
-
-const GRAPH = "https://graph.facebook.com/v21.0";
+//   TWILIO_ACCOUNT_SID      -> Account SID (começa com AC...)
+//   TWILIO_API_KEY_SID      -> API Key SID (começa com SK...)
+//   TWILIO_API_KEY_SECRET   -> API Key Secret
+//   TWILIO_WHATSAPP_FROM    -> número Twilio no formato "whatsapp:+14155238886"
 
 /** True quando o envio de WhatsApp está configurado. */
 export function isWhatsappConfigured(): boolean {
-  return !!process.env.WHATSAPP_TOKEN && !!process.env.WHATSAPP_PHONE_NUMBER_ID;
+  return (
+    !!process.env.TWILIO_ACCOUNT_SID &&
+    !!process.env.TWILIO_API_KEY_SID &&
+    !!process.env.TWILIO_API_KEY_SECRET &&
+    !!process.env.TWILIO_WHATSAPP_FROM
+  );
 }
 
 export type WhatsAppResult = { ok: boolean; status: number; data: unknown };
 
 /**
- * Envia uma mensagem de texto simples.
- * @param to   número no formato E.164 SEM o '+', ex.: "5591985156690"
+ * Envia uma mensagem de texto via Twilio WhatsApp.
+ * @param to   número do destinatário com prefixo, ex.: "whatsapp:+5591985156690"
+ *             ou apenas E.164 "5591985156690" (o prefixo é adicionado aqui)
  * @param body texto da mensagem
  */
 export async function sendWhatsAppText(to: string, body: string): Promise<WhatsAppResult> {
-  const token = process.env.WHATSAPP_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  if (!token || !phoneId) {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const apiKeySid = process.env.TWILIO_API_KEY_SID;
+  const apiKeySecret = process.env.TWILIO_API_KEY_SECRET;
+  const from = process.env.TWILIO_WHATSAPP_FROM;
+
+  if (!accountSid || !apiKeySid || !apiKeySecret || !from) {
     return {
       ok: false,
       status: 0,
-      data: { error: "WhatsApp não configurado (WHATSAPP_TOKEN / WHATSAPP_PHONE_NUMBER_ID ausentes)." },
+      data: { error: "Twilio não configurado (TWILIO_ACCOUNT_SID / TWILIO_API_KEY_SID / TWILIO_API_KEY_SECRET / TWILIO_WHATSAPP_FROM ausentes)." },
     };
   }
-  const res = await fetch(`${GRAPH}/${phoneId}/messages`, {
+
+  const toFormatted = to.startsWith("whatsapp:") ? to : `whatsapp:+${to}`;
+
+  const params = new URLSearchParams({
+    From: from,
+    To: toFormatted,
+    Body: body,
+  });
+
+  // API Key authentication: username = API Key SID (SK...), password = API Key Secret.
+  const credentials = Buffer.from(`${apiKeySid}:${apiKeySecret}`).toString("base64");
+  const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+
+  const res = await fetch(url, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      Authorization: `Basic ${credentials}`,
+      "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      recipient_type: "individual",
-      to,
-      type: "text",
-      text: { preview_url: false, body },
-    }),
+    body: params.toString(),
   });
+
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, data };
 }

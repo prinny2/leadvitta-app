@@ -7,36 +7,36 @@ import { sendWhatsAppText } from "@/lib/whatsapp";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// GET = verificação do webhook. A Meta chama UMA vez ao configurar o webhook.
-// Devolve o hub.challenge se o verify_token bater com WHATSAPP_VERIFY_TOKEN.
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const mode = url.searchParams.get("hub.mode");
-  const token = url.searchParams.get("hub.verify_token");
-  const challenge = url.searchParams.get("hub.challenge");
-
-  if (mode === "subscribe" && token && token === process.env.WHATSAPP_VERIFY_TOKEN) {
-    return new NextResponse(challenge ?? "", { status: 200 });
-  }
-  return new NextResponse("forbidden", { status: 403 });
-}
-
-// Status de billing que liberam a auto-resposta. O checkout grava "paid"
-// (payment_status) e os eventos de subscription gravam "active"/"trialing"
-// — aceitar só "active" deixaria de fora quem acabou de pagar.
+// Status de billing que liberam a auto-resposta.
 const STATUS_ATIVOS = new Set(["active", "paid", "trialing"]);
 
-// Processa a mensagem FORA do caminho da resposta HTTP (ver POST). Nunca lança:
-// loga e retorna, pra não derrubar o ack de 200 pra Meta.
-async function processarMensagem(value: any, msg: any) {
-  const from: string = msg.from; // número da cliente (E.164 sem '+')
-  const text: string = msg.text?.body ?? "";
-  const displayPhoneNumber: string | undefined =
-    value?.metadata?.display_phone_number;
+/**
+ * Valida o header X-Twilio-Signature.
+ * Algoritmo: Base64(HMAC-SHA1(authToken, url + sorted_params_concatenated))
+ */
+function validateTwilioSignature(
+  authToken: string,
+  url: string,
+  params: Record<string, string>,
+  signature: string
+): boolean {
+  const sortedKeys = Object.keys(params).sort();
+  const paramString = sortedKeys.map((k) => k + params[k]).join("");
+  const validationString = url + paramString;
 
-  // Guarda: sem número de destino ou sem texto, não há o que fazer.
-  if (!displayPhoneNumber || !text) {
-    console.warn("[whatsapp] sem display_phone_number ou texto — ignorando.");
+  const expected = crypto
+    .createHmac("sha1", authToken)
+    .update(validationString, "utf8")
+    .digest("base64");
+
+  if (signature.length !== expected.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+}
+
+/** Processa a mensagem fora do caminho HTTP para não atrasar o ACK 200 ao Twilio. */
+async function processarMensagem(from: string, to: string, text: string) {
+  if (!text) {
+    console.warn("[whatsapp] mensagem sem texto — ignorando.");
     return;
   }
 
@@ -46,9 +46,10 @@ async function processarMensagem(value: any, msg: any) {
     return;
   }
 
-  // Acha a clínica dona deste número. O DNA guarda o número no campo root
-  // `whatsapp` (ver lib/types.ts / saveClinica em lib/store.ts).
-  // Modelo: 1 número de WhatsApp por clínica.
+  // Remove o prefixo "whatsapp:" do número para lookup no Firestore.
+  // Ex.: "whatsapp:+5591985156690" → "5591985156690"
+  const displayPhoneNumber = to.replace(/^whatsapp:\+?/, "");
+
   const snapshot = await db
     .collection("clinicas")
     .where("whatsapp", "==", displayPhoneNumber)
@@ -56,16 +57,13 @@ async function processarMensagem(value: any, msg: any) {
     .get();
 
   if (snapshot.empty) {
-    console.warn(
-      `[whatsapp] nenhuma clínica para o número ${displayPhoneNumber}.`
-    );
+    console.warn(`[whatsapp] nenhuma clínica para o número ${displayPhoneNumber}.`);
     return;
   }
 
   const clinica = snapshot.docs[0].data() as Record<string, any>;
   const clinicaId = snapshot.docs[0].id;
 
-  // Billing: aceita os status que significam pago/ativo (ver STATUS_ATIVOS).
   if (!STATUS_ATIVOS.has(clinica.billing?.status)) {
     console.warn(
       `[whatsapp] clínica ${clinicaId} sem plano ativo (status=${clinica.billing?.status}).`
@@ -73,12 +71,10 @@ async function processarMensagem(value: any, msg: any) {
     return;
   }
 
-  // Gera a resposta com o DNA REAL da clínica (campos root do documento).
   const nlp = await gerarRespostas({
     modo: "gerar",
-    objetivo:
-      "responder à dúvida do cliente via WhatsApp de forma consultiva e empática",
-    nomeCliente: value?.contacts?.[0]?.profile?.name || "Cliente",
+    objetivo: "responder à dúvida do cliente via WhatsApp de forma consultiva e empática",
+    nomeCliente: "Cliente",
     mensagemCliente: text,
     procedimento: "geral",
     situacao: "pergunta_geral",
@@ -93,7 +89,7 @@ async function processarMensagem(value: any, msg: any) {
 
   const respostaFinal = nlp.respostas.consultiva;
 
-  // Envia e registra o resultado (sendWhatsAppText não lança; devolve {ok}).
+  // "from" é o número do cliente (quem enviou) — é para quem respondemos.
   const envio = await sendWhatsAppText(from, respostaFinal);
   if (!envio.ok) {
     console.error(
@@ -102,9 +98,6 @@ async function processarMensagem(value: any, msg: any) {
     );
   }
 
-  // Salva no MESMO histórico que a página /historico lê: coleção top-level
-  // `historico`, com user_id = id da clínica e created_at em ISO (como o
-  // resto do app — ver lib/store.ts). `entregue` marca se o envio funcionou.
   await db.collection("historico").add({
     user_id: clinicaId,
     tipo: "gerador",
@@ -127,49 +120,44 @@ async function processarMensagem(value: any, msg: any) {
   );
 }
 
-// POST = mensagens recebidas. Valida a assinatura, responde 200 NA HORA e
-// processa em background com after() — senão a Meta re-tenta e a cliente
-// recebe a resposta duplicada.
+// Twilio não usa GET/hub.challenge — apenas POST.
 export async function POST(req: Request) {
   const raw = await req.text();
 
-  // Valida a assinatura do Meta (X-Hub-Signature-256) quando há WHATSAPP_APP_SECRET.
-  const appSecret = process.env.WHATSAPP_APP_SECRET;
-  if (appSecret) {
-    const sig = req.headers.get("x-hub-signature-256") || "";
-    const expected =
-      "sha256=" + crypto.createHmac("sha256", appSecret).update(raw).digest("hex");
-    const valid =
-      sig.length === expected.length &&
-      crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
-    if (!valid) {
-      console.warn("[whatsapp] assinatura inválida no webhook.");
+  // Valida assinatura Twilio quando AUTH TOKEN está configurado.
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (authToken) {
+    const signature = req.headers.get("x-twilio-signature") || "";
+    // Usa o host real que Twilio chamou (X-Forwarded-Host via Firebase Hosting / Cloud Run).
+    const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
+    const proto = req.headers.get("x-forwarded-proto") || "https";
+    const fullUrl = host
+      ? `${proto}://${host}/api/whatsapp/webhook`
+      : `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/api/whatsapp/webhook`;
+
+    // Reconstrói os params do body para validação.
+    const params: Record<string, string> = {};
+    new URLSearchParams(raw).forEach((v, k) => { params[k] = v; });
+
+    if (signature && !validateTwilioSignature(authToken, fullUrl, params, signature)) {
+      console.warn("[whatsapp] assinatura Twilio inválida.");
       return new NextResponse("invalid signature", { status: 403 });
     }
   }
 
-  let body: any;
-  try {
-    body = JSON.parse(raw);
-  } catch {
-    return NextResponse.json({ ok: true });
-  }
+  const params = new URLSearchParams(raw);
+  const from = params.get("From") ?? "";  // "whatsapp:+5591985156690"
+  const to = params.get("To") ?? "";      // "whatsapp:+14155238886" (seu número Twilio)
+  const body = params.get("Body") ?? "";
 
-  const value = body?.entry?.[0]?.changes?.[0]?.value;
-  const msg = value?.messages?.[0];
-
-  if (msg?.type === "text") {
-    // Ack imediato pra Meta; o trabalho pesado (IA + envio + Firestore) roda
-    // depois da resposta, fora do caminho crítico.
+  if (from && body) {
     after(() =>
-      processarMensagem(value, msg).catch((e) =>
+      processarMensagem(from, to, body).catch((e) =>
         console.error("[whatsapp] erro no processamento:", e)
       )
     );
-  } else if (msg) {
-    console.log(`[whatsapp] tipo de mensagem não-texto ignorado: ${msg.type}`);
   }
 
-  // Responder 200 rápido SEMPRE — senão a Meta re-tenta e duplica.
-  return NextResponse.json({ ok: true });
+  // Twilio espera um 200 vazio (ou TwiML) — resposta JSON é ignorada por ele.
+  return new NextResponse("", { status: 200 });
 }
