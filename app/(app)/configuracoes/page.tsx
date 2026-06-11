@@ -18,6 +18,7 @@ import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CheckoutButton } from "@/components/checkout-button";
+import { billingPlanList } from "@/lib/billing";
 import { trackEvent } from "@/components/Analytics";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
@@ -273,38 +274,31 @@ export default function ConfiguracoesPage() {
           </p>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-brand-100 bg-nude-50 p-4">
-              <p className="text-sm font-medium text-muted">Plano Start</p>
-              <p className="font-serif text-3xl font-semibold text-ink">R$197<span className="text-sm text-muted">/mês</span></p>
-              <p className="mt-1 text-xs text-muted">
-                Validar e começar.
-              </p>
-              <CheckoutButton plan="start" variant="outline" className="mt-4 w-full">
-                Checkout Start
-              </CheckoutButton>
-            </div>
-
-            <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
-              <p className="text-sm font-medium text-muted">Plano Pro</p>
-              <p className="font-serif text-3xl font-semibold text-ink">R$297<span className="text-sm text-muted">/mês</span></p>
-              <p className="mt-1 text-xs text-muted">
-                Inteligência avançada.
-              </p>
-              <CheckoutButton plan="pro" className="mt-4 w-full">
-                Checkout Pro
-              </CheckoutButton>
-            </div>
-
-            <div className="rounded-2xl border border-brand-300 bg-gradient-to-br from-white to-brand-50 p-4">
-              <p className="text-sm font-medium text-muted">Plano Premium</p>
-              <p className="font-serif text-3xl font-semibold text-ink">R$397<span className="text-sm text-muted">/mês</span></p>
-              <p className="mt-1 text-xs text-muted">
-                Inteligência completa.
-              </p>
-              <CheckoutButton plan="premium" variant="outline" className="mt-4 w-full">
-                Checkout Premium
-              </CheckoutButton>
-            </div>
+            {billingPlanList.map((plano) => (
+              <div
+                key={plano.id}
+                className={cn(
+                  "rounded-2xl border p-4",
+                  plano.destaque
+                    ? "border-brand-300 bg-gradient-to-br from-white to-brand-50"
+                    : "border-brand-100 bg-nude-50"
+                )}
+              >
+                <p className="text-sm font-medium text-muted">Plano {plano.label}</p>
+                <p className="font-serif text-3xl font-semibold text-ink">
+                  {plano.priceLabel}
+                  <span className="text-sm text-muted">{plano.periodLabel}</span>
+                </p>
+                <p className="mt-1 text-xs text-muted">{plano.tagline}</p>
+                <CheckoutButton
+                  plan={plano.id}
+                  variant={plano.destaque ? "primary" : "outline"}
+                  className="mt-4 w-full"
+                >
+                  Assinar {plano.label}
+                </CheckoutButton>
+              </div>
+            ))}
           </div>
 
           <p className="text-xs text-muted">

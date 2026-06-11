@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isFirebaseConfigured } from "@/lib/config";
 
+// "/onboarding" é PÚBLICO de propósito: é o funil de captação de clínicas
+// (sem login) — não entra aqui.
 const ROTAS_PROTEGIDAS = [
   "/dashboard",
   "/gerador",
@@ -9,7 +11,6 @@ const ROTAS_PROTEGIDAS = [
   "/scripts",
   "/historico",
   "/configuracoes",
-  "/onboarding",
 ];
 
 export function updateSession(request: NextRequest) {
