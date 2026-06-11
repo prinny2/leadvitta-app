@@ -1,8 +1,15 @@
 import { NextResponse, after } from "next/server";
-import crypto from "crypto";
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { gerarRespostas } from "@/lib/ai/provider";
-import { sendWhatsAppText } from "@/lib/whatsapp";
+import { getWhatsAppProvider } from "@/lib/whatsapp";
+import type { InboundMessage } from "@/lib/whatsapp-types";
+import { resolverClinicaPorNumero } from "@/lib/numeros";
+import {
+  registrarMensagemRecebida,
+  registrarMensagemEnviada,
+  marcarPrecisaAtencao,
+  reservarProcessamento,
+} from "@/lib/conversas";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,35 +17,9 @@ export const dynamic = "force-dynamic";
 // Status de billing que liberam a auto-resposta.
 const STATUS_ATIVOS = new Set(["active", "paid", "trialing"]);
 
-/**
- * Valida o header X-Twilio-Signature.
- * Algoritmo: Base64(HMAC-SHA1(authToken, url + sorted_params_concatenated))
- */
-function validateTwilioSignature(
-  authToken: string,
-  url: string,
-  params: Record<string, string>,
-  signature: string
-): boolean {
-  const sortedKeys = Object.keys(params).sort();
-  const paramString = sortedKeys.map((k) => k + params[k]).join("");
-  const validationString = url + paramString;
-
-  const expected = crypto
-    .createHmac("sha1", authToken)
-    .update(validationString, "utf8")
-    .digest("base64");
-
-  if (signature.length !== expected.length) return false;
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-}
-
-/** Processa a mensagem fora do caminho HTTP para não atrasar o ACK 200 ao Twilio. */
-async function processarMensagem(from: string, to: string, text: string) {
-  if (!text) {
-    console.warn("[whatsapp] mensagem sem texto — ignorando.");
-    return;
-  }
+/** Processa fora do caminho HTTP para não atrasar o ACK ao provedor. */
+async function processarMensagem(msg: InboundMessage) {
+  if (!msg.text) return;
 
   const db = getFirebaseAdminDb();
   if (!db) {
@@ -46,56 +27,85 @@ async function processarMensagem(from: string, to: string, text: string) {
     return;
   }
 
-  // Remove o prefixo "whatsapp:" do número para lookup no Firestore.
-  // Ex.: "whatsapp:+5591985156690" → "5591985156690"
-  const displayPhoneNumber = to.replace(/^whatsapp:\+?/, "");
-
-  const snapshot = await db
-    .collection("clinicas")
-    .where("whatsapp", "==", displayPhoneNumber)
-    .limit(1)
-    .get();
-
-  if (snapshot.empty) {
-    console.warn(`[whatsapp] nenhuma clínica para o número ${displayPhoneNumber}.`);
+  // Idempotência: ignora reentregas do provedor (não duplica msg nem auto-resposta).
+  if (!(await reservarProcessamento(msg.providerMessageId))) {
+    console.log(`[whatsapp] mensagem ${msg.providerMessageId} já processada — ignorando retry.`);
     return;
   }
 
-  const clinica = snapshot.docs[0].data() as Record<string, any>;
-  const clinicaId = snapshot.docs[0].id;
+  // Descobre a clínica pelo número que RECEBEU, via mapa canônico (único/verificado).
+  const clinicaId = await resolverClinicaPorNumero(msg.to);
+  if (!clinicaId) {
+    console.warn(`[whatsapp] nenhuma clínica conectada ao número ${msg.to}.`);
+    return;
+  }
+  const clinicaSnap = await db.collection("clinicas").doc(clinicaId).get();
+  if (!clinicaSnap.exists) return;
+  const clinica = clinicaSnap.data() as Record<string, any>;
+  const ativo = STATUS_ATIVOS.has(clinica.billing?.status);
 
-  if (!STATUS_ATIVOS.has(clinica.billing?.status)) {
+  // Sem plano ativo: guarda a mensagem (aparece no inbox), mas não auto-responde.
+  if (!ativo) {
+    await registrarMensagemRecebida({
+      clinicaId,
+      from: msg.from,
+      text: msg.text,
+      contactName: msg.contactName,
+      providerMessageId: msg.providerMessageId,
+    });
     console.warn(
-      `[whatsapp] clínica ${clinicaId} sem plano ativo (status=${clinica.billing?.status}).`
+      `[whatsapp] clínica ${clinicaId} sem plano ativo (status=${clinica.billing?.status}) — só armazenado.`
     );
     return;
   }
 
-  const nlp = await gerarRespostas({
-    modo: "gerar",
-    objetivo: "responder à dúvida do cliente via WhatsApp de forma consultiva e empática",
-    nomeCliente: "Cliente",
-    mensagemCliente: text,
-    procedimento: "geral",
-    situacao: "pergunta_geral",
-    tom: clinica.tom_padrao || "acolhedor",
-    clinica: {
-      nome_clinica: clinica.nome_clinica || "LeadBellus",
-      formalidade: clinica.formalidade ?? 50,
-      como_chamar: clinica.como_chamar || "nenhum",
-      cta_preferido: clinica.cta_preferido || "agendar uma avaliação",
-    },
+  let nlp: Awaited<ReturnType<typeof gerarRespostas>> | null = null;
+  try {
+    nlp = await gerarRespostas({
+      modo: "gerar",
+      objetivo: "responder à dúvida do cliente via WhatsApp de forma consultiva e empática",
+      nomeCliente: msg.contactName || "Cliente",
+      mensagemCliente: msg.text,
+      procedimento: "geral",
+      situacao: "pergunta_geral",
+      tom: clinica.tom_padrao || "acolhedor",
+      clinica: {
+        nome_clinica: clinica.nome_clinica || "LeadBellus",
+        formalidade: clinica.formalidade ?? 50,
+        como_chamar: clinica.como_chamar || "nenhum",
+        cta_preferido: clinica.cta_preferido || "agendar uma avaliação",
+      },
+    });
+  } catch (e) {
+    console.error("[whatsapp] falha ao gerar resposta:", e);
+  }
+
+  await registrarMensagemRecebida({
+    clinicaId,
+    from: msg.from,
+    text: msg.text,
+    contactName: msg.contactName,
+    providerMessageId: msg.providerMessageId,
+    intent: nlp?.intent ?? null,
+    sentiment: nlp?.sentiment ?? null,
+    score: nlp?.score ?? null,
   });
 
+  if (!nlp) return;
   const respostaFinal = nlp.respostas.consultiva;
 
-  // "from" é o número do cliente (quem enviou) — é para quem respondemos.
-  const envio = await sendWhatsAppText(from, respostaFinal);
-  if (!envio.ok) {
+  const envio = await getWhatsAppProvider().sendText(msg.from, respostaFinal, {
+    channelApiKey: clinica.whatsapp_channel_key,
+  });
+  if (envio.ok) {
+    // Auto-resposta NÃO marca como lida — fica na triagem até um humano abrir.
+    await registrarMensagemEnviada(clinicaId, msg.from, respostaFinal, { marcarLida: false });
+  } else {
     console.error(
-      `[whatsapp] falha ao enviar para ${from}: status=${envio.status}`,
+      `[whatsapp] falha ao enviar para ${msg.from}: status=${envio.status}`,
       envio.data
     );
+    await marcarPrecisaAtencao(clinicaId, msg.from);
   }
 
   await db.collection("historico").add({
@@ -103,8 +113,8 @@ async function processarMensagem(from: string, to: string, text: string) {
     tipo: "gerador",
     contexto: {
       canal: "whatsapp",
-      de: from,
-      mensagemCliente: text,
+      de: msg.from,
+      mensagemCliente: msg.text,
       entregue: envio.ok,
     },
     respostas: [respostaFinal],
@@ -116,48 +126,42 @@ async function processarMensagem(from: string, to: string, text: string) {
   });
 
   console.log(
-    `[whatsapp] resposta ${envio.ok ? "enviada" : "FALHOU"} para ${from} (clínica ${clinicaId}).`
+    `[whatsapp] resposta ${envio.ok ? "enviada" : "FALHOU"} para ${msg.from} (clínica ${clinicaId}).`
   );
 }
 
-// Twilio não usa GET/hub.challenge — apenas POST.
+// Verificação do webhook (Meta Cloud API usa GET com hub.challenge).
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const mode = url.searchParams.get("hub.mode");
+  const token = url.searchParams.get("hub.verify_token");
+  const challenge = url.searchParams.get("hub.challenge");
+  const expected = process.env.D360_WEBHOOK_TOKEN || process.env.WHATSAPP_VERIFY_TOKEN;
+  if (mode === "subscribe" && challenge && (!expected || token === expected)) {
+    return new NextResponse(challenge, { status: 200 });
+  }
+  return new NextResponse("", { status: 200 });
+}
+
 export async function POST(req: Request) {
   const raw = await req.text();
+  const provider = getWhatsAppProvider();
 
-  // Valida assinatura Twilio quando AUTH TOKEN está configurado.
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  if (authToken) {
-    const signature = req.headers.get("x-twilio-signature") || "";
-    // Usa o host real que Twilio chamou (X-Forwarded-Host via Firebase Hosting / Cloud Run).
-    const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
-    const proto = req.headers.get("x-forwarded-proto") || "https";
-    const fullUrl = host
-      ? `${proto}://${host}/api/whatsapp/webhook`
-      : `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/api/whatsapp/webhook`;
-
-    // Reconstrói os params do body para validação.
-    const params: Record<string, string> = {};
-    new URLSearchParams(raw).forEach((v, k) => { params[k] = v; });
-
-    if (signature && !validateTwilioSignature(authToken, fullUrl, params, signature)) {
-      console.warn("[whatsapp] assinatura Twilio inválida.");
-      return new NextResponse("invalid signature", { status: 403 });
-    }
+  const valido = await provider.validateWebhook(req, raw);
+  if (!valido) {
+    console.warn(`[whatsapp] webhook recusado (provider=${provider.name}).`);
+    return new NextResponse("invalid signature", { status: 403 });
   }
 
-  const params = new URLSearchParams(raw);
-  const from = params.get("From") ?? "";  // "whatsapp:+5591985156690"
-  const to = params.get("To") ?? "";      // "whatsapp:+14155238886" (seu número Twilio)
-  const body = params.get("Body") ?? "";
-
-  if (from && body) {
+  const msg = provider.parseInbound(raw, req);
+  if (msg) {
     after(() =>
-      processarMensagem(from, to, body).catch((e) =>
+      processarMensagem(msg).catch((e) =>
         console.error("[whatsapp] erro no processamento:", e)
       )
     );
   }
 
-  // Twilio espera um 200 vazio (ou TwiML) — resposta JSON é ignorada por ele.
+  // Provedores esperam 200 rápido.
   return new NextResponse("", { status: 200 });
 }

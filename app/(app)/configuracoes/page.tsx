@@ -66,6 +66,23 @@ export default function ConfiguracoesPage() {
     setOk(false);
     try {
       await saveClinica({ ...c, onboarded: true });
+      // O número de WhatsApp é conectado por uma rota dedicada (unicidade no
+      // servidor) — não vai junto do saveClinica.
+      if (isFirebaseConfigured && c.whatsapp.trim()) {
+        const user = getFirebaseAuth().currentUser;
+        if (user) {
+          const firebaseIdToken = await user.getIdToken();
+          const res = await fetch("/api/clinica/whatsapp", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ numero: c.whatsapp, firebaseIdToken }),
+          });
+          if (!res.ok) {
+            const d = (await res.json().catch(() => ({}))) as { error?: string };
+            throw new Error(d.error || "Não foi possível conectar o número de WhatsApp.");
+          }
+        }
+      }
       setOk(true);
       setTimeout(() => setOk(false), 2500);
     } catch (err) {

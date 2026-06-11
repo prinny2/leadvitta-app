@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
+  Inbox,
   Sparkles,
   MessagesSquare,
   Send,
@@ -20,6 +21,7 @@ import { Logo } from "@/components/logo";
 
 const links = [
   { href: "/dashboard", label: "Início", icon: Home },
+  { href: "/conversas", label: "Conversas", icon: Inbox },
   { href: "/gerador", label: "Gerador", icon: Sparkles },
   { href: "/objecoes", label: "Objeções", icon: MessagesSquare },
   { href: "/follow-up", label: "Follow-up", icon: Send },

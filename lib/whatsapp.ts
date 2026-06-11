@@ -1,63 +1,33 @@
-// Integração Twilio WhatsApp.
-// Credenciais via env (NUNCA commitar — vão no .env.local / Cloud Run):
-//   TWILIO_ACCOUNT_SID      -> Account SID (começa com AC...)
-//   TWILIO_API_KEY_SID      -> API Key SID (começa com SK...)
-//   TWILIO_API_KEY_SECRET   -> API Key Secret
-//   TWILIO_WHATSAPP_FROM    -> número Twilio no formato "whatsapp:+14155238886"
+// Registry de provedores de WhatsApp. A escolha é por env WHATSAPP_PROVIDER
+// ("twilio" | "dialog360"); sem env, usa 360dialog se configurado, senão Twilio.
+import { twilioProvider } from "@/lib/whatsapp-twilio";
+import { dialog360Provider } from "@/lib/whatsapp-dialog360";
+import type { WhatsAppProvider, WhatsAppResult } from "@/lib/whatsapp-types";
 
-/** True quando o envio de WhatsApp está configurado. */
-export function isWhatsappConfigured(): boolean {
-  return (
-    !!process.env.TWILIO_ACCOUNT_SID &&
-    !!process.env.TWILIO_API_KEY_SID &&
-    !!process.env.TWILIO_API_KEY_SECRET &&
-    !!process.env.TWILIO_WHATSAPP_FROM
-  );
+export type { WhatsAppProvider, WhatsAppResult, InboundMessage } from "@/lib/whatsapp-types";
+
+export function getWhatsAppProvider(): WhatsAppProvider {
+  const pref = (process.env.WHATSAPP_PROVIDER || "").toLowerCase();
+  if (pref === "dialog360" || pref === "360dialog") return dialog360Provider;
+  if (pref === "twilio") return twilioProvider;
+  // Auto: prioriza 360dialog quando há chave; senão Twilio.
+  if (dialog360Provider.isConfigured()) return dialog360Provider;
+  return twilioProvider;
 }
 
-export type WhatsAppResult = { ok: boolean; status: number; data: unknown };
+/** True quando o provedor ativo está configurado para enviar. */
+export function isWhatsappConfigured(): boolean {
+  return getWhatsAppProvider().isConfigured();
+}
 
 /**
- * Envia uma mensagem de texto via Twilio WhatsApp.
- * @param to   número do destinatário com prefixo, ex.: "whatsapp:+5591985156690"
- *             ou apenas E.164 "5591985156690" (o prefixo é adicionado aqui)
- * @param body texto da mensagem
+ * Envia uma mensagem de texto pelo provedor ativo.
+ * Mantido por compatibilidade com o código existente.
  */
-export async function sendWhatsAppText(to: string, body: string): Promise<WhatsAppResult> {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const apiKeySid = process.env.TWILIO_API_KEY_SID;
-  const apiKeySecret = process.env.TWILIO_API_KEY_SECRET;
-  const from = process.env.TWILIO_WHATSAPP_FROM;
-
-  if (!accountSid || !apiKeySid || !apiKeySecret || !from) {
-    return {
-      ok: false,
-      status: 0,
-      data: { error: "Twilio não configurado (TWILIO_ACCOUNT_SID / TWILIO_API_KEY_SID / TWILIO_API_KEY_SECRET / TWILIO_WHATSAPP_FROM ausentes)." },
-    };
-  }
-
-  const toFormatted = to.startsWith("whatsapp:") ? to : `whatsapp:+${to}`;
-
-  const params = new URLSearchParams({
-    From: from,
-    To: toFormatted,
-    Body: body,
-  });
-
-  // API Key authentication: username = API Key SID (SK...), password = API Key Secret.
-  const credentials = Buffer.from(`${apiKeySid}:${apiKeySecret}`).toString("base64");
-  const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: params.toString(),
-  });
-
-  const data = await res.json().catch(() => ({}));
-  return { ok: res.ok, status: res.status, data };
+export async function sendWhatsAppText(
+  to: string,
+  body: string,
+  opts?: { from?: string; channelApiKey?: string }
+): Promise<WhatsAppResult> {
+  return getWhatsAppProvider().sendText(to, body, opts);
 }
