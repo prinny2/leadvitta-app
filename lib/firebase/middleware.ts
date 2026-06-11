@@ -5,6 +5,7 @@ import { isFirebaseConfigured } from "@/lib/config";
 // (sem login) — não entra aqui.
 const ROTAS_PROTEGIDAS = [
   "/dashboard",
+  "/conversas",
   "/gerador",
   "/objecoes",
   "/follow-up",
