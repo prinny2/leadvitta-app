@@ -104,6 +104,13 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ---- Waitlist — gravada só pelo servidor (Admin SDK) ----
+    // O endpoint público aplica validação/rate limit; o cliente nunca acessa
+    // a coleção diretamente.
+    match /waitlist/{entryId} {
+      allow read, write: if false;
+    }
+
     // ---- Negar tudo o mais por padrão ----
     match /{document=**} {
       allow read, write: if false;

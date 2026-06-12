@@ -48,6 +48,29 @@ No Firebase Console:
 Sem Firebase Admin, login client-side ainda funciona, mas Stripe webhooks não
 conseguem atualizar Firestore e `/api/zapier/lead` rejeita envio autenticado.
 
+### Validação Firebase
+
+Antes de abrir PR ou publicar mudanças que toquem Auth, Firestore, billing ou
+rotas server-side, rode:
+
+```bash
+npm run firebase:verify
+```
+
+Esse comando sempre valida contratos estáticos de Firebase: `firebase.json`,
+`firestore.rules`, `firestore.indexes.json`, queries do app, inicialização do
+Admin SDK, `/api/config` e rotas que exigem Firebase ID token.
+
+Para validar as rules dinamicamente no Firestore emulator, instale JRE/JDK 17+
+e rode:
+
+```bash
+npm run firebase:emulator:check
+```
+
+No CI, o workflow `Firebase Verify` instala Java 17 e roda `firebase:verify` com
+`REQUIRE_FIREBASE_EMULATOR=1`, então o emulator é obrigatório no GitHub Actions.
+
 ### IA
 
 Configure pelo menos uma chave:
