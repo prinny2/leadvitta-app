@@ -76,11 +76,14 @@ export default function SignupPage() {
         console.warn("[signup] não foi possível persistir o DNA do funil:", draftErr);
       }
       // Se veio de um plano escolhido na landing (/signup?plan=...),
-      // leva o plano adiante pra concluir o checkout em /configuracoes.
+      // leva o plano adiante; next=checkout faz /configuracoes abrir o
+      // pagamento sozinha ("Criar conta e continuar" continua de verdade).
       // Sem plano: primeiro o DNA da clínica (onboarding) — sem ele as
       // respostas saem genéricas e a usuária acha que o produto é ruim.
-      const plano = new URLSearchParams(window.location.search).get("plan");
-      router.push(plano ? `/configuracoes?plan=${plano}` : "/onboarding");
+      const q = new URLSearchParams(window.location.search);
+      const plano = q.get("plan");
+      const next = q.get("next") === "checkout" ? "&next=checkout" : "";
+      router.push(plano ? `/configuracoes?plan=${plano}${next}` : "/onboarding");
       router.refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";

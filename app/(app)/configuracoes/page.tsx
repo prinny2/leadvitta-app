@@ -12,13 +12,13 @@ import { procedimentos } from "@/data/procedimentos";
 import { tons } from "@/data/tons";
 import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { getClinica, saveClinica } from "@/lib/store";
-import { updatePassword } from "firebase/auth";
+import { onAuthStateChanged, updatePassword } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CheckoutButton } from "@/components/checkout-button";
-import { billingPlanList } from "@/lib/billing";
+import { billingPlanList, billingPlans, parseBillingPlan } from "@/lib/billing";
 import { trackEvent } from "@/components/Analytics";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
@@ -32,6 +32,7 @@ export default function ConfiguracoesPage() {
 
   const [novaSenha, setNovaSenha] = useState("");
   const [senhaMsg, setSenhaMsg] = useState("");
+  const [abrindoCheckout, setAbrindoCheckout] = useState(false);
 
   useEffect(() => {
     getClinica().then((v) => {
@@ -44,6 +45,46 @@ export default function ConfiguracoesPage() {
     if (params.get("checkout") === "sucesso") {
       trackEvent("purchase", { stripe_session_id: params.get("session_id") });
     }
+  }, []);
+
+  // Continuação do funil: /configuracoes?plan=X&next=checkout (vindo do
+  // "Criar conta e continuar") abre o pagamento sozinha, sem mais um clique.
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+    const params = new URLSearchParams(window.location.search);
+    const plan = parseBillingPlan(params.get("plan"));
+    if (!plan || params.get("next") !== "checkout") return;
+    if (!billingPlans[plan].disponivel) return;
+
+    // Remove o next da URL antes de disparar: refresh/voltar do Stripe não
+    // re-abre o checkout em loop.
+    params.delete("next");
+    const qs = params.toString();
+    window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
+
+    setAbrindoCheckout(true);
+    const unsub = onAuthStateChanged(getFirebaseAuth(), async (user) => {
+      if (!user) return; // espera a sessão recém-criada hidratar
+      unsub();
+      try {
+        trackEvent("initiate_checkout", { plan, origem: "funil_pos_cadastro" });
+        const firebaseIdToken = await user.getIdToken();
+        const res = await fetch("/api/stripe/checkout", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ plan, firebaseIdToken, customerEmail: user.email }),
+        });
+        const data = (await res.json()) as { url?: string; error?: string };
+        if (!res.ok || !data.url) {
+          throw new Error(data.error || "Não foi possível abrir o pagamento.");
+        }
+        window.location.assign(data.url);
+      } catch (err) {
+        setAbrindoCheckout(false);
+        setErro(err instanceof Error ? err.message : "Não foi possível abrir o pagamento.");
+      }
+    });
+    return () => unsub();
   }, []);
 
   function set<K extends keyof Clinica>(key: K, value: Clinica[K]) {
@@ -111,10 +152,13 @@ export default function ConfiguracoesPage() {
     }
   }
 
-  if (carregando) {
+  if (carregando || abrindoCheckout) {
     return (
-      <div className="flex justify-center py-20">
+      <div className="flex flex-col items-center gap-3 py-20">
         <Loader2 className="animate-spin text-brand-400" />
+        {abrindoCheckout && (
+          <p className="text-sm text-muted">Abrindo o pagamento seguro…</p>
+        )}
       </div>
     );
   }
