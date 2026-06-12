@@ -25,7 +25,7 @@ import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { onAuthStateChanged } from "firebase/auth";
-import { saveClinica } from "@/lib/store";
+import { getClinica, saveClinica } from "@/lib/store";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/components/Analytics";
@@ -74,12 +74,41 @@ export default function OnboardingFunnelPage() {
   const [gerando, setGerando] = useState(false);
   const [respostaNossa, setRespostaNossa] = useState<string>("");
 
+  // O DNA montado aqui fica como rascunho no navegador: quem configura, cria a
+  // conta e volta (gate) reencontra tudo preenchido — nada se perde no signup.
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("lb_dna_draft");
+      if (raw) setC((prev) => ({ ...prev, ...JSON.parse(raw) }));
+    } catch {
+      /* draft corrompido: ignora */
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("lb_dna_draft", JSON.stringify(c));
+    } catch {
+      /* storage cheio/indisponível: segue sem rascunho */
+    }
+  }, [c]);
+
   useEffect(() => {
     if (!isFirebaseConfigured) return;
     try {
       const auth = getFirebaseAuth();
       setLogado(!!auth.currentUser);
-      const unsub = onAuthStateChanged(auth, (u) => setLogado(!!u));
+      const unsub = onAuthStateChanged(auth, (u) => {
+        setLogado(!!u);
+        if (!u) return;
+        // Logada: o DNA salvo na conta VENCE o rascunho local — senão um draft
+        // vazio/velho sobrescreveria o Firestore no próximo salvar.
+        getClinica()
+          .then((salva) => {
+            if (salva.nome_clinica || salva.onboarded) setC(salva);
+          })
+          .catch(() => {});
+      });
       return () => unsub();
     } catch {
       /* sem firebase: segue como visitante */
@@ -112,7 +141,18 @@ export default function OnboardingFunnelPage() {
 
   function irPara(proxima: Aba) {
     setAba(proxima);
+    // Logado que chegou na escolha de plano já configurou o DNA: persiste e
+    // marca onboarded — senão o gate devolveria pro onboarding depois de pagar.
+    if (proxima === "planos" && logado && podeAvancar) {
+      setSalvarFalhou(false);
+      saveClinica({ ...c, onboarded: true }).catch(() => setSalvarFalhou(true));
+    }
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function tentarSalvarDeNovo() {
+    setSalvarFalhou(false);
+    saveClinica({ ...c, onboarded: true }).catch(() => setSalvarFalhou(true));
   }
 
   async function gerarRespostaNossa() {
@@ -600,6 +640,19 @@ export default function OnboardingFunnelPage() {
                   Escolha como começar. Você cancela quando quiser.
                 </p>
               </div>
+
+              {salvarFalhou && (
+                <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  Não conseguimos salvar o perfil da sua clínica agora.
+                  <button
+                    type="button"
+                    onClick={tentarSalvarDeNovo}
+                    className="rounded-lg border border-amber-300 px-3 py-1 text-xs font-semibold hover:bg-amber-100"
+                  >
+                    Tentar de novo
+                  </button>
+                </div>
+              )}
 
               <div className="grid gap-5 md:grid-cols-3">
                 {billingPlanList.map((plano) => (

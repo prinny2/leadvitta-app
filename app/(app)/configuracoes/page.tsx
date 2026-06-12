@@ -12,7 +12,7 @@ import { procedimentos } from "@/data/procedimentos";
 import { tons } from "@/data/tons";
 import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { getClinica, saveClinica } from "@/lib/store";
-import { updatePassword } from "firebase/auth";
+import { onAuthStateChanged, updatePassword } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
@@ -33,6 +33,7 @@ export default function ConfiguracoesPage() {
 
   const [novaSenha, setNovaSenha] = useState("");
   const [senhaMsg, setSenhaMsg] = useState("");
+  const [abrindoCheckout, setAbrindoCheckout] = useState(false);
 
   useEffect(() => {
     getClinica().then((v) => {
@@ -45,6 +46,60 @@ export default function ConfiguracoesPage() {
     if (params.get("checkout") === "sucesso") {
       trackEvent("purchase", { stripe_session_id: params.get("session_id") });
     }
+  }, []);
+
+  // Continuação do funil: /configuracoes?plan=X&next=checkout (vindo do
+  // "Criar conta e continuar") abre o pagamento sozinha, sem mais um clique.
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+    const params = new URLSearchParams(window.location.search);
+    const plan = parseBillingPlan(params.get("plan"));
+    if (!plan || params.get("next") !== "checkout") return;
+    if (!billingPlans[plan].disponivel) return;
+
+    // Remove o next da URL antes de disparar: refresh/voltar do Stripe não
+    // re-abre o checkout em loop.
+    params.delete("next");
+    const qs = params.toString();
+    window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
+
+    setAbrindoCheckout(true);
+    let disparado = false;
+    const unsub = onAuthStateChanged(getFirebaseAuth(), async (user) => {
+      if (!user) return; // espera a sessão recém-criada hidratar
+      disparado = true;
+      clearTimeout(timeout);
+      unsub();
+      try {
+        trackEvent("initiate_checkout", { plan, origem: "funil_pos_cadastro" });
+        const firebaseIdToken = await user.getIdToken();
+        const res = await fetch("/api/stripe/checkout", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ plan, firebaseIdToken, customerEmail: user.email }),
+        });
+        const data = (await res.json()) as { url?: string; error?: string };
+        if (!res.ok || !data.url) {
+          throw new Error(data.error || "Não foi possível abrir o pagamento.");
+        }
+        window.location.assign(data.url);
+      } catch (err) {
+        setAbrindoCheckout(false);
+        setErro(err instanceof Error ? err.message : "Não foi possível abrir o pagamento.");
+      }
+    });
+    // Se a sessão do Firebase nunca hidratar (ex.: cookie presente sem sessão),
+    // desarma o spinner e devolve a tela normal — sem "Abrindo…" eterno.
+    const timeout = setTimeout(() => {
+      if (disparado) return;
+      unsub();
+      setAbrindoCheckout(false);
+      setErro("Sua sessão ainda não carregou. Toque em “Assinar” no plano escolhido para continuar.");
+    }, 8000);
+    return () => {
+      clearTimeout(timeout);
+      unsub();
+    };
   }, []);
 
   function set<K extends keyof Clinica>(key: K, value: Clinica[K]) {
@@ -66,10 +121,10 @@ export default function ConfiguracoesPage() {
     setErro("");
     setOk(false);
     try {
-      await saveClinica({ ...c, onboarded: true });
-      // O número de WhatsApp é conectado por uma rota dedicada (unicidade no
-      // servidor) — não vai junto do saveClinica.
-      if (isFirebaseConfigured && c.whatsapp.trim()) {
+      // O número de WhatsApp vai por uma rota dedicada (unicidade no servidor)
+      // e roda ANTES do resto: se o número estiver em uso (409), nada é salvo
+      // pela metade. Campo vazio = desconectar o número.
+      if (isFirebaseConfigured) {
         const user = getFirebaseAuth().currentUser;
         if (user) {
           const firebaseIdToken = await user.getIdToken();
@@ -84,6 +139,7 @@ export default function ConfiguracoesPage() {
           }
         }
       }
+      await saveClinica({ ...c, onboarded: true });
       setOk(true);
       setTimeout(() => setOk(false), 2500);
     } catch (err) {
@@ -111,10 +167,13 @@ export default function ConfiguracoesPage() {
     }
   }
 
-  if (carregando) {
+  if (carregando || abrindoCheckout) {
     return (
-      <div className="flex justify-center py-20">
+      <div className="flex flex-col items-center gap-3 py-20">
         <Loader2 className="animate-spin text-brand-400" />
+        {abrindoCheckout && (
+          <p className="text-sm text-muted">Abrindo o pagamento seguro…</p>
+        )}
       </div>
     );
   }

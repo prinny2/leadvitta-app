@@ -36,60 +36,78 @@ const text =
   "Oi, queria saber sobre botox";
 const appSecret = options.appSecret || process.env.WHATSAPP_APP_SECRET || "";
 
-const payload = {
-  object: "whatsapp_business_account",
-  entry: [
-    {
-      id: "simulated-waba",
-      changes: [
-        {
-          field: "messages",
-          value: {
-            messaging_product: "whatsapp",
-            metadata: {
-              display_phone_number: displayPhoneNumber,
-              phone_number_id: "simulated-phone-number-id",
+// O formato do POST acompanha o provedor ativo no servidor (lib/whatsapp.ts):
+// "twilio" (default) = form-urlencoded; "dialog360" = JSON do Cloud API.
+const provider = (
+  options.provider ||
+  process.env.WHATSAPP_PROVIDER ||
+  "twilio"
+).toLowerCase();
+
+let rawBody;
+const headers = {};
+
+if (provider === "dialog360" || provider === "360dialog") {
+  const payload = {
+    object: "whatsapp_business_account",
+    entry: [
+      {
+        id: "simulated-waba",
+        changes: [
+          {
+            field: "messages",
+            value: {
+              messaging_product: "whatsapp",
+              metadata: {
+                display_phone_number: displayPhoneNumber,
+                phone_number_id: "simulated-phone-number-id",
+              },
+              contacts: [
+                {
+                  profile: { name: contactName },
+                  wa_id: from,
+                },
+              ],
+              messages: [
+                {
+                  from,
+                  id: `wamid.simulated.${Date.now()}`,
+                  timestamp: String(Math.floor(Date.now() / 1000)),
+                  type: "text",
+                  text: { body: text },
+                },
+              ],
             },
-            contacts: [
-              {
-                profile: { name: contactName },
-                wa_id: from,
-              },
-            ],
-            messages: [
-              {
-                from,
-                id: `wamid.simulated.${Date.now()}`,
-                timestamp: String(Math.floor(Date.now() / 1000)),
-                type: "text",
-                text: { body: text },
-              },
-            ],
           },
-        },
-      ],
-    },
-  ],
-};
-
-const rawBody = JSON.stringify(payload);
-const headers = {
-  "Content-Type": "application/json",
-};
-
-if (appSecret) {
-  headers["X-Hub-Signature-256"] =
-    "sha256=" + crypto.createHmac("sha256", appSecret).update(rawBody).digest("hex");
+        ],
+      },
+    ],
+  };
+  rawBody = JSON.stringify(payload);
+  headers["Content-Type"] = "application/json";
+  if (appSecret) {
+    headers["X-Hub-Signature-256"] =
+      "sha256=" + crypto.createHmac("sha256", appSecret).update(rawBody).digest("hex");
+  }
+} else {
+  // Twilio: form-urlencoded, campos From/To com prefixo "whatsapp:".
+  rawBody = new URLSearchParams({
+    MessageSid: `SM_simulated_${Date.now()}`,
+    From: `whatsapp:+${from}`,
+    To: `whatsapp:+${displayPhoneNumber}`,
+    Body: text,
+    ProfileName: contactName,
+  }).toString();
+  headers["Content-Type"] = "application/x-www-form-urlencoded";
+  // Em dev (sem TWILIO_AUTH_TOKEN) o webhook libera; em produção exige a
+  // assinatura real do Twilio — este simulador é só pra ambiente local.
 }
 
 console.log("[whatsapp:simulate] POST", url);
-console.log("[whatsapp:simulate] display_phone_number =", displayPhoneNumber);
+console.log("[whatsapp:simulate] provider =", provider);
+console.log("[whatsapp:simulate] to/display_phone_number =", displayPhoneNumber);
 console.log("[whatsapp:simulate] from =", from);
 console.log("[whatsapp:simulate] text =", text);
-console.log(
-  "[whatsapp:simulate] signature =",
-  appSecret ? "enabled (WHATSAPP_APP_SECRET found)" : "disabled"
-);
 
 let response;
 try {
@@ -161,6 +179,7 @@ function normalizeKey(key) {
     "--text": "text",
     "--message": "text",
     "--app-secret": "appSecret",
+    "--provider": "provider",
   };
   return map[key];
 }
@@ -215,7 +234,9 @@ Options:
   --from                   Simulated client WhatsApp number
   --name, --contact-name   Simulated contact name
   --text, --message        Simulated inbound message text
-  --app-secret             Meta app secret used to sign X-Hub-Signature-256
+  --app-secret             Meta app secret used to sign X-Hub-Signature-256 (dialog360)
+  --provider               "twilio" (default) or "dialog360" — must match the
+                           server's WHATSAPP_PROVIDER (also read from .env.local)
 
 Notes:
   The script also reads .env.local when present.

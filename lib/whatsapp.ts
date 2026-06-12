@@ -1,5 +1,8 @@
-// Registry de provedores de WhatsApp. A escolha é por env WHATSAPP_PROVIDER
-// ("twilio" | "dialog360"); sem env, usa 360dialog se configurado, senão Twilio.
+// Registry de provedores de WhatsApp. A escolha é EXPLÍCITA por env
+// WHATSAPP_PROVIDER ("twilio" | "dialog360"); sem env, Twilio.
+// Sem auto-detecção por D360_API_KEY de propósito: durante a migração, setar a
+// chave do 360dialog comutaria o parse/validação e derrubaria os webhooks do
+// Twilio em silêncio.
 import { twilioProvider } from "@/lib/whatsapp-twilio";
 import { dialog360Provider } from "@/lib/whatsapp-dialog360";
 import type { WhatsAppProvider, WhatsAppResult } from "@/lib/whatsapp-types";
@@ -9,9 +12,6 @@ export type { WhatsAppProvider, WhatsAppResult, InboundMessage } from "@/lib/wha
 export function getWhatsAppProvider(): WhatsAppProvider {
   const pref = (process.env.WHATSAPP_PROVIDER || "").toLowerCase();
   if (pref === "dialog360" || pref === "360dialog") return dialog360Provider;
-  if (pref === "twilio") return twilioProvider;
-  // Auto: prioriza 360dialog quando há chave; senão Twilio.
-  if (dialog360Provider.isConfigured()) return dialog360Provider;
   return twilioProvider;
 }
 

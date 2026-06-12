@@ -40,6 +40,24 @@ export async function reservarProcessamento(
   }
 }
 
+/**
+ * Devolve a reserva quando o processamento FALHOU (crash, roteamento sem
+ * clínica). Sem isso, o retry do provedor seria tratado como duplicata e a
+ * mensagem se perderia pra sempre.
+ */
+export async function liberarProcessamento(
+  providerMessageId?: string
+): Promise<void> {
+  if (!providerMessageId) return;
+  const db = getFirebaseAdminDb();
+  if (!db) return;
+  await db
+    .collection("mensagens_processadas")
+    .doc(providerMessageId.replace(/[^\w-]/g, "_"))
+    .delete()
+    .catch(() => {});
+}
+
 type InboundParams = {
   clinicaId: string;
   from: string;
@@ -84,13 +102,22 @@ export async function registrarMensagemRecebida(
     { merge: true }
   );
 
-  await ref.collection("mensagens").add({
+  // Id determinístico pelo providerMessageId: se a reserva foi devolvida após
+  // um crash e o provedor reentregar, o set() sobrescreve a MESMA linha em vez
+  // de duplicar a mensagem na thread.
+  const dadosMensagem = {
     clinica_id: p.clinicaId,
     direcao: "in",
     texto: p.text,
     em: agora,
     ...(p.providerMessageId ? { provider_message_id: p.providerMessageId } : {}),
-  });
+  };
+  const mensagens = ref.collection("mensagens");
+  if (p.providerMessageId) {
+    await mensagens.doc(p.providerMessageId.replace(/[^\w-]/g, "_")).set(dadosMensagem);
+  } else {
+    await mensagens.add(dadosMensagem);
+  }
 
   return id;
 }

@@ -52,16 +52,33 @@ export const twilioProvider: WhatsAppProvider = {
     const signature = req.headers.get("x-twilio-signature") || "";
     if (!signature) return false;
 
-    const fullUrl = process.env.NEXT_PUBLIC_SITE_URL
-      ? `${process.env.NEXT_PUBLIC_SITE_URL}/api/whatsapp/webhook`
-      : new URL(req.url).href;
-
     const params: Record<string, string> = {};
     new URLSearchParams(rawBody).forEach((v, k) => {
       params[k] = v;
     });
 
-    return validateTwilioSignature(authToken, fullUrl, params, signature);
+    // O Twilio assina a URL EXATA configurada no console. Atrás de proxy
+    // (Vercel/Cloud Run) o req.url tem host interno, então reconstruímos pelo
+    // x-forwarded-* e aceitamos se QUALQUER candidato validar (www vs apex,
+    // domínio custom vs *.run.app — basta um casar com o que foi configurado).
+    const reqUrl = new URL(req.url);
+    const fwdProto = req.headers.get("x-forwarded-proto") || "https";
+    const fwdHost = req.headers.get("x-forwarded-host") || req.headers.get("host");
+    const candidatos = new Set<string>();
+    if (fwdHost) {
+      candidatos.add(`${fwdProto}://${fwdHost}${reqUrl.pathname}${reqUrl.search}`);
+    }
+    if (process.env.NEXT_PUBLIC_SITE_URL) {
+      candidatos.add(
+        `${process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")}${reqUrl.pathname}${reqUrl.search}`
+      );
+    }
+    candidatos.add(reqUrl.href);
+
+    for (const url of candidatos) {
+      if (validateTwilioSignature(authToken, url, params, signature)) return true;
+    }
+    return false;
   },
 
   parseInbound(rawBody) {

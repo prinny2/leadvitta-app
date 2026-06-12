@@ -43,6 +43,23 @@ export async function reivindicarNumero(
   });
 }
 
+/** Desconecta o número atual da clínica (limpa o mapa e o campo). */
+export async function liberarNumero(clinicaId: string): Promise<ClaimResult> {
+  const db = getFirebaseAdminDb();
+  if (!db) return { ok: false, motivo: "sem_db" };
+
+  return db.runTransaction(async (tx) => {
+    const clinicaRef = db.collection("clinicas").doc(clinicaId);
+    const clinicaSnap = await tx.get(clinicaRef);
+    const numeroAtual = numeroDigits(clinicaSnap.data()?.whatsapp as string | undefined);
+    if (numeroAtual) {
+      tx.delete(db.collection("numeros_whatsapp").doc(numeroAtual));
+    }
+    tx.set(clinicaRef, { whatsapp: "" }, { merge: true });
+    return { ok: true as const, numero: "" };
+  });
+}
+
 /** Descobre a clínica dona de um número (tenta variantes de DDI). */
 export async function resolverClinicaPorNumero(
   numeroBruto: string

@@ -20,9 +20,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "LeadBellus — Responda melhor. Agende mais.",
+  title: "LeadBellus — Agendamento Inteligente para Estética",
   description:
-    "Inteligência de conversão para clínicas de estética: gere respostas estratégicas para o WhatsApp, quebre objeções e transforme dúvidas em agendamentos.",
+    "Aumente os agendamentos da sua clínica com inteligência de conversão. Transforme dúvidas do WhatsApp em vendas reais com respostas estratégicas e seguras.",
 };
 
 export default function RootLayout({
