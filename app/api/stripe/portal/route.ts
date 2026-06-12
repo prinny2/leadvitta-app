@@ -36,20 +36,28 @@ export async function POST(request: Request) {
   const parsed = await readJsonBody<PortalBody>(request, 4_096);
   if (parsed.error) return parsed.error;
 
-  const decodedToken = await verifyFirebaseIdToken(parsed.data?.firebaseIdToken);
-  if (!decodedToken?.uid) {
-    return jsonNoStore(
-      { error: "Faça login antes de gerenciar sua assinatura." },
-      { status: 401 }
-    );
-  }
-
   const db = getFirebaseAdminDb();
   if (!db) {
     console.error("[stripe.portal] Firebase Admin não configurado.");
     return jsonNoStore(
       { error: "Portal indisponível no momento. Fale com o suporte." },
       { status: 503 }
+    );
+  }
+
+  if (!process.env.STRIPE_SECRET_KEY?.trim()) {
+    console.error("[stripe.portal] Stripe não configurado neste ambiente.");
+    return jsonNoStore(
+      { error: "Portal indisponível no momento. Fale com o suporte." },
+      { status: 503 }
+    );
+  }
+
+  const decodedToken = await verifyFirebaseIdToken(parsed.data?.firebaseIdToken);
+  if (!decodedToken?.uid) {
+    return jsonNoStore(
+      { error: "Faça login antes de gerenciar sua assinatura." },
+      { status: 401 }
     );
   }
 
