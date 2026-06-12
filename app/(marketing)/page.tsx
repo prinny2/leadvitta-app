@@ -71,7 +71,7 @@ const features = [
     title: "Histórico",
     subtitle: "Sua melhor resposta de hoje vira o padrão de amanhã",
     description:
-      "Tudo que você gerou fica salvo com data e contexto. Favorite as que mais funcionaram. Filtre por módulo. Exporte em PDF para treinar sua recepcionista com as suas melhores respostas — não com um roteiro genérico.",
+      "Tudo que você gerou fica salvo com data e contexto. Favorite as que mais funcionaram. Filtre por módulo.",
   },
 ];
 
@@ -131,7 +131,7 @@ export default function LandingPage() {
               Entrar
             </Link>
             <Link
-              href={comecarHref}
+              href="#planos"
               className="rounded-xl bg-[#DEC9A0] px-4 py-2 text-sm font-semibold text-[#0D1B2E] transition-all hover:opacity-90"
             >
               Começar grátis
@@ -155,7 +155,7 @@ export default function LandingPage() {
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href={comecarHref}
+              href="#planos"
               className="inline-flex items-center gap-2 rounded-xl bg-[#DEC9A0] px-8 py-4 text-base font-semibold text-[#0D1B2E] shadow-lg transition-all hover:scale-105 hover:opacity-90"
             >
               Quero testar grátis por 7 dias <ArrowRight size={18} />
@@ -248,7 +248,7 @@ export default function LandingPage() {
       {/* ── CTA INTERMEDIÁRIO ── */}
       <section className="py-12 text-center" style={{ background: "#F5F2EE" }}>
         <Link
-          href={comecarHref}
+          href="#planos"
           className="inline-flex items-center gap-2 rounded-xl bg-[#0D1B2E] px-8 py-4 text-base font-semibold text-[#DEC9A0] shadow-lg transition-all hover:scale-105 hover:opacity-90"
         >
           Quero a resposta certa pra cada situação <ArrowRight size={18} />
@@ -321,7 +321,7 @@ export default function LandingPage() {
                 num: "02",
                 title: "Cole a mensagem e selecione a situação",
                 sub: null,
-                desc: "Perguntou preço. Achou caro. Sumiu. Medo do procedimento. Veio do Instagram. Em segundos o sistema entende o contexto e sabe o que precisa ser dito.",
+                desc: "Perguntou preço. Achou caro. Sumiu. Medo do procedimento. Em segundos o sistema entende o contexto e sabe o que precisa ser dito.",
               },
               {
                 num: "03",
@@ -434,7 +434,7 @@ export default function LandingPage() {
             O preço de hoje não volta depois do lançamento oficial.
           </p>
           <Link
-            href={comecarHref}
+            href="#planos"
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#DEC9A0] px-8 py-4 text-base font-bold text-[#0D1B2E] shadow-lg transition-all hover:scale-105 hover:opacity-90"
           >
             Quero entrar como fundadora <ArrowRight size={18} />
@@ -446,7 +446,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── PRICING ── */}
-      <section className="py-20">
+      <section id="planos" className="py-20">
         <div className="mx-auto max-w-5xl px-4">
           <div className="text-center">
             <h2 className="font-serif text-3xl font-semibold text-[#0D1B2E] sm:text-4xl">
@@ -508,7 +508,7 @@ export default function LandingPage() {
                   "Follow-up Inteligente",
                   "Scripts de Atendimento com timing",
                   "DNA da Clínica",
-                  "Histórico + exportação PDF",
+                  "Histórico",
                 ].map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-[#DEC9A0]/80">
                     <Check size={14} className="shrink-0 text-[#C9A84C]" /> {f}
@@ -626,7 +626,7 @@ export default function LandingPage() {
             O risco de testar é zero. O custo de não testar você já conhece — está sentindo toda semana.
           </p>
           <Link
-            href={comecarHref}
+            href="#planos"
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#DEC9A0] px-10 py-4 text-base font-bold text-[#0D1B2E] shadow-xl transition-all hover:scale-105 hover:opacity-90"
           >
             Quero minha clínica respondendo melhor agora <ArrowRight size={18} />
