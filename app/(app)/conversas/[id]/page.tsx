@@ -24,14 +24,25 @@ export default function ConversaThreadPage() {
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
+  const [erroCarregamento, setErroCarregamento] = useState(false);
   const fimRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!id) return;
-    getConversa(id).then(setConversa).catch(() => setConversa(null));
+    setErroCarregamento(false);
+    setMensagens(null);
+    getConversa(id)
+      .then(setConversa)
+      .catch(() => {
+        setErroCarregamento(true);
+        setConversa(null);
+      });
     getMensagens(id)
       .then(setMensagens)
-      .catch(() => setMensagens([]));
+      .catch(() => {
+        setErroCarregamento(true);
+        setMensagens([]);
+      });
     marcarConversaLida(id).catch(() => {});
   }, [id]);
 
@@ -132,7 +143,19 @@ export default function ConversaThreadPage() {
             </div>
           </div>
         ))}
-        {mensagens && mensagens.length === 0 && (
+        {erroCarregamento && (
+          <div className="flex flex-col items-center gap-3 py-10 text-center text-sm text-muted">
+            <p>Não foi possível carregar esta conversa agora.</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="rounded-xl border border-brand-300 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50"
+            >
+              Tentar de novo
+            </button>
+          </div>
+        )}
+        {!erroCarregamento && mensagens && mensagens.length === 0 && (
           <p className="py-10 text-center text-sm text-muted">
             Sem mensagens nesta conversa ainda.
           </p>

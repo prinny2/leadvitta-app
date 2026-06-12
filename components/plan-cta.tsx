@@ -19,9 +19,8 @@ type PlanCTAProps = {
  *
  * Regra de funil — evita assinatura órfã no Stripe:
  *  - sem Firebase configurado  => modo demonstração, manda pro app;
- *  - visitante DESLOGADO        => vai pro /signup levando o plano escolhido
- *    (o checkout precisa de firebase_uid pra mapear o pagamento à conta);
- *  - usuário LOGADO             => abre o Stripe Checkout direto.
+ *  - visitante DESLOGADO        => escolhe o plano e cria conta só para finalizar;
+ *  - usuário LOGADO             => aí sim abre o Stripe Checkout direto.
  */
 export function PlanCTA({ plan, className, children }: PlanCTAProps) {
   const router = useRouter();
@@ -30,7 +29,7 @@ export function PlanCTA({ plan, className, children }: PlanCTAProps) {
 
   async function handleClick() {
     setErro("");
-    trackEvent("initiate_checkout", { plan });
+    trackEvent("select_plan", { plan });
 
     if (!isFirebaseConfigured) {
       router.push("/dashboard");
@@ -39,12 +38,13 @@ export function PlanCTA({ plan, className, children }: PlanCTAProps) {
 
     const user = getFirebaseAuth().currentUser;
     if (!user) {
-      router.push(`/signup?plan=${plan}`);
+      router.push(`/signup?plan=${plan}&next=checkout`);
       return;
     }
 
     setLoading(true);
     try {
+      trackEvent("initiate_checkout", { plan });
       const firebaseIdToken = await user.getIdToken();
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",

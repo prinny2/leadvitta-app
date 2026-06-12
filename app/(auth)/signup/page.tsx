@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
@@ -32,10 +32,18 @@ async function notifyZapierSignup(idToken: string) {
 
 export default function SignupPage() {
   const router = useRouter();
+  const [planoSelecionado, setPlanoSelecionado] = useState("");
+  const finalizandoCompra = !!planoSelecionado;
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    setPlanoSelecionado(
+      new URLSearchParams(window.location.search).get("plan") || ""
+    );
+  }, []);
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
@@ -93,10 +101,12 @@ export default function SignupPage() {
       <CardBody className="space-y-5">
         <div>
           <h1 className="font-serif text-2xl font-semibold text-ink">
-            Criar conta
+            {finalizandoCompra ? "Criar conta para assinar" : "Criar conta"}
           </h1>
           <p className="text-sm text-muted">
-            Comece a responder melhor hoje mesmo.
+            {finalizandoCompra
+              ? "Só precisamos da sua conta para vincular o pagamento e liberar seu acesso."
+              : "Comece a responder melhor hoje mesmo."}
           </p>
         </div>
 
@@ -127,7 +137,7 @@ export default function SignupPage() {
           {erro && <p className="text-sm text-red-600">{erro}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && <Loader2 size={16} className="animate-spin" />}
-            Criar conta
+            {finalizandoCompra ? "Criar conta e continuar" : "Criar conta"}
           </Button>
         </form>
 
