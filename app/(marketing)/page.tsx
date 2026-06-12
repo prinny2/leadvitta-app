@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
@@ -7,113 +10,347 @@ import {
   ArrowRight,
   MessageSquareText,
   ShieldCheck,
-  Flower2,
+  BookOpen,
+  Clock,
+  Target,
+  History,
+  Brain,
 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/config";
-import { Logo } from "@/components/logo";
 import { PlanCTA } from "@/components/plan-cta";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 
 const comecarHref = isFirebaseConfigured ? "/signup" : "/dashboard";
 
-const dores = [
-  "respostas para clientes que perguntam preço",
-  "respostas para quem acha caro",
-  "mensagens para clientes que somem",
-  "scripts para conduzir até a avaliação",
-  "follow-ups prontos",
-  "respostas por procedimento",
+const features = [
+  {
+    icon: MessageSquareText,
+    title: "Gerador de Respostas",
+    subtitle: "Você nunca mais vai ficar sem saber o que falar",
+    description:
+      "Cola a mensagem da cliente, seleciona o que está acontecendo na conversa, e recebe 3 respostas no seu tom — suave, consultiva ou de fechamento. Botox, harmonização, preenchimento, laser, bioestimulador — o sistema conhece cada procedimento e sabe como apresentar o valor sem espantar.",
+  },
+  {
+    icon: Brain,
+    title: "Lead Intelligence",
+    subtitle: "Você responde primeiro quem tem mais chance de fechar",
+    description:
+      "Cada mensagem analisada e classificada: Quente, Morna ou Fria. Score de prioridade visível antes de você abrir a conversa. Pare de responder na ordem que chegou — comece a responder na ordem que fecha.",
+  },
+  {
+    icon: BookOpen,
+    title: "Biblioteca de Objeções",
+    subtitle: 'Aquele "está caro" nunca mais vai te deixar sem resposta',
+    description:
+      'Mais de 25 respostas prontas para as objeções que mais travam venda na estética: "está caro", "vou pensar", "na outra é mais barato", "faz por menos?", "tem desconto?". Um clique pra copiar. Outro pra adaptar ao seu tom.',
+  },
+  {
+    icon: Clock,
+    title: "Follow-up Inteligente",
+    subtitle: "A cliente que sumiu há 3 dias ainda pode fechar",
+    description:
+      "Selecione quanto tempo faz que ela desapareceu e receba 3 mensagens com progressão psicológica — suave no começo, mais direta depois, última tentativa no timing certo. Você reativa sem parecer desesperada. Sem parecer chata.",
+  },
+  {
+    icon: Target,
+    title: "Scripts de Atendimento",
+    subtitle: 'Do primeiro "oi" ao agendamento — sem improvisar uma única mensagem',
+    description:
+      "Fluxos completos de 4 a 5 mensagens com indicação de quando mandar cada uma. Cliente nova do Instagram. Cliente que achou caro. Cliente que pediu orçamento e sumiu. O caminho já está traçado — você só segue.",
+  },
+  {
+    icon: Sparkles,
+    title: "DNA da Clínica",
+    subtitle: "As respostas saem como se você tivesse escrito — porque você ensinou o sistema a falar como você",
+    description:
+      "Tom de voz, apelido preferido, CTA, procedimentos que você oferece. Configure uma vez. A partir daí, cada resposta sai com a sua personalidade. Suas clientes não vão saber que foi uma ferramenta.",
+  },
+  {
+    icon: History,
+    title: "Histórico",
+    subtitle: "Sua melhor resposta de hoje vira o padrão de amanhã",
+    description:
+      "Tudo que você gerou fica salvo com data e contexto. Favorite as que mais funcionaram. Filtre por módulo. Exporte em PDF para treinar sua recepcionista com as suas melhores respostas — não com um roteiro genérico.",
+  },
+];
+
+const faqs = [
+  {
+    q: "As respostas vão soar robóticas?",
+    a: "Essa é a pergunta que todo mundo faz — e é exatamente o que o DNA da Clínica resolve. Antes de gerar qualquer resposta, o sistema aprende como você fala, como você chama suas clientes e qual é o seu CTA preferido. O resultado parece você escrevendo com calma e estratégia. Profissionais que usam relatam que as clientes não percebem. Algumas acham que a atendente melhorou.",
+  },
+  {
+    q: "Funciona pra qualquer procedimento estético?",
+    a: "Sim. O LeadBellus foi construído especificamente pro mercado estético brasileiro — não adaptado de uma ferramenta genérica. Conhece botox, harmonização facial, preenchimento labial, bioestimulador de colágeno, laser, microagulhamento, limpeza de pele, drenagem linfática, skinbooster e mais. Se é estética no Brasil, o sistema conhece.",
+  },
+  {
+    q: "E se eu não tiver muitas leads ainda?",
+    a: "Melhor ainda. Você aprende a usar quando o volume é menor e já está com o sistema rodando quando as leads aumentarem. Cada lead que chegar vai ser tratada da forma certa desde o primeiro dia.",
+  },
+  {
+    q: "Preciso de muito tempo pra configurar?",
+    a: "Menos de 5 minutos no primeiro acesso. Depois disso, é só colar a mensagem e clicar em Gerar. A maioria das profissionais gera a primeira resposta em menos de 2 minutos após o cadastro.",
+  },
+  {
+    q: "Funciona pelo celular?",
+    a: "Foi feito pensando em quem atende pelo celular. Interface limpa, campos simples, botão de copiar com um toque. Você usa entre um procedimento e outro.",
+  },
+  {
+    q: "Qual a diferença pra usar o ChatGPT?",
+    a: 'O ChatGPT não conhece a jornada psicológica da cliente de estética no Brasil. Não sabe que "vou pensar" quase sempre é objeção de preço disfarçada. Não sabe quando autoridade leve converte mais do que acolhimento. O LeadBellus foi treinado nesse contexto específico — e a diferença aparece na resposta.',
+  },
+  {
+    q: "Se eu não gostar, como cancelo?",
+    a: "Pelo painel, em um clique. Sem ligação. Sem formulário. Sem prazo de aviso. Cancela hoje, não cobra mais amanhã.",
+  },
 ];
 
 export default function LandingPage() {
+  const [billing, setBilling] = useState<"mensal" | "anual">("mensal");
+
   return (
-    <div className="bg-nude-50">
-      {/* Top nav */}
-      <header className="relative overflow-hidden bg-hero">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-12 top-10 h-48 w-48 rounded-full bg-lavender-200/30 blur-3xl animate-float" />
-          <div className="absolute -right-12 top-20 h-56 w-56 rounded-full bg-brand-200/25 blur-3xl animate-float-delayed" />
+    <div className="bg-white">
+
+      {/* ── HEADER + HERO ── */}
+      <header className="relative overflow-hidden" style={{ background: "#0D1B2E" }}>
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -left-20 -top-10 h-80 w-80 rounded-full opacity-20 blur-3xl" style={{ background: "#C9A84C" }} />
+          <div className="absolute -right-20 bottom-0 h-96 w-96 rounded-full opacity-10 blur-3xl" style={{ background: "#DEC9A0" }} />
         </div>
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
-          <Logo href="/" textClass="text-lg text-ink" />
+
+        <nav className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
+          <Link href="/">
+            <img src="/LEADBELLUS.png" alt="LeadBellus" className="h-10 w-auto" />
+          </Link>
           <div className="flex items-center gap-2">
             <Link
               href="/login"
-              className="rounded-xl px-4 py-2 text-sm font-medium text-ink hover:bg-white/60"
+              className="rounded-xl px-4 py-2 text-sm font-medium text-[#DEC9A0] hover:bg-white/10"
             >
               Entrar
             </Link>
             <Link
               href={comecarHref}
-              className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-soft hover:bg-brand-600"
+              className="rounded-xl bg-[#DEC9A0] px-4 py-2 text-sm font-semibold text-[#0D1B2E] transition-all hover:opacity-90"
             >
-              Começar
+              Começar grátis
             </Link>
           </div>
         </nav>
 
-        {/* Hero */}
-        <section className="mx-auto max-w-4xl px-4 pb-12 pt-10 text-center sm:pt-16">
-          <span className="inline-flex animate-float items-center gap-1.5 rounded-full border border-lavender-300 bg-white/70 px-3 py-1 text-xs font-medium text-lavender-700 shadow-sm">
-            <Sparkles size={14} className="text-brand-500" /> Responda melhor. Agende mais.
+        <section className="relative mx-auto max-w-4xl px-4 pb-24 pt-12 text-center sm:pt-20">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C] bg-[#C9A84C]/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
+            <Sparkles size={12} /> ✦ A ferramenta que sua clínica perdeu dinheiro sem ter
           </span>
-          <h1 className="mt-6 font-serif text-4xl font-semibold leading-tight text-ink sm:text-6xl">
-            Pare de perder clientes no WhatsApp por{" "}
-            <span className="text-gold-gradient">responder do jeito errado.</span>
+
+          <h1 className="mt-6 font-serif text-4xl font-semibold leading-tight text-[#DEC9A0] sm:text-6xl">
+            Toda semana sua clínica perde dinheiro no WhatsApp por{" "}
+            <span className="text-[#C9A84C]">responder do jeito errado.</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-            Gere respostas estratégicas com IA para quebrar objeções, fazer
-            follow-up e transformar dúvidas sobre procedimentos estéticos em
-            agendamentos.
+
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[#DEC9A0]/70">
+            O LeadBellus entrega a resposta certa pra cada situação — no seu tom, em segundos, pronta pra copiar e colar. Nenhuma cliente a mais vai sumir por falta de condução.
           </p>
+
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href={comecarHref}
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-8 py-4 text-base font-semibold text-white shadow-soft transition-all hover:scale-105 hover:bg-brand-600"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#DEC9A0] px-8 py-4 text-base font-semibold text-[#0D1B2E] shadow-lg transition-all hover:scale-105 hover:opacity-90"
             >
-              Quero responder melhor no WhatsApp <ArrowRight size={18} />
+              Quero testar grátis por 7 dias <ArrowRight size={18} />
             </Link>
             <Link
               href="#demo"
-              className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-white/70 px-8 py-4 text-base font-semibold text-ink transition-all hover:bg-white"
+              className="inline-flex items-center gap-2 rounded-xl border border-[#DEC9A0]/30 px-8 py-4 text-base font-semibold text-[#DEC9A0] transition-all hover:bg-white/10"
             >
-              Ver demo
+              Ver como funciona
             </Link>
           </div>
-          <div className="mt-6 text-sm text-muted">
-            Sem cartão para testar · pronto em minutos
-          </div>
+          <p className="mt-4 text-sm text-[#DEC9A0]/40">
+            Sem cartão · Acesso imediato · Configure e use em menos de 5 minutos
+          </p>
         </section>
-
-        {/* Social Proof Bar */}
-        <div className="mx-auto max-w-5xl px-4 pb-16">
-          <div className="flex flex-wrap items-center justify-center gap-8 opacity-40 grayscale transition-all hover:opacity-70 hover:grayscale-0">
-            <div className="flex items-center gap-2 font-serif text-xl font-bold">
-              <ShieldCheck size={24} /> CLINIC PRO
-            </div>
-            <div className="flex items-center gap-2 font-serif text-xl font-bold">
-              <Sparkles size={24} /> ESTÉTICA VIVA
-            </div>
-            <div className="flex items-center gap-2 font-serif text-xl font-bold">
-              <Flower2 size={24} /> DERMA CARE
-            </div>
-            <div className="flex items-center gap-2 font-serif text-xl font-bold">
-              <MessageSquareText size={24} /> SOFT SKIN
-            </div>
-          </div>
-        </div>
       </header>
 
-      {/* Demo */}
-      <section id="demo" className="mx-auto max-w-6xl px-4 py-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="font-serif text-3xl font-semibold text-ink">
-            Veja funcionando em 30 segundos
+      {/* ── PROBLEMA ── */}
+      <section className="mx-auto max-w-4xl px-4 py-20">
+        <p className="mb-3 text-center text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
+          Onde o dinheiro some todo dia
+        </p>
+        <h2 className="text-center font-serif text-3xl font-semibold text-[#0D1B2E] sm:text-4xl">
+          A cliente pergunta o preço. Você responde. Ela some.
+        </h2>
+
+        <div className="mx-auto mt-6 max-w-2xl space-y-4 text-center text-lg leading-relaxed text-slate-500">
+          <p>Você não perdeu essa venda por falta de talento. Você não perdeu por causa do preço.</p>
+          <p>
+            Você perdeu porque{" "}
+            <strong className="font-semibold text-[#0D1B2E]">
+              a sua formação não incluiu uma aula sobre como vender no WhatsApp
+            </strong>{" "}
+            — e porque quando você está no meio de um procedimento, cansada ou atendendo outra pessoa, a resposta que sai é a mais rápida, não a mais estratégica.
+          </p>
+          <p>
+            Uma resposta fria, seca ou que joga o preço cedo demais faz a cliente não perceber o valor do que você oferece. Cada cliente que some assim pode valer{" "}
+            <strong className="text-[#0D1B2E]">R$800 a R$3.000</strong> que você nunca mais vê.
+          </p>
+        </div>
+
+        <div className="mx-auto mt-10 max-w-xl rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+          <p className="mb-4 text-sm font-bold text-[#0D1B2E]">Você já viveu alguma dessas?</p>
+          <ul className="space-y-3">
+            {[
+              "Deu o valor do botox e a cliente simplesmente parou de responder",
+              'A cliente disse "vou pensar" — e nunca mais apareceu',
+              '"Na outra clínica é mais barato" — e você ficou sem saber o que responder',
+              "Fez orçamento dias atrás, não lembrou de fazer follow-up, perdeu a janela",
+              '"Ela ia fechar — eu errei na hora de responder"',
+            ].map((d) => (
+              <li key={d} className="flex items-start gap-3 text-sm text-slate-500">
+                <X size={14} className="mt-0.5 shrink-0 text-red-400" /> {d}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs italic text-slate-400">
+            Se você se reconheceu em pelo menos uma, continue lendo.
+          </p>
+        </div>
+      </section>
+
+      {/* ── ANTES / DEPOIS ── */}
+      <section className="mx-auto max-w-5xl px-4 pb-16">
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-3xl border border-red-100 bg-red-50/50 p-8">
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600">
+              <X size={14} /> Resposta que faz a cliente sumir
+            </div>
+            <p className="font-serif text-xl italic text-red-900/70">"Botox é R$900."</p>
+            <p className="mt-4 text-sm leading-relaxed text-red-800/60">
+              A cliente sente que é só mais um número. Compara com a mais barata. Some. Venda perdida.
+            </p>
+          </div>
+          <div className="relative overflow-hidden rounded-3xl p-8 shadow-lg" style={{ background: "linear-gradient(135deg, #0D1B2E 0%, #162440 100%)" }}>
+            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-[#C9A84C]/20 blur-2xl" />
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[#C9A84C]/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#C9A84C]">
+              <Check size={14} /> Resposta que agenda
+            </div>
+            <p className="text-lg font-medium leading-relaxed text-[#DEC9A0]">
+              "Oi, Ana! O valor do botox varia conforme os pontos necessários pra atingir o seu objetivo — suavizar linhas da testa, pés de galinha ou prevenir marquinhas. Cada rosto é único. O que você acha de fazermos uma avaliação pra eu te orientar direitinho?"
+            </p>
+            <p className="mt-4 text-sm font-medium text-[#C9A84C]">
+              Resultado: acolhe, gera autoridade e conduz pra avaliação sem falar de preço.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA INTERMEDIÁRIO ── */}
+      <section className="py-12 text-center" style={{ background: "#F5F2EE" }}>
+        <Link
+          href={comecarHref}
+          className="inline-flex items-center gap-2 rounded-xl bg-[#0D1B2E] px-8 py-4 text-base font-semibold text-[#DEC9A0] shadow-lg transition-all hover:scale-105 hover:opacity-90"
+        >
+          Quero a resposta certa pra cada situação <ArrowRight size={18} />
+        </Link>
+        <p className="mt-3 text-sm text-slate-500">7 dias grátis · Sem cartão · Você usa hoje mesmo</p>
+      </section>
+
+      {/* ── LEAD INTELLIGENCE ── */}
+      <section className="py-24" style={{ background: "#0D1B2E" }}>
+        <div className="mx-auto max-w-5xl px-4 text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C] bg-[#C9A84C]/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
+            ✦ Exclusivo LeadBellus
+          </span>
+          <h2 className="mt-4 font-serif text-3xl font-semibold text-[#DEC9A0] sm:text-4xl">
+            Você tem 20 mensagens no WhatsApp. Uma delas é de uma cliente prestes a fechar. Você sabe qual é?
           </h2>
-          <p className="mt-3 text-muted">
-            Simule uma conversa de WhatsApp, teste o tom e personalize a clínica
-            — sem login.
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-[#DEC9A0]/70">
+            A profissional que tem mais agendamentos não é a que responde mais rápido. É a que responde{" "}
+            <strong className="text-[#DEC9A0]">as certas primeiro.</strong>
+          </p>
+          <p className="mx-auto mt-3 max-w-xl text-[#DEC9A0]/60">
+            O LeadBellus lê cada conversa e classifica antes de você abrir:
+          </p>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {[
+              { emoji: "🔥", label: "Quente", desc: "Quer marcar agora. Responda esta primeiro." },
+              { emoji: "🟡", label: "Morna", desc: "Ainda está considerando. Precisa de condução." },
+              { emoji: "❄️", label: "Fria", desc: "Sumiu por enquanto. Follow-up no momento exato." },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-2xl p-6 text-center"
+                style={{ background: "rgba(222,201,160,0.05)", border: "1px solid rgba(222,201,160,0.1)" }}
+              >
+                <span className="text-3xl">{item.emoji}</span>
+                <p className="mt-3 font-semibold text-[#DEC9A0]">{item.label}</p>
+                <p className="mt-1 text-sm text-[#DEC9A0]/60">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-8 text-sm font-medium text-[#C9A84C]">
+            Com o score de prioridade visível em cada lead, você para de responder na ordem errada e começa a responder na ordem que fecha.
+          </p>
+          <p className="mt-2 text-sm text-[#DEC9A0]/40">
+            Nenhuma outra ferramenta criada especificamente para o mercado estético brasileiro faz isso.
+          </p>
+        </div>
+      </section>
+
+      {/* ── COMO FUNCIONA ── */}
+      <section className="py-20" style={{ background: "#F5F2EE" }}>
+        <div className="mx-auto max-w-5xl px-4">
+          <div className="text-center">
+            <h2 className="font-serif text-3xl font-semibold text-[#0D1B2E] sm:text-4xl">
+              Configure uma vez. Use pra sempre.
+            </h2>
+            <p className="mt-3 text-slate-500">A resposta certa em menos de 2 minutos.</p>
+          </div>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                num: "01",
+                title: "Ensine o sistema a falar como você",
+                sub: "5 minutos — só na primeira vez",
+                desc: "Nome da clínica, tom de voz, como você chama suas clientes, qual é o seu CTA. O LeadBellus cria o DNA da sua clínica — todas as respostas saem com a sua personalidade. Não parece IA. Parece você num dia perfeito.",
+              },
+              {
+                num: "02",
+                title: "Cole a mensagem e selecione a situação",
+                sub: null,
+                desc: "Perguntou preço. Achou caro. Sumiu. Medo do procedimento. Veio do Instagram. Em segundos o sistema entende o contexto e sabe o que precisa ser dito.",
+              },
+              {
+                num: "03",
+                title: "Escolha a resposta, copie e mande",
+                sub: null,
+                desc: "Três versões — suave, consultiva e de fechamento. Você escolhe a que faz mais sentido, clica em Copiar e manda direto no WhatsApp. Pronto.",
+              },
+            ].map((step) => (
+              <div key={step.num} className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
+                <span className="font-serif text-5xl font-bold text-[#C9A84C]">{step.num}</span>
+                <h3 className="mt-4 font-semibold text-[#0D1B2E]">{step.title}</h3>
+                {step.sub && (
+                  <p className="mt-1 text-xs font-medium italic text-[#C9A84C]">{step.sub}</p>
+                )}
+                <p className="mt-3 text-sm leading-relaxed text-slate-500">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SIMULADOR ── */}
+      <section id="demo" className="mx-auto max-w-6xl px-4 py-20">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="font-serif text-3xl font-semibold text-[#0D1B2E]">
+            Teste com a sua clínica agora — sem criar conta.
+          </h2>
+          <p className="mt-3 text-slate-500">
+            Coloque o nome, o tom e veja a resposta sair no seu jeito. Em 30 segundos você entende o que o LeadBellus faz — melhor do que qualquer explicação.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             {[
@@ -125,7 +362,7 @@ export default function LandingPage() {
               <Link
                 key={d.id}
                 href={`/?demo=${d.id}#demo`}
-                className="rounded-full border border-brand-200 bg-white px-3 py-1.5 text-xs font-semibold text-ink hover:bg-brand-50"
+                className="rounded-full border border-[#0D1B2E]/20 bg-white px-3 py-1.5 text-xs font-semibold text-[#0D1B2E] transition-all hover:border-[#0D1B2E] hover:bg-[#0D1B2E] hover:text-[#DEC9A0]"
               >
                 {d.label}
               </Link>
@@ -139,240 +376,291 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Dor */}
-      <section className="mx-auto max-w-4xl px-4 py-16 text-center">
-        <h2 className="font-serif text-3xl font-semibold text-ink">
-          A cliente pergunta preço. Você responde. Ela some.
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-muted">
-          Na estética, muitas vendas são perdidas não por falta de interesse,
-          mas por falta de condução. Quando a resposta é fria, curta ou focada
-          só no valor, a cliente não entende o procedimento, não percebe valor e
-          acaba comparando só por preço.
-        </p>
-      </section>
-
-      {/* Antes / Depois */}
-      <section className="mx-auto max-w-5xl px-4 pb-16">
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-3xl border border-red-100 bg-red-50/50 p-8 shadow-sm">
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600">
-              <X size={14} /> Atendimento Comum
-            </div>
-            <p className="font-serif text-xl italic text-red-900/70">“Botox é R$900.”</p>
-            <p className="mt-4 text-sm leading-relaxed text-red-800/60">
-              Resposta seca, focada apenas no preço. A cliente sente que é apenas mais um número, compara com o concorrente mais barato e some.
-            </p>
-          </div>
-          <div className="relative overflow-hidden rounded-3xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-8 shadow-soft">
-            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-brand-200/20 blur-2xl" />
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-600">
-              <Check size={14} /> Método LeadBellus
-            </div>
-            <p className="text-lg font-medium leading-relaxed text-ink">
-              “Oi, Ana! O investimento pode variar conforme os pontos avaliados e
-              o objetivo do tratamento. Você busca suavizar linhas da testa, pés
-              de galinha ou prevenir marcas? Assim consigo te orientar melhor e
-              ver o melhor caminho para você.”
-            </p>
-            <p className="mt-4 text-sm font-medium text-brand-700">
-              Resultado: Gera autoridade, acolhimento e inicia uma consultoria.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Solução */}
-      <section className="bg-soft py-16">
+      {/* ── FEATURES ── */}
+      <section className="py-20" style={{ background: "#F5F2EE" }}>
         <div className="mx-auto max-w-5xl px-4">
           <div className="text-center">
-            <h2 className="font-serif text-3xl font-semibold text-ink">
-              Responda com segurança, acolhimento e estratégia
+            <h2 className="font-serif text-3xl font-semibold text-[#0D1B2E] sm:text-4xl">
+              Tudo que você precisa pra nunca mais improvisar no WhatsApp
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-muted">
-              O LeadBellus te entrega, em segundos, a resposta certa para cada
-              situação:
+            <p className="mt-3 text-slate-500">
+              Cada módulo resolve uma situação específica que te faz perder cliente hoje.
             </p>
           </div>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {dores.map((d) => (
-              <div
-                key={d}
-                className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-white p-4"
-              >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-500">
-                  <Check size={16} />
-                </span>
-                <span className="text-sm text-ink">{d}</span>
+          <div className="mt-12 grid gap-5 sm:grid-cols-2">
+            {features.map((f) => (
+              <div key={f.title} className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0D1B2E]/5 text-[#0D1B2E]">
+                    <f.icon size={20} />
+                  </span>
+                  <div>
+                    <h3 className="font-semibold text-[#0D1B2E]">{f.title}</h3>
+                    <p className="mt-0.5 text-xs italic text-[#C9A84C]">{f.subtitle}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-500">{f.description}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Oferta */}
-      <section className="mx-auto max-w-5xl px-4 py-16">
-        <div className="text-center">
-          <h2 className="font-serif text-3xl font-semibold text-ink">
-            Escolha como começar
+      {/* ── EARLY ADOPTER ── */}
+      <section className="py-24" style={{ background: "#0D1B2E" }}>
+        <div className="mx-auto max-w-3xl px-4 text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C] bg-[#C9A84C]/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
+            Acesso de Fundadora — Vagas Limitadas
+          </span>
+          <h2 className="mt-4 font-serif text-3xl font-semibold text-[#DEC9A0] sm:text-4xl">
+            Você está entrando antes de todo mundo. Isso tem valor.
           </h2>
-          <p className="mt-3 text-muted">
-            Se uma única cliente que ia sumir fechar um procedimento, o produto
-            já se pagou.
+          <p className="mt-4 text-lg text-[#DEC9A0]/70">
+            As primeiras 100 profissionais que assinarem o LeadBellus entram com{" "}
+            <strong className="text-[#DEC9A0]">preço de fundadora garantido para sempre</strong> — mesmo quando os planos subirem no lançamento oficial.
+          </p>
+          <ul className="mx-auto mt-6 max-w-md space-y-3 text-left">
+            {[
+              "Acesso prioritário ao Pro assim que lançar — WhatsApp integrado e agendamento online",
+              "Canal direto com a equipe pra sugerir o que precisa existir",
+              "Preço de hoje garantido enquanto você permanecer assinante",
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3 text-sm text-[#DEC9A0]/70">
+                <Check size={16} className="mt-0.5 shrink-0 text-[#C9A84C]" /> {item}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-sm italic text-[#C9A84C]/60">
+            O preço de hoje não volta depois do lançamento oficial.
+          </p>
+          <Link
+            href={comecarHref}
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#DEC9A0] px-8 py-4 text-base font-bold text-[#0D1B2E] shadow-lg transition-all hover:scale-105 hover:opacity-90"
+          >
+            Quero entrar como fundadora <ArrowRight size={18} />
+          </Link>
+          <p className="mt-3 text-xs text-[#DEC9A0]/30">
+            Vagas limitadas · Preço garantido para sempre · Acesso imediato
           </p>
         </div>
+      </section>
 
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {/* Start */}
-          <div className="rounded-3xl border border-brand-100 bg-white p-7">
-            <p className="text-sm font-medium text-muted">Plano Start</p>
-            <p className="mt-1 font-serif text-4xl font-semibold text-ink">
-              R$197<span className="text-lg font-normal text-muted">/mês</span>
+      {/* ── PRICING ── */}
+      <section className="py-20">
+        <div className="mx-auto max-w-5xl px-4">
+          <div className="text-center">
+            <h2 className="font-serif text-3xl font-semibold text-[#0D1B2E] sm:text-4xl">
+              Uma cliente recuperada já paga o mês inteiro
+            </h2>
+            <p className="mt-3 text-slate-500">
+              Se uma única cliente que ia sumir fechar um procedimento, o plano já se pagou — e sobra.
             </p>
-            <p className="mt-1 text-sm text-muted">Para validar e começar.</p>
-            <ul className="mt-5 space-y-2 text-sm text-ink">
-              {[
-                "Gerador de respostas com IA",
-                "Respostas para objeções",
-                "Follow-up",
-                "Procedimentos principais",
-                "Botão copiar para WhatsApp",
-              ].map((f) => (
-                <li key={f} className="flex items-center gap-2">
-                  <Check size={16} className="text-brand-500" /> {f}
-                </li>
-              ))}
-            </ul>
-            <PlanCTA
-              plan="start"
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 hover:bg-brand-50 disabled:opacity-60"
-            >
-              Começar com o Start
-            </PlanCTA>
+            <div className="mt-8 inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 p-1">
+              <button
+                onClick={() => setBilling("mensal")}
+                className="rounded-full px-6 py-2 text-sm font-medium transition-all"
+                style={billing === "mensal" ? { background: "#0D1B2E", color: "#DEC9A0" } : { color: "#64748B" }}
+              >
+                Mensal
+              </button>
+              <button
+                onClick={() => setBilling("anual")}
+                className="rounded-full px-6 py-2 text-sm font-medium transition-all"
+                style={billing === "anual" ? { background: "#0D1B2E", color: "#DEC9A0" } : { color: "#64748B" }}
+              >
+                Anual{" "}
+                <span className="ml-1 rounded-full bg-[#C9A84C]/15 px-1.5 py-0.5 text-xs font-bold text-[#C9A84C]">
+                  41% off
+                </span>
+              </button>
+            </div>
           </div>
 
-          {/* Pro */}
-          <div className="relative rounded-3xl border border-brand-100 bg-white p-7 shadow-sm transition-transform hover:scale-[1.02]">
-            <p className="text-sm font-medium text-muted">Plano Pro</p>
-            <p className="mt-1 font-serif text-4xl font-semibold text-ink">
-              R$297<span className="text-lg font-normal text-muted">/mês</span>
-            </p>
-            <p className="mt-1 text-sm text-muted">Inteligência avançada.</p>
-            <ul className="mt-5 space-y-2 text-sm text-ink">
-              {[
-                "Tudo do Start",
-                "Biblioteca completa de objeções",
-                "Scripts de atendimento",
-                "Histórico de respostas",
-                "Tons de voz personalizados",
-              ].map((f) => (
-                <li key={f} className="flex items-center gap-2">
-                  <Check size={16} className="text-brand-500" /> {f}
-                </li>
-              ))}
-            </ul>
-            <PlanCTA
-              plan="pro"
-              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-60"
-            >
-              Quero o Pro
-            </PlanCTA>
-          </div>
-
-          {/* Premium */}
-          <div className="group relative rounded-3xl border-2 border-brand-300 bg-gradient-to-br from-white to-brand-50 p-7 shadow-soft transition-transform hover:scale-[1.03]">
-            <div className="absolute -inset-0.5 animate-pulse rounded-3xl bg-brand-300/30 blur opacity-0 transition group-hover:opacity-100" />
-            <div className="relative">
-              <span className="absolute -top-3 right-0 rounded-full bg-brand-500 px-3 py-1 text-xs font-semibold text-white">
-                Mais Inteligente
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            <div className="relative rounded-3xl p-8 shadow-xl" style={{ background: "#0D1B2E", border: "2px solid #C9A84C" }}>
+              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-[#C9A84C] px-4 py-1 text-xs font-bold uppercase tracking-wider text-[#0D1B2E]">
+                Disponível agora
               </span>
-              <p className="text-sm font-medium text-muted">Plano Premium</p>
-              <p className="mt-1 font-serif text-4xl font-semibold text-ink text-gold-gradient">
-                R$397<span className="text-lg font-normal text-muted">/mês</span>
+              <p className="text-sm font-medium text-[#DEC9A0]/60">Plano Start</p>
+              {billing === "mensal" ? (
+                <>
+                  <p className="mt-1 font-serif text-4xl font-bold text-[#DEC9A0]">
+                    R$97<span className="text-lg font-normal text-[#DEC9A0]/40">/mês</span>
+                  </p>
+                  <p className="mt-1 text-sm text-[#DEC9A0]/40">Cobrança mensal</p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-1 font-serif text-4xl font-bold text-[#DEC9A0]">
+                    R$57<span className="text-lg font-normal text-[#DEC9A0]/40">/mês</span>
+                  </p>
+                  <p className="mt-1 text-sm font-medium text-[#C9A84C]">R$684/ano · Economia de R$480</p>
+                </>
+              )}
+              <p className="mt-2 text-xs text-[#DEC9A0]/40">
+                Pra profissional solo que quer parar de perder cliente no WhatsApp
               </p>
-              <p className="mt-1 text-sm text-muted">Inteligência completa.</p>
-              <ul className="mt-5 space-y-2 text-sm text-ink">
+              <ul className="mt-5 space-y-2">
                 {[
-                  "Tudo do Pro",
-                  "Inteligência de Leads (NLP)",
-                  "Score de Prioridade automático",
-                  "Classificação de Sentimento",
-                  "Análise de Intenção",
-                  "Suporte prioritário",
+                  "Gerador de Respostas ilimitado",
+                  "Lead Intelligence — score de prioridade",
+                  "Biblioteca de Objeções completa",
+                  "Follow-up Inteligente",
+                  "Scripts de Atendimento com timing",
+                  "DNA da Clínica",
+                  "Histórico + exportação PDF",
                 ].map((f) => (
-                  <li key={f} className="flex items-center gap-2">
-                    <Check size={16} className="text-brand-500" /> {f}
+                  <li key={f} className="flex items-center gap-2 text-sm text-[#DEC9A0]/80">
+                    <Check size={14} className="shrink-0 text-[#C9A84C]" /> {f}
                   </li>
                 ))}
               </ul>
               <PlanCTA
-                plan="premium"
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-soft transition-all hover:bg-brand-600 disabled:opacity-60"
+                plan="start"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#DEC9A0] px-4 py-3 text-sm font-bold text-[#0D1B2E] transition-all hover:opacity-90 disabled:opacity-60"
               >
-                Quero o Premium <ArrowRight size={16} />
+                Começar grátis por 7 dias
               </PlanCTA>
+              <p className="mt-2 text-center text-xs text-[#DEC9A0]/30">Sem cartão · Cancele quando quiser</p>
+            </div>
+
+            <div className="rounded-3xl border border-slate-100 bg-white p-8 opacity-70">
+              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-400">
+                🔒 Em breve
+              </span>
+              <p className="mt-3 text-sm font-medium text-slate-400">Plano Pro</p>
+              <p className="mt-1 font-serif text-2xl font-semibold text-slate-300">Em breve</p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                WhatsApp integrado · Resposta automática 24h · Agendamento online · Lembrete automático · 3 usuárias
+              </p>
+              <div className="mt-6 space-y-2">
+                <input type="email" placeholder="Seu e-mail para ser avisada" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0D1B2E]" />
+                <button className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50">
+                  Quero ser avisada quando lançar
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-100 bg-white p-8 opacity-70">
+              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-400">
+                🔒 Em breve
+              </span>
+              <p className="mt-3 text-sm font-medium text-slate-400">Plano Premium</p>
+              <p className="mt-1 font-serif text-2xl font-semibold text-slate-300">Em breve</p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                Tudo do Pro · Pós-atendimento automatizado · Relatórios de conversão · 10 usuárias
+              </p>
+              <div className="mt-6 space-y-2">
+                <input type="email" placeholder="Seu e-mail para ser avisada" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0D1B2E]" />
+                <button className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50">
+                  Quero ser avisada quando lançar
+                </button>
+              </div>
             </div>
           </div>
-
+          <p className="mt-5 text-center text-xs text-slate-400">Cancele quando quiser · Sem multa · Sem burocracia</p>
         </div>
-        <p className="mt-5 text-center text-xs text-muted">
-          Planos mensais com acesso contínuo a todas as atualizações e novas respostas.
-        </p>
       </section>
 
-      {/* Compliance / confiança */}
-      <section className="mx-auto max-w-3xl px-4 pb-16">
-        <div className="flex items-start gap-3 rounded-2xl border border-lavender-200 bg-lavender-50 p-5 text-sm text-lavender-700">
-          <ShieldCheck size={20} className="mt-0.5 shrink-0" />
-          <p>
-            As respostas são pensadas para a estética: nunca prometem resultado
-            garantido, não fazem diagnóstico e valorizam a avaliação individual —
-            mais profissionalismo e segurança para você.
+      {/* ── GARANTIA ── */}
+      <section className="py-20" style={{ background: "#F5F2EE" }}>
+        <div className="mx-auto max-w-2xl px-4 text-center">
+          <ShieldCheck size={44} className="mx-auto text-[#C9A84C]" />
+          <h2 className="mt-4 font-serif text-3xl font-semibold text-[#0D1B2E]">
+            Simples assim: só paga se usar.
+          </h2>
+          <p className="mt-4 text-slate-500">
+            Teste grátis por 7 dias — sem colocar cartão, sem compromisso. Explore tudo, gere respostas, use no seu WhatsApp real.
+          </p>
+          <p className="mt-3 text-slate-500">
+            Depois do trial, você decide. Se assinar e quiser cancelar, cancela pelo painel em um clique. Para de usar, para de pagar. Sem multa, sem ligação, sem formulário.
+          </p>
+          <div className="mt-6 rounded-2xl border border-[#0D1B2E]/10 bg-white p-4 text-sm text-[#0D1B2E]">
+            <ShieldCheck size={15} className="mb-1 inline text-[#C9A84C]" />{" "}
+            E por lei, você ainda tem{" "}
+            <strong>7 dias de garantia após a primeira cobrança</strong> para solicitar reembolso total — direito garantido pelo Código de Defesa do Consumidor (Art. 49) para compras realizadas online.
+          </div>
+          <p className="mt-4 text-sm italic text-slate-400">
+            Você testa grátis, assina só se quiser, e ainda tem 7 dias para mudar de ideia. Risco zero.
           </p>
         </div>
       </section>
 
-      {/* CTA final */}
-      <section className="bg-brand-dark py-20 text-center">
-        <div className="mx-auto max-w-2xl px-4">
-          <MessageSquareText size={32} className="mx-auto text-lavender-400" />
-          <h2 className="mt-4 font-serif text-3xl font-semibold text-nude-50">
-            Transforme dúvidas em agendamentos hoje mesmo
+      {/* ── FAQ ── */}
+      <section className="py-20">
+        <div className="mx-auto max-w-3xl px-4">
+          <h2 className="text-center font-serif text-3xl font-semibold text-[#0D1B2E]">
+            Perguntas frequentes
           </h2>
-          <p className="mt-2 text-sm text-nude-200">
-            Responda melhor. Agende mais.
+          <div className="mt-8 space-y-3">
+            {faqs.map((faq) => (
+              <details key={faq.q} className="group rounded-2xl border border-slate-100 bg-white">
+                <summary className="flex cursor-pointer list-none items-center justify-between px-6 py-4 text-sm font-semibold text-[#0D1B2E]">
+                  {faq.q}
+                  <span className="ml-4 shrink-0 text-xl text-[#C9A84C] transition-transform group-open:rotate-45">+</span>
+                </summary>
+                <p className="px-6 pb-5 text-sm leading-relaxed text-slate-500">{faq.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA FINAL ── */}
+      <section className="py-24 text-center" style={{ background: "#0D1B2E" }}>
+        <div className="mx-auto max-w-2xl px-4">
+          <MessageSquareText size={36} className="mx-auto text-[#C9A84C]" />
+          <h2 className="mt-4 font-serif text-3xl font-semibold text-[#DEC9A0] sm:text-4xl">
+            Cada semana sem o LeadBellus é uma semana respondendo no improviso.
+          </h2>
+          <p className="mt-4 text-sm leading-loose text-[#DEC9A0]/60">
+            Mais uma semana de "vou pensar" sem follow-up.<br />
+            Mais uma semana de preço jogado cedo demais.<br />
+            Mais uma cliente que foi pra concorrente porque a resposta foi fria.
+          </p>
+          <div className="mx-auto mt-6 max-w-sm rounded-2xl p-5" style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.15)" }}>
+            <p className="text-[#DEC9A0]">Você paga <strong className="text-[#C9A84C]">R$97/mês</strong>.</p>
+            <p className="mt-1 text-sm text-[#DEC9A0]/60">Um único procedimento de harmonização paga 19 meses de assinatura.</p>
+          </div>
+          <p className="mt-4 text-sm italic text-[#DEC9A0]/40">
+            O risco de testar é zero. O custo de não testar você já conhece — está sentindo toda semana.
           </p>
           <Link
             href={comecarHref}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-lavender-400 px-6 py-3 text-base font-semibold text-brand-900 shadow-soft hover:bg-lavender-300"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#DEC9A0] px-10 py-4 text-base font-bold text-[#0D1B2E] shadow-xl transition-all hover:scale-105 hover:opacity-90"
           >
-            Quero responder melhor no WhatsApp <ArrowRight size={18} />
+            Quero minha clínica respondendo melhor agora <ArrowRight size={18} />
           </Link>
+          <p className="mt-3 text-xs text-[#DEC9A0]/30">7 dias grátis · Sem cartão · Acesso em menos de 2 minutos</p>
         </div>
       </section>
 
-      <footer className="border-t border-brand-100 py-12 text-center text-xs text-muted">
+      {/* ── FOOTER ── */}
+      <footer className="border-t border-slate-100 py-12 text-center text-xs text-slate-400">
         <div className="mx-auto max-w-6xl px-4">
           <div className="grid gap-8 md:grid-cols-3 md:text-left">
             <div className="space-y-3">
-              <Logo href="/" textClass="text-lg text-ink" />
+              <Link href="/">
+                <img src="/LEADBELLUS.png" alt="LeadBellus" className="h-8 w-auto" />
+              </Link>
               <p className="text-balance">
                 Inteligência de conversão para clínicas de estética — responda melhor e agende mais pelo WhatsApp.
               </p>
             </div>
             <div className="space-y-3">
-              <h4 className="text-sm font-bold text-ink">Contato</h4>
+              <h4 className="text-sm font-bold text-[#0D1B2E]">Contato</h4>
               <p>Av. Rômulo Maiorana, 1695, Marco<br />Belém - PA, 66093-674</p>
               <p>WhatsApp: +55 91 8515-6690</p>
             </div>
             <div className="space-y-3">
-              <h4 className="text-sm font-bold text-ink">Horário</h4>
+              <h4 className="text-sm font-bold text-[#0D1B2E]">Horário</h4>
               <p>Segunda a Sábado: 24h (IA ativa)</p>
               <p>© 2026 LeadBellus · VPS Automações</p>
             </div>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }
