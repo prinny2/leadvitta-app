@@ -750,7 +750,7 @@ export default function LandingPage() {
                 <p className="mt-1 text-sm text-slate-400">Responda melhor, feche mais e encante seus clientes pelo WhatsApp.</p>
               </div>
               <div className="flex items-center gap-3">
-                {[Globe, MessageCircle, Mail].map, Mail].map((Icon, i) => (
+{[Globe, MessageCircle, Mail].map((Icon, i) => (
                   <a key={i} href="#" className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-400 hover:border-[#C9A84C] hover:text-[#C9A84C] transition-colors">
                     <Icon size={15} />
                   </a>
