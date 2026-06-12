@@ -1,48 +1,33 @@
-// Integração com a WhatsApp Cloud API (Meta).
-// Credenciais via env (NUNCA commitar — vão no .env.local / Cloud Run):
-//   WHATSAPP_TOKEN            -> token com permissão `whatsapp_business_messaging`
-//                               (NÃO é o token do CAPI/pixel — esse é só pra eventos de anúncio)
-//   WHATSAPP_PHONE_NUMBER_ID  -> ID do número (Meta -> WhatsApp -> API Setup)
-//   WHATSAPP_VERIFY_TOKEN     -> string que VOCÊ inventa, usada pra verificar o webhook
+// Registry de provedores de WhatsApp. A escolha é EXPLÍCITA por env
+// WHATSAPP_PROVIDER ("twilio" | "dialog360"); sem env, Twilio.
+// Sem auto-detecção por D360_API_KEY de propósito: durante a migração, setar a
+// chave do 360dialog comutaria o parse/validação e derrubaria os webhooks do
+// Twilio em silêncio.
+import { twilioProvider } from "@/lib/whatsapp-twilio";
+import { dialog360Provider } from "@/lib/whatsapp-dialog360";
+import type { WhatsAppProvider, WhatsAppResult } from "@/lib/whatsapp-types";
 
-const GRAPH = "https://graph.facebook.com/v21.0";
+export type { WhatsAppProvider, WhatsAppResult, InboundMessage } from "@/lib/whatsapp-types";
 
-/** True quando o envio de WhatsApp está configurado. */
-export function isWhatsappConfigured(): boolean {
-  return !!process.env.WHATSAPP_TOKEN && !!process.env.WHATSAPP_PHONE_NUMBER_ID;
+export function getWhatsAppProvider(): WhatsAppProvider {
+  const pref = (process.env.WHATSAPP_PROVIDER || "").toLowerCase();
+  if (pref === "dialog360" || pref === "360dialog") return dialog360Provider;
+  return twilioProvider;
 }
 
-export type WhatsAppResult = { ok: boolean; status: number; data: unknown };
+/** True quando o provedor ativo está configurado para enviar. */
+export function isWhatsappConfigured(): boolean {
+  return getWhatsAppProvider().isConfigured();
+}
 
 /**
- * Envia uma mensagem de texto simples.
- * @param to   número no formato E.164 SEM o '+', ex.: "5591985156690"
- * @param body texto da mensagem
+ * Envia uma mensagem de texto pelo provedor ativo.
+ * Mantido por compatibilidade com o código existente.
  */
-export async function sendWhatsAppText(to: string, body: string): Promise<WhatsAppResult> {
-  const token = process.env.WHATSAPP_TOKEN;
-  const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-  if (!token || !phoneId) {
-    return {
-      ok: false,
-      status: 0,
-      data: { error: "WhatsApp não configurado (WHATSAPP_TOKEN / WHATSAPP_PHONE_NUMBER_ID ausentes)." },
-    };
-  }
-  const res = await fetch(`${GRAPH}/${phoneId}/messages`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      recipient_type: "individual",
-      to,
-      type: "text",
-      text: { preview_url: false, body },
-    }),
-  });
-  const data = await res.json().catch(() => ({}));
-  return { ok: res.ok, status: res.status, data };
+export async function sendWhatsAppText(
+  to: string,
+  body: string,
+  opts?: { from?: string; channelApiKey?: string }
+): Promise<WhatsAppResult> {
+  return getWhatsAppProvider().sendText(to, body, opts);
 }

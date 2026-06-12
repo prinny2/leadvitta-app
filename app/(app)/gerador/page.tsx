@@ -150,7 +150,7 @@ export default function GeradorPage() {
       if (data.mock) {
         setAviso(
           data.aviso ||
-            "Exemplo de demonstração — configure a chave da IA para respostas reais."
+            "Modo demonstração — mostrando um exemplo. As respostas reais entram quando a clínica está ativa."
         );
       } else if (data.aviso) {
         setAviso(data.aviso);

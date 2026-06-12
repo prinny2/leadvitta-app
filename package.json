@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "whatsapp:simulate": "node scripts/simulate-whatsapp-webhook.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
+    "@vercel/analytics": "^2.0.1",
     "clsx": "^2.1.1",
     "firebase": "^12.14.0",
     "firebase-admin": "^13.10.0",

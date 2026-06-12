@@ -24,6 +24,16 @@ function LoginInner() {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") || "/dashboard";
+  const planFromNext = (() => {
+    try {
+      return new URL(next, "http://leadbellus.local").searchParams.get("plan");
+    } catch {
+      return null;
+    }
+  })();
+  const signupHref = planFromNext
+    ? `/signup?plan=${encodeURIComponent(planFromNext)}&next=checkout`
+    : "/signup";
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -130,7 +140,7 @@ function LoginInner() {
 
         <p className="text-center text-sm text-muted">
           Não tem conta?{" "}
-          <Link href="/signup" className="font-medium text-brand-600">
+          <Link href={signupHref} className="font-medium text-brand-600">
             Criar conta
           </Link>
         </p>

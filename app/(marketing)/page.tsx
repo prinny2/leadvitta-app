@@ -1,804 +1,533 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
-  Check, X, Sparkles, ArrowRight, MessageSquareText,
-  BookOpen, Clock, Target, History, Brain, Zap, MessageCircle,
-  BarChart2, Bell, Mail, MapPin, Heart, Send, TrendingUp, Calendar,
-  Gift, Copy, Home, Settings, Users, Flame, Snowflake, Moon,
-  Shield, CreditCard, Globe,
+  Check,
+  X,
+  Sparkles,
+  ArrowRight,
+  MessageSquareText,
+  ShieldCheck,
+  Flower2,
+  TrendingDown,
 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/config";
+import { billingPlanList } from "@/lib/billing";
+import { Logo } from "@/components/logo";
 import { PlanCTA } from "@/components/plan-cta";
+import { WaitlistForm } from "@/components/waitlist-form";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 
-const comecarHref = isFirebaseConfigured ? "/signup" : "/dashboard";
+// Funil de captação (sem login). Visitante deslogado experimenta antes de criar conta.
+const funilHref = "/onboarding";
+const entrarHref = isFirebaseConfigured ? "/login" : "/dashboard";
 
-const features = [
-  { icon: MessageCircle, title: "Gerador de Respostas", subtitle: "Você nunca mais vai ficar sem saber o que falar", description: "Cola a mensagem da cliente, seleciona o que está acontecendo na conversa, e recebe 3 respostas no seu tom — suave, consultiva ou de fechamento. Botox, harmonização, preenchimento, laser, bioestimulador — o sistema conhece cada procedimento e sabe como apresentar o valor sem espantar.", highlight: true },
-  { icon: Brain, title: "Lead Intelligence", subtitle: "Você responde primeiro quem tem mais chance de fechar", description: "Cada mensagem analisada e classificada: Quente, Morna ou Fria. Score de prioridade visível antes de você abrir a conversa. Pare de responder na ordem que chegou — comece a responder na ordem que fecha." },
-  { icon: BookOpen, title: "Biblioteca de Objeções", subtitle: 'Aquele "está caro" nunca mais vai te deixar sem resposta', description: 'Mais de 25 respostas prontas para as objeções que mais travam venda na estética: "está caro", "vou pensar", "na outra é mais barato". Um clique pra copiar. Outro pra adaptar ao seu tom.' },
-  { icon: Clock, title: "Follow-up Inteligente", subtitle: "A cliente que sumiu há 3 dias ainda pode fechar", description: "Selecione quanto tempo faz que ela desapareceu e receba 3 mensagens com progressão psicológica — suave no começo, mais direta depois, última tentativa no timing certo. Você reativa sem parecer desesperada." },
-  { icon: Target, title: "Scripts de Atendimento", subtitle: 'Do primeiro "oi" ao agendamento — sem improvisar', description: "Fluxos completos de 4 a 5 mensagens com indicação de quando mandar cada uma. O caminho já está traçado — você só segue." },
-  { icon: Sparkles, title: "DNA da Clínica", subtitle: "As respostas saem como se você tivesse escrito", description: "Tom de voz, apelido preferido, CTA, procedimentos que você oferece. Configure uma vez. Suas clientes não vão saber que foi uma ferramenta." },
-  { icon: History, title: "Histórico", subtitle: "Sua melhor resposta de hoje vira o padrão de amanhã", description: "Tudo que você gerou fica salvo com data e contexto. Favorite as que mais funcionaram. Filtre por módulo." },
+const dores = [
+  "respostas para quem pergunta preço",
+  "respostas para quem achou caro",
+  "mensagens para a cliente que sumiu",
+  "scripts para conduzir até a avaliação",
+  "follow-ups prontos pra trazer de volta",
+  "respostas por procedimento",
 ];
 
-const faqs = [
-  { icon: MessageCircle, q: "As respostas vão soar robóticas?", a: "Essa é a pergunta que todo mundo faz — e é exatamente o que o DNA da Clínica resolve. Antes de gerar qualquer resposta, o sistema aprende como você fala, como você chama suas clientes e qual é o seu CTA preferido. O resultado parece você escrevendo com calma e estratégia. Profissionais que usam relatam que as clientes não percebem. Algumas acham que a atendente melhorou." },
-  { icon: Target, q: "Funciona pra qualquer procedimento estético?", a: "Sim. O LeadBellus foi construído especificamente pro mercado estético brasileiro. Conhece botox, harmonização facial, preenchimento labial, bioestimulador, laser, microagulhamento, limpeza de pele, drenagem linfática, skinbooster e mais." },
-  { icon: TrendingUp, q: "E se eu não tiver muitas leads ainda?", a: "Melhor ainda. Você aprende a usar quando o volume é menor e já está com o sistema rodando quando as leads aumentarem. Cada lead que chegar vai ser tratada da forma certa desde o primeiro dia." },
-  { icon: Clock, q: "Preciso de muito tempo pra configurar?", a: "Menos de 5 minutos no primeiro acesso. A maioria das profissionais gera a primeira resposta em menos de 2 minutos após o cadastro." },
-  { icon: MessageSquareText, q: "Funciona pelo celular?", a: "Foi feito pensando em quem atende pelo celular. Interface limpa, campos simples, botão de copiar com um toque. Você usa entre um procedimento e outro." },
-  { icon: Brain, q: "Qual a diferença pra usar o ChatGPT?", a: 'O ChatGPT não conhece a jornada psicológica da cliente de estética no Brasil. Não sabe que "vou pensar" quase sempre é objeção de preço disfarçada. O LeadBellus foi treinado nesse contexto específico.' },
-  { icon: Shield, q: "Se eu não gostar, como cancelo?", a: "Pelo painel, em um clique. Sem ligação. Sem formulário. Sem prazo de aviso. Cancela hoje, não cobra mais amanhã." },
+const heroHooks = [
+  {
+    emoji: "💸",
+    title: "Perguntou preço e sumiu",
+    desc: "Você joga valor cedo demais e perde margem antes de criar desejo.",
+  },
+  {
+    emoji: "⏱️",
+    title: "Resposta demorada",
+    desc: "No tempo que você pensa no que responder, a cliente esfria.",
+  },
+  {
+    emoji: "📱",
+    title: "Cada atendente fala de um jeito",
+    desc: "A conversa sai sem padrão, sem valor percebido e sem direção.",
+  },
+];
+
+const vazamentos = [
+  {
+    title: "Preço sem contexto",
+    desc: "Quando a resposta vira só número, a cliente compara você com a mais barata.",
+  },
+  {
+    title: "Sem CTA claro",
+    desc: "A conversa fica morna porque ninguém conduz para avaliação ou agenda.",
+  },
+  {
+    title: "Tom frio demais",
+    desc: "Parece pressa, improviso ou recepção cansada. A venda morre no WhatsApp.",
+  },
 ];
 
 export default function LandingPage() {
-  const [billing, setBilling] = useState<"mensal" | "anual">("mensal");
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
-
   return (
-    <div className="bg-white">
-
-      {/* ── HERO ── */}
-      <header className="relative overflow-hidden" style={{ background: "#0D1B2E" }}>
+    <div className="bg-nude-50">
+      {/* Top nav */}
+      <header className="relative overflow-hidden bg-hero">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/3 top-0 h-96 w-96 -translate-x-1/2 rounded-full opacity-15 blur-3xl" style={{ background: "#C9A84C" }} />
-          <div className="absolute right-0 bottom-0 h-96 w-96 rounded-full opacity-10 blur-3xl" style={{ background: "#C9A84C" }} />
+          <div className="absolute -left-12 top-10 h-48 w-48 rounded-full bg-lavender-200/30 blur-3xl animate-float" />
+          <div className="absolute -right-12 top-20 h-56 w-56 rounded-full bg-brand-200/25 blur-3xl animate-float-delayed" />
         </div>
-
-        <nav className="relative mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <Link href="/"><img src="/LEADBELLUS.png" alt="LeadBellus" className="h-9 w-auto" /></Link>
-          <div className="hidden items-center gap-8 md:flex">
-            <Link href="#features" className="text-sm text-white/50 hover:text-[#DEC9A0] transition-colors">Recursos</Link>
-            <Link href="#como-funciona" className="text-sm text-white/50 hover:text-[#DEC9A0] transition-colors">Como funciona</Link>
-            <Link href="#planos" className="text-sm text-white/50 hover:text-[#DEC9A0] transition-colors">Preços</Link>
-            <Link href="/login" className="text-sm text-white/50 hover:text-[#DEC9A0] transition-colors">Entrar</Link>
+        <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
+          <Logo href="/" textClass="text-lg text-ink" />
+          <div className="flex items-center gap-2">
+            <Link
+              href={entrarHref}
+              className="rounded-xl px-4 py-2 text-sm font-medium text-ink hover:bg-white/60"
+            >
+              Entrar
+            </Link>
+            <Link
+              href={funilHref}
+              className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-soft hover:bg-brand-600"
+            >
+              Quero testar
+            </Link>
           </div>
-          <Link href="#planos" className="rounded-full bg-[#C9A84C] px-5 py-2 text-sm font-bold text-[#0D1B2E] hover:opacity-90 transition-all">
-            Começar grátis
-          </Link>
         </nav>
 
-        <div className="relative mx-auto grid max-w-7xl grid-cols-1 gap-12 px-6 pb-16 pt-8 lg:grid-cols-2 lg:items-center lg:pb-24">
-          {/* Left */}
-          <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C]/40 bg-[#C9A84C]/10 px-4 py-1.5 text-xs font-medium text-[#C9A84C]">
-              <Sparkles size={11} /> A ferramenta que sua clínica precisava para vender mais no WhatsApp
-            </span>
-            <h1 className="mt-6 font-serif text-4xl font-bold leading-tight text-[#DEC9A0] sm:text-5xl lg:text-6xl">
-              Toda semana sua clínica perde dinheiro no WhatsApp por{" "}
-              <span className="text-[#C9A84C]">responder do jeito errado.</span>
-            </h1>
-            <p className="mt-5 text-base leading-relaxed text-white/60 lg:text-lg">
-              O LeadBellus entrega a resposta certa pra cada situação — no seu tom, em segundos, pronta pra copiar e colar. Nenhuma cliente a mais vai sumir por falta de condução.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="#planos" className="inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-7 py-3.5 text-sm font-bold text-[#0D1B2E] shadow-lg hover:scale-105 hover:opacity-90 transition-all">
-                Quero testar grátis por 7 dias <ArrowRight size={16} />
-              </Link>
-              <Link href="#demo" className="inline-flex items-center gap-2 rounded-full border border-white/20 px-7 py-3.5 text-sm font-semibold text-white/80 hover:border-white/40 hover:bg-white/5 transition-all">
-                Ver como funciona
-              </Link>
-            </div>
-            <p className="mt-4 flex flex-wrap items-center gap-4 text-xs text-white/40">
-              <span className="flex items-center gap-1"><CreditCard size={12} /> Sem cartão</span>
-              <span className="flex items-center gap-1"><Zap size={12} /> Acesso imediato</span>
-              <span className="flex items-center gap-1"><Clock size={12} /> Configure em menos de 5 minutos</span>
-            </p>
-            <div className="mt-8 flex flex-wrap gap-2">
-              {[
-                { icon: MessageCircle, label: "Respostas estratégicas" },
-                { icon: TrendingUp, label: "Follow-ups inteligentes" },
-                { icon: Shield, label: "Objeções respondidas" },
-                { icon: Calendar, label: "Mais agendamentos" },
-              ].map((pill) => (
-                <div key={pill.label} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/70">
-                  <pill.icon size={13} className="text-[#C9A84C]" /> {pill.label}
-                </div>
-              ))}
-            </div>
+        {/* Hero */}
+        <section className="mx-auto max-w-5xl px-4 pb-12 pt-10 text-center sm:pt-16">
+          <span className="inline-flex animate-float items-center gap-1.5 rounded-full border border-lavender-300 bg-white/70 px-3 py-1 text-xs font-medium text-lavender-700 shadow-sm">
+            <Sparkles size={14} className="text-brand-500" /> Responda melhor. Agende mais.
+          </span>
+          <h1 className="mt-6 font-serif text-4xl font-semibold leading-tight text-ink sm:text-6xl">
+            Toda semana sua clínica perde dinheiro no WhatsApp por{" "}
+            <span className="text-gold-gradient">responder do jeito errado.</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+            Quando a cliente pergunta preço, hesita ou some, sua equipe não pode
+            improvisar. O LeadBellus te entrega a resposta certa, no tom da sua clínica,
+            para criar valor e puxar para a avaliação sem soar robótico.
+          </p>
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href={funilHref}
+              className="inline-flex min-w-[280px] items-center justify-center gap-2 rounded-xl bg-brand-500 px-8 py-4 text-base font-semibold text-white shadow-soft transition-all hover:scale-105 hover:bg-brand-600"
+            >
+              Quero parar de perder clientes <ArrowRight size={18} />
+            </Link>
+            <Link
+              href="#demo"
+              className="inline-flex min-w-[220px] items-center justify-center gap-2 rounded-xl border border-brand-200 bg-white/70 px-8 py-4 text-base font-semibold text-ink transition-all hover:bg-white"
+            >
+              Ver 1 conversa virar agenda
+            </Link>
           </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted">
+            <span>Sem cartão pra testar</span>
+            <span>Pronto no celular</span>
+            <span>Feito para clínicas de estética</span>
+          </div>
+          <div className="mt-10 grid gap-3 text-left sm:grid-cols-3">
+            {heroHooks.map((hook) => (
+              <div
+                key={hook.title}
+                className="rounded-2xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur"
+              >
+                <div className="text-2xl">{hook.emoji}</div>
+                <p className="mt-3 text-sm font-semibold text-ink">{hook.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">{hook.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-          {/* Right — App mockup */}
-          <div className="relative hidden lg:block">
-            <div className="absolute inset-0 rounded-3xl opacity-20 blur-3xl" style={{ background: "radial-gradient(circle, #C9A84C, transparent)" }} />
-            <div className="relative z-10 overflow-hidden rounded-2xl border border-[#C9A84C]/20 shadow-2xl" style={{ background: "#111827" }}>
-              <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <img src="/LEADBELLUS.png" alt="" className="h-5 w-auto" />
-                  <span className="text-sm font-bold text-[#C9A84C]">LeadBellus</span>
-                </div>
-                <div className="flex items-center gap-3 text-xs text-white/40">
-                  <span>Clínica Beleza & Harmonia</span>
-                  <Bell size={13} />
-                </div>
-              </div>
-              <div className="flex" style={{ minHeight: 280 }}>
-                <div className="w-28 border-r border-white/10 p-3 space-y-0.5">
-                  {[
-                    { icon: Home, label: "Início" },
-                    { icon: MessageCircle, label: "Conversas", active: true },
-                    { icon: Send, label: "Respostas" },
-                    { icon: Users, label: "Clientes" },
-                    { icon: BarChart2, label: "Relatórios" },
-                    { icon: Settings, label: "Config." },
-                  ].map((item) => (
-                    <div key={item.label} className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs ${item.active ? "bg-[#C9A84C]/20 text-[#C9A84C] font-medium" : "text-white/40"}`}>
-                      <item.icon size={11} /> {item.label}
-                    </div>
-                  ))}
-                </div>
-                <div className="flex-1 p-3">
-                  <div className="mb-2 text-xs font-semibold text-white/40">Conversa · WhatsApp</div>
-                  <div className="rounded-xl bg-white/5 p-3 mb-2">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="h-7 w-7 rounded-full bg-[#C9A84C]/20 flex items-center justify-center text-xs font-bold text-[#C9A84C]">J</div>
-                      <div>
-                        <div className="text-xs font-semibold text-white">Juliana Ferreira</div>
-                        <div className="text-xs text-green-400">Online</div>
-                      </div>
-                    </div>
-                    <p className="text-xs text-white/70">"Olá! Tenho interesse em fazer harmonização facial. Como funciona e qual o valor?"</p>
-                    <div className="text-right text-xs text-white/30 mt-1">10:42</div>
-                  </div>
-                  <div className="rounded-xl border border-[#C9A84C]/30 bg-[#C9A84C]/5 p-3">
-                    <div className="text-xs font-semibold text-[#C9A84C] mb-1.5 flex items-center gap-1"><Sparkles size={9} /> Resposta sugerida pelo LeadBellus</div>
-                    <p className="text-xs text-white/75 leading-relaxed">"Olá, Juliana! Que ótimo ter você aqui 💛 A harmonização realça sua beleza de forma natural. Para te orientar melhor, qual é o seu principal objetivo com o tratamento?"</p>
-                    <button className="mt-2 w-full rounded-lg bg-[#C9A84C] py-1 text-xs font-bold text-[#0D1B2E] flex items-center justify-center gap-1">
-                      <Copy size={9} /> Copiar resposta
-                    </button>
-                  </div>
-                </div>
-                <div className="w-36 border-l border-white/10 p-3 space-y-3">
-                  <div className="text-xs font-semibold text-white/40">Contexto</div>
-                  <div><div className="text-xs text-white/30 mb-0.5">Funil</div><div className="text-xs text-[#C9A84C] font-medium">Interesse</div></div>
-                  <div><div className="text-xs text-white/30 mb-0.5">Origem</div><div className="text-xs text-white/60">Instagram</div></div>
-                  <div><div className="text-xs text-white/30 mb-1">Tags</div><span className="inline-block rounded-md bg-[#C9A84C]/20 px-2 py-0.5 text-xs text-[#C9A84C]">Harmonização</span></div>
-                  <div className="mt-4 space-y-2">
-                    <div className="text-xs font-semibold text-white/40">Histórico</div>
-                    <div className="text-xs text-white/40">● Perguntou preços</div>
-                    <div className="text-xs text-white/30">● Solicitou infos</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -right-4 top-4 space-y-2 z-20">
-              {[
-                { icon: Send, label: "Respostas enviadas", value: "1.248", delta: "+28%" },
-                { icon: TrendingUp, label: "Taxa de conversão", value: "32,7%", delta: "+9%" },
-                { icon: Calendar, label: "Agendamentos", value: "89", delta: "+31%" },
-              ].map((s) => (
-                <div key={s.label} className="w-40 rounded-xl border border-[#C9A84C]/20 p-3 shadow-xl" style={{ background: "rgba(13,27,46,0.95)" }}>
-                  <div className="text-xs text-white/40">{s.label}</div>
-                  <div className="mt-0.5 text-lg font-bold text-white">{s.value}</div>
-                  <div className="text-xs text-green-400">{s.delta} vs semana anterior</div>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* Lançamento — sem logos fictícios até ter depoimentos reais */}
+        <div className="mx-auto max-w-5xl px-4 pb-16 text-center">
+          <p className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-4 py-2 text-sm font-medium text-muted">
+            <Flower2 size={16} className="text-brand-500" />
+            Entre no lançamento e padronize suas respostas antes da próxima cliente sumir
+          </p>
         </div>
       </header>
 
-      {/* ── PROBLEMA ── */}
-      <section style={{ background: "#FAF7F2" }} className="py-24">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-8 flex items-center gap-3">
-            <div className="h-px w-8 bg-[#C9A84C]" />
-            <span className="text-xs font-bold uppercase tracking-widest text-[#C9A84C]">Onde o dinheiro some todo dia</span>
-          </div>
-          <div className="grid gap-12 lg:grid-cols-3 lg:items-start">
-            {/* Left */}
-            <div>
-              <h2 className="font-serif text-4xl font-bold leading-tight text-[#0D1B2E]">
-                A cliente pergunta o preço. Você responde. Ela <span className="text-[#C9A84C] italic">some.</span>
-              </h2>
-              <div className="mt-6 space-y-4 text-base leading-relaxed text-slate-500">
-                <p>Você não perdeu essa venda por falta de talento. Você não perdeu por causa do preço.</p>
-                <p>Você perdeu porque <strong className="text-[#0D1B2E]">a sua formação não incluiu uma aula sobre como vender no WhatsApp</strong> — e porque quando você está no meio de um procedimento, cansada ou atendendo outra pessoa, a resposta que sai é a mais rápida, não a mais estratégica.</p>
-                <div className="h-px bg-[#C9A84C]/20" />
-                <p>Uma resposta fria, seca ou que joga o preço cedo demais faz a cliente não perceber o valor do que você oferece. Cada cliente que some assim pode valer <span className="text-2xl font-bold text-[#C9A84C]">R$800 a R$3.000</span> que você nunca mais vê.</p>
-              </div>
-              <div className="mt-6 rounded-2xl p-5" style={{ background: "#0D1B2E" }}>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C9A84C]/20">
-                    <TrendingUp size={18} className="text-[#C9A84C]" />
-                  </div>
-                  <div>
-                    <div className="text-xs text-white/50">Dinheiro que escapa todos os dias</div>
-                    <div className="text-lg font-bold text-[#C9A84C]">R$800 a R$3.000</div>
-                    <div className="text-xs text-white/50">por cada cliente que some.</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Middle */}
-            <div className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C9A84C]/10">
-                  <MessageCircle size={18} className="text-[#C9A84C]" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-xl font-bold text-[#0D1B2E]">Você já viveu alguma dessas?</h3>
-                  <div className="mt-0.5 h-0.5 w-8 bg-[#C9A84C]" />
-                </div>
-              </div>
-              <ul className="space-y-4">
-                {[
-                  "Deu o valor do botox e a cliente simplesmente parou de responder",
-                  'A cliente disse "vou pensar" — e nunca mais apareceu',
-                  '"Na outra clínica é mais barato" — e você ficou sem saber o que responder',
-                  "Fez orçamento dias atrás, não lembrou de fazer follow-up, perdeu a janela",
-                  '"Ela ia fechar — eu errei na hora de responder"',
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm text-slate-600">
-                    <X size={14} className="mt-0.5 shrink-0 text-red-400" /> {item}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-5 rounded-xl border border-amber-100 bg-amber-50 p-3 flex items-start gap-2">
-                <span className="text-amber-500 text-xs mt-0.5">ℹ</span>
-                <p className="text-xs text-slate-500">Se você se reconheceu em pelo menos uma, continue lendo.</p>
-              </div>
-            </div>
-            {/* Right */}
-            <div className="flex flex-col gap-4">
-              <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3 bg-slate-50">
-                  <div className="h-8 w-8 rounded-full bg-[#C9A84C]/20 flex items-center justify-center text-xs font-bold text-[#C9A84C]">C</div>
-                  <div>
-                    <div className="text-xs font-semibold text-[#0D1B2E]">Cliente</div>
-                    <div className="text-xs text-green-500">online</div>
-                  </div>
-                </div>
-                <div className="space-y-2 p-4">
-                  <div className="flex justify-start">
-                    <div className="max-w-xs rounded-xl rounded-tl-none bg-slate-100 px-3 py-2 text-xs text-slate-700">
-                      Olá! Tenho interesse no preenchimento labial. Quanto fica?
-                      <div className="text-right text-xs text-slate-400 mt-0.5">10:42</div>
-                    </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <div className="max-w-xs rounded-xl rounded-tr-none px-3 py-2 text-xs text-white" style={{ background: "#128C7E" }}>
-                      O valor é R$1.500.
-                      <div className="text-right text-xs text-green-200 mt-0.5">10:43 ✓✓</div>
-                    </div>
-                  </div>
-                  <div className="flex justify-start">
-                    <div className="max-w-xs rounded-xl rounded-tl-none bg-slate-100 px-3 py-2 text-xs text-slate-700">
-                      Vou pensar e te aviso.
-                      <div className="text-right text-xs text-slate-400 mt-0.5">10:44</div>
-                    </div>
-                  </div>
-                  <div className="text-center text-xs text-slate-400 italic">Última visualização hoje às 10:44</div>
-                </div>
-              </div>
-              <div className="rounded-2xl p-5" style={{ background: "#0D1B2E" }}>
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#C9A84C]/20 text-xl">💰</div>
-                  <div>
-                    <p className="text-sm text-white/70">Cada cliente que some pode representar</p>
-                    <p className="text-xl font-bold text-[#C9A84C]">R$800 a R$3.000</p>
-                    <p className="text-sm text-white/70">perdidos da sua clínica.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── ANTES / DEPOIS ── */}
-      <section style={{ background: "#0D1B2E" }} className="py-24 relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/4 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full opacity-10 blur-3xl" style={{ background: "#C9A84C" }} />
-        </div>
-        <div className="relative mx-auto max-w-5xl px-6 text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
-            <Sparkles size={10} /> Exemplo prático
-          </span>
-          <h2 className="mt-5 font-serif text-3xl font-bold text-[#DEC9A0] sm:text-5xl">A diferença entre responder e conduzir.</h2>
-          <p className="mt-3 text-white/50">Uma resposta joga preço. A outra gera valor, acolhe e aumenta a chance de agendamento.</p>
-          <div className="mt-12 grid gap-6 md:grid-cols-2 text-left">
-            <div className="rounded-3xl border border-red-900/30 p-8" style={{ background: "rgba(255,100,100,0.05)" }}>
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-red-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-red-400">
-                <X size={12} /> Resposta que faz a cliente sumir
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-xl">😞</div>
-                <div className="flex-1 rounded-xl rounded-tl-none bg-white/10 p-4">
-                  <p className="text-xl font-medium italic text-white/60">"Botox é R$900."</p>
-                  <div className="text-right text-xs text-white/30 mt-1">10:42 ✓</div>
-                </div>
-              </div>
-              <p className="mt-5 text-sm leading-relaxed text-red-300/70">A cliente sente que é só mais um número. Compara com a mais barata. Some. Venda perdida.</p>
-            </div>
-            <div className="rounded-3xl border border-[#C9A84C]/30 p-8" style={{ background: "rgba(201,168,76,0.05)" }}>
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-[#C9A84C]/20 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#C9A84C]">
-                <Check size={12} /> Resposta que agenda
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#C9A84C]/20">
-                  <img src="/LEADBELLUS.png" alt="" className="h-6 w-auto" />
-                </div>
-                <div className="flex-1 rounded-xl rounded-tl-none border border-[#C9A84C]/20 bg-white/5 p-4">
-                  <p className="text-sm leading-relaxed text-[#DEC9A0]">"Oi, Ana! O valor do botox varia conforme os pontos necessários pra atingir o seu objetivo — suavizar linhas da testa, pés de galinha ou prevenir marquinhas. Cada rosto é único. O que você acha de fazermos uma avaliação pra eu te orientar direitinho?"</p>
-                  <div className="text-right text-xs text-white/30 mt-1">10:42 ✓✓</div>
-                </div>
-              </div>
-              <div className="mt-4 flex items-center gap-2 text-sm text-[#C9A84C]/70">
-                <Sparkles size={12} /> Resultado: acolhe, gera autoridade e conduz pra avaliação sem falar de preço.
-              </div>
-            </div>
-          </div>
-          <div className="mt-12">
-            <Link href="#planos" className="inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-8 py-4 text-base font-bold text-[#0D1B2E] shadow-lg hover:scale-105 hover:opacity-90 transition-all">
-              Quero a resposta certa pra cada situação <ArrowRight size={18} />
-            </Link>
-            <p className="mt-3 flex items-center justify-center gap-2 text-xs text-white/30">
-              <Shield size={12} /> 7 dias grátis · Sem cartão · Você usa hoje mesmo
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── LEAD INTELLIGENCE ── */}
-      <section style={{ background: "#060E1A" }} className="py-24 relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute bottom-0 left-0 h-32 w-full opacity-20" style={{ background: "linear-gradient(to top, #C9A84C20, transparent)" }} />
-          {[
-            { top: "15%", left: "8%", op: 0.3 },
-            { top: "35%", left: "88%", op: 0.2 },
-            { top: "65%", left: "15%", op: 0.15 },
-            { top: "55%", left: "65%", op: 0.25 },
-            { top: "80%", left: "78%", op: 0.2 },
-            { top: "10%", left: "48%", op: 0.1 },
-          ].map((s, i) => (
-            <div key={i} className="absolute h-1 w-1 rounded-full bg-[#C9A84C]" style={{ top: s.top, left: s.left, opacity: s.op }} />
-          ))}
-        </div>
-        <div className="relative mx-auto max-w-5xl px-6 text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
-            ✦ Exclusivo LeadBellus
-          </span>
-          <h2 className="mt-5 font-serif text-3xl font-bold leading-tight text-[#DEC9A0] sm:text-5xl">
-            Você tem 20 mensagens no WhatsApp.<br />
-            Uma delas é de uma cliente prestes a fechar.<br />
-            <span className="text-[#C9A84C]">Você sabe qual é?</span>
+      {/* Demo */}
+      <section id="demo" className="mx-auto max-w-6xl px-4 py-16">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="font-serif text-3xl font-semibold text-ink">
+            Veja a diferença em 30 segundos
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-base text-white/60">
-            A profissional que tem mais agendamentos não é a que responde mais rápido. É a que responde <strong className="text-white">as certas primeiro.</strong>
+          <p className="mt-3 text-muted">
+            Coloque o nome e o tom da sua clínica e veja a resposta mudar — sem login.
           </p>
-          <div className="mx-auto mt-2 h-px w-16 bg-[#C9A84C]/40" />
-          <p className="mt-6 text-xs font-bold uppercase tracking-widest text-[#C9A84C]/60">Score de prioridade</p>
-          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
             {[
-              { icon: Flame, label: "Quente", desc: "Quer marcar agora. Responda esta primeiro.", color: "#FF6B35", bg: "rgba(255,107,53,0.08)", border: "rgba(255,107,53,0.2)" },
-              { icon: Moon, label: "Morna", desc: "Ainda está considerando. Precisa de condução.", color: "#C9A84C", bg: "rgba(201,168,76,0.08)", border: "rgba(201,168,76,0.2)" },
-              { icon: Snowflake, label: "Fria", desc: "Sumiu por enquanto. Follow-up no momento exato.", color: "#60A5FA", bg: "rgba(96,165,250,0.08)", border: "rgba(96,165,250,0.2)" },
-            ].map((item) => (
-              <div key={item.label} className="rounded-2xl p-6 text-left" style={{ background: item.bg, border: `1px solid ${item.border}` }}>
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="h-1 w-1 rounded-full" style={{ background: item.color }} />
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: `${item.color}20` }}>
-                    <item.icon size={22} style={{ color: item.color }} />
-                  </div>
-                </div>
-                <p className="font-serif text-xl font-bold" style={{ color: item.color }}>{item.label}</p>
-                <div className="mt-1 h-0.5 w-6" style={{ background: item.color }} />
-                <p className="mt-3 text-sm leading-relaxed text-white/60">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 flex items-center gap-4 rounded-2xl border border-[#C9A84C]/20 bg-[#C9A84C]/5 p-5 text-left">
-            <img src="/LEADBELLUS.png" alt="" className="h-10 w-10 shrink-0 object-contain" />
-            <div>
-              <p className="text-sm font-semibold text-[#C9A84C]">Com o score de prioridade visível em cada lead, você para de responder na ordem errada e começa a responder na ordem que fecha.</p>
-              <p className="mt-1 text-xs text-white/40">Nenhuma outra ferramenta criada especificamente para o mercado estético brasileiro faz isso.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── COMO FUNCIONA ── */}
-      <section id="como-funciona" style={{ background: "#FAF7F2" }} className="py-24 relative overflow-hidden">
-        <div className="relative mx-auto max-w-5xl px-6 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: "#0D1B2E" }}>
-              <img src="/LEADBELLUS.png" alt="" className="h-9 w-auto" />
-            </div>
-          </div>
-          <h2 className="font-serif text-4xl font-bold text-[#0D1B2E] sm:text-5xl">
-            Configure <em className="text-[#C9A84C]">uma vez</em>. Use <em className="text-[#C9A84C]">pra sempre</em>.
-          </h2>
-          <p className="mt-3 text-slate-500">A resposta certa em menos de 2 minutos.</p>
-          <div className="mt-2 flex justify-center"><div className="h-px w-8 bg-[#C9A84C]" /></div>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {[
-              { num: "01", icon: Brain, title: "Ensine o sistema a falar como você", sub: "5 minutos — só na primeira vez", desc: "Nome da clínica, tom de voz, como você chama suas clientes, qual é o seu CTA. O LeadBellus cria o DNA da sua clínica — todas as respostas saem com a sua personalidade. Não parece IA. Parece você num dia perfeito." },
-              { num: "02", icon: MessageCircle, title: "Cole a mensagem e selecione a situação", sub: null, desc: "Perguntou preço. Achou caro. Sumiu. Medo do procedimento. Veio do Instagram. Em segundos o sistema entende o contexto e sabe o que precisa ser dito." },
-              { num: "03", icon: Copy, title: "Escolha a resposta, copie e mande", sub: null, desc: "Três versões — suave, consultiva e de fechamento. Você escolhe a que faz mais sentido, clica em Copiar e manda direto no WhatsApp. Pronto." },
-            ].map((step, i) => (
-              <div key={step.num} className="relative rounded-3xl border border-[#C9A84C]/20 bg-white p-8 shadow-sm text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#C9A84C]/20 bg-[#FAF7F2]">
-                  <step.icon size={24} className="text-[#C9A84C]" />
-                </div>
-                <div className="text-sm font-bold text-[#C9A84C]">· {step.num} ·</div>
-                <h3 className="mt-2 font-serif text-lg font-bold text-[#0D1B2E]">{step.title}</h3>
-                {step.sub && <p className="mt-1 text-xs italic text-[#C9A84C]">{step.sub}</p>}
-                <p className="mt-3 text-sm leading-relaxed text-slate-500">{step.desc}</p>
-                {i < 2 && (
-                  <div className="absolute -right-3 top-16 z-10 hidden md:flex h-6 w-6 items-center justify-center rounded-full bg-[#C9A84C]/20">
-                    <ArrowRight size={12} className="text-[#C9A84C]" />
-                  </div>
-                )}
-              </div>
+              { id: "preco", label: "Perguntou preço" },
+              { id: "achou_caro", label: "Achou caro" },
+              { id: "sumiu", label: "Sumiu" },
+              { id: "medo", label: "Medo do procedimento" },
+            ].map((d) => (
+              <Link
+                key={d.id}
+                href={`/?demo=${d.id}#demo`}
+                className="rounded-full border border-brand-200 bg-white px-3 py-1.5 text-xs font-semibold text-ink hover:bg-brand-50"
+              >
+                {d.label}
+              </Link>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* ── SIMULADOR ── */}
-      <section id="demo" style={{ background: "#FAF7F2" }} className="pb-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="text-center mb-10">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
-              ● Demonstração ao vivo
-            </span>
-            <h2 className="mt-4 font-serif text-3xl font-bold text-[#0D1B2E] sm:text-4xl">
-              Teste com a sua clínica agora — <span className="text-[#C9A84C]">sem criar conta.</span>
-            </h2>
-            <p className="mt-3 text-slate-500">Coloque o nome, o tom e veja a resposta sair no seu jeito. Em segundos, a LeadBellus entende o contexto e escreve como sua clínica falaria.</p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-              {[
-                { id: "preco", label: "Perguntou preço" },
-                { id: "achou_caro", label: "Achou caro" },
-                { id: "sumiu", label: "Sumiu" },
-                { id: "medo", label: "Medo do procedimento" },
-              ].map((d) => (
-                <Link key={d.id} href={`/?demo=${d.id}#demo`} className="inline-flex items-center gap-1.5 rounded-full border border-[#0D1B2E]/15 bg-white px-4 py-2 text-xs font-semibold text-[#0D1B2E] hover:border-[#C9A84C] hover:bg-[#C9A84C] hover:text-[#0D1B2E] transition-all">
-                  {d.label}
-                </Link>
-              ))}
-            </div>
-          </div>
+        <div className="mt-10">
           <Suspense fallback={<LoadingRespostas mensagem="Carregando a demo…" />}>
             <LandingWhatsAppDemo />
           </Suspense>
         </div>
       </section>
 
-      {/* ── FEATURES ── */}
-      <section id="features" style={{ background: "#FAF7F2" }} className="pb-24">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center mb-12">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
-              <Sparkles size={10} /> Módulos LeadBellus
-            </span>
-            <h2 className="mt-4 font-serif text-3xl font-bold text-[#0D1B2E] sm:text-4xl">Tudo que você precisa pra nunca mais improvisar no WhatsApp</h2>
-            <p className="mt-3 text-slate-500">Cada módulo resolve uma situação específica que te faz perder cliente hoje.</p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {features.map((f) => (
-              <div key={f.title} className={`rounded-2xl border bg-white p-6 ${f.highlight ? "border-[#C9A84C]/30 shadow-md" : "border-slate-100 shadow-sm"}`}>
-                <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style={{ background: "#0D1B2E" }}>
-                    <f.icon size={20} className="text-[#C9A84C]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-serif text-base font-bold text-[#0D1B2E]">{f.title}</h3>
-                      {f.highlight && <span className="shrink-0 rounded-full bg-[#C9A84C] px-2 py-0.5 text-xs font-bold text-[#0D1B2E]">DESTAQUE</span>}
-                    </div>
-                    <p className="mt-0.5 text-xs italic text-[#C9A84C]">{f.subtitle}</p>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-500">{f.description}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Dor */}
+      <section className="mx-auto max-w-5xl px-4 py-16">
+        <div className="mx-auto mb-4 flex w-fit items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600">
+          <TrendingDown size={14} /> Onde o dinheiro vaza
         </div>
-      </section>
-
-      {/* ── EARLY ADOPTER ── */}
-      <section style={{ background: "#060E1A" }} className="py-24 relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-8 rounded-3xl border border-[#C9A84C]/10" />
-          <div className="absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full opacity-10 blur-3xl" style={{ background: "#C9A84C" }} />
-          <div className="absolute right-8 top-1/2 -translate-y-1/2 text-[18rem] font-bold text-white opacity-[0.02] select-none leading-none">B</div>
-        </div>
-        <div className="relative mx-auto max-w-3xl px-6 text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
-            💎 Acesso de Fundadora — Vagas Limitadas
-          </span>
-          <h2 className="mt-6 font-serif text-4xl font-bold leading-tight text-[#DEC9A0] sm:text-5xl">
-            Você está entrando antes de todo mundo.<br /><em className="text-[#C9A84C]">Isso tem valor.</em>
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="font-serif text-3xl font-semibold text-ink">
+            A cliente até quer saber mais. O problema é que a conversa morre antes.
           </h2>
-          <div className="mt-3 mx-auto h-px w-8 bg-[#C9A84C]/40" />
-          <p className="mx-auto mt-5 max-w-xl text-base text-white/60">
-            As primeiras 100 profissionais que assinarem o LeadBellus entram com <strong className="text-white">preço de fundadora garantido para sempre</strong> — mesmo quando os planos subirem no lançamento oficial.
+          <p className="mx-auto mt-4 max-w-2xl text-muted">
+            Na estética, a venda se perde quando a resposta não cria valor, não acolhe
+            e não conduz. Cada conversa travada pode ser um procedimento a menos na sua agenda.
           </p>
-          <ul className="mx-auto mt-8 max-w-lg space-y-3 text-left">
-            {[
-              "Acesso prioritário ao Pro assim que lancar — WhatsApp integrado e agendamento online",
-              "Canal direto com a equipe pra sugerir o que precisa existir",
-              "Preço de hoje garantido enquanto você permanecer assinante",
-            ].map((item) => (
-              <li key={item} className="flex items-start gap-4 rounded-xl border border-white/10 p-4 text-sm text-white/70">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#C9A84C]/40">
-                  <Check size={12} className="text-[#C9A84C]" />
-                </div>
-                {item}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-5 text-sm italic text-[#C9A84C]/60">✦ O preço de hoje não volta depois do lançamento oficial.</p>
-          <Link href="#planos" className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#C9A84C] px-8 py-4 text-base font-bold text-[#0D1B2E] shadow-lg hover:scale-105 hover:opacity-90 transition-all">
-            Quero entrar como fundadora <ArrowRight size={18} />
-          </Link>
-          <p className="mt-3 text-xs text-white/30">Vagas limitadas · Preço garantido para sempre · Acesso imediato</p>
+        </div>
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {vazamentos.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-3xl border border-red-100 bg-white p-6 shadow-card"
+            >
+              <div className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-red-600">
+                Sinal de perda
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-ink">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{item.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ── PRICING ── */}
-      <section id="planos" style={{ background: "#0D1B2E" }} className="py-24 relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -right-20 top-0 h-80 w-80 rounded-full opacity-10 blur-3xl" style={{ background: "#C9A84C" }} />
-          <div className="absolute -left-20 bottom-0 h-80 w-80 rounded-full opacity-5 blur-3xl" style={{ background: "#C9A84C" }} />
+      {/* Antes / Depois */}
+      <section className="mx-auto max-w-5xl px-4 pb-16">
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-3xl border border-red-100 bg-red-50/50 p-8 shadow-sm">
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600">
+              <X size={14} /> Resposta qualquer
+            </div>
+            <p className="font-serif text-xl italic text-red-900/70">“Botox é R$900.”</p>
+            <p className="mt-4 text-sm leading-relaxed text-red-800/60">
+              Resposta seca, focada só no preço. A cliente sente que é só mais um
+              número, compara com o concorrente mais barato e some. Venda perdida.
+            </p>
+          </div>
+          <div className="relative overflow-hidden rounded-3xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-8 shadow-soft">
+            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-brand-200/20 blur-2xl" />
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-600">
+              <Check size={14} /> A resposta que agenda
+            </div>
+            <p className="text-lg font-medium leading-relaxed text-ink">
+              “Oi, Ana! O investimento pode variar conforme os pontos avaliados e
+              o objetivo do tratamento. Você busca suavizar linhas da testa, pés
+              de galinha ou prevenir marcas? Assim consigo te orientar melhor e
+              ver o melhor caminho para você.”
+            </p>
+            <p className="mt-4 text-sm font-medium text-brand-700">
+              Resultado: gera autoridade, acolhe e conduz pra avaliação.
+            </p>
+          </div>
         </div>
-        <div className="relative mx-auto max-w-5xl px-6">
-          <div className="text-center">
-            <h2 className="font-serif text-3xl font-bold text-[#DEC9A0] sm:text-5xl">Uma cliente recuperada já paga o mês inteiro</h2>
-            <p className="mt-3 text-white/50">Se uma única cliente que ia sumir fechar um procedimento, o plano já se pagou — e sobra.</p>
-            <div className="mt-3 mx-auto h-px w-8 bg-[#C9A84C]/40" />
-            <div className="mt-8 inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1">
-              <button onClick={() => setBilling("mensal")} className="rounded-full px-6 py-2 text-sm font-medium transition-all" style={billing === "mensal" ? { background: "#C9A84C", color: "#0D1B2E" } : { color: "rgba(255,255,255,0.5)" }}>
-                Mensal
-              </button>
-              <button onClick={() => setBilling("anual")} className="rounded-full px-6 py-2 text-sm font-medium transition-all flex items-center gap-2" style={billing === "anual" ? { background: "#C9A84C", color: "#0D1B2E" } : { color: "rgba(255,255,255,0.5)" }}>
-                Anual <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${billing === "anual" ? "bg-[#0D1B2E] text-[#C9A84C]" : "bg-[#C9A84C]/20 text-[#C9A84C]"}`}>41% off</span>
-              </button>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {[
+            "Cria valor antes do preço",
+            "Fala no tom da sua clínica",
+            "Conduz para avaliação",
+          ].map((item) => (
+            <span
+              key={item}
+              className="rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold text-brand-700"
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Lead Intelligence — killer feature */}
+      <section className="mx-auto max-w-5xl px-4 pb-16">
+        <div className="relative overflow-hidden rounded-3xl bg-brand-dark p-8 text-white shadow-soft sm:p-12">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-lavender-400/10 blur-3xl" />
+          <div className="relative grid items-center gap-8 md:grid-cols-2">
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-lavender-400/30 bg-lavender-400/20 px-3 py-1 text-xs font-bold text-lavender-300">
+                <Sparkles size={14} /> EXCLUSIVO · LEAD INTELLIGENCE
+              </span>
+              <h2 className="mt-4 font-serif text-3xl font-semibold text-nude-50">
+                Identifique o lucro antes mesmo de responder
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-nude-200">
+                Nossa inteligência lê e organiza cada conversa por potencial de fechamento.
+                Saiba instantaneamente quem está pronta para agendar e quem precisa de um acompanhamento.
+                Foque no que traz faturamento e não perca tempo com quem só está curiosa.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-300 border border-brand-500/30">
+                  Agendamento Autônomo (Em breve)
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-lavender-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-lavender-300 border border-lavender-500/30">
+                  Priorização de ROI
+                </span>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {[
+                { emoji: "🔥", t: "Quente", d: "“Posso pagar no cartão? Tem horário amanhã?” — quer fechar agora", cls: "border-red-300/30" },
+                { emoji: "🌤️", t: "Morna", d: "“Vou pensar e te falo…” — precisa de um empurrãozinho", cls: "border-amber-300/30" },
+                { emoji: "❄️", t: "Fria", d: "Sumiu depois do orçamento — hora do follow-up certo", cls: "border-sky-300/30" },
+              ].map((x) => (
+                <div
+                  key={x.t}
+                  className={`flex items-start gap-3 rounded-2xl border bg-white/5 px-4 py-3 ${x.cls}`}
+                >
+                  <span className="text-xl">{x.emoji}</span>
+                  <div>
+                    <p className="text-sm font-bold text-nude-50">{x.t}</p>
+                    <p className="text-xs leading-relaxed text-nude-200">{x.d}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="mt-10 grid gap-5 md:grid-cols-3 items-start">
-            {/* Start */}
-            <div className="relative rounded-3xl p-8" style={{ background: "#111827", border: "2px solid #C9A84C", boxShadow: "0 0 40px rgba(201,168,76,0.15)" }}>
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="rounded-full bg-[#C9A84C] px-5 py-1.5 text-xs font-bold uppercase tracking-wider text-[#0D1B2E]">Disponível agora</span>
+        </div>
+      </section>
+
+      {/* Solução */}
+      <section className="bg-soft py-16">
+        <div className="mx-auto max-w-5xl px-4">
+          <div className="text-center">
+            <h2 className="font-serif text-3xl font-semibold text-ink">
+              O que você passa a responder sem travar
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-muted">
+              Menos improviso, menos texto frio, mais conversa que anda para frente:
+            </p>
+          </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {dores.map((d) => (
+              <div
+                key={d}
+                className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-white p-4 shadow-card"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-500">
+                  <Check size={16} />
+                </span>
+                <span className="text-sm text-ink">{d}</span>
               </div>
-              <p className="mt-2 text-sm font-medium text-white/50">Plano Start</p>
-              {billing === "mensal" ? (
-                <><p className="mt-1 font-serif text-5xl font-bold text-[#C9A84C]">R$97<span className="text-xl font-normal text-white/30">/mês</span></p><p className="mt-1 text-xs text-white/30">Cobrança mensal</p></>
-              ) : (
-                <><p className="mt-1 font-serif text-5xl font-bold text-[#C9A84C]">R$57<span className="text-xl font-normal text-white/30">/mês</span></p><p className="mt-1 text-sm font-semibold text-[#C9A84C]">R$684/ano · Economia de R$480</p></>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Oferta */}
+      <section className="mx-auto max-w-5xl px-4 py-16">
+        <div className="text-center">
+          <h2 className="font-serif text-3xl font-semibold text-ink">
+            Uma cliente recuperada já paga o mês inteiro
+          </h2>
+          <p className="mt-3 text-muted">
+            Se uma única cliente que ia sumir fechar um procedimento, o plano já se
+            pagou — e sobra.
+          </p>
+        </div>
+
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
+          {billingPlanList.map((plano) => (
+            <div
+              key={plano.id}
+              className={
+                plano.destaque
+                  ? "group relative rounded-3xl border-2 border-brand-300 bg-gradient-to-br from-white to-brand-50 p-7 shadow-soft transition-transform hover:scale-[1.03]"
+                  : "relative rounded-3xl border border-brand-100 bg-white p-7 transition-transform hover:scale-[1.02]"
+              }
+            >
+              {plano.selo && (
+                <span
+                  className={
+                    plano.destaque
+                      ? "absolute -top-3 right-5 rounded-full bg-brand-500 px-3 py-1 text-xs font-semibold text-white"
+                      : "absolute -top-3 right-5 rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-700"
+                  }
+                >
+                  {plano.selo}
+                </span>
               )}
-              <p className="mt-2 text-xs text-white/40">Pra profissional solo que quer parar de perder cliente no WhatsApp</p>
-              <ul className="mt-6 space-y-2.5">
-                {["Gerador de Respostas ilimitado", "Lead Intelligence — score de prioridade", "Biblioteca de Objeções completa", "Follow-up Inteligente", "Scripts de Atendimento com timing", "DNA da Clínica", "Histórico"].map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-sm text-white/75">
-                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[#C9A84C]/40"><Check size={11} className="text-[#C9A84C]" /></div>
-                    {f}
+              <p className="text-sm font-medium text-muted">Plano {plano.label}</p>
+              <p
+                className={
+                  plano.destaque
+                    ? "mt-1 font-serif text-4xl font-semibold text-gold-gradient"
+                    : "mt-1 font-serif text-4xl font-semibold text-ink"
+                }
+              >
+                {plano.priceLabel}
+                <span className="text-lg font-normal text-muted">{plano.periodLabel}</span>
+              </p>
+              <p className="mt-1 text-sm text-muted">{plano.tagline}</p>
+              {plano.disponivel ? (
+                <div className="mt-4 rounded-2xl border border-brand-200 bg-white/80 px-4 py-3 text-xs leading-relaxed text-muted">
+                  <p className="flex items-center gap-2 font-semibold text-brand-700">
+                    <ShieldCheck size={14} /> Garantia de 7 dias
+                  </p>
+                  <p className="mt-1">
+                    Teste sem risco: se não sentir diferença nas respostas, peça
+                    cancelamento e receba 100% de volta.
+                  </p>
+                </div>
+              ) : null}
+              <ul className="mt-5 space-y-2 text-sm text-ink">
+                {plano.features.map((f) => (
+                  <li
+                    key={f}
+                    className={
+                      plano.disponivel
+                        ? "flex items-start gap-2"
+                        : "flex items-start gap-2 opacity-70"
+                    }
+                  >
+                    <Check size={16} className="mt-0.5 shrink-0 text-brand-500" /> {f}
                   </li>
                 ))}
               </ul>
-              <PlanCTA plan="start" className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#C9A84C] px-4 py-3.5 text-sm font-bold text-[#0D1B2E] hover:opacity-90 transition-all disabled:opacity-60">
-                Começar grátis por 7 dias
-              </PlanCTA>
-              <p className="mt-2 text-center text-xs text-white/30">Sem cartão · Cancele quando quiser</p>
+              {plano.disponivel ? (
+                <PlanCTA
+                  plan={plano.id}
+                  className={
+                    plano.destaque
+                      ? "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-soft transition-all hover:bg-brand-600 disabled:opacity-60"
+                      : "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-60"
+                  }
+                >
+                  {plano.destaque ? `Quero o ${plano.label}` : `Entrar na fila do ${plano.label}`}
+                  {plano.destaque && <ArrowRight size={16} />}
+                </PlanCTA>
+              ) : (
+                <WaitlistForm plan={plano.id} className="mt-6" />
+              )}
             </div>
-            {/* Pro */}
-            <div className="rounded-3xl p-8" style={{ background: "#FAF7F2" }}>
-              <div className="mb-4 flex items-center gap-2 text-xs font-semibold text-slate-400"><Bell size={13} /> Em breve</div>
-              <p className="font-serif text-lg font-bold text-[#0D1B2E]">Plano Pro</p>
-              <p className="mt-1 font-serif text-3xl font-bold text-[#C9A84C]">Em breve</p>
-              <div className="mt-2 h-px bg-[#C9A84C]/20" />
-              <p className="mt-4 text-sm leading-relaxed text-slate-500">WhatsApp integrado · Resposta automática 24h · Agendamento online · Lembrete automático · 3 usuárias</p>
-              <div className="mt-6 space-y-2">
-                <input type="email" placeholder="Seu e-mail para ser avisada" className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/30" />
-                <button className="w-full rounded-xl border border-[#C9A84C]/30 px-4 py-2.5 text-sm font-medium text-[#0D1B2E] hover:bg-[#C9A84C]/10 transition-colors">Quero ser avisada quando lançar</button>
-              </div>
-            </div>
-            {/* Premium */}
-            <div className="rounded-3xl p-8" style={{ background: "#FAF7F2" }}>
-              <div className="mb-4 flex items-center gap-2 text-xs font-semibold text-slate-400"><Bell size={13} /> Em breve</div>
-              <p className="font-serif text-lg font-bold text-[#0D1B2E]">Plano Premium</p>
-              <p className="mt-1 font-serif text-3xl font-bold text-[#C9A84C]">Em breve</p>
-              <div className="mt-2 h-px bg-[#C9A84C]/20" />
-              <p className="mt-4 text-sm leading-relaxed text-slate-500">Tudo do Pro · Pós-atendimento automatizado · Relatórios de conversão · 10 usuárias</p>
-              <div className="mt-6 space-y-2">
-                <input type="email" placeholder="Seu e-mail para ser avisada" className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#C9A84C]/30" />
-                <button className="w-full rounded-xl border border-[#C9A84C]/30 px-4 py-2.5 text-sm font-medium text-[#0D1B2E] hover:bg-[#C9A84C]/10 transition-colors">Quero ser avisada quando lançar</button>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 flex items-center justify-center gap-6 text-xs text-white/30">
-            <span className="flex items-center gap-1"><Shield size={11} /> Cancele quando quiser</span>
-            <span>·</span><span>Sem multa</span><span>·</span><span>Sem burocracia</span>
-          </div>
+          ))}
         </div>
+        <p className="mt-5 text-center text-xs text-muted">
+          Planos mensais, cancela quando quiser. Acesso contínuo a todas as
+          atualizações e novas respostas.
+        </p>
       </section>
 
-      {/* ── GARANTIA ── */}
-      <section style={{ background: "#FAF7F2" }} className="py-24">
-        <div className="mx-auto max-w-5xl px-6">
-          <div className="text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
-              <Shield size={10} /> Sem burocracia
-            </span>
-            <h2 className="mt-4 font-serif text-4xl font-bold text-[#0D1B2E] sm:text-5xl">Simples assim: só paga se usar.</h2>
-            <p className="mx-auto mt-4 max-w-2xl text-base text-slate-500">
-              Teste grátis por 7 dias — sem colocar cartão, sem compromisso. Explore tudo, gere respostas, use no seu WhatsApp real.
-            </p>
-            <p className="mx-auto mt-3 max-w-2xl text-base text-slate-500">
-              Depois do trial, você decide. Se assinar e quiser cancelar, cancela pelo painel em um clique. Para de usar, para de pagar. <strong className="text-[#C9A84C]">Sem multa, sem ligação, sem formulário.</strong>
-            </p>
-          </div>
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { num: "01", icon: Gift, title: "Teste por 7 dias grátis", desc: "Acesse todas as ferramentas sem colocar cartão e veja como o LeadBellus transforma suas conversas." },
-              { num: "02", icon: Zap, title: "Use no seu dia a dia", desc: "Gere respostas, organize atendimentos e feche mais. Tudo integrado ao seu WhatsApp real." },
-              { num: "03", icon: CreditCard, title: "Decida com liberdade", desc: "Continue assinando se fizer sentido pra você. Sem fidelidade, sem pegadinha." },
-              { num: "04", icon: X, title: "Cancele quando quiser", desc: "Um clique no painel e pronto. Para de usar, para de pagar. Sem complicação." },
-            ].map((step) => (
-              <div key={step.num} className="relative rounded-2xl border border-[#C9A84C]/15 bg-white p-6 shadow-sm">
-                <div className="absolute -top-3 right-4 flex h-6 w-8 items-center justify-center rounded-md text-xs font-bold text-white" style={{ background: "#0D1B2E" }}>{step.num}</div>
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: "#FAF7F2", border: "1px solid rgba(201,168,76,0.2)" }}>
-                  <step.icon size={20} className="text-[#C9A84C]" />
-                </div>
-                <h3 className="font-semibold text-[#0D1B2E]">{step.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-500">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-8 flex items-start gap-4 rounded-2xl border border-[#C9A84C]/20 bg-white p-5">
-            <Shield size={20} className="mt-0.5 shrink-0 text-[#C9A84C]" />
-            <p className="text-sm text-slate-600">É por lei, você ainda tem <strong className="text-[#C9A84C]">7 dias de garantia após a primeira cobrança</strong> para solicitar reembolso total — direito garantido pelo Código de Defesa do Consumidor (Art. 49) para compras realizadas online.</p>
-          </div>
-          <p className="mt-4 text-center text-sm italic text-slate-400">Você testa grátis, assina só se quiser, e ainda tem 7 dias para mudar de ideia. Risco zero.</p>
-        </div>
-      </section>
-
-      {/* ── FAQ ── */}
-      <section style={{ background: "#FAF7F2" }} className="pb-24">
-        <div className="mx-auto max-w-3xl px-6">
-          <div className="text-center mb-10">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#C9A84C]/30 bg-[#C9A84C]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#C9A84C]">❓ Dúvidas frequentes</span>
-            <h2 className="mt-4 font-serif text-4xl font-bold text-[#0D1B2E] sm:text-5xl">Perguntas frequentes</h2>
-            <p className="mt-2 text-slate-500">Tire as principais dúvidas sobre o LeadBellus.</p>
-          </div>
-          <div className="space-y-2">
-            {faqs.map((faq, i) => (
-              <div key={faq.q} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                <button className="flex w-full items-center gap-4 px-6 py-4 text-left" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FAF7F2] border border-[#C9A84C]/20">
-                    <faq.icon size={15} className="text-[#C9A84C]" />
-                  </div>
-                  <span className="flex-1 text-sm font-semibold text-[#0D1B2E]">{faq.q}</span>
-                  <span className="text-xl font-light text-[#C9A84C] transition-transform" style={{ display: "inline-block", transform: openFaq === i ? "rotate(45deg)" : "none" }}>+</span>
-                </button>
-                {openFaq === i && (
-                  <div className="border-t border-slate-100 px-6 pb-5 pt-3">
-                    <p className="text-sm leading-relaxed text-slate-500">{faq.a}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA FINAL ── */}
-      <section style={{ background: "#FAF7F2" }} className="pb-24">
-        <div className="mx-auto max-w-3xl px-6 text-center">
-          <div className="relative mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-[#C9A84C]/20 bg-white shadow-sm">
-            <MessageSquareText size={24} className="text-[#C9A84C]" />
-          </div>
-          <h2 className="font-serif text-3xl font-bold text-[#0D1B2E] sm:text-4xl">
-            Cada semana sem o LeadBellus é uma semana <span className="text-[#C9A84C]">respondendo no improviso.</span>
+      {/* Garantia */}
+      <section className="mx-auto max-w-3xl px-4 pb-16">
+        <div className="rounded-3xl border-2 border-brand-200 bg-white p-8 text-center shadow-soft">
+          <ShieldCheck size={32} className="mx-auto text-brand-500" />
+          <h2 className="mt-3 font-serif text-2xl font-semibold text-ink">
+            Garantia de 7 dias, sem letra miúda
           </h2>
-          <div className="mt-8 space-y-3">
-            {[
-              { icon: Brain, text: <span>Mais uma semana de <strong>"vou pensar"</strong> sem follow-up.</span> },
-              { icon: TrendingUp, text: <span>Mais uma semana de <strong>preço jogado cedo</strong> demais.</span> },
-              { icon: Snowflake, text: <span>Mais uma cliente que foi pra concorrente porque a <strong>resposta foi fria</strong>.</span> },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 text-left shadow-sm">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FAF7F2] border border-[#C9A84C]/20">
-                  <item.icon size={16} className="text-[#C9A84C]" />
-                </div>
-                <p className="text-sm text-slate-600">{item.text}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 flex items-center gap-4 rounded-2xl border border-[#C9A84C]/20 bg-[#C9A84C]/5 p-5 text-left">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#C9A84C]">
-              <Calendar size={20} className="text-[#0D1B2E]" />
-            </div>
-            <div>
-              <p className="text-base font-semibold text-[#0D1B2E]">Você paga <span className="text-[#C9A84C]">R$97/mês.</span></p>
-              <p className="text-sm text-slate-500">Um único procedimento de harmonização paga <span className="font-semibold text-[#C9A84C]">19 meses</span> de assinatura.</p>
-            </div>
-          </div>
-          <p className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400">
-            <Shield size={12} className="text-[#C9A84C]" /> O risco de testar é zero. O custo de não testar você já conhece — está sentindo toda semana.
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted">
+            Teste o LeadBellus por 7 dias. Se você não sentir que está
+            respondendo melhor e perdendo menos cliente, é só pedir o
+            cancelamento — devolvemos 100% do valor, sem perguntas.
           </p>
-          <Link href="#planos" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0D1B2E] px-8 py-4 text-base font-bold text-white shadow-lg hover:scale-105 hover:opacity-90 transition-all">
-            Quero minha clínica respondendo melhor agora <ArrowRight size={18} />
-          </Link>
-          <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
-            <span className="flex items-center gap-1"><Shield size={11} className="text-[#C9A84C]" /> 7 dias grátis</span>
-            <span className="flex items-center gap-1"><CreditCard size={11} className="text-[#C9A84C]" /> Sem cartão</span>
-            <span className="flex items-center gap-1"><Clock size={11} className="text-[#C9A84C]" /> Acesso em menos de 2 minutos</span>
-          </div>
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="border-t border-slate-100 bg-white py-16">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="grid gap-10 md:grid-cols-3">
-            <div className="space-y-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: "#0D1B2E" }}>
-                <img src="/LEADBELLUS.png" alt="" className="h-9 w-auto" />
-              </div>
-              <div>
-                <p className="font-semibold text-[#0D1B2E]">Inteligência de conversão para clínicas de estética.</p>
-                <p className="mt-1 text-sm text-slate-400">Responda melhor, feche mais e encante seus clientes pelo WhatsApp.</p>
-              </div>
-              <div className="flex items-center gap-3">
-{[Globe, MessageCircle, Mail].map((Icon, i) => (
-                  <a key={i} href="#" className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-400 hover:border-[#C9A84C] hover:text-[#C9A84C] transition-colors">
-                    <Icon size={15} />
-                  </a>
-                ))}
-              </div>
+      {/* FAQ */}
+      <section className="mx-auto max-w-3xl px-4 pb-16">
+        <h2 className="text-center font-serif text-3xl font-semibold text-ink">
+          Perguntas frequentes
+        </h2>
+        <div className="mt-8 space-y-3">
+          {[
+            {
+              q: "Preciso instalar alguma coisa no meu WhatsApp?",
+              a: "Não. Você usa o LeadBellus pelo navegador (celular ou computador): cola a mensagem da cliente, recebe a resposta pronta no seu tom e copia de volta pro WhatsApp. Em 30 segundos está respondendo melhor.",
+            },
+            {
+              q: "As respostas vão parecer robóticas?",
+              a: "Não — esse é o ponto. Você configura o DNA da sua clínica (seu jeito de falar, como chama as clientes, seus procedimentos) e toda resposta sai no SEU tom. É como ter alguém que escreve exatamente como você, só que na hora.",
+            },
+            {
+              q: "Funciona pra qualquer procedimento?",
+              a: "Sim. Botox, preenchimento, harmonização, limpeza de pele, depilação a laser, pós-operatório e dezenas de outros — as respostas levam em conta o procedimento que a cliente perguntou.",
+            },
+            {
+              q: "E se a cliente fizer uma pergunta difícil, tipo 'dói?' ou 'tem desconto?'",
+              a: "É exatamente pra isso que existe a Biblioteca de Objeções: as perguntas que travam a venda ('tá caro', 'vou pensar', 'dói?', 'tem desconto?') já têm resposta pronta, testada e no seu tom.",
+            },
+            {
+              q: "Posso cancelar quando quiser?",
+              a: "Sim. O plano é mensal, sem fidelidade, e o cancelamento é direto pelo painel. E nos primeiros 7 dias você tem garantia total: devolvemos 100% se não gostar.",
+            },
+            {
+              q: "As respostas prometem resultado dos procedimentos?",
+              a: "Nunca. As respostas são pensadas para a estética: não prometem resultado garantido, não fazem diagnóstico e sempre valorizam a avaliação individual — mais profissionalismo e segurança pra você.",
+            },
+          ].map((item) => (
+            <details
+              key={item.q}
+              className="group rounded-2xl border border-brand-100 bg-white px-5 py-4 shadow-card"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-medium text-ink">
+                {item.q}
+                <span className="shrink-0 text-brand-400 transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-muted">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA final */}
+      <section className="bg-brand-dark py-20 text-center">
+        <div className="mx-auto max-w-2xl px-4">
+          <MessageSquareText size={32} className="mx-auto text-lavender-400" />
+          <h2 className="mt-4 font-serif text-3xl font-semibold text-nude-50">
+            Sua próxima conversa pode virar agenda
+          </h2>
+          <p className="mt-2 text-sm text-nude-200">
+            Teste no seu ritmo, no celular, e veja como a conversa muda quando a
+            resposta já nasce com valor, acolhimento e CTA.
+          </p>
+          <Link
+            href={funilHref}
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-lavender-400 px-6 py-3 text-base font-semibold text-brand-900 shadow-soft hover:bg-lavender-300"
+          >
+            Quero testar no meu WhatsApp hoje <ArrowRight size={18} />
+          </Link>
+        </div>
+      </section>
+
+      <footer className="border-t border-brand-100 py-12 text-center text-xs text-muted">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="grid gap-8 md:grid-cols-3 md:text-left">
+            <div className="space-y-3">
+              <Logo href="/" textClass="text-lg text-ink" />
+              <p className="text-balance">
+                Conversão para clínicas de estética — responda melhor e agende mais
+                pelo WhatsApp.
+              </p>
             </div>
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-[#C9A84C]/20"><MapPin size={15} className="text-[#C9A84C]" /></div>
-                <h4 className="font-semibold text-[#0D1B2E]">Contato</h4>
-              </div>
-              <div className="space-y-2 text-sm text-slate-500">
-                <div className="flex items-start gap-2"><MapPin size={13} className="mt-0.5 shrink-0 text-[#C9A84C]" /><span>Av. Rômulo Maiorana, 1695, Marco<br />Belém - PA, 66093-674</span></div>
-                <div className="flex items-center gap-2"><MessageCircle size={13} className="shrink-0 text-[#C9A84C]" /><span>WhatsApp: +55 91 8515-6690</span></div>
-                <div className="flex items-center gap-2"><Mail size={13} className="shrink-0 text-[#C9A84C]" /><span>contato@leadbellus.com.br</span></div>
-              </div>
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold text-ink">Contato</h4>
+              <p>Av. Rômulo Maiorana, 1695, Marco<br />Belém - PA, 66093-674</p>
+              <p>WhatsApp: +55 91 8515-6690</p>
             </div>
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-[#C9A84C]/20"><Clock size={15} className="text-[#C9A84C]" /></div>
-                <h4 className="font-semibold text-[#0D1B2E]">Horário</h4>
-              </div>
-              <p className="text-sm text-slate-500">Segunda a Sábado: 24h (IA ativa)</p>
-              <div className="border-t border-slate-100 pt-4 text-xs text-slate-400">
-                <p>© 2026 LeadBellus</p><p>VPS Automações</p>
-              </div>
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold text-ink">Horário</h4>
+              <p>Respostas prontas 24h, todo dia</p>
+              <p>© 2026 LeadBellus · VPS Automações</p>
             </div>
-          </div>
-          <div className="mt-12 grid gap-4 sm:grid-cols-3">
-            {[
-              { icon: Shield, title: "Segurança e privacidade", desc: "Seus dados protegidos com criptografia e em conformidade com a LGPD." },
-              { icon: Heart, title: "Feito para clínicas", desc: "Pensado para profissionais que querem mais tempo, organização e resultados." },
-              { icon: MessageCircle, title: "Suporte humano", desc: "Precisa de ajuda? Fale com a gente pelo WhatsApp." },
-            ].map((item) => (
-              <div key={item.title} className="flex items-start gap-3 rounded-2xl border border-slate-100 p-4">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FAF7F2] border border-[#C9A84C]/20">
-                  <item.icon size={15} className="text-[#C9A84C]" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-[#0D1B2E]">{item.title}</p>
-                  <p className="mt-0.5 text-xs text-slate-400">{item.desc}</p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </footer>
-
     </div>
   );
 }

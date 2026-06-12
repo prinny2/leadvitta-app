@@ -12,12 +12,14 @@ import { procedimentos } from "@/data/procedimentos";
 import { tons } from "@/data/tons";
 import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { getClinica, saveClinica } from "@/lib/store";
-import { updatePassword } from "firebase/auth";
+import { onAuthStateChanged, updatePassword } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CheckoutButton } from "@/components/checkout-button";
+import { BillingPortalButton } from "@/components/billing-portal-button";
+import { billingPlanList } from "@/lib/billing";
 import { trackEvent } from "@/components/Analytics";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
@@ -31,6 +33,7 @@ export default function ConfiguracoesPage() {
 
   const [novaSenha, setNovaSenha] = useState("");
   const [senhaMsg, setSenhaMsg] = useState("");
+  const [abrindoCheckout, setAbrindoCheckout] = useState(false);
 
   useEffect(() => {
     getClinica().then((v) => {
@@ -43,6 +46,60 @@ export default function ConfiguracoesPage() {
     if (params.get("checkout") === "sucesso") {
       trackEvent("purchase", { stripe_session_id: params.get("session_id") });
     }
+  }, []);
+
+  // Continuação do funil: /configuracoes?plan=X&next=checkout (vindo do
+  // "Criar conta e continuar") abre o pagamento sozinha, sem mais um clique.
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+    const params = new URLSearchParams(window.location.search);
+    const plan = parseBillingPlan(params.get("plan"));
+    if (!plan || params.get("next") !== "checkout") return;
+    if (!billingPlans[plan].disponivel) return;
+
+    // Remove o next da URL antes de disparar: refresh/voltar do Stripe não
+    // re-abre o checkout em loop.
+    params.delete("next");
+    const qs = params.toString();
+    window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
+
+    setAbrindoCheckout(true);
+    let disparado = false;
+    const unsub = onAuthStateChanged(getFirebaseAuth(), async (user) => {
+      if (!user) return; // espera a sessão recém-criada hidratar
+      disparado = true;
+      clearTimeout(timeout);
+      unsub();
+      try {
+        trackEvent("initiate_checkout", { plan, origem: "funil_pos_cadastro" });
+        const firebaseIdToken = await user.getIdToken();
+        const res = await fetch("/api/stripe/checkout", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ plan, firebaseIdToken, customerEmail: user.email }),
+        });
+        const data = (await res.json()) as { url?: string; error?: string };
+        if (!res.ok || !data.url) {
+          throw new Error(data.error || "Não foi possível abrir o pagamento.");
+        }
+        window.location.assign(data.url);
+      } catch (err) {
+        setAbrindoCheckout(false);
+        setErro(err instanceof Error ? err.message : "Não foi possível abrir o pagamento.");
+      }
+    });
+    // Se a sessão do Firebase nunca hidratar (ex.: cookie presente sem sessão),
+    // desarma o spinner e devolve a tela normal — sem "Abrindo…" eterno.
+    const timeout = setTimeout(() => {
+      if (disparado) return;
+      unsub();
+      setAbrindoCheckout(false);
+      setErro("Sua sessão ainda não carregou. Toque em “Assinar” no plano escolhido para continuar.");
+    }, 8000);
+    return () => {
+      clearTimeout(timeout);
+      unsub();
+    };
   }, []);
 
   function set<K extends keyof Clinica>(key: K, value: Clinica[K]) {
@@ -64,6 +121,24 @@ export default function ConfiguracoesPage() {
     setErro("");
     setOk(false);
     try {
+      // O número de WhatsApp vai por uma rota dedicada (unicidade no servidor)
+      // e roda ANTES do resto: se o número estiver em uso (409), nada é salvo
+      // pela metade. Campo vazio = desconectar o número.
+      if (isFirebaseConfigured) {
+        const user = getFirebaseAuth().currentUser;
+        if (user) {
+          const firebaseIdToken = await user.getIdToken();
+          const res = await fetch("/api/clinica/whatsapp", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ numero: c.whatsapp, firebaseIdToken }),
+          });
+          if (!res.ok) {
+            const d = (await res.json().catch(() => ({}))) as { error?: string };
+            throw new Error(d.error || "Não foi possível conectar o número de WhatsApp.");
+          }
+        }
+      }
       await saveClinica({ ...c, onboarded: true });
       setOk(true);
       setTimeout(() => setOk(false), 2500);
@@ -92,10 +167,13 @@ export default function ConfiguracoesPage() {
     }
   }
 
-  if (carregando) {
+  if (carregando || abrindoCheckout) {
     return (
-      <div className="flex justify-center py-20">
+      <div className="flex flex-col items-center gap-3 py-20">
         <Loader2 className="animate-spin text-brand-400" />
+        {abrindoCheckout && (
+          <p className="text-sm text-muted">Abrindo o pagamento seguro…</p>
+        )}
       </div>
     );
   }
@@ -267,49 +345,57 @@ export default function ConfiguracoesPage() {
             <CreditCard size={18} className="text-brand-500" /> Plano e pagamento
           </CardTitle>
           <p className="text-sm text-muted">
-            Stripe fica responsável pelo checkout seguro. O status do pagamento
-            volta pelo webhook e pode atualizar o Firebase quando o Admin SDK
-            estiver configurado no Cloud Run.
+            Pagamento seguro processado pela Stripe. No lançamento, o Start está
+            disponível para assinatura e os demais planos entram por lista de espera.
           </p>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-brand-100 bg-nude-50 p-4">
-              <p className="text-sm font-medium text-muted">Plano Start</p>
-              <p className="font-serif text-3xl font-semibold text-ink">R$197<span className="text-sm text-muted">/mês</span></p>
-              <p className="mt-1 text-xs text-muted">
-                Validar e começar.
-              </p>
-              <CheckoutButton plan="start" variant="outline" className="mt-4 w-full">
-                Checkout Start
-              </CheckoutButton>
-            </div>
+            {billingPlanList.map((plano) => (
+              <div
+                key={plano.id}
+                className={cn(
+                  "rounded-2xl border p-4",
+                  plano.destaque
+                    ? "border-brand-300 bg-gradient-to-br from-white to-brand-50"
+                    : "border-brand-100 bg-nude-50"
+                )}
+              >
+                <p className="text-sm font-medium text-muted">Plano {plano.label}</p>
+                <p className="font-serif text-3xl font-semibold text-ink">
+                  {plano.priceLabel}
+                  <span className="text-sm text-muted">{plano.periodLabel}</span>
+                </p>
+                <p className="mt-1 text-xs text-muted">{plano.tagline}</p>
+                {plano.disponivel ? (
+                  <CheckoutButton
+                    plan={plano.id}
+                    variant={plano.destaque ? "primary" : "outline"}
+                    className="mt-4 w-full"
+                  >
+                    Assinar {plano.label}
+                  </CheckoutButton>
+                ) : (
+                  <p className="mt-4 rounded-xl bg-nude-100 px-3 py-2 text-center text-xs font-medium text-muted">
+                    Em breve — disponível primeiro pra quem está na lista de espera
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
 
-            <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
-              <p className="text-sm font-medium text-muted">Plano Pro</p>
-              <p className="font-serif text-3xl font-semibold text-ink">R$297<span className="text-sm text-muted">/mês</span></p>
+          <div className="flex flex-col gap-3 rounded-2xl border border-brand-100 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-ink">Já assinou?</p>
               <p className="mt-1 text-xs text-muted">
-                Inteligência avançada.
+                Abra o portal para atualizar cartão, consultar cobranças ou cancelar.
               </p>
-              <CheckoutButton plan="pro" className="mt-4 w-full">
-                Checkout Pro
-              </CheckoutButton>
             </div>
-
-            <div className="rounded-2xl border border-brand-300 bg-gradient-to-br from-white to-brand-50 p-4">
-              <p className="text-sm font-medium text-muted">Plano Premium</p>
-              <p className="font-serif text-3xl font-semibold text-ink">R$397<span className="text-sm text-muted">/mês</span></p>
-              <p className="mt-1 text-xs text-muted">
-                Inteligência completa.
-              </p>
-              <CheckoutButton plan="premium" variant="outline" className="mt-4 w-full">
-                Checkout Premium
-              </CheckoutButton>
-            </div>
+            <BillingPortalButton />
           </div>
 
           <p className="text-xs text-muted">
-            Configure `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` e os Price IDs
-            no Cloud Run antes de vender em produção.
+            Você pode cancelar quando quiser. A confirmação do pagamento aparece
+            aqui automaticamente depois do checkout.
           </p>
         </CardBody>
       </Card>

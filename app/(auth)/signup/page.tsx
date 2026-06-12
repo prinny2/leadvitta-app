@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
+import { saveClinica } from "@/lib/store";
+import { clinicaVazia, type Clinica } from "@/lib/types";
 import { trackEvent } from "@/components/Analytics";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,10 +34,18 @@ async function notifyZapierSignup(idToken: string) {
 
 export default function SignupPage() {
   const router = useRouter();
+  const [planoSelecionado, setPlanoSelecionado] = useState("");
+  const finalizandoCompra = !!planoSelecionado;
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
+
+  useEffect(() => {
+    setPlanoSelecionado(
+      new URLSearchParams(window.location.search).get("plan") || ""
+    );
+  }, []);
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
@@ -50,10 +60,30 @@ export default function SignupPage() {
       setAuthCookie();
       notifyZapierSignup(await credential.user.getIdToken());
       trackEvent("sign_up", { method: "Email/Password" });
+      // O DNA montado no funil público fica em localStorage ("lb_dna_draft").
+      // Persiste na conta recém-criada AGORA — senão quem vem de /signup?plan
+      // pula o onboarding e faz checkout com o perfil vazio (respostas genéricas).
+      try {
+        const raw = window.localStorage.getItem("lb_dna_draft");
+        if (raw) {
+          const draft = JSON.parse(raw) as Partial<Clinica>;
+          if (draft?.nome_clinica?.trim()) {
+            await saveClinica({ ...clinicaVazia, ...draft, onboarded: true });
+          }
+        }
+      } catch (draftErr) {
+        // Não bloqueia o cadastro/checkout; o onboarding/configurações cobre depois.
+        console.warn("[signup] não foi possível persistir o DNA do funil:", draftErr);
+      }
       // Se veio de um plano escolhido na landing (/signup?plan=...),
-      // leva o plano adiante pra concluir o checkout em /configuracoes.
-      const plano = new URLSearchParams(window.location.search).get("plan");
-      router.push(plano ? `/configuracoes?plan=${plano}` : "/configuracoes");
+      // leva o plano adiante; next=checkout faz /configuracoes abrir o
+      // pagamento sozinha ("Criar conta e continuar" continua de verdade).
+      // Sem plano: primeiro o DNA da clínica (onboarding) — sem ele as
+      // respostas saem genéricas e a usuária acha que o produto é ruim.
+      const q = new URLSearchParams(window.location.search);
+      const plano = q.get("plan");
+      const next = q.get("next") === "checkout" ? "&next=checkout" : "";
+      router.push(plano ? `/configuracoes?plan=${plano}${next}` : "/onboarding");
       router.refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
@@ -91,10 +121,12 @@ export default function SignupPage() {
       <CardBody className="space-y-5">
         <div>
           <h1 className="font-serif text-2xl font-semibold text-ink">
-            Criar conta
+            {finalizandoCompra ? "Criar conta para assinar" : "Criar conta"}
           </h1>
           <p className="text-sm text-muted">
-            Comece a responder melhor hoje mesmo.
+            {finalizandoCompra
+              ? "Só precisamos da sua conta para vincular o pagamento e liberar seu acesso."
+              : "Comece a responder melhor hoje mesmo."}
           </p>
         </div>
 
@@ -125,7 +157,7 @@ export default function SignupPage() {
           {erro && <p className="text-sm text-red-600">{erro}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading && <Loader2 size={16} className="animate-spin" />}
-            Criar conta
+            {finalizandoCompra ? "Criar conta e continuar" : "Criar conta"}
           </Button>
         </form>
 
