@@ -7,6 +7,8 @@ import { Loader2 } from "lucide-react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
+import { saveClinica } from "@/lib/store";
+import { clinicaVazia, type Clinica } from "@/lib/types";
 import { trackEvent } from "@/components/Analytics";
 import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,6 +60,21 @@ export default function SignupPage() {
       setAuthCookie();
       notifyZapierSignup(await credential.user.getIdToken());
       trackEvent("sign_up", { method: "Email/Password" });
+      // O DNA montado no funil público fica em localStorage ("lb_dna_draft").
+      // Persiste na conta recém-criada AGORA — senão quem vem de /signup?plan
+      // pula o onboarding e faz checkout com o perfil vazio (respostas genéricas).
+      try {
+        const raw = window.localStorage.getItem("lb_dna_draft");
+        if (raw) {
+          const draft = JSON.parse(raw) as Partial<Clinica>;
+          if (draft?.nome_clinica?.trim()) {
+            await saveClinica({ ...clinicaVazia, ...draft, onboarded: true });
+          }
+        }
+      } catch (draftErr) {
+        // Não bloqueia o cadastro/checkout; o onboarding/configurações cobre depois.
+        console.warn("[signup] não foi possível persistir o DNA do funil:", draftErr);
+      }
       // Se veio de um plano escolhido na landing (/signup?plan=...),
       // leva o plano adiante pra concluir o checkout em /configuracoes.
       // Sem plano: primeiro o DNA da clínica (onboarding) — sem ele as

@@ -102,13 +102,22 @@ export async function registrarMensagemRecebida(
     { merge: true }
   );
 
-  await ref.collection("mensagens").add({
+  // Id determinístico pelo providerMessageId: se a reserva foi devolvida após
+  // um crash e o provedor reentregar, o set() sobrescreve a MESMA linha em vez
+  // de duplicar a mensagem na thread.
+  const dadosMensagem = {
     clinica_id: p.clinicaId,
     direcao: "in",
     texto: p.text,
     em: agora,
     ...(p.providerMessageId ? { provider_message_id: p.providerMessageId } : {}),
-  });
+  };
+  const mensagens = ref.collection("mensagens");
+  if (p.providerMessageId) {
+    await mensagens.doc(p.providerMessageId.replace(/[^\w-]/g, "_")).set(dadosMensagem);
+  } else {
+    await mensagens.add(dadosMensagem);
+  }
 
   return id;
 }
