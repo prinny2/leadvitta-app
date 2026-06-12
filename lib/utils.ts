@@ -20,8 +20,19 @@ export function candidatosNumero(n: string | undefined | null): string[] {
   const d = numeroDigits(n);
   if (!d) return [];
   const set = new Set<string>([d]);
-  if (d.startsWith("55")) set.add(d.slice(2));
-  else set.add("55" + d);
+  const base = d.startsWith("55") ? d.slice(2) : d;
+  set.add(base);
+  set.add("55" + base);
+  // Celular BR pode aparecer com ou sem o nono dígito (DDD + 9XXXXXXXX).
+  if (base.length === 11 && base[2] === "9") {
+    const sem9 = base.slice(0, 2) + base.slice(3);
+    set.add(sem9);
+    set.add("55" + sem9);
+  } else if (base.length === 10) {
+    const com9 = base.slice(0, 2) + "9" + base.slice(2);
+    set.add(com9);
+    set.add("55" + com9);
+  }
   return Array.from(set).slice(0, 10);
 }
 

@@ -12,13 +12,8 @@ import {
   getMensagens,
   marcarConversaLida,
 } from "@/lib/store";
-import type { Conversa, MensagemConversa, Prioridade } from "@/lib/types";
-
-const PRIO: Record<Prioridade, { emoji: string; label: string; cls: string }> = {
-  quente: { emoji: "🔥", label: "Quente", cls: "bg-red-100 text-red-700" },
-  morno: { emoji: "🌤️", label: "Morna", cls: "bg-amber-100 text-amber-700" },
-  frio: { emoji: "❄️", label: "Fria", cls: "bg-sky-100 text-sky-700" },
-};
+import { PRIO } from "@/lib/prioridade-ui";
+import type { Conversa, MensagemConversa } from "@/lib/types";
 
 export default function ConversaThreadPage() {
   const params = useParams();

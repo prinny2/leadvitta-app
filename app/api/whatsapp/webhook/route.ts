@@ -9,6 +9,7 @@ import {
   registrarMensagemEnviada,
   marcarPrecisaAtencao,
   reservarProcessamento,
+  liberarProcessamento,
 } from "@/lib/conversas";
 
 export const runtime = "nodejs";
@@ -34,13 +35,18 @@ async function processarMensagem(msg: InboundMessage) {
   }
 
   // Descobre a clínica pelo número que RECEBEU, via mapa canônico (único/verificado).
+  // Falha de roteamento devolve a reserva: um retry futuro ainda pode processar.
   const clinicaId = await resolverClinicaPorNumero(msg.to);
   if (!clinicaId) {
     console.warn(`[whatsapp] nenhuma clínica conectada ao número ${msg.to}.`);
+    await liberarProcessamento(msg.providerMessageId);
     return;
   }
   const clinicaSnap = await db.collection("clinicas").doc(clinicaId).get();
-  if (!clinicaSnap.exists) return;
+  if (!clinicaSnap.exists) {
+    await liberarProcessamento(msg.providerMessageId);
+    return;
+  }
   const clinica = clinicaSnap.data() as Record<string, any>;
   const ativo = STATUS_ATIVOS.has(clinica.billing?.status);
 
@@ -137,8 +143,13 @@ export async function GET(req: Request) {
   const token = url.searchParams.get("hub.verify_token");
   const challenge = url.searchParams.get("hub.challenge");
   const expected = process.env.D360_WEBHOOK_TOKEN || process.env.WHATSAPP_VERIFY_TOKEN;
-  if (mode === "subscribe" && challenge && (!expected || token === expected)) {
-    return new NextResponse(challenge, { status: 200 });
+  if (mode === "subscribe" && challenge) {
+    if (!expected || token === expected) {
+      return new NextResponse(challenge, { status: 200 });
+    }
+    // Token errado com verificação configurada: falhar alto pra expor
+    // misconfiguração já no handshake (não fingir que deu certo).
+    return new NextResponse("forbidden", { status: 403 });
   }
   return new NextResponse("", { status: 200 });
 }
@@ -156,9 +167,12 @@ export async function POST(req: Request) {
   const msg = provider.parseInbound(raw, req);
   if (msg) {
     after(() =>
-      processarMensagem(msg).catch((e) =>
-        console.error("[whatsapp] erro no processamento:", e)
-      )
+      processarMensagem(msg).catch(async (e) => {
+        console.error("[whatsapp] erro no processamento:", e);
+        // Crash após a reserva: devolve, senão o retry vira "duplicata" e a
+        // mensagem se perde (o provedor já recebeu 200).
+        await liberarProcessamento(msg.providerMessageId);
+      })
     );
   }
 

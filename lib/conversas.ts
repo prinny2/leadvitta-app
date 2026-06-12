@@ -40,6 +40,24 @@ export async function reservarProcessamento(
   }
 }
 
+/**
+ * Devolve a reserva quando o processamento FALHOU (crash, roteamento sem
+ * clínica). Sem isso, o retry do provedor seria tratado como duplicata e a
+ * mensagem se perderia pra sempre.
+ */
+export async function liberarProcessamento(
+  providerMessageId?: string
+): Promise<void> {
+  if (!providerMessageId) return;
+  const db = getFirebaseAdminDb();
+  if (!db) return;
+  await db
+    .collection("mensagens_processadas")
+    .doc(providerMessageId.replace(/[^\w-]/g, "_"))
+    .delete()
+    .catch(() => {});
+}
+
 type InboundParams = {
   clinicaId: string;
   from: string;

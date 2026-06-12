@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
-import { reivindicarNumero } from "@/lib/numeros";
+import { reivindicarNumero, liberarNumero } from "@/lib/numeros";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,7 +24,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
   }
 
-  const r = await reivindicarNumero(decoded.uid, body.numero ?? "");
+  // Número vazio = desconectar (libera o número no mapa canônico).
+  const bruto = (body.numero ?? "").trim();
+  const r = bruto
+    ? await reivindicarNumero(decoded.uid, bruto)
+    : await liberarNumero(decoded.uid);
   if (r.ok) return NextResponse.json({ ok: true, numero: r.numero });
   if (r.motivo === "em_uso") {
     return NextResponse.json(

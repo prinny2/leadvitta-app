@@ -65,10 +65,10 @@ export default function ConfiguracoesPage() {
     setErro("");
     setOk(false);
     try {
-      await saveClinica({ ...c, onboarded: true });
-      // O número de WhatsApp é conectado por uma rota dedicada (unicidade no
-      // servidor) — não vai junto do saveClinica.
-      if (isFirebaseConfigured && c.whatsapp.trim()) {
+      // O número de WhatsApp vai por uma rota dedicada (unicidade no servidor)
+      // e roda ANTES do resto: se o número estiver em uso (409), nada é salvo
+      // pela metade. Campo vazio = desconectar o número.
+      if (isFirebaseConfigured) {
         const user = getFirebaseAuth().currentUser;
         if (user) {
           const firebaseIdToken = await user.getIdToken();
@@ -83,6 +83,7 @@ export default function ConfiguracoesPage() {
           }
         }
       }
+      await saveClinica({ ...c, onboarded: true });
       setOk(true);
       setTimeout(() => setOk(false), 2500);
     } catch (err) {

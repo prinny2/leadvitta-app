@@ -7,13 +7,8 @@ import { Card, CardBody } from "@/components/ui/card";
 import { formatarData } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { listConversas } from "@/lib/store";
-import type { Conversa, Prioridade } from "@/lib/types";
-
-const PRIO: Record<Prioridade, { emoji: string; label: string; cls: string }> = {
-  quente: { emoji: "🔥", label: "Quente", cls: "bg-red-100 text-red-700" },
-  morno: { emoji: "🌤️", label: "Morna", cls: "bg-amber-100 text-amber-700" },
-  frio: { emoji: "❄️", label: "Fria", cls: "bg-sky-100 text-sky-700" },
-};
+import { PRIO } from "@/lib/prioridade-ui";
+import type { Conversa } from "@/lib/types";
 
 const FILTROS = [
   { value: "todas", label: "Todas" },
@@ -25,12 +20,17 @@ type Filtro = (typeof FILTROS)[number]["value"];
 
 export default function ConversasPage() {
   const [itens, setItens] = useState<Conversa[] | null>(null);
+  const [erro, setErro] = useState(false);
   const [filtro, setFiltro] = useState<Filtro>("todas");
 
   useEffect(() => {
     listConversas()
       .then(setItens)
-      .catch(() => setItens([]));
+      .catch(() => {
+        // Falha de carregamento NÃO é inbox vazio — mostra erro e permite retry.
+        setErro(true);
+        setItens([]);
+      });
   }, []);
 
   const visiveis = useMemo(() => {
@@ -76,7 +76,25 @@ export default function ConversasPage() {
         </div>
       )}
 
-      {itens && visiveis.length === 0 && (
+      {erro && (
+        <Card>
+          <CardBody className="flex flex-col items-center gap-3 py-16 text-center text-muted">
+            <MessageCircle size={28} className="text-red-300" />
+            <p className="max-w-sm text-sm">
+              Não foi possível carregar suas conversas agora.
+            </p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="rounded-xl border border-brand-300 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50"
+            >
+              Tentar de novo
+            </button>
+          </CardBody>
+        </Card>
+      )}
+
+      {!erro && itens && visiveis.length === 0 && (
         <Card>
           <CardBody className="flex flex-col items-center gap-3 py-16 text-center text-muted">
             <MessageCircle size={28} className="text-brand-300" />

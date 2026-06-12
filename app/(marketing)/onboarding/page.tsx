@@ -71,6 +71,25 @@ export default function OnboardingFunnelPage() {
   const [gerando, setGerando] = useState(false);
   const [respostaNossa, setRespostaNossa] = useState<string>("");
 
+  // O DNA montado aqui fica como rascunho no navegador: quem configura, cria a
+  // conta e volta (gate) reencontra tudo preenchido — nada se perde no signup.
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("lb_dna_draft");
+      if (raw) setC((prev) => ({ ...prev, ...JSON.parse(raw) }));
+    } catch {
+      /* draft corrompido: ignora */
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("lb_dna_draft", JSON.stringify(c));
+    } catch {
+      /* storage cheio/indisponível: segue sem rascunho */
+    }
+  }, [c]);
+
   useEffect(() => {
     if (!isFirebaseConfigured) return;
     try {
@@ -100,6 +119,11 @@ export default function OnboardingFunnelPage() {
 
   function irPara(proxima: Aba) {
     setAba(proxima);
+    // Logado que chegou na escolha de plano já configurou o DNA: persiste e
+    // marca onboarded — senão o gate devolveria pro onboarding depois de pagar.
+    if (proxima === "planos" && logado && podeAvancar) {
+      saveClinica({ ...c, onboarded: true }).catch(() => {});
+    }
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
