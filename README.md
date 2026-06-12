@@ -73,6 +73,10 @@ STRIPE_PRICE_ID_PRO=
 STRIPE_PRICE_ID_PREMIUM=
 ```
 
+Oferta atual do app: **Start R$97/mês** disponível para checkout. Pro e Premium
+aparecem como lista de espera; seus Price IDs só precisam estar ativos quando
+esses planos forem abertos para venda.
+
 O checkout é iniciado em `POST /api/stripe/checkout`. O webhook público fica em:
 
 ```text

@@ -55,15 +55,22 @@ export async function POST(request: Request) {
     );
   }
   if (!planConfig.priceId) {
+    console.error(
+      `[stripe.checkout] STRIPE_PRICE_ID_${plan.toUpperCase()} não configurado.`
+    );
     return jsonNoStore(
-      { error: `STRIPE_PRICE_ID_${plan.toUpperCase()} não configurado.` },
+      {
+        error:
+          "Checkout indisponível para este plano no momento. Fale com o suporte.",
+      },
       { status: 503 }
     );
   }
 
   if (!isStripeConfigured) {
+    console.error("[stripe.checkout] Stripe não configurado neste ambiente.");
     return jsonNoStore(
-      { error: "Stripe não está configurado neste ambiente." },
+      { error: "Checkout indisponível no momento. Fale com o suporte." },
       { status: 503 }
     );
   }

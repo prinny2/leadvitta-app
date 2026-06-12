@@ -285,9 +285,8 @@ export default function ConfiguracoesPage() {
             <CreditCard size={18} className="text-brand-500" /> Plano e pagamento
           </CardTitle>
           <p className="text-sm text-muted">
-            Stripe fica responsável pelo checkout seguro. O status do pagamento
-            volta pelo webhook e pode atualizar o Firebase quando o Admin SDK
-            estiver configurado no Cloud Run.
+            Pagamento seguro processado pela Stripe. No lançamento, o Start está
+            disponível para assinatura e os demais planos entram por lista de espera.
           </p>
 
           <div className="grid gap-3 sm:grid-cols-3">
@@ -325,8 +324,8 @@ export default function ConfiguracoesPage() {
           </div>
 
           <p className="text-xs text-muted">
-            Configure `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` e os Price IDs
-            no Cloud Run antes de vender em produção.
+            Você pode cancelar quando quiser. A confirmação do pagamento aparece
+            aqui automaticamente depois do checkout.
           </p>
         </CardBody>
       </Card>
