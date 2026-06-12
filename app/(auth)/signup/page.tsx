@@ -52,8 +52,10 @@ export default function SignupPage() {
       trackEvent("sign_up", { method: "Email/Password" });
       // Se veio de um plano escolhido na landing (/signup?plan=...),
       // leva o plano adiante pra concluir o checkout em /configuracoes.
+      // Sem plano: primeiro o DNA da clínica (onboarding) — sem ele as
+      // respostas saem genéricas e a usuária acha que o produto é ruim.
       const plano = new URLSearchParams(window.location.search).get("plan");
-      router.push(plano ? `/configuracoes?plan=${plano}` : "/configuracoes");
+      router.push(plano ? `/configuracoes?plan=${plano}` : "/onboarding");
       router.refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";

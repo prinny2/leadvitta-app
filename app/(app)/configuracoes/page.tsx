@@ -307,13 +307,19 @@ export default function ConfiguracoesPage() {
                   <span className="text-sm text-muted">{plano.periodLabel}</span>
                 </p>
                 <p className="mt-1 text-xs text-muted">{plano.tagline}</p>
-                <CheckoutButton
-                  plan={plano.id}
-                  variant={plano.destaque ? "primary" : "outline"}
-                  className="mt-4 w-full"
-                >
-                  Assinar {plano.label}
-                </CheckoutButton>
+                {plano.disponivel ? (
+                  <CheckoutButton
+                    plan={plano.id}
+                    variant={plano.destaque ? "primary" : "outline"}
+                    className="mt-4 w-full"
+                  >
+                    Assinar {plano.label}
+                  </CheckoutButton>
+                ) : (
+                  <p className="mt-4 rounded-xl bg-nude-100 px-3 py-2 text-center text-xs font-medium text-muted">
+                    Em breve — disponível primeiro pra quem está na lista de espera
+                  </p>
+                )}
               </div>
             ))}
           </div>

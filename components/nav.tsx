@@ -21,7 +21,8 @@ import { Logo } from "@/components/logo";
 
 const links = [
   { href: "/dashboard", label: "Início", icon: Home },
-  { href: "/conversas", label: "Conversas", icon: Inbox },
+  // "Conversas" volta ao menu quando o WhatsApp da clínica estiver integrado
+  // (a rota /conversas continua existindo).
   { href: "/gerador", label: "Gerador", icon: Sparkles },
   { href: "/objecoes", label: "Objeções", icon: MessagesSquare },
   { href: "/follow-up", label: "Follow-up", icon: Send },

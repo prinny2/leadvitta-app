@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlanCTA } from "@/components/plan-cta";
+import { WaitlistForm } from "@/components/waitlist-form";
 import { billingPlanList } from "@/lib/billing";
 import { procedimentos } from "@/data/procedimentos";
 import { comoChamarOptions, formalidadeLabel } from "@/data/opcoes";
@@ -173,14 +174,29 @@ export default function OnboardingFunnelPage() {
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
         <div className="text-center">
-          <h1 className="font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-            Veja, em 1 minuto, quanta cliente você perde{" "}
-            <span className="text-gold-gradient">respondendo do jeito errado.</span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-muted">
-            Configure sua clínica e compare uma resposta qualquer com a resposta
-            que faz a cliente agendar. Sem cadastro pra testar.
-          </p>
+          {logado ? (
+            <>
+              <h1 className="font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
+                Configure o DNA da sua clínica{" "}
+                <span className="text-gold-gradient">em 2 minutos.</span>
+              </h1>
+              <p className="mx-auto mt-4 max-w-xl text-muted">
+                É isso que faz as respostas saírem no <strong>seu</strong> tom —
+                não genéricas. Preencha e clique em “Salvar e ir para o painel”.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
+                Veja, em 1 minuto, quanta cliente você perde{" "}
+                <span className="text-gold-gradient">respondendo do jeito errado.</span>
+              </h1>
+              <p className="mx-auto mt-4 max-w-xl text-muted">
+                Configure sua clínica e compare uma resposta qualquer com a resposta
+                que faz a cliente agendar. Sem cadastro pra testar.
+              </p>
+            </>
+          )}
         </div>
 
         {/* abas */}
@@ -469,23 +485,33 @@ export default function OnboardingFunnelPage() {
                     <p className="mt-1 text-sm text-muted">{plano.tagline}</p>
                     <ul className="mt-5 flex-1 space-y-2 text-sm text-ink">
                       {plano.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2">
+                        <li
+                          key={f}
+                          className={cn(
+                            "flex items-start gap-2",
+                            !plano.disponivel && "opacity-70"
+                          )}
+                        >
                           <Check size={16} className="mt-0.5 shrink-0 text-brand-500" /> {f}
                         </li>
                       ))}
                     </ul>
-                    <PlanCTA
-                      plan={plano.id}
-                      className={cn(
-                        "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-60",
-                        plano.destaque
-                          ? "bg-brand-500 text-white shadow-soft hover:bg-brand-600"
-                          : "border border-brand-300 text-brand-600 hover:bg-brand-50"
-                      )}
-                    >
-                      Começar com o {plano.label}
-                      {plano.destaque && <ArrowRight size={16} />}
-                    </PlanCTA>
+                    {plano.disponivel ? (
+                      <PlanCTA
+                        plan={plano.id}
+                        className={cn(
+                          "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-60",
+                          plano.destaque
+                            ? "bg-brand-500 text-white shadow-soft hover:bg-brand-600"
+                            : "border border-brand-300 text-brand-600 hover:bg-brand-50"
+                        )}
+                      >
+                        Começar com o {plano.label}
+                        {plano.destaque && <ArrowRight size={16} />}
+                      </PlanCTA>
+                    ) : (
+                      <WaitlistForm plan={plano.id} className="mt-6" />
+                    )}
                   </div>
                 ))}
               </div>

@@ -48,6 +48,12 @@ export async function POST(request: Request) {
   }
 
   const planConfig = getBillingPlan(plan);
+  if (!planConfig.disponivel) {
+    return jsonNoStore(
+      { error: "Esse plano ainda não está disponível — entre na lista de espera." },
+      { status: 400 }
+    );
+  }
   if (!planConfig.priceId) {
     return jsonNoStore(
       { error: `STRIPE_PRICE_ID_${plan.toUpperCase()} não configurado.` },

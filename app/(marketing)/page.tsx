@@ -14,6 +14,7 @@ import { isFirebaseConfigured } from "@/lib/config";
 import { billingPlanList } from "@/lib/billing";
 import { Logo } from "@/components/logo";
 import { PlanCTA } from "@/components/plan-cta";
+import { WaitlistForm } from "@/components/waitlist-form";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 
@@ -91,22 +92,12 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Social Proof Bar */}
-        <div className="mx-auto max-w-5xl px-4 pb-16">
-          <div className="flex flex-wrap items-center justify-center gap-8 opacity-40 grayscale transition-all hover:opacity-70 hover:grayscale-0">
-            <div className="flex items-center gap-2 font-serif text-xl font-bold">
-              <ShieldCheck size={24} /> CLINIC PRO
-            </div>
-            <div className="flex items-center gap-2 font-serif text-xl font-bold">
-              <Sparkles size={24} /> ESTÉTICA VIVA
-            </div>
-            <div className="flex items-center gap-2 font-serif text-xl font-bold">
-              <Flower2 size={24} /> DERMA CARE
-            </div>
-            <div className="flex items-center gap-2 font-serif text-xl font-bold">
-              <MessageSquareText size={24} /> SOFT SKIN
-            </div>
-          </div>
+        {/* Lançamento — sem logos fictícios até ter depoimentos reais */}
+        <div className="mx-auto max-w-5xl px-4 pb-16 text-center">
+          <p className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-4 py-2 text-sm font-medium text-muted">
+            <Flower2 size={16} className="text-brand-500" />
+            Seja uma das primeiras profissionais a atender com o LeadBellus
+          </p>
         </div>
       </header>
 
@@ -192,6 +183,50 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Lead Intelligence — killer feature */}
+      <section className="mx-auto max-w-5xl px-4 pb-16">
+        <div className="relative overflow-hidden rounded-3xl bg-brand-dark p-8 text-white shadow-soft sm:p-12">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-lavender-400/10 blur-3xl" />
+          <div className="relative grid items-center gap-8 md:grid-cols-2">
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-lavender-400/30 bg-lavender-400/20 px-3 py-1 text-xs font-bold text-lavender-300">
+                <Sparkles size={14} /> EXCLUSIVO · LEAD INTELLIGENCE
+              </span>
+              <h2 className="mt-4 font-serif text-3xl font-semibold text-nude-50">
+                Saiba quem está pronta pra fechar — antes de responder
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-nude-200">
+                Cada mensagem que chega é lida e organizada pra você: quem está
+                pronta pra agendar, quem ainda está na dúvida e quem esfriou.
+                Você responde primeiro quem tem mais chance de fechar — sem ler
+                tudo e sem deixar ninguém escapar.
+              </p>
+              <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-lavender-300">
+                Em breve, no plano Premium
+              </p>
+            </div>
+            <div className="space-y-3">
+              {[
+                { emoji: "🔥", t: "Quente", d: "“Posso pagar no cartão? Tem horário amanhã?” — quer fechar agora", cls: "border-red-300/30" },
+                { emoji: "🌤️", t: "Morna", d: "“Vou pensar e te falo…” — precisa de um empurrãozinho", cls: "border-amber-300/30" },
+                { emoji: "❄️", t: "Fria", d: "Sumiu depois do orçamento — hora do follow-up certo", cls: "border-sky-300/30" },
+              ].map((x) => (
+                <div
+                  key={x.t}
+                  className={`flex items-start gap-3 rounded-2xl border bg-white/5 px-4 py-3 ${x.cls}`}
+                >
+                  <span className="text-xl">{x.emoji}</span>
+                  <div>
+                    <p className="text-sm font-bold text-nude-50">{x.t}</p>
+                    <p className="text-xs leading-relaxed text-nude-200">{x.d}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Solução */}
       <section className="bg-soft py-16">
         <div className="mx-auto max-w-5xl px-4">
@@ -266,22 +301,33 @@ export default function LandingPage() {
               <p className="mt-1 text-sm text-muted">{plano.tagline}</p>
               <ul className="mt-5 space-y-2 text-sm text-ink">
                 {plano.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2">
+                  <li
+                    key={f}
+                    className={
+                      plano.disponivel
+                        ? "flex items-start gap-2"
+                        : "flex items-start gap-2 opacity-70"
+                    }
+                  >
                     <Check size={16} className="mt-0.5 shrink-0 text-brand-500" /> {f}
                   </li>
                 ))}
               </ul>
-              <PlanCTA
-                plan={plano.id}
-                className={
-                  plano.destaque
-                    ? "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-soft transition-all hover:bg-brand-600 disabled:opacity-60"
-                    : "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-60"
-                }
-              >
-                Começar com o {plano.label}
-                {plano.destaque && <ArrowRight size={16} />}
-              </PlanCTA>
+              {plano.disponivel ? (
+                <PlanCTA
+                  plan={plano.id}
+                  className={
+                    plano.destaque
+                      ? "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-soft transition-all hover:bg-brand-600 disabled:opacity-60"
+                      : "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-60"
+                  }
+                >
+                  Começar com o {plano.label}
+                  {plano.destaque && <ArrowRight size={16} />}
+                </PlanCTA>
+              ) : (
+                <WaitlistForm plan={plano.id} className="mt-6" />
+              )}
             </div>
           ))}
         </div>
@@ -291,15 +337,64 @@ export default function LandingPage() {
         </p>
       </section>
 
-      {/* Compliance / confiança */}
+      {/* Garantia */}
       <section className="mx-auto max-w-3xl px-4 pb-16">
-        <div className="flex items-start gap-3 rounded-2xl border border-lavender-200 bg-lavender-50 p-5 text-sm text-lavender-700">
-          <ShieldCheck size={20} className="mt-0.5 shrink-0" />
-          <p>
-            As respostas são pensadas para a estética: nunca prometem resultado
-            garantido, não fazem diagnóstico e valorizam a avaliação individual —
-            mais profissionalismo e segurança para você.
+        <div className="rounded-3xl border-2 border-brand-200 bg-white p-8 text-center shadow-soft">
+          <ShieldCheck size={32} className="mx-auto text-brand-500" />
+          <h2 className="mt-3 font-serif text-2xl font-semibold text-ink">
+            Garantia de 7 dias, sem letra miúda
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted">
+            Teste o LeadBellus por 7 dias. Se você não sentir que está
+            respondendo melhor e perdendo menos cliente, é só pedir o
+            cancelamento — devolvemos 100% do valor, sem perguntas.
           </p>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="mx-auto max-w-3xl px-4 pb-16">
+        <h2 className="text-center font-serif text-3xl font-semibold text-ink">
+          Perguntas frequentes
+        </h2>
+        <div className="mt-8 space-y-3">
+          {[
+            {
+              q: "Preciso instalar alguma coisa no meu WhatsApp?",
+              a: "Não. Você usa o LeadBellus pelo navegador (celular ou computador): cola a mensagem da cliente, recebe a resposta pronta no seu tom e copia de volta pro WhatsApp. Em 30 segundos está respondendo melhor.",
+            },
+            {
+              q: "As respostas vão parecer robóticas?",
+              a: "Não — esse é o ponto. Você configura o DNA da sua clínica (seu jeito de falar, como chama as clientes, seus procedimentos) e toda resposta sai no SEU tom. É como ter alguém que escreve exatamente como você, só que na hora.",
+            },
+            {
+              q: "Funciona pra qualquer procedimento?",
+              a: "Sim. Botox, preenchimento, harmonização, limpeza de pele, depilação a laser, pós-operatório e dezenas de outros — as respostas levam em conta o procedimento que a cliente perguntou.",
+            },
+            {
+              q: "E se a cliente fizer uma pergunta difícil, tipo 'dói?' ou 'tem desconto?'",
+              a: "É exatamente pra isso que existe a Biblioteca de Objeções: as perguntas que travam a venda ('tá caro', 'vou pensar', 'dói?', 'tem desconto?') já têm resposta pronta, testada e no seu tom.",
+            },
+            {
+              q: "Posso cancelar quando quiser?",
+              a: "Sim. O plano é mensal, sem fidelidade, e o cancelamento é direto pelo painel. E nos primeiros 7 dias você tem garantia total: devolvemos 100% se não gostar.",
+            },
+            {
+              q: "As respostas prometem resultado dos procedimentos?",
+              a: "Nunca. As respostas são pensadas para a estética: não prometem resultado garantido, não fazem diagnóstico e sempre valorizam a avaliação individual — mais profissionalismo e segurança pra você.",
+            },
+          ].map((item) => (
+            <details
+              key={item.q}
+              className="group rounded-2xl border border-brand-100 bg-white px-5 py-4 shadow-card"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-medium text-ink">
+                {item.q}
+                <span className="shrink-0 text-brand-400 transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <p className="mt-3 text-sm leading-relaxed text-muted">{item.a}</p>
+            </details>
+          ))}
         </div>
       </section>
 
@@ -311,13 +406,14 @@ export default function LandingPage() {
             Pare de perder agendamento pra resposta fria
           </h2>
           <p className="mt-2 text-sm text-nude-200">
-            Teste com a sua clínica agora — sem cadastro.
+            Comece com o Start por R$97/mês — preço de lançamento, garantia de 7
+            dias, cancela quando quiser.
           </p>
           <Link
             href={funilHref}
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-lavender-400 px-6 py-3 text-base font-semibold text-brand-900 shadow-soft hover:bg-lavender-300"
           >
-            Testar com a minha clínica <ArrowRight size={18} />
+            Começar com o Start <ArrowRight size={18} />
           </Link>
         </div>
       </section>

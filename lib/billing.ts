@@ -7,15 +7,20 @@ export type BillingPlanConfig = {
   label: string;
   /** Valor mensal em reais (fonte única para UI). */
   price: number;
-  /** Ex.: "R$297" (sem o "/mês"). */
+  /** Ex.: "R$97" (sem o "/mês"). */
   priceLabel: string;
   periodLabel: string;
   /** Frase curta de resultado, com gancho de dor. */
   tagline: string;
-  /** Selo opcional (ex.: "Mais vendido"). */
+  /** Selo opcional (ex.: "Em breve"). */
   selo?: string;
-  /** Destaca visualmente o card (topo de gama). */
+  /** Destaca visualmente o card. */
   destaque?: boolean;
+  /**
+   * False = ainda não vendável (lançamento começa só pelo Start).
+   * Na UI vira "Em breve" + lista de espera; o checkout recusa no servidor.
+   */
+  disponivel: boolean;
   features: string[];
   priceId?: string;
 };
@@ -24,10 +29,13 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
   start: {
     id: "start",
     label: "Start",
-    price: 297,
-    priceLabel: "R$297",
+    price: 97,
+    priceLabel: "R$97",
     periodLabel: "/mês",
     tagline: "Pra parar de perder cliente no WhatsApp.",
+    selo: "Preço de lançamento",
+    destaque: true,
+    disponivel: true,
     features: [
       "Respostas prontas pra preço, “achou caro” e cliente que sumiu",
       "Quebra de objeção sem soar robótico",
@@ -40,11 +48,12 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
   pro: {
     id: "pro",
     label: "Pro",
-    price: 497,
-    priceLabel: "R$497",
+    price: 197,
+    priceLabel: "R$197",
     periodLabel: "/mês",
     tagline: "Pra fechar mais em cada conversa.",
-    selo: "Mais vendido",
+    selo: "Em breve",
+    disponivel: false,
     features: [
       "Tudo do Start",
       "Biblioteca completa de objeções",
@@ -57,12 +66,12 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
   premium: {
     id: "premium",
     label: "Premium",
-    price: 797,
-    priceLabel: "R$797",
+    price: 347,
+    priceLabel: "R$347",
     periodLabel: "/mês",
     tagline: "Pra não deixar nenhum agendamento na mesa.",
-    destaque: true,
-    selo: "Mais completo",
+    selo: "Em breve",
+    disponivel: false,
     features: [
       "Tudo do Pro",
       "Mostra sozinho quem está quente pra fechar",

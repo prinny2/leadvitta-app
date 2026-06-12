@@ -14,6 +14,12 @@ export function OnboardingGate() {
 
   useEffect(() => {
     if (pathname.startsWith("/onboarding")) return;
+    // Checkout em andamento (?plan=... ou retorno do Stripe): deixa concluir o
+    // pagamento primeiro; o gate pega na próxima navegação.
+    if (typeof window !== "undefined") {
+      const q = new URLSearchParams(window.location.search);
+      if (q.get("plan") || q.get("checkout")) return;
+    }
     let active = true;
     getClinica().then((c) => {
       if (active && !c.onboarded) router.replace("/onboarding");
