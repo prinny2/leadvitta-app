@@ -63,8 +63,11 @@ export default function ConfiguracoesPage() {
     window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
 
     setAbrindoCheckout(true);
+    let disparado = false;
     const unsub = onAuthStateChanged(getFirebaseAuth(), async (user) => {
       if (!user) return; // espera a sessão recém-criada hidratar
+      disparado = true;
+      clearTimeout(timeout);
       unsub();
       try {
         trackEvent("initiate_checkout", { plan, origem: "funil_pos_cadastro" });
@@ -84,7 +87,18 @@ export default function ConfiguracoesPage() {
         setErro(err instanceof Error ? err.message : "Não foi possível abrir o pagamento.");
       }
     });
-    return () => unsub();
+    // Se a sessão do Firebase nunca hidratar (ex.: cookie presente sem sessão),
+    // desarma o spinner e devolve a tela normal — sem "Abrindo…" eterno.
+    const timeout = setTimeout(() => {
+      if (disparado) return;
+      unsub();
+      setAbrindoCheckout(false);
+      setErro("Sua sessão ainda não carregou. Toque em “Assinar” no plano escolhido para continuar.");
+    }, 8000);
+    return () => {
+      clearTimeout(timeout);
+      unsub();
+    };
   }, []);
 
   function set<K extends keyof Clinica>(key: K, value: Clinica[K]) {
