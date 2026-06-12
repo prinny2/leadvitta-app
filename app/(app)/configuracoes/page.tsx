@@ -19,7 +19,7 @@ import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CheckoutButton } from "@/components/checkout-button";
 import { BillingPortalButton } from "@/components/billing-portal-button";
-import { billingPlanList } from "@/lib/billing";
+import { billingPlanList, billingPlans, parseBillingPlan } from "@/lib/billing";
 import { trackEvent } from "@/components/Analytics";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));

@@ -68,6 +68,7 @@ export default function OnboardingFunnelPage() {
   const [c, setC] = useState<Clinica>(clinicaVazia);
   const [logado, setLogado] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [salvarFalhou, setSalvarFalhou] = useState(false);
   const [mostrarTodosProcedimentos, setMostrarTodosProcedimentos] = useState(false);
 
   // “Ours” gerado ao vivo na aba 2.
