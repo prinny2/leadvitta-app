@@ -21,7 +21,7 @@ import { PlanCTA } from "@/components/plan-cta";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { billingPlanList } from "@/lib/billing";
 import { procedimentos } from "@/data/procedimentos";
-import { comoChamarOptions, formalidadeLabel } from "@/data/opcoes";
+import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { onAuthStateChanged } from "firebase/auth";
@@ -34,9 +34,11 @@ type Aba = "clinica" | "diferenca" | "planos";
 
 const ABAS: { id: Aba; n: number; label: string }[] = [
   { id: "clinica", n: 1, label: "Sua clínica" },
-  { id: "diferenca", n: 2, label: "A diferença" },
-  { id: "planos", n: 3, label: "Planos" },
+  { id: "diferenca", n: 2, label: "A resposta" },
+  { id: "planos", n: 3, label: "Seu plano" },
 ];
+
+const PROCEDIMENTOS_INICIAIS = 8;
 
 /** Como a clínica chama a cliente vira o "Oi, ___" da resposta. */
 function tratamento(comoChamar: string): string {
@@ -66,6 +68,7 @@ export default function OnboardingFunnelPage() {
   const [c, setC] = useState<Clinica>(clinicaVazia);
   const [logado, setLogado] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [mostrarTodosProcedimentos, setMostrarTodosProcedimentos] = useState(false);
 
   // “Ours” gerado ao vivo na aba 2.
   const [gerando, setGerando] = useState(false);
@@ -97,6 +100,15 @@ export default function OnboardingFunnelPage() {
   }
 
   const podeAvancar = c.nome_clinica.trim().length > 0;
+  const passoAtual = ABAS.findIndex((item) => item.id === aba) + 1;
+  const progresso = `${Math.round((passoAtual / ABAS.length) * 100)}%`;
+  const procedimentosVisiveis = useMemo(
+    () =>
+      mostrarTodosProcedimentos
+        ? procedimentos
+        : procedimentos.slice(0, PROCEDIMENTOS_INICIAIS),
+    [mostrarTodosProcedimentos]
+  );
 
   function irPara(proxima: Aba) {
     setAba(proxima);
@@ -176,24 +188,30 @@ export default function OnboardingFunnelPage() {
         <div className="text-center">
           {logado ? (
             <>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-500">
+                Etapa {passoAtual} de 3
+              </p>
               <h1 className="font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-                Configure o DNA da sua clínica{" "}
-                <span className="text-gold-gradient">em 2 minutos.</span>
+                Ajuste o jeito da sua clínica{" "}
+                <span className="text-gold-gradient">em poucos toques.</span>
               </h1>
               <p className="mx-auto mt-4 max-w-xl text-muted">
-                É isso que faz as respostas saírem no <strong>seu</strong> tom —
-                não genéricas. Preencha e clique em “Salvar e ir para o painel”.
+                Quanto mais claro fica o seu jeito de atender, mais a IA responde
+                parecendo parte da sua equipe.
               </p>
             </>
           ) : (
             <>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-500">
+                Etapa {passoAtual} de 3
+              </p>
               <h1 className="font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-                Veja, em 1 minuto, quanta cliente você perde{" "}
-                <span className="text-gold-gradient">respondendo do jeito errado.</span>
+                Monte o jeito da sua clínica e veja{" "}
+                <span className="text-gold-gradient">a resposta mudar na hora.</span>
               </h1>
               <p className="mx-auto mt-4 max-w-xl text-muted">
-                Configure sua clínica e compare uma resposta qualquer com a resposta
-                que faz a cliente agendar. Sem cadastro pra testar.
+                Sem cadastro para testar. Escolha o tom, os procedimentos e o CTA
+                que combinam com sua clínica e veja como isso muda a conversa.
               </p>
             </>
           )}
@@ -212,7 +230,7 @@ export default function OnboardingFunnelPage() {
                   disabled={!habilitada}
                   onClick={() => habilitada && irPara(a.id)}
                   className={cn(
-                    "flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors sm:px-5",
+                    "flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 text-center text-[11px] font-medium transition-colors sm:flex-row sm:gap-2 sm:px-5 sm:text-sm",
                     ativa
                       ? "bg-white text-brand-600 shadow-sm"
                       : "text-muted hover:text-ink",
@@ -224,14 +242,20 @@ export default function OnboardingFunnelPage() {
                       "flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold",
                       ativa ? "bg-brand-500 text-white" : "bg-brand-100 text-brand-600"
                     )}
-                  >
+                      >
                     {a.n}
                   </span>
-                  <span className="hidden sm:inline">{a.label}</span>
+                  <span>{a.label}</span>
                 </button>
               );
             })}
           </div>
+        </div>
+        <div className="mx-auto mt-4 h-2 w-full max-w-md overflow-hidden rounded-full bg-brand-100">
+          <div
+            className="h-full rounded-full bg-brand-500 transition-all duration-300"
+            style={{ width: progresso }}
+          />
         </div>
 
         <div className="mt-8">
@@ -239,7 +263,55 @@ export default function OnboardingFunnelPage() {
           {aba === "clinica" && (
             <Card>
               <CardBody className="space-y-8 p-6 sm:p-8">
+                <div className="rounded-3xl border border-brand-100 bg-gradient-to-br from-white to-brand-50 p-5 shadow-card">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-500">
+                        Seu estilo no LeadBellus
+                      </p>
+                      <h2 className="mt-2 text-lg font-semibold text-ink">
+                        A IA vai responder como a {c.nome_clinica.trim() || "sua clínica"}.
+                      </h2>
+                    </div>
+                    <div className="rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-700">
+                      {c.procedimentos.length || 0} procedimentos
+                    </div>
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-2xl bg-white/80 px-4 py-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                        Tom
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-ink">
+                        {formalidadeLabel(c.formalidade)}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-white/80 px-4 py-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                        Como chama
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-ink">
+                        {comoChamarOptions.find((o) => o.value === c.como_chamar)?.label}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-white/80 px-4 py-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                        CTA
+                      </p>
+                      <p className="mt-1 text-sm font-medium text-ink capitalize">
+                        {c.cta_preferido}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-5">
+                  <div>
+                    <p className="text-sm font-semibold text-ink">1. Identidade rápida</p>
+                    <p className="mt-1 text-sm text-muted">
+                      O básico para as respostas saírem com cara de atendimento da sua clínica.
+                    </p>
+                  </div>
                   <div>
                     <Label htmlFor="nome">Qual o nome da sua clínica?</Label>
                     <Input
@@ -251,7 +323,7 @@ export default function OnboardingFunnelPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="cidade">Cidade</Label>
+                    <Label htmlFor="cidade">Cidade <span className="text-muted">(opcional)</span></Label>
                     <Input
                       id="cidade"
                       value={c.cidade}
@@ -262,9 +334,14 @@ export default function OnboardingFunnelPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label>O que você faz na clínica?</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {procedimentos.map((p) => {
+                  <div>
+                    <Label>2. O que mais entra na sua agenda?</Label>
+                    <p className="mt-1 text-sm text-muted">
+                      Escolha os procedimentos que mais aparecem no seu WhatsApp.
+                    </p>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {procedimentosVisiveis.map((p) => {
                       const ativo = c.procedimentos.includes(p.label);
                       return (
                         <button
@@ -272,22 +349,53 @@ export default function OnboardingFunnelPage() {
                           type="button"
                           onClick={() => toggleProc(p.label)}
                           className={cn(
-                            "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+                            "rounded-2xl border p-4 text-left transition-all",
                             ativo
-                              ? "border-brand-400 bg-brand-50 text-brand-600"
+                              ? "border-brand-400 bg-brand-50 text-brand-700 shadow-sm"
                               : "border-brand-200 bg-white text-muted hover:bg-nude-100"
                           )}
                         >
-                          {p.label}
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-semibold text-ink">{p.label}</p>
+                              <p className="mt-1 text-xs leading-relaxed text-muted">
+                                {p.beneficios[0] || p.duvidas[0]}
+                              </p>
+                            </div>
+                            <span
+                              className={cn(
+                                "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
+                                ativo
+                                  ? "border-brand-400 bg-brand-500 text-white"
+                                  : "border-brand-200 bg-white text-muted"
+                              )}
+                            >
+                              {ativo ? <Check size={14} /> : "+"}
+                            </span>
+                          </div>
                         </button>
                       );
                     })}
                   </div>
+                  {procedimentos.length > PROCEDIMENTOS_INICIAIS && (
+                    <button
+                      type="button"
+                      onClick={() => setMostrarTodosProcedimentos((prev) => !prev)}
+                      className="text-sm font-semibold text-brand-600 hover:text-brand-700"
+                    >
+                      {mostrarTodosProcedimentos ? "Ver menos procedimentos" : "Ver mais procedimentos"}
+                    </button>
+                  )}
                 </div>
 
                 <div className="space-y-4">
                   <div className="space-y-3">
-                    <Label>Como você chama suas clientes?</Label>
+                    <div>
+                      <Label>3. Como você fala com suas clientes?</Label>
+                      <p className="mt-1 text-sm text-muted">
+                        Escolha o clima da conversa que mais parece com o seu atendimento.
+                      </p>
+                    </div>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                       {comoChamarOptions.map((o) => (
                         <button
@@ -308,7 +416,7 @@ export default function OnboardingFunnelPage() {
                   </div>
 
                   <div className="space-y-3 pt-1">
-                    <Label htmlFor="form">Seu jeito de falar</Label>
+                    <Label htmlFor="form">Seu nível de formalidade</Label>
                     <input
                       id="form"
                       type="range"
@@ -325,6 +433,27 @@ export default function OnboardingFunnelPage() {
                         {formalidadeLabel(c.formalidade)}
                       </span>
                       <span>Mais formal</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label>4. Qual CTA combina mais com sua clínica?</Label>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      {ctaOptions.map((opcao) => (
+                        <button
+                          key={opcao.value}
+                          type="button"
+                          onClick={() => set("cta_preferido", opcao.value)}
+                          className={cn(
+                            "rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors",
+                            c.cta_preferido === opcao.value
+                              ? "border-brand-400 bg-brand-50 text-brand-700"
+                              : "border-brand-200 bg-white text-ink hover:bg-nude-100"
+                          )}
+                        >
+                          {opcao.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -345,7 +474,7 @@ export default function OnboardingFunnelPage() {
                     disabled={!podeAvancar}
                     className="sm:min-w-[220px]"
                   >
-                    Ver a diferença <ArrowRight size={16} />
+                    Quero ver minha resposta <ArrowRight size={16} />
                   </Button>
                 </div>
                 {!podeAvancar && (
@@ -362,7 +491,7 @@ export default function OnboardingFunnelPage() {
             <div className="space-y-6">
               <div className="text-center">
                 <h2 className="font-serif text-2xl font-semibold text-ink">
-                  Mesma cliente. Mesma pergunta. Resultados opostos.
+                  Mesma cliente. Mesmo WhatsApp. Resultado totalmente diferente.
                 </h2>
                 <p className="mx-auto mt-2 max-w-xl text-sm text-muted">
                   A cliente do WhatsApp manda:{" "}
@@ -411,7 +540,7 @@ export default function OnboardingFunnelPage() {
                       disabled={gerando}
                       className="mt-4 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-brand-700 hover:text-brand-800 disabled:opacity-60"
                     >
-                      {gerando ? "Gerando…" : "↻ Gerar de novo no tom da minha clínica"}
+                      {gerando ? "Gerando…" : "↻ Gerar de novo com a cara da minha clínica"}
                     </button>
                   </div>
                 </div>
@@ -424,12 +553,37 @@ export default function OnboardingFunnelPage() {
                 sem você nem perceber.
               </div>
 
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  {
+                    title: "Acolhe",
+                    desc: "A cliente sente atenção real em vez de resposta pronta demais.",
+                  },
+                  {
+                    title: "Cria valor",
+                    desc: "O preço deixa de ser o centro e a avaliação ganha força.",
+                  },
+                  {
+                    title: "Conduz",
+                    desc: "A conversa já aponta para agenda, horário ou próxima ação.",
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-2xl border border-brand-100 bg-white p-4 text-left shadow-card"
+                  >
+                    <p className="text-sm font-semibold text-ink">{item.title}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+
               <div className="flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <Button variant="ghost" onClick={() => irPara("clinica")}>
                   <ArrowLeft size={16} /> Voltar
                 </Button>
                 <Button onClick={() => irPara("planos")} className="sm:min-w-[220px]">
-                  Quero responder assim <ArrowRight size={16} />
+                  Quero esse tipo de resposta <ArrowRight size={16} />
                 </Button>
               </div>
             </div>
