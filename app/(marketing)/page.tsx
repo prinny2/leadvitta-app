@@ -17,7 +17,6 @@ import {
   Brain,
 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/config";
-import { Logo } from "@/components/logo";
 import { PlanCTA } from "@/components/plan-cta";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
@@ -121,7 +120,9 @@ export default function LandingPage() {
         </div>
 
         <nav className="relative mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
-          <Logo href="/" textClass="text-lg text-[#DEC9A0]" />
+          <Link href="/">
+            <img src="/LEADBELLUS.png" alt="LeadBellus" className="h-10 w-auto" />
+          </Link>
           <div className="flex items-center gap-2">
             <Link
               href="/login"
@@ -454,27 +455,18 @@ export default function LandingPage() {
             <p className="mt-3 text-slate-500">
               Se uma única cliente que ia sumir fechar um procedimento, o plano já se pagou — e sobra.
             </p>
-
             <div className="mt-8 inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 p-1">
               <button
                 onClick={() => setBilling("mensal")}
                 className="rounded-full px-6 py-2 text-sm font-medium transition-all"
-                style={
-                  billing === "mensal"
-                    ? { background: "#0D1B2E", color: "#DEC9A0" }
-                    : { color: "#64748B" }
-                }
+                style={billing === "mensal" ? { background: "#0D1B2E", color: "#DEC9A0" } : { color: "#64748B" }}
               >
                 Mensal
               </button>
               <button
                 onClick={() => setBilling("anual")}
                 className="rounded-full px-6 py-2 text-sm font-medium transition-all"
-                style={
-                  billing === "anual"
-                    ? { background: "#0D1B2E", color: "#DEC9A0" }
-                    : { color: "#64748B" }
-                }
+                style={billing === "anual" ? { background: "#0D1B2E", color: "#DEC9A0" } : { color: "#64748B" }}
               >
                 Anual{" "}
                 <span className="ml-1 rounded-full bg-[#C9A84C]/15 px-1.5 py-0.5 text-xs font-bold text-[#C9A84C]">
@@ -485,11 +477,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {/* Start */}
-            <div
-              className="relative rounded-3xl p-8 shadow-xl"
-              style={{ background: "#0D1B2E", border: "2px solid #C9A84C" }}
-            >
+            <div className="relative rounded-3xl p-8 shadow-xl" style={{ background: "#0D1B2E", border: "2px solid #C9A84C" }}>
               <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-[#C9A84C] px-4 py-1 text-xs font-bold uppercase tracking-wider text-[#0D1B2E]">
                 Disponível agora
               </span>
@@ -506,9 +494,7 @@ export default function LandingPage() {
                   <p className="mt-1 font-serif text-4xl font-bold text-[#DEC9A0]">
                     R$57<span className="text-lg font-normal text-[#DEC9A0]/40">/mês</span>
                   </p>
-                  <p className="mt-1 text-sm font-medium text-[#C9A84C]">
-                    R$684/ano · Economia de R$480
-                  </p>
+                  <p className="mt-1 text-sm font-medium text-[#C9A84C]">R$684/ano · Economia de R$480</p>
                 </>
               )}
               <p className="mt-2 text-xs text-[#DEC9A0]/40">
@@ -535,12 +521,9 @@ export default function LandingPage() {
               >
                 Começar grátis por 7 dias
               </PlanCTA>
-              <p className="mt-2 text-center text-xs text-[#DEC9A0]/30">
-                Sem cartão · Cancele quando quiser
-              </p>
+              <p className="mt-2 text-center text-xs text-[#DEC9A0]/30">Sem cartão · Cancele quando quiser</p>
             </div>
 
-            {/* Pro */}
             <div className="rounded-3xl border border-slate-100 bg-white p-8 opacity-70">
               <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-400">
                 🔒 Em breve
@@ -551,18 +534,13 @@ export default function LandingPage() {
                 WhatsApp integrado · Resposta automática 24h · Agendamento online · Lembrete automático · 3 usuárias
               </p>
               <div className="mt-6 space-y-2">
-                <input
-                  type="email"
-                  placeholder="Seu e-mail para ser avisada"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0D1B2E]"
-                />
+                <input type="email" placeholder="Seu e-mail para ser avisada" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0D1B2E]" />
                 <button className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50">
                   Quero ser avisada quando lançar
                 </button>
               </div>
             </div>
 
-            {/* Premium */}
             <div className="rounded-3xl border border-slate-100 bg-white p-8 opacity-70">
               <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-400">
                 🔒 Em breve
@@ -573,20 +551,14 @@ export default function LandingPage() {
                 Tudo do Pro · Pós-atendimento automatizado · Relatórios de conversão · 10 usuárias
               </p>
               <div className="mt-6 space-y-2">
-                <input
-                  type="email"
-                  placeholder="Seu e-mail para ser avisada"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0D1B2E]"
-                />
+                <input type="email" placeholder="Seu e-mail para ser avisada" className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0D1B2E]" />
                 <button className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50">
                   Quero ser avisada quando lançar
                 </button>
               </div>
             </div>
           </div>
-          <p className="mt-5 text-center text-xs text-slate-400">
-            Cancele quando quiser · Sem multa · Sem burocracia
-          </p>
+          <p className="mt-5 text-center text-xs text-slate-400">Cancele quando quiser · Sem multa · Sem burocracia</p>
         </div>
       </section>
 
@@ -622,15 +594,10 @@ export default function LandingPage() {
           </h2>
           <div className="mt-8 space-y-3">
             {faqs.map((faq) => (
-              <details
-                key={faq.q}
-                className="group rounded-2xl border border-slate-100 bg-white"
-              >
+              <details key={faq.q} className="group rounded-2xl border border-slate-100 bg-white">
                 <summary className="flex cursor-pointer list-none items-center justify-between px-6 py-4 text-sm font-semibold text-[#0D1B2E]">
                   {faq.q}
-                  <span className="ml-4 shrink-0 text-xl text-[#C9A84C] transition-transform group-open:rotate-45">
-                    +
-                  </span>
+                  <span className="ml-4 shrink-0 text-xl text-[#C9A84C] transition-transform group-open:rotate-45">+</span>
                 </summary>
                 <p className="px-6 pb-5 text-sm leading-relaxed text-slate-500">{faq.a}</p>
               </details>
@@ -651,16 +618,9 @@ export default function LandingPage() {
             Mais uma semana de preço jogado cedo demais.<br />
             Mais uma cliente que foi pra concorrente porque a resposta foi fria.
           </p>
-          <div
-            className="mx-auto mt-6 max-w-sm rounded-2xl p-5"
-            style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.15)" }}
-          >
-            <p className="text-[#DEC9A0]">
-              Você paga <strong className="text-[#C9A84C]">R$97/mês</strong>.
-            </p>
-            <p className="mt-1 text-sm text-[#DEC9A0]/60">
-              Um único procedimento de harmonização paga 19 meses de assinatura.
-            </p>
+          <div className="mx-auto mt-6 max-w-sm rounded-2xl p-5" style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.15)" }}>
+            <p className="text-[#DEC9A0]">Você paga <strong className="text-[#C9A84C]">R$97/mês</strong>.</p>
+            <p className="mt-1 text-sm text-[#DEC9A0]/60">Um único procedimento de harmonização paga 19 meses de assinatura.</p>
           </div>
           <p className="mt-4 text-sm italic text-[#DEC9A0]/40">
             O risco de testar é zero. O custo de não testar você já conhece — está sentindo toda semana.
@@ -671,9 +631,7 @@ export default function LandingPage() {
           >
             Quero minha clínica respondendo melhor agora <ArrowRight size={18} />
           </Link>
-          <p className="mt-3 text-xs text-[#DEC9A0]/30">
-            7 dias grátis · Sem cartão · Acesso em menos de 2 minutos
-          </p>
+          <p className="mt-3 text-xs text-[#DEC9A0]/30">7 dias grátis · Sem cartão · Acesso em menos de 2 minutos</p>
         </div>
       </section>
 
@@ -682,7 +640,9 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-4">
           <div className="grid gap-8 md:grid-cols-3 md:text-left">
             <div className="space-y-3">
-              <Logo href="/" textClass="text-lg text-[#0D1B2E]" />
+              <Link href="/">
+                <img src="/LEADBELLUS.png" alt="LeadBellus" className="h-8 w-auto" />
+              </Link>
               <p className="text-balance">
                 Inteligência de conversão para clínicas de estética — responda melhor e agende mais pelo WhatsApp.
               </p>
