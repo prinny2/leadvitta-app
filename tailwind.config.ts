@@ -45,8 +45,10 @@ export default {
         muted: "#6C757D",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
-        serif: ["Fraunces", "Georgia", "Cambria", "serif"],
+        // As variáveis vêm do next/font (app/layout.tsx), que injeta fallbacks
+        // com métricas ajustadas (size-adjust) — é o que zera o CLS de fonte.
+        sans: ["var(--font-inter)", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        serif: ["var(--font-fraunces)", "Georgia", "Cambria", "serif"],
       },
       borderRadius: {
         "2xl": "1rem",

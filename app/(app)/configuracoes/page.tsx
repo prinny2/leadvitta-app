@@ -18,7 +18,8 @@ import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CheckoutButton } from "@/components/checkout-button";
-import { billingPlanList, billingPlans, parseBillingPlan } from "@/lib/billing";
+import { BillingPortalButton } from "@/components/billing-portal-button";
+import { billingPlanList } from "@/lib/billing";
 import { trackEvent } from "@/components/Analytics";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
@@ -380,6 +381,16 @@ export default function ConfiguracoesPage() {
                 )}
               </div>
             ))}
+          </div>
+
+          <div className="flex flex-col gap-3 rounded-2xl border border-brand-100 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-ink">Já assinou?</p>
+              <p className="mt-1 text-xs text-muted">
+                Abra o portal para atualizar cartão, consultar cobranças ou cancelar.
+              </p>
+            </div>
+            <BillingPortalButton />
           </div>
 
           <p className="text-xs text-muted">

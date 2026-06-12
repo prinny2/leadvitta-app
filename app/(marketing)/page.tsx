@@ -31,6 +31,39 @@ const dores = [
   "respostas por procedimento",
 ];
 
+const heroHooks = [
+  {
+    emoji: "💸",
+    title: "Perguntou preço e sumiu",
+    desc: "Você joga valor cedo demais e perde margem antes de criar desejo.",
+  },
+  {
+    emoji: "⏱️",
+    title: "Resposta demorada",
+    desc: "No tempo que você pensa no que responder, a cliente esfria.",
+  },
+  {
+    emoji: "📱",
+    title: "Cada atendente fala de um jeito",
+    desc: "A conversa sai sem padrão, sem valor percebido e sem direção.",
+  },
+];
+
+const vazamentos = [
+  {
+    title: "Preço sem contexto",
+    desc: "Quando a resposta vira só número, a cliente compara você com a mais barata.",
+  },
+  {
+    title: "Sem CTA claro",
+    desc: "A conversa fica morna porque ninguém conduz para avaliação ou agenda.",
+  },
+  {
+    title: "Tom frio demais",
+    desc: "Parece pressa, improviso ou recepção cansada. A venda morre no WhatsApp.",
+  },
+];
+
 export default function LandingPage() {
   return (
     <div className="bg-nude-50">
@@ -53,13 +86,13 @@ export default function LandingPage() {
               href={funilHref}
               className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-soft hover:bg-brand-600"
             >
-              Testar grátis
+              Quero testar
             </Link>
           </div>
         </nav>
 
         {/* Hero */}
-        <section className="mx-auto max-w-4xl px-4 pb-12 pt-10 text-center sm:pt-16">
+        <section className="mx-auto max-w-5xl px-4 pb-12 pt-10 text-center sm:pt-16">
           <span className="inline-flex animate-float items-center gap-1.5 rounded-full border border-lavender-300 bg-white/70 px-3 py-1 text-xs font-medium text-lavender-700 shadow-sm">
             <Sparkles size={14} className="text-brand-500" /> Responda melhor. Agende mais.
           </span>
@@ -68,27 +101,40 @@ export default function LandingPage() {
             <span className="text-gold-gradient">responder do jeito errado.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-            A cliente pergunta o preço, recebe uma resposta fria e some — calada.
-            Te entregamos a resposta certa pra cada situação, no seu jeito de falar,
-            pra transformar dúvida em agendamento em vez de perder pra concorrente
-            mais barata.
+            Quando a cliente pergunta preço, hesita ou some, sua equipe não pode
+            improvisar. O LeadBellus te entrega a resposta certa, no tom da sua clínica,
+            para criar valor e puxar para a avaliação sem soar robótico.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href={funilHref}
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-8 py-4 text-base font-semibold text-white shadow-soft transition-all hover:scale-105 hover:bg-brand-600"
+              className="inline-flex min-w-[280px] items-center justify-center gap-2 rounded-xl bg-brand-500 px-8 py-4 text-base font-semibold text-white shadow-soft transition-all hover:scale-105 hover:bg-brand-600"
             >
-              Testar com a minha clínica <ArrowRight size={18} />
+              Quero parar de perder clientes <ArrowRight size={18} />
             </Link>
             <Link
               href="#demo"
-              className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-white/70 px-8 py-4 text-base font-semibold text-ink transition-all hover:bg-white"
+              className="inline-flex min-w-[220px] items-center justify-center gap-2 rounded-xl border border-brand-200 bg-white/70 px-8 py-4 text-base font-semibold text-ink transition-all hover:bg-white"
             >
-              Ver a diferença
+              Ver 1 conversa virar agenda
             </Link>
           </div>
-          <div className="mt-6 text-sm text-muted">
-            Sem cadastro pra testar · pronto em minutos
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted">
+            <span>Sem cartão pra testar</span>
+            <span>Pronto no celular</span>
+            <span>Feito para clínicas de estética</span>
+          </div>
+          <div className="mt-10 grid gap-3 text-left sm:grid-cols-3">
+            {heroHooks.map((hook) => (
+              <div
+                key={hook.title}
+                className="rounded-2xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur"
+              >
+                <div className="text-2xl">{hook.emoji}</div>
+                <p className="mt-3 text-sm font-semibold text-ink">{hook.title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">{hook.desc}</p>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -96,7 +142,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl px-4 pb-16 text-center">
           <p className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-4 py-2 text-sm font-medium text-muted">
             <Flower2 size={16} className="text-brand-500" />
-            Seja uma das primeiras profissionais a atender com o LeadBellus
+            Entre no lançamento e padronize suas respostas antes da próxima cliente sumir
           </p>
         </div>
       </header>
@@ -135,21 +181,33 @@ export default function LandingPage() {
       </section>
 
       {/* Dor */}
-      <section className="mx-auto max-w-4xl px-4 py-16 text-center">
-        <div className="mx-auto mb-4 inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600">
+      <section className="mx-auto max-w-5xl px-4 py-16">
+        <div className="mx-auto mb-4 flex w-fit items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600">
           <TrendingDown size={14} /> Onde o dinheiro vaza
         </div>
-        <h2 className="font-serif text-3xl font-semibold text-ink">
-          A cliente pergunta o preço. Você responde. Ela some.
-        </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-muted">
-          Na estética, a maioria das vendas não se perde por falta de interesse —
-          se perde por falta de condução. Quando a resposta é fria, curta ou só
-          fala de valor, a cliente não percebe o porquê do preço e vai embora
-          comparar com a mais barata. Cada uma dessas pode valer{" "}
-          <strong className="text-ink">R$500 a R$2.000</strong> que você nunca mais
-          vê voltar.
-        </p>
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="font-serif text-3xl font-semibold text-ink">
+            A cliente até quer saber mais. O problema é que a conversa morre antes.
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-muted">
+            Na estética, a venda se perde quando a resposta não cria valor, não acolhe
+            e não conduz. Cada conversa travada pode ser um procedimento a menos na sua agenda.
+          </p>
+        </div>
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {vazamentos.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-3xl border border-red-100 bg-white p-6 shadow-card"
+            >
+              <div className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-red-600">
+                Sinal de perda
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-ink">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted">{item.desc}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Antes / Depois */}
@@ -180,6 +238,20 @@ export default function LandingPage() {
               Resultado: gera autoridade, acolhe e conduz pra avaliação.
             </p>
           </div>
+        </div>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {[
+            "Cria valor antes do preço",
+            "Fala no tom da sua clínica",
+            "Conduz para avaliação",
+          ].map((item) => (
+            <span
+              key={item}
+              className="rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold text-brand-700"
+            >
+              {item}
+            </span>
+          ))}
         </div>
       </section>
 
@@ -236,17 +308,17 @@ export default function LandingPage() {
         <div className="mx-auto max-w-5xl px-4">
           <div className="text-center">
             <h2 className="font-serif text-3xl font-semibold text-ink">
-              A resposta certa, pronta, pra cada situação
+              O que você passa a responder sem travar
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-muted">
-              Em segundos, no tom da sua clínica — é só copiar e colar no WhatsApp:
+              Menos improviso, menos texto frio, mais conversa que anda para frente:
             </p>
           </div>
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {dores.map((d) => (
               <div
                 key={d}
-                className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-white p-4"
+                className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-white p-4 shadow-card"
               >
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-500">
                   <Check size={16} />
@@ -303,6 +375,17 @@ export default function LandingPage() {
                 <span className="text-lg font-normal text-muted">{plano.periodLabel}</span>
               </p>
               <p className="mt-1 text-sm text-muted">{plano.tagline}</p>
+              {plano.disponivel ? (
+                <div className="mt-4 rounded-2xl border border-brand-200 bg-white/80 px-4 py-3 text-xs leading-relaxed text-muted">
+                  <p className="flex items-center gap-2 font-semibold text-brand-700">
+                    <ShieldCheck size={14} /> Garantia de 7 dias
+                  </p>
+                  <p className="mt-1">
+                    Teste sem risco: se não sentir diferença nas respostas, peça
+                    cancelamento e receba 100% de volta.
+                  </p>
+                </div>
+              ) : null}
               <ul className="mt-5 space-y-2 text-sm text-ink">
                 {plano.features.map((f) => (
                   <li
@@ -326,7 +409,7 @@ export default function LandingPage() {
                       : "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-60"
                   }
                 >
-                  Começar com o {plano.label}
+                  {plano.destaque ? `Quero o ${plano.label}` : `Entrar na fila do ${plano.label}`}
                   {plano.destaque && <ArrowRight size={16} />}
                 </PlanCTA>
               ) : (
@@ -407,17 +490,17 @@ export default function LandingPage() {
         <div className="mx-auto max-w-2xl px-4">
           <MessageSquareText size={32} className="mx-auto text-lavender-400" />
           <h2 className="mt-4 font-serif text-3xl font-semibold text-nude-50">
-            Pare de perder agendamento pra resposta fria
+            Sua próxima conversa pode virar agenda
           </h2>
           <p className="mt-2 text-sm text-nude-200">
-            Comece com o Start por R$97/mês — preço de lançamento, garantia de 7
-            dias, cancela quando quiser.
+            Teste no seu ritmo, no celular, e veja como a conversa muda quando a
+            resposta já nasce com valor, acolhimento e CTA.
           </p>
           <Link
             href={funilHref}
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-lavender-400 px-6 py-3 text-base font-semibold text-brand-900 shadow-soft hover:bg-lavender-300"
           >
-            Começar com o Start <ArrowRight size={18} />
+            Quero testar no meu WhatsApp hoje <ArrowRight size={18} />
           </Link>
         </div>
       </section>
