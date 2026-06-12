@@ -189,7 +189,7 @@ export default function OnboardingFunnelPage() {
           {logado ? (
             <>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-500">
-                Etapa {passoAtual} de 3
+                Etapa {passoAtual} de {ABAS.length}
               </p>
               <h1 className="font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
                 Ajuste o jeito da sua clínica{" "}
