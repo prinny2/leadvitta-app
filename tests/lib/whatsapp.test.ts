@@ -140,7 +140,7 @@ describe("zapiProvider.validateWebhook", () => {
     expect(ok).toBe(true);
   });
 
-  it("com token configurado, exige match na query ou header", async () => {
+  it("com token configurado, valida o match via query string", async () => {
     vi.stubEnv("ZAPI_SECURITY_TOKEN", "s3cr3t");
     const good = await zapiProvider.validateWebhook(
       new Request("http://x/api/whatsapp/webhook?token=s3cr3t"),
@@ -148,6 +148,24 @@ describe("zapiProvider.validateWebhook", () => {
     );
     const bad = await zapiProvider.validateWebhook(
       new Request("http://x/api/whatsapp/webhook?token=errado"),
+      "{}"
+    );
+    expect(good).toBe(true);
+    expect(bad).toBe(false);
+  });
+
+  it("com token configurado, valida o match via header X-Zapi-Token", async () => {
+    vi.stubEnv("ZAPI_SECURITY_TOKEN", "s3cr3t");
+    const good = await zapiProvider.validateWebhook(
+      new Request("http://x/api/whatsapp/webhook", {
+        headers: { "x-zapi-token": "s3cr3t" },
+      }),
+      "{}"
+    );
+    const bad = await zapiProvider.validateWebhook(
+      new Request("http://x/api/whatsapp/webhook", {
+        headers: { "x-zapi-token": "errado" },
+      }),
       "{}"
     );
     expect(good).toBe(true);
