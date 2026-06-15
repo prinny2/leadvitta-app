@@ -30,7 +30,7 @@ if (!hasJava()) {
   const message = [
     "[firebase:verify] Static Firebase checks passed.",
     "[firebase:verify] Firestore emulator check skipped: Java is not available in PATH.",
-    "[firebase:verify] Install JRE/JDK 17+ and run npm run firebase:emulator:check.",
+    "[firebase:verify] Install JRE/JDK 21+ and run npm run firebase:emulator:check.",
   ].join("\n");
   if (requireEmulator) {
     console.error(`${message}\n[firebase:verify] REQUIRE_FIREBASE_EMULATOR=1 makes this required.`);
