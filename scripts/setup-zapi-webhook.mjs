@@ -34,25 +34,33 @@ async function setup() {
   };
   if (CLIENT_TOKEN) headers["Client-Token"] = CLIENT_TOKEN;
 
-  try {
-    const res = await fetch(
-      `https://api.z-api.io/instances/${INSTANCE}/token/${TOKEN}/update-every-webhooks`,
-      {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          value: webhookUrl,
-        }),
-      }
-    );
+  const endpoints = [
+    "update-webhook-received",
+    "update-every-webhooks",
+  ];
+  const methods = ["PUT", "POST"];
 
-    const data = await res.json();
-    if (res.ok) {
-      console.log("✅ Webhooks atualizados com sucesso!");
-      console.log(data);
-    } else {
-      console.error("❌ Falha ao atualizar webhooks:", data);
+  try {
+    for (const endpoint of endpoints) {
+      for (const method of methods) {
+        const res = await fetch(
+          `https://api.z-api.io/instances/${INSTANCE}/token/${TOKEN}/${endpoint}`,
+          {
+            method,
+            headers,
+            body: JSON.stringify({ value: webhookUrl }),
+          }
+        );
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          console.log(`✅ Webhook OK (${method} ${endpoint})`);
+          console.log(data);
+          return;
+        }
+        console.warn(`↻ ${method} ${endpoint} → ${res.status}`, data?.error || data?.code || "");
+      }
     }
+    console.error("❌ Nenhum endpoint/método aceitou a atualização do webhook.");
   } catch (e) {
     console.error("❌ Erro na requisição:", e.message);
   }
