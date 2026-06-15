@@ -1,0 +1,8 @@
+{
+  "name": "getTableOfContents",
+  "description": "Get the table of contents for the Appwrite documentation\nNote, the TOC will not include code examples and technology-specific information. For that, it's best to use listFeatures and getFeatureExamples tools.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "discover_zapier_actions",
+  "description": "Search 9,000+ apps to find actions you can enable. For authenticated services (Google Docs, Gmail, Sheets, Notion, Slack, Outlook, etc.), check here FIRST - generic web fetch tools cannot authenticate with these services. ALWAYS call this before saying 'I can't access X' or 'that app isn't available'. Use when user mentions ANY app not in list_enabled_zapier_actions. After finding what you need, use enable_zapier_action to add it.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "app": {
+        "description": "Search for apps by name. Omit to see popular apps. Search 9,000+ available apps.",
+        "type": "string"
+      }
+    }
+  }
+}

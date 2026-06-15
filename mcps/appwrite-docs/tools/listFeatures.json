@@ -1,0 +1,16 @@
+{
+  "name": "listFeatures",
+  "description": "List the available features for an Appwrite SDK for a particular platform.\nBefore using this tool, identify the programming langauge in question (either by analyzing the code or by asking the user).\nYou will use the returned list of features to fetch code examples for particular features, using the getFeatureExamples tool. \n\nAvailable libraries:\n- Android - Java (ID: client-android)\n- Android - Kotlin (ID: client-android)\n- Apple (ID: client-apple)\n- Flutter (ID: client-flutter)\n- GraphQL (ID: client-graphql)\n- React Native (ID: client-react-native)\n- REST (ID: client-rest)\n- Web - JavaScript (including React, Vue, Svelte, Angular, etc) (ID: client-web)\n- Console CLI (ID: console-cli)\n- Dart (ID: server-dart)\n- Deno (ID: server-deno)\n- Dotnet (ID: server-dotnet)\n- Go (ID: server-go)\n- GraphQL (ID: server-graphql)\n- Kotlin - Java (ID: server-kotlin)\n- Kotlin - Kotlin (ID: server-kotlin)\n- Node.js (ID: server-nodejs)\n- PHP (ID: server-php)\n- Python (ID: server-python)\n- Ruby (ID: server-ruby)\n- Swift (ID: server-swift)",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "libraryId": {
+        "type": "string",
+        "description": "The ID of the library to list the features for. E.g. \"client-react-native\""
+      }
+    },
+    "required": [
+      "libraryId"
+    ]
+  }
+}

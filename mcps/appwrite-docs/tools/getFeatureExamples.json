@@ -1,0 +1,21 @@
+{
+  "name": "getFeatureExamples",
+  "description": "Get examples for a particular feature of an Appwrite SDK for a particular platform.\nBefore using this tool, identify the programming langauge in question (either by analyzing the code or by asking the user).",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "libraryId": {
+        "type": "string",
+        "description": "The ID of the library to get examples for. E.g. \"client-react-native\""
+      },
+      "feature": {
+        "type": "string",
+        "description": "The name of the feature to get examples for. E.g. \"account\", \"databases\", \"storage\", etc."
+      }
+    },
+    "required": [
+      "libraryId",
+      "feature"
+    ]
+  }
+}

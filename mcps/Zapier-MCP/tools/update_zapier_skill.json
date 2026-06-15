@@ -1,0 +1,30 @@
+{
+  "name": "update_zapier_skill",
+  "description": "Update an existing Zapier Skill's description or content. Use when the user wants to refine a skill, fix an issue, or add new instructions.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "name": {
+        "description": "The exact name of the skill to update",
+        "type": "string",
+        "minLength": 1
+      },
+      "description": {
+        "description": "Updated one-sentence description (optional)",
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500
+      },
+      "skillDefinition": {
+        "description": "Updated full markdown skill definition (optional). Use ZapierAction[app:action](params) format for action references.",
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100000
+      }
+    },
+    "required": [
+      "name"
+    ]
+  }
+}
