@@ -4,6 +4,7 @@
 // implicitamente derrubaria o parse/validação dos webhooks em silêncio.
 import { dialog360Provider } from "@/lib/whatsapp-dialog360";
 import { twilioProvider } from "@/lib/whatsapp-twilio";
+import { zapiProvider } from "@/lib/whatsapp-zapi";
 import type { WhatsAppProvider, WhatsAppResult } from "@/lib/whatsapp-types";
 
 export type { WhatsAppProvider, WhatsAppResult, InboundMessage } from "@/lib/whatsapp-types";
@@ -16,9 +17,11 @@ export function getWhatsAppProvider(): WhatsAppProvider {
       return dialog360Provider;
     case "twilio":
       return twilioProvider;
+    case "zapi":
+      return zapiProvider;
     default:
       throw new Error(
-        `WHATSAPP_PROVIDER inválido: "${pref}" (use "dialog360" ou "twilio").`
+        `WHATSAPP_PROVIDER inválido: "${pref}" (use "dialog360", "twilio" ou "zapi").`
       );
   }
 }

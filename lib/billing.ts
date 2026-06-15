@@ -52,8 +52,8 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
     priceLabel: "R$197",
     periodLabel: "/mês",
     tagline: "Pra fechar mais em cada conversa.",
-    selo: "Em breve",
-    disponivel: false,
+    selo: process.env.STRIPE_PRICE_ID_PRO ? undefined : "Em breve",
+    disponivel: !!process.env.STRIPE_PRICE_ID_PRO,
     features: [
       "Tudo do Start",
       "Biblioteca completa de objeções",
@@ -70,8 +70,8 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
     priceLabel: "R$347",
     periodLabel: "/mês",
     tagline: "Pra não deixar nenhum agendamento na mesa.",
-    selo: "Em breve",
-    disponivel: false,
+    selo: process.env.STRIPE_PRICE_ID_PREMIUM ? undefined : "Em breve",
+    disponivel: !!process.env.STRIPE_PRICE_ID_PREMIUM,
     features: [
       "Tudo do Pro",
       "Organização automática por potencial de venda",

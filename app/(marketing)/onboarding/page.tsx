@@ -17,10 +17,10 @@ import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PlanCTA } from "@/components/plan-cta";
+
 import { WaitlistForm } from "@/components/waitlist-form";
 import { billingPlanList, parseBillingPlan } from "@/lib/billing";
-import { VisualAuthPanel } from "@/components/visual-auth-panel";
+import { PlanCheckoutButton } from "@/components/plan-checkout-button";
 import { procedimentos } from "@/data/procedimentos";
 import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { isFirebaseConfigured } from "@/lib/config";
@@ -66,11 +66,9 @@ function respostaNossaFallback(c: Clinica): string {
 function OnboardingFunnelInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const querEntrar = searchParams.get("entrar") === "1";
-  const querPagar = searchParams.get("pagar") === "1";
   const planoUrl = parseBillingPlan(searchParams.get("plan"));
-  const nextAfterLogin = searchParams.get("next") || "/dashboard";
-  const erroLogin = searchParams.get("erro");
+  const checkoutSucesso = searchParams.get("checkout") === "sucesso";
+  const checkoutCancelado = searchParams.get("checkout") === "cancelado";
   const abaUrl = searchParams.get("aba");
   const [aba, setAba] = useState<Aba>(
     abaUrl === "planos" || abaUrl === "diferenca" ? abaUrl : "clinica"
@@ -130,27 +128,12 @@ function OnboardingFunnelInner() {
         } catch {
           /* mantém o rascunho */
         }
-        if (querEntrar || querPagar) {
-          if (querPagar) {
-            // Persiste DNA + onboarded ANTES do checkout; senão o OnboardingGate
-            // devolve o usuário pro funil depois de pagar.
-            try {
-              await saveClinica({ ...clinicaAtual, onboarded: true });
-            } catch {
-              /* segue pro checkout mesmo assim */
-            }
-          }
-          const dest = querPagar && planoUrl
-            ? `/configuracoes?plan=${planoUrl}&next=checkout`
-            : nextAfterLogin;
-          router.replace(dest);
-        }
       });
       return () => unsub();
     } catch {
       /* sem firebase: segue como visitante */
     }
-  }, [querEntrar, querPagar, planoUrl, nextAfterLogin, router]);
+  }, []);
 
   useEffect(() => {
     if (planoUrl && c.nome_clinica.trim()) {
@@ -266,45 +249,29 @@ function OnboardingFunnelInner() {
             <Link href="/gerador" className="text-sm font-medium text-muted hover:text-ink">
               Ir para o painel
             </Link>
-          ) : (
-            <Link
-              href="/onboarding?entrar=1"
-              className="text-sm font-medium text-muted hover:text-ink"
-            >
-              Já tenho conta
-            </Link>
-          )}
+          ) : null}
         </div>
       </header>
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
-        {querEntrar && !logado && (
-          <Card className="mb-10">
-            <CardBody className="p-6 sm:p-8">
-              {erroLogin && (
-                <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  Não foi possível entrar agora. Confira os dados e tente de novo.
-                </div>
-              )}
-              <VisualAuthPanel
-                mode="login"
-                next={nextAfterLogin}
-                clinicName={c.nome_clinica}
-                previewMessage={nossa}
-              />
-              <div className="mt-6 text-center">
-                <Link
-                  href="/onboarding"
-                  className="text-sm font-medium text-brand-600 hover:text-brand-700"
-                >
-                  Primeira vez? Testar grátis sem conta →
-                </Link>
-              </div>
-            </CardBody>
-          </Card>
+        {checkoutSucesso && (
+          <div className="mb-8 rounded-2xl border border-brand-200 bg-brand-50 px-5 py-4 text-center text-sm text-brand-800">
+            <p className="font-semibold text-ink">Pagamento confirmado!</p>
+            <p className="mt-1">
+              Use o mesmo e-mail do pagamento em{" "}
+              <Link href="/signup" className="font-medium text-brand-600 underline">
+                criar sua senha
+              </Link>{" "}
+              e entrar no painel.
+            </p>
+          </div>
+        )}
+        {checkoutCancelado && (
+          <div className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-center text-sm text-amber-800">
+            Pagamento cancelado. Escolha um plano quando quiser.
+          </div>
         )}
 
-        {!querEntrar && (
         <div className="text-center">
           {logado ? (
             <>
@@ -326,18 +293,16 @@ function OnboardingFunnelInner() {
                 Etapa {passoAtual} de 3
               </p>
               <h1 className="font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl">
-                Monte o jeito da sua clínica e veja{" "}
-                <span className="text-gold-gradient">a resposta mudar na hora.</span>
+                Ela perguntou o preço.{" "}
+                <span className="text-gold-gradient">Veja como responder diferente.</span>
               </h1>
               <p className="mx-auto mt-4 max-w-xl text-muted">
-                Toque, veja a resposta mudar — conta só na hora de pagar.
+                Toque no seu jeito de atender — a resposta muda na hora.
               </p>
             </>
           )}
         </div>
-        )}
 
-        {!querEntrar && (
         <>
         {/* abas */}
         <div className="mt-9 flex justify-center">
@@ -354,7 +319,7 @@ function OnboardingFunnelInner() {
                   className={cn(
                     "flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 text-center text-[11px] font-medium transition-colors sm:flex-row sm:gap-2 sm:px-5 sm:text-sm",
                     ativa
-                      ? "bg-white text-brand-600 shadow-sm"
+                      ? "bg-white text-gold-700 shadow-sm"
                       : "text-muted hover:text-ink",
                     !habilitada && "cursor-not-allowed opacity-40"
                   )}
@@ -362,7 +327,7 @@ function OnboardingFunnelInner() {
                   <span
                     className={cn(
                       "flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold",
-                      ativa ? "bg-brand-500 text-white" : "bg-brand-100 text-brand-600"
+                      ativa ? "bg-gold-500 text-brand-900" : "bg-brand-100 text-brand-600"
                     )}
                       >
                     {a.n}
@@ -375,7 +340,7 @@ function OnboardingFunnelInner() {
         </div>
         <div className="mx-auto mt-4 h-2 w-full max-w-md overflow-hidden rounded-full bg-brand-100">
           <div
-            className="h-full rounded-full bg-brand-500 transition-all duration-300"
+            className="h-full rounded-full bg-gold-500 transition-all duration-300"
             style={{ width: progresso }}
           />
         </div>
@@ -570,7 +535,8 @@ function OnboardingFunnelInner() {
                       Salvar e ir para o painel
                     </Button>
                   )}
-                  <Button
+                <Button
+                    variant="cta"
                     onClick={() => irPara("diferenca")}
                     disabled={!podeAvancar}
                     className="sm:min-w-[220px]"
@@ -602,27 +568,27 @@ function OnboardingFunnelInner() {
 
               <div className="grid gap-5 md:grid-cols-2">
                 {/* genérica */}
-                <div className="flex flex-col rounded-3xl border border-red-100 bg-red-50/40 p-6">
-                  <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600">
+                <div className="flex flex-col rounded-3xl border border-pain-200 bg-pain-50/60 p-6">
+                  <div className="badge-pain mb-4 w-fit">
                     <X size={13} /> Resposta qualquer
                   </div>
-                  <div className="rounded-2xl rounded-bl-md border border-red-100 bg-white px-4 py-3 text-sm leading-relaxed text-ink">
+                  <div className="rounded-2xl rounded-bl-md border border-pain-200 bg-white px-4 py-3 text-sm leading-relaxed text-ink">
                     “Botox é R$900. Qualquer dúvida, estou à disposição.”
                   </div>
-                  <p className="mt-4 text-sm leading-relaxed text-red-800/70">
+                  <p className="mt-4 text-sm leading-relaxed text-pain-600/90">
                     Joga o preço, não cria valor. A cliente compara com a concorrente
                     mais barata e <strong>some</strong> — e some calada.
                   </p>
                 </div>
 
                 {/* nossa */}
-                <div className="relative flex flex-col overflow-hidden rounded-3xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-6 shadow-soft">
+                <div className="relative flex flex-col overflow-hidden rounded-3xl border-2 border-gold-300 bg-gradient-to-br from-white to-gold-50 p-6 shadow-cta">
                   <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-brand-200/20 blur-2xl" />
                   <div className="relative flex flex-col">
-                    <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-600">
+                    <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-gold-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-700">
                       <Check size={13} /> A resposta da {c.nome_clinica.trim() || "sua clínica"}
                     </div>
-                    <div className="rounded-2xl rounded-br-md bg-brand-600 px-4 py-3 text-sm leading-relaxed text-white shadow-soft">
+                    <div className="rounded-2xl rounded-br-md bg-brand-500 px-4 py-3 text-sm leading-relaxed text-white shadow-soft">
                       {gerando ? (
                         <span className="inline-flex items-center gap-2 text-white/90">
                           <Loader2 size={15} className="animate-spin" /> Escrevendo no seu tom…
@@ -648,10 +614,8 @@ function OnboardingFunnelInner() {
               </div>
 
               {/* gancho de dor / dinheiro */}
-              <div className="rounded-2xl border border-lavender-200 bg-lavender-50 px-5 py-4 text-center text-sm text-lavender-800">
-                Cada cliente que some sem fechar pode ser{" "}
-                <strong>R$500 a R$2.000</strong> que saíram da sua agenda — toda semana,
-                sem você nem perceber.
+              <div className="badge-pain mx-auto w-fit px-5 py-3 text-sm normal-case tracking-normal">
+                Cada cliente que some = <strong>R$500 a R$2.000</strong> fora da agenda toda semana
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
@@ -683,7 +647,7 @@ function OnboardingFunnelInner() {
                 <Button variant="ghost" onClick={() => irPara("clinica")}>
                   <ArrowLeft size={16} /> Voltar
                 </Button>
-                <Button onClick={() => irPara("planos")} className="sm:min-w-[220px]">
+                <Button variant="cta" onClick={() => irPara("planos")} className="sm:min-w-[220px]">
                   Quero esse tipo de resposta <ArrowRight size={16} />
                 </Button>
               </div>
@@ -713,20 +677,6 @@ function OnboardingFunnelInner() {
                     Tentar de novo
                   </button>
                 </div>
-              )}
-
-              {querPagar && planoUrl && !logado && (
-                <Card>
-                  <CardBody className="p-6 sm:p-8">
-                    <VisualAuthPanel
-                      mode="signup"
-                      plan={planoUrl}
-                      checkoutAfter
-                      clinicName={c.nome_clinica}
-                      previewMessage={nossa}
-                    />
-                  </CardBody>
-                </Card>
               )}
 
               <div className="grid gap-5 md:grid-cols-3">
@@ -779,38 +729,16 @@ function OnboardingFunnelInner() {
                       ))}
                     </ul>
                     {plano.disponivel ? (
-                      logado ? (
-                        <PlanCTA
-                          plan={plano.id}
-                          className={cn(
-                            "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-60",
-                            plano.destaque
-                              ? "bg-brand-500 text-white shadow-soft hover:bg-brand-600"
-                              : "border border-brand-300 text-brand-600 hover:bg-brand-50"
-                          )}
-                        >
-                          Começar com o {plano.label}
-                          {plano.destaque && <ArrowRight size={16} />}
-                        </PlanCTA>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            router.push(
-                              `/onboarding?aba=planos&plan=${plano.id}&pagar=1`
-                            )
-                          }
-                          className={cn(
-                            "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors",
-                            plano.destaque
-                              ? "bg-brand-500 text-white shadow-soft hover:bg-brand-600"
-                              : "border border-brand-300 text-brand-600 hover:bg-brand-50"
-                          )}
-                        >
-                          Começar com o {plano.label}
-                          {plano.destaque && <ArrowRight size={16} />}
-                        </button>
-                      )
+                      <PlanCheckoutButton
+                        plan={plano.id}
+                        className={cn(
+                          "mt-6 w-full px-4 py-2.5 text-sm disabled:opacity-60",
+                          plano.destaque ? "btn-cta" : "btn-cta-outline"
+                        )}
+                      >
+                        Assinar {plano.label}
+                        {plano.destaque && <ArrowRight size={16} />}
+                      </PlanCheckoutButton>
                     ) : (
                       <WaitlistForm plan={plano.id} className="mt-6" />
                     )}
@@ -841,7 +769,6 @@ function OnboardingFunnelInner() {
           <MessageSquareText size={14} /> Responda melhor. Agende mais.
         </div>
         </>
-        )}
       </div>
     </div>
   );

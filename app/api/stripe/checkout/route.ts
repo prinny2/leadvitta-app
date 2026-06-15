@@ -76,13 +76,6 @@ export async function POST(request: Request) {
   }
 
   const decodedToken = await verifyFirebaseIdToken(body.firebaseIdToken);
-  if (isFirebaseConfigured && !decodedToken?.uid) {
-    return jsonNoStore(
-      { error: "Faça login antes de iniciar o checkout." },
-      { status: 401 }
-    );
-  }
-
   const customerEmail =
     decodedToken?.email ||
     (typeof body.customerEmail === "string" ? body.customerEmail : undefined);
@@ -96,11 +89,17 @@ export async function POST(request: Request) {
 
   const checkoutMode = getStripeCheckoutMode();
   const baseUrl = getBaseUrl(request);
+  const successPath = firebaseUid
+    ? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"
+    : "/onboarding?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}";
+  const cancelPath = firebaseUid
+    ? "/configuracoes?checkout=cancelado"
+    : "/onboarding?aba=planos&checkout=cancelado";
   const params: Stripe.Checkout.SessionCreateParams = {
     mode: checkoutMode,
     line_items: [{ price: planConfig.priceId, quantity: 1 }],
-    success_url: `${baseUrl}/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}/configuracoes?checkout=cancelado`,
+    success_url: `${baseUrl}${successPath}`,
+    cancel_url: `${baseUrl}${cancelPath}`,
     allow_promotion_codes: true,
     client_reference_id: firebaseUid,
     customer_email: customerEmail,

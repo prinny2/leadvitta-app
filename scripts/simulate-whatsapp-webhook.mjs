@@ -301,7 +301,7 @@ Options:
   --webhook-token          Token forwarded as x-d360-token (dialog360)
   --zapi-security-token    Token forwarded as x-zapi-token or ?token= (zapi)
   --twilio-auth-token      Auth token used to compute X-Twilio-Signature
-  --provider               "twilio" (default), "dialog360" or "zapi" — must
+  --provider               "dialog360" (default), "twilio" or "zapi" — must
                            match the server's WHATSAPP_PROVIDER (also read
                            from .env.local)
 

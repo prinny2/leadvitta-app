@@ -9,44 +9,63 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Escala de cinzas suaves para fundo (token "nude")
+        // Creme quente — fundos (hero, cards)
         nude: {
-          50: "#F8F9FA",
-          100: "#E9ECEF",
-          200: "#DEE2E6",
-          300: "#CED4DA",
+          50: "#FBF9F3",
+          100: "#F5F0E4",
+          200: "#EBE3D2",
+          300: "#DDD2BC",
         },
-        // Preto Dramático — cor primária da marca LeadBellus (token "brand")
+        // Verde-escuro LeadBellus — marca, fundos premium
         brand: {
-          50: "#E9ECEF",
-          100: "#DEE2E6",
-          200: "#CED4DA",
-          300: "#ADB5BD",
-          400: "#6C757D",
-          500: "#212529", // Core Black
-          600: "#1A1D21",
-          700: "#121417",
-          800: "#0A0B0D",
-          900: "#000000",
-          dark: "#0A0B0D", // alias para fundo escuro (bg-brand-dark)
+          50: "#EEF6F3",
+          100: "#D5EBE3",
+          200: "#A8D4C4",
+          300: "#6BB59A",
+          400: "#3D8F72",
+          500: "#0E3A30",
+          600: "#0C3229",
+          700: "#0A2A22",
+          800: "#082219",
+          900: "#051A15",
+          dark: "#0E3A30",
         },
-        // Cinza Médio — cor de acento/contorno (token "lavender")
+        // Dourado — CTAs, destaques, conversão
+        gold: {
+          50: "#FDF8ED",
+          100: "#F9EDD4",
+          200: "#F0D9A8",
+          300: "#E5C47B",
+          400: "#D4AD5A",
+          500: "#CDA347",
+          600: "#B8860B",
+          700: "#9A6F09",
+        },
+        // Champagne — texto em fundo escuro
         lavender: {
-          50: "#F8F9FA",
-          100: "#E9ECEF",
-          200: "#CED4DA",
-          300: "#ADB5BD",
-          400: "#6C757D",
-          500: "#495057",
-          600: "#343A40",
-          700: "#212529",
+          50: "#FAF7F2",
+          100: "#F3EDE3",
+          200: "#E8DCC8",
+          300: "#D9C9AD",
+          400: "#C4B08E",
+          500: "#A89572",
+          600: "#8A7A5E",
+          700: "#6B6049",
         },
-        ink: "#212529",
-        muted: "#6C757D",
+        // Coral — gancho de dor / perda
+        pain: {
+          50: "#FEF2F0",
+          100: "#FDE4DF",
+          200: "#FAC4BA",
+          300: "#F49A88",
+          400: "#E86F58",
+          500: "#D94F3A",
+          600: "#B83D2B",
+        },
+        ink: "#0E3A30",
+        muted: "#5C6B66",
       },
       fontFamily: {
-        // As variáveis vêm do next/font (app/layout.tsx), que injeta fallbacks
-        // com métricas ajustadas (size-adjust) — é o que zera o CLS de fonte.
         sans: ["var(--font-inter)", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
         serif: ["var(--font-fraunces)", "Georgia", "Cambria", "serif"],
       },
@@ -55,8 +74,9 @@ export default {
         "3xl": "1.5rem",
       },
       boxShadow: {
-        soft: "0 4px 24px -8px rgba(0, 0, 0, 0.12)",
-        card: "0 2px 16px -6px rgba(0, 0, 0, 0.08)",
+        soft: "0 4px 24px -8px rgba(14, 58, 48, 0.14)",
+        card: "0 2px 16px -6px rgba(14, 58, 48, 0.08)",
+        cta: "0 8px 28px -6px rgba(205, 163, 71, 0.45)",
       },
       keyframes: {
         "fade-in": {

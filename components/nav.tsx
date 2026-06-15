@@ -42,7 +42,7 @@ function useLogout() {
       } catch {
         /* ignora */
       }
-      router.push("/onboarding?entrar=1");
+      router.push("/onboarding");
     } else {
       router.push("/");
     }

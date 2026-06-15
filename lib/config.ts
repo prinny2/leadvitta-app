@@ -59,7 +59,11 @@ export const isStripeConfigured =
 export const isZapierConfigured = !!process.env.ZAPIER_WEBHOOK_URL;
 
 /** True quando o WhatsApp (360dialog) está configurado. */
-export const isWhatsappConfigured = !!process.env.D360_API_KEY;
+export const isD360Configured = !!process.env.D360_API_KEY;
+
+/** True quando o WhatsApp (Z-API) está configurado. */
+export const isZApiConfigured =
+  !!process.env.ZAPI_INSTANCE_ID?.trim() && !!process.env.ZAPI_TOKEN?.trim();
 
 /** True quando Twilio WhatsApp está configurado. */
 export const isTwilioConfigured =

@@ -6,7 +6,10 @@ import {
   isGeminiConfigured,
   isOpenAIConfigured,
   isStripeConfigured,
+  isZApiConfigured,
+  isZapierConfigured,
 } from "@/lib/config";
+import { getWhatsAppProvider } from "@/lib/whatsapp";
 import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 
 export const runtime = "nodejs";
@@ -25,6 +28,9 @@ export async function GET() {
       openai: isOpenAIConfigured,
       anthropic: isAnthropicConfigured,
       gemini: isGeminiConfigured,
-    }
+    },
+    zapier_enabled: isZapierConfigured,
+    zapi_enabled: isZApiConfigured,
+    whatsapp_provider: getWhatsAppProvider().name,
   });
 }

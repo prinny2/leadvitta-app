@@ -6,8 +6,8 @@ import {
   isGeminiConfigured,
   isOpenAIConfigured,
   isStripeConfigured,
-  isWhatsappConfigured,
 } from "@/lib/config";
+import { isWhatsappConfigured } from "@/lib/whatsapp";
 import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 
 export const runtime = "nodejs";
@@ -23,7 +23,8 @@ export async function GET() {
       firebase: isFirebaseConfigured,
       firebase_admin: isFirebaseAdminConfigured(),
       stripe: isStripeConfigured,
-      whatsapp: isWhatsappConfigured,
+      whatsapp: isWhatsappConfigured(),
+      whatsapp_provider: (process.env.WHATSAPP_PROVIDER || "dialog360").toLowerCase(),
     },
     ai_providers: {
       openai: isOpenAIConfigured,

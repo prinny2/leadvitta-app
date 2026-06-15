@@ -28,7 +28,6 @@ export function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/onboarding";
     url.search = "";
-    url.searchParams.set("entrar", "1");
     url.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(url);
   }

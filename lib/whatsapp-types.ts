@@ -19,7 +19,7 @@ export type InboundMessage = {
 };
 
 export interface WhatsAppProvider {
-  readonly name: "twilio" | "dialog360";
+  readonly name: "twilio" | "dialog360" | "zapi";
 
   /** True quando há credenciais suficientes para operar. */
   isConfigured(): boolean;

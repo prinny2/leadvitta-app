@@ -35,7 +35,7 @@ export function CheckoutButton({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           plan,
-          firebaseIdToken,
+          firebaseIdToken: firebaseIdToken ?? undefined,
           customerEmail: user?.email,
         }),
       });
