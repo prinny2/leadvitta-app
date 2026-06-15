@@ -6,6 +6,7 @@ import {
   registrarMensagemEnviada,
   getCanalClinica,
 } from "@/lib/conversas";
+import { enforceRateLimit, rejectCrossOriginRequest } from "@/lib/api-security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +17,16 @@ export const dynamic = "force-dynamic";
  * Segurança: só o dono da conversa (uid == clinica_id) pode responder.
  */
 export async function POST(req: Request) {
+  const originError = rejectCrossOriginRequest(req);
+  if (originError) return originError;
+
+  const rateLimitError = enforceRateLimit(req, {
+    bucket: "conversas-reply",
+    limit: 30,
+    windowMs: 10 * 60_000,
+  });
+  if (rateLimitError) return rateLimitError;
+
   let body: { conversaId?: string; texto?: string; firebaseIdToken?: string };
   try {
     body = await req.json();

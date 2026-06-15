@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { reivindicarNumero, liberarNumero } from "@/lib/numeros";
+import { enforceRateLimit, rejectCrossOriginRequest } from "@/lib/api-security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +13,16 @@ export const dynamic = "force-dynamic";
  * Body: { numero, firebaseIdToken }
  */
 export async function POST(req: Request) {
+  const originError = rejectCrossOriginRequest(req);
+  if (originError) return originError;
+
+  const rateLimitError = enforceRateLimit(req, {
+    bucket: "clinica-whatsapp",
+    limit: 20,
+    windowMs: 10 * 60_000,
+  });
+  if (rateLimitError) return rateLimitError;
+
   let body: { numero?: string; firebaseIdToken?: string };
   try {
     body = await req.json();

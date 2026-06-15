@@ -39,19 +39,44 @@ const twilioAuthToken =
   options.twilioAuthToken || process.env.TWILIO_AUTH_TOKEN || "";
 const webhookToken =
   options.webhookToken || process.env.D360_WEBHOOK_TOKEN || "";
+const zapiSecurityToken =
+  options.zapiSecurityToken || process.env.ZAPI_SECURITY_TOKEN || "";
 
 // O formato do POST acompanha o provedor ativo no servidor (lib/whatsapp.ts):
-// "twilio" (default) = form-urlencoded; "dialog360" = JSON do Cloud API.
+// "dialog360" (default) = JSON do Cloud API; "twilio" = form-urlencoded; "zapi" = JSON Z-API.
+// Alinhado com getWhatsAppProvider() (default dialog360) — senão o webhook
+// responde 200 mas não processa o payload enviado.
 const provider = (
   options.provider ||
   process.env.WHATSAPP_PROVIDER ||
-  "twilio"
+  "dialog360"
 ).toLowerCase();
 
 let rawBody;
 const headers = {};
 
-if (provider === "dialog360" || provider === "360dialog") {
+if (provider === "zapi") {
+  const payload = {
+    phone: from,
+    connectedPhone: displayPhoneNumber,
+    messageId: `zapi_simulated_${Date.now()}`,
+    text: { message: text },
+    senderName: contactName,
+    type: "ReceivedMessage",
+    instanceId: process.env.ZAPI_INSTANCE_ID || "simulated-instance",
+  };
+  rawBody = JSON.stringify(payload);
+  headers["Content-Type"] = "application/json";
+  
+  if (zapiSecurityToken) {
+    headers["x-zapi-token"] = zapiSecurityToken;
+    // Também simula o token na query string se a URL já não tiver
+    const urlObj = new URL(url);
+    if (!urlObj.searchParams.has("token")) {
+      urlObj.searchParams.set("token", zapiSecurityToken);
+    }
+  }
+} else if (provider === "dialog360" || provider === "360dialog") {
   const payload = {
     object: "whatsapp_business_account",
     entry: [
@@ -126,6 +151,9 @@ if (provider === "twilio" && twilioAuthToken) {
 if ((provider === "dialog360" || provider === "360dialog") && webhookToken) {
   console.log("[whatsapp:simulate] d360 token = attached via x-d360-token");
 }
+if (provider === "zapi" && zapiSecurityToken) {
+  console.log("[whatsapp:simulate] zapi token = attached via x-zapi-token and query string");
+}
 
 let response;
 try {
@@ -198,6 +226,7 @@ function normalizeKey(key) {
     "--message": "text",
     "--app-secret": "appSecret",
     "--webhook-token": "webhookToken",
+    "--zapi-security-token": "zapiSecurityToken",
     "--twilio-auth-token": "twilioAuthToken",
     "--auth-token": "twilioAuthToken",
     "--provider": "provider",
@@ -270,14 +299,17 @@ Options:
   --text, --message        Simulated inbound message text
   --app-secret             Optional app secret for X-Hub-Signature-256 (dialog360)
   --webhook-token          Token forwarded as x-d360-token (dialog360)
+  --zapi-security-token    Token forwarded as x-zapi-token or ?token= (zapi)
   --twilio-auth-token      Auth token used to compute X-Twilio-Signature
-  --provider               "twilio" (default) or "dialog360" — must match the
-                           server's WHATSAPP_PROVIDER (also read from .env.local)
+  --provider               "twilio" (default), "dialog360" or "zapi" — must
+                           match the server's WHATSAPP_PROVIDER (also read
+                           from .env.local)
 
 Notes:
   The script also reads .env.local when present.
   For Twilio, TWILIO_AUTH_TOKEN signs the request exactly like the provider.
   For 360dialog, D360_WEBHOOK_TOKEN is forwarded in x-d360-token when present.
+  For Z-API, ZAPI_SECURITY_TOKEN is used for validation.
   For the full flow, Firestore must contain a clinica whose whatsapp field equals --to,
   and billing.status must be active, paid, or trialing.
 `);

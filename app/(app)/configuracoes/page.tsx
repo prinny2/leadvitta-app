@@ -120,6 +120,7 @@ export default function ConfiguracoesPage() {
     setSalvando(true);
     setErro("");
     setOk(false);
+    let numeroReivindicado = false;
     try {
       // O número de WhatsApp vai por uma rota dedicada (unicidade no servidor)
       // e roda ANTES do resto: se o número estiver em uso (409), nada é salvo
@@ -137,12 +138,30 @@ export default function ConfiguracoesPage() {
             const d = (await res.json().catch(() => ({}))) as { error?: string };
             throw new Error(d.error || "Não foi possível conectar o número de WhatsApp.");
           }
+          numeroReivindicado = !!c.whatsapp.trim();
         }
       }
       await saveClinica({ ...c, onboarded: true });
       setOk(true);
       setTimeout(() => setOk(false), 2500);
     } catch (err) {
+      // Se o número foi reivindicado mas o saveClinica falhou, desfaz a reserva
+      // pra não deixar número órfão no mapa canônico (reservado sem clínica refletindo).
+      if (numeroReivindicado) {
+        try {
+          const user = getFirebaseAuth().currentUser;
+          if (user) {
+            const t = await user.getIdToken();
+            await fetch("/api/clinica/whatsapp", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ numero: "", firebaseIdToken: t }),
+            });
+          }
+        } catch {
+          /* rollback best-effort */
+        }
+      }
       setErro(err instanceof Error ? err.message : "Erro ao salvar.");
     } finally {
       setSalvando(false);

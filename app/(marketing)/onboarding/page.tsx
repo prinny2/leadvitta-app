@@ -70,6 +70,7 @@ function OnboardingFunnelInner() {
   const querPagar = searchParams.get("pagar") === "1";
   const planoUrl = parseBillingPlan(searchParams.get("plan"));
   const nextAfterLogin = searchParams.get("next") || "/dashboard";
+  const erroLogin = searchParams.get("erro");
   const abaUrl = searchParams.get("aba");
   const [aba, setAba] = useState<Aba>(
     abaUrl === "planos" || abaUrl === "diferenca" ? abaUrl : "clinica"
@@ -108,15 +109,37 @@ function OnboardingFunnelInner() {
     try {
       const auth = getFirebaseAuth();
       setLogado(!!auth.currentUser);
-      const unsub = onAuthStateChanged(auth, (u) => {
+      const unsub = onAuthStateChanged(auth, async (u) => {
         setLogado(!!u);
         if (!u) return;
-        getClinica()
-          .then((salva) => {
-            if (salva.nome_clinica || salva.onboarded) setC(salva);
-          })
-          .catch(() => {});
+        // Reúne o DNA: rascunho do navegador como base, sobrescrito pela clínica
+        // salva se já existir (evita closure desatualizada do estado `c`).
+        let clinicaAtual: Clinica = clinicaVazia;
+        try {
+          const raw = window.localStorage.getItem("lb_dna_draft");
+          if (raw) clinicaAtual = { ...clinicaVazia, ...JSON.parse(raw) };
+        } catch {
+          /* rascunho corrompido: ignora */
+        }
+        try {
+          const salva = await getClinica();
+          if (salva.nome_clinica || salva.onboarded) {
+            clinicaAtual = salva;
+            setC(salva);
+          }
+        } catch {
+          /* mantém o rascunho */
+        }
         if (querEntrar || querPagar) {
+          if (querPagar) {
+            // Persiste DNA + onboarded ANTES do checkout; senão o OnboardingGate
+            // devolve o usuário pro funil depois de pagar.
+            try {
+              await saveClinica({ ...clinicaAtual, onboarded: true });
+            } catch {
+              /* segue pro checkout mesmo assim */
+            }
+          }
           const dest = querPagar && planoUrl
             ? `/configuracoes?plan=${planoUrl}&next=checkout`
             : nextAfterLogin;
@@ -258,6 +281,11 @@ function OnboardingFunnelInner() {
         {querEntrar && !logado && (
           <Card className="mb-10">
             <CardBody className="p-6 sm:p-8">
+              {erroLogin && (
+                <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  Não foi possível entrar agora. Confira os dados e tente de novo.
+                </div>
+              )}
               <VisualAuthPanel
                 mode="login"
                 next={nextAfterLogin}
