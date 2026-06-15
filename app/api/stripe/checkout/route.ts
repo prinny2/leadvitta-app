@@ -5,7 +5,7 @@ import {
   getStripeCheckoutMode,
   parseBillingPlan,
 } from "@/lib/billing";
-import { isFirebaseConfigured, isStripeConfigured, siteUrl } from "@/lib/config";
+import { isStripeConfigured, siteUrl } from "@/lib/config";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { getStripe } from "@/lib/stripe/server";
 import { sendZapierEvent } from "@/lib/zapier";
