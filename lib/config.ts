@@ -58,16 +58,9 @@ export const isStripeConfigured =
 /** True quando há webhook do Zapier configurado no servidor. */
 export const isZapierConfigured = !!process.env.ZAPIER_WEBHOOK_URL;
 
-/** True quando o WhatsApp (360dialog) está configurado. */
-export const isD360Configured = !!process.env.D360_API_KEY;
-
 /** True quando o WhatsApp (Z-API) está configurado. */
 export const isZApiConfigured =
   !!process.env.ZAPI_INSTANCE_ID?.trim() && !!process.env.ZAPI_TOKEN?.trim();
 
-/** True quando Twilio WhatsApp está configurado. */
-export const isTwilioConfigured =
-  !!process.env.TWILIO_ACCOUNT_SID &&
-  !!process.env.TWILIO_API_KEY_SID &&
-  !!process.env.TWILIO_API_KEY_SECRET &&
-  !!process.env.TWILIO_WHATSAPP_FROM;
+/** Alias legado — sempre Z-API. */
+export const isWhatsappConfigured = isZApiConfigured;

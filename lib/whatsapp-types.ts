@@ -1,4 +1,4 @@
-// Contrato comum dos provedores de WhatsApp (Twilio hoje, 360dialog amanhã).
+// Contrato do provedor WhatsApp (Z-API).
 // A lógica de negócio (receber → pontuar → guardar → responder) não conhece o
 // provedor — fala só com esta interface. Trocar de provedor = trocar a impl.
 
@@ -19,7 +19,7 @@ export type InboundMessage = {
 };
 
 export interface WhatsAppProvider {
-  readonly name: "twilio" | "dialog360" | "zapi";
+  readonly name: "zapi";
 
   /** True quando há credenciais suficientes para operar. */
   isConfigured(): boolean;
@@ -34,7 +34,7 @@ export interface WhatsAppProvider {
    * Envia uma mensagem de texto.
    * @param to   número da cliente (E.164, com ou sem prefixo "whatsapp:")
    * @param body texto
-   * @param opts roteamento por clínica (ex.: chave/canal do 360dialog)
+   * @param opts reservado (compatibilidade)
    */
   sendText(
     to: string,

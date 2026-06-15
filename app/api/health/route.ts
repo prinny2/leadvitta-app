@@ -24,7 +24,7 @@ export async function GET() {
       firebase_admin: isFirebaseAdminConfigured(),
       stripe: isStripeConfigured,
       whatsapp: isWhatsappConfigured(),
-      whatsapp_provider: (process.env.WHATSAPP_PROVIDER || "dialog360").toLowerCase(),
+      whatsapp_provider: "zapi",
     },
     ai_providers: {
       openai: isOpenAIConfigured,

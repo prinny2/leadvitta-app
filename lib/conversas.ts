@@ -184,7 +184,7 @@ export async function getConversaServidor(
   return { clinica_id: d.clinica_id, cliente_numero: d.cliente_numero };
 }
 
-/** Chave do canal de WhatsApp da clínica (360dialog multi-tenant). */
+/** Chave do canal de WhatsApp da clínica (Z-API). */
 export async function getCanalClinica(
   clinicaId: string
 ): Promise<string | undefined> {

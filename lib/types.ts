@@ -12,7 +12,7 @@ export type Clinica = {
   como_chamar: ComoChamar;
   /** CTA padrão da clínica (texto). */
   cta_preferido: string;
-  /** Chave do canal de WhatsApp (360dialog). Gravada só pelo servidor. */
+  /** Chave do canal de WhatsApp (Z-API). Gravada só pelo servidor. */
   whatsapp_channel_key?: string;
   /** Já concluiu o onboarding (DNA da Clínica). */
   onboarded: boolean;

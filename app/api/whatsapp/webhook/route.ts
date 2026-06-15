@@ -136,27 +136,9 @@ async function processarMensagem(msg: InboundMessage) {
   );
 }
 
-// Verificação do webhook (Meta Cloud API usa GET com hub.challenge).
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const mode = url.searchParams.get("hub.mode");
-  const token = url.searchParams.get("hub.verify_token");
-  const challenge = url.searchParams.get("hub.challenge");
-  const expected = process.env.D360_WEBHOOK_TOKEN || process.env.WHATSAPP_VERIFY_TOKEN;
-  if (mode === "subscribe" && challenge) {
-    // Exige um verify token configurado E correto. Sem token no servidor,
-    // qualquer um completaria o handshake — então recusamos até estar setado.
-    if (expected && token === expected) {
-      return new NextResponse(challenge, { status: 200 });
-    }
-    if (!expected) {
-      console.warn(
-        "[whatsapp] handshake recusado: defina D360_WEBHOOK_TOKEN ou WHATSAPP_VERIFY_TOKEN."
-      );
-    }
-    return new NextResponse("forbidden", { status: 403 });
-  }
-  return new NextResponse("", { status: 200 });
+// Z-API não usa handshake Meta; GET só confirma que o endpoint está vivo.
+export async function GET() {
+  return new NextResponse("ok", { status: 200 });
 }
 
 export async function POST(req: Request) {

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 /**
  * Conecta um número de WhatsApp à clínica logada, com unicidade garantida
  * (um número pertence a no máximo uma conta). É por aqui que o fluxo do
- * 360dialog (embedded signup) vai gravar o número da clínica no futuro.
+ * Z-API: grava o número da clínica no mapa canônico (numeros_whatsapp).
  * Body: { numero, firebaseIdToken }
  */
 export async function POST(req: Request) {
