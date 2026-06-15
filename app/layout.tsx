@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   title: "LeadBellus — Agendamento Inteligente para Estética",
   description:
     "Aumente os agendamentos da sua clínica com inteligência de conversão. Transforme dúvidas do WhatsApp em vendas reais com respostas estratégicas e seguras.",
+  authors: [{ name: "Vinicius Paes da Serra Freire", url: "https://leadbellus.com.br" }],
+  publisher: "Vinicius Paes da Serra Freire (MEI)",
 };
 
 export default function RootLayout({

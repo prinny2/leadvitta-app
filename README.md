@@ -4,7 +4,13 @@ Micro-SaaS para clínicas e profissionais de estética responderem melhor no
 WhatsApp: gera respostas estratégicas, quebra objeções, faz follow-up e conduz a
 cliente até o agendamento com guardrails de compliance.
 
-Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore + OpenAI/Claude/Gemini + Stripe + Zapier + Cloud Run/Vercel**.
+**Empresa (LeadBellus):** Vinicius Paes da Serra Freire (MEI)  
+**Fundador:** Vinicius Paes da Serra Freire  
+**Contato:** vpaes.freire02@gmail.com
+
+**Nota:** A Inova Simples (RESONANZA INOVA SIMPLES I S, CNPJ 67.046.121/0001-45) é exclusiva para o projeto ResonAnza (com José). O LeadBellus opera sob o MEI pessoal.
+
+Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore + OpenAI/Anthropic + Stripe + Zapier + Cloud Run**.
 
 ## Rodar local
 
@@ -48,29 +54,6 @@ No Firebase Console:
 Sem Firebase Admin, login client-side ainda funciona, mas Stripe webhooks não
 conseguem atualizar Firestore e `/api/zapier/lead` rejeita envio autenticado.
 
-### Validação Firebase
-
-Antes de abrir PR ou publicar mudanças que toquem Auth, Firestore, billing ou
-rotas server-side, rode:
-
-```bash
-npm run firebase:verify
-```
-
-Esse comando sempre valida contratos estáticos de Firebase: `firebase.json`,
-`firestore.rules`, `firestore.indexes.json`, queries do app, inicialização do
-Admin SDK, `/api/config` e rotas que exigem Firebase ID token.
-
-Para validar as rules dinamicamente no Firestore emulator, instale JRE/JDK 21+
-e rode:
-
-```bash
-npm run firebase:emulator:check
-```
-
-No CI, o workflow `Firebase Verify` instala Java 21 e roda `firebase:verify` com
-`REQUIRE_FIREBASE_EMULATOR=1`, então o emulator é obrigatório no GitHub Actions.
-
 ### IA
 
 Configure pelo menos uma chave:
@@ -78,13 +61,10 @@ Configure pelo menos uma chave:
 ```env
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
-GEMINI_API_KEY=
-OPENAI_MODEL=gpt-4o-mini
-ANTHROPIC_MODEL=claude-haiku-4-5
-GEMINI_MODEL=gemini-2.5-flash
+AI_MODEL=gpt-4o-mini
 ```
 
-O backend tenta os provedores nesta ordem: **OpenAI -> Claude/Anthropic -> Gemini**. Sem chaves, o app mantém o modo demonstração com exemplos.
+Sem chaves, o app mantém o modo demonstração com exemplos.
 
 ### Stripe
 
@@ -121,14 +101,14 @@ Quando houver Firebase Admin, o webhook grava eventos em `stripe_events` e atual
 
 ### WhatsApp
 
-O provedor atual de WhatsApp é **Twilio Sandbox**. Configure:
+Hoje o provedor padrão de WhatsApp é **Twilio**. Para envio de mensagens e
+recebimento de webhooks, configure:
 
 ```env
-WHATSAPP_PROVIDER=twilio
 TWILIO_ACCOUNT_SID=
 TWILIO_API_KEY_SID=
 TWILIO_API_KEY_SECRET=
-TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+TWILIO_WHATSAPP_FROM=
 TWILIO_AUTH_TOKEN=
 ```
 
@@ -140,9 +120,11 @@ https://SEU-DOMINIO/api/whatsapp/webhook
 
 Comportamento atual:
 
-- `GET /api/whatsapp/webhook` responde ao health/check do webhook.
-- `POST /api/whatsapp/webhook` valida `X-Twilio-Signature` quando `TWILIO_AUTH_TOKEN` existir.
-- as mensagens recebidas são parseadas, vinculadas à clínica, respondidas com IA e registradas no histórico quando Firebase Admin está configurado.
+- `GET /api/whatsapp/webhook` valida o challenge do provedor ativo quando
+  configurado
+- `POST /api/whatsapp/webhook` valida a assinatura do provedor ativo quando a
+  chave correspondente existir
+- as mensagens recebidas já são parseadas e registradas, prontas para a próxima etapa de resposta automática
 
 #### Teste sem WhatsApp real
 
@@ -155,8 +137,12 @@ npm run whatsapp:simulate -- --text "Oi, queria saber sobre botox"
 ```
 
 O simulador faz `POST` para `http://localhost:3000/api/whatsapp/webhook` com um
-payload compatível com Twilio. Ele também lê `.env.local`; se
-`TWILIO_AUTH_TOKEN` existir, assina o payload com `X-Twilio-Signature`.
+payload compatível com o provedor ativo. Ele também lê `.env.local` e assina o
+payload com a assinatura correta quando a validação do provedor estiver ativa:
+
+- **Twilio:** usa `TWILIO_AUTH_TOKEN` para gerar `X-Twilio-Signature`
+- **360dialog:** envia `D360_WEBHOOK_TOKEN` em `x-d360-token`
+- `--app-secret` continua disponível para adicionar `X-Hub-Signature-256` se você quiser reproduzir esse header também
 
 Para testar o fluxo completo de IA + histórico, o Firestore precisa ter uma
 clínica com:
@@ -164,33 +150,9 @@ clínica com:
 - `whatsapp` igual ao número usado no simulador (`--to`, padrão `5591999999999`)
 - `billing.status` igual a `active`, `paid` ou `trialing`
 
-Sem as variáveis `TWILIO_*`, o app não envia mensagem real, mas ainda dá para
-validar o parse do webhook, a geração da resposta e a tentativa de registro no
-histórico. Para testar apenas IA, use `POST /api/generate`.
-
-#### Teste sem WhatsApp real
-
-Você consegue simular uma mensagem recebida sem Meta/WhatsApp real usando o
-script local:
-
-```bash
-npm run dev
-npm run whatsapp:simulate -- --text "Oi, queria saber sobre botox"
-```
-
-O simulador faz `POST` para `http://localhost:3000/api/whatsapp/webhook` com um
-payload compatível com a WhatsApp Cloud API. Ele também lê `.env.local`; se
-`WHATSAPP_APP_SECRET` existir, assina o payload com `X-Hub-Signature-256`.
-
-Para testar o fluxo completo de IA + histórico, o Firestore precisa ter uma
-clínica com:
-
-- `whatsapp` igual ao número usado no simulador (`--to`, padrão `5591999999999`)
-- `billing.status` igual a `active`, `paid` ou `trialing`
-
-Sem `WHATSAPP_TOKEN` e `WHATSAPP_PHONE_NUMBER_ID`, o app não envia mensagem real,
-mas ainda dá para validar o parse do webhook, a geração da resposta e a tentativa
-de registro no histórico. Para testar apenas IA, use `POST /api/generate`.
+Sem as credenciais do provedor ativo, o app não envia mensagem real, mas ainda
+dá para validar o parse do webhook, a geração da resposta e a tentativa de
+registro no histórico. Para testar apenas IA, use `POST /api/generate`.
 
 ### Zapier
 
@@ -206,31 +168,15 @@ opcional vai dentro do payload para filtros/validações no Zap.
 
 ## Deploy
 
-A arquitetura atual é híbrida: **Vercel** serve o domínio/frontend e
-**Cloud Run** processa `/api/*`, integrações e segredos.
+1. Consulte `COORDINATION.md` antes de mudar o destino público.
+2. Refaça o build sempre que mudar qualquer `NEXT_PUBLIC_*`, porque essas vars
+   entram no bundle.
+3. Cadastre o webhook do Stripe apontando para `/api/stripe/webhook`.
+4. No Firebase Auth, adicione os domínios públicos que estiverem ativos.
+5. Valide `GET /api/health` depois de cada deploy.
 
-Checklist comum:
-
-1. Configure segredos e env vars server-side no Cloud Run.
-2. Defina `NEXT_PUBLIC_SITE_URL=https://SEU-HOST` antes do build.
-3. Refaça o build/deploy sempre que mudar qualquer `NEXT_PUBLIC_*`, porque essas
-   vars entram no bundle.
-4. Cadastre o webhook do Stripe apontando para `/api/stripe/webhook`.
-5. Cadastre o webhook do WhatsApp (provedor ativo, default `dialog360`) apontando
-   para `/api/whatsapp/webhook`.
-6. No Firebase Auth, adicione o domínio público aos domínios autorizados.
-7. Valide `GET /api/health` e `GET /api/config` depois de cada deploy.
-
-No Vercel/frontend, deixe só variáveis públicas e o proxy de API:
-
-```env
-ENABLE_API_PROXY=true
-API_PROXY_ORIGIN=https://leadbellus-87102725202.southamerica-east1.run.app
-NEXT_PUBLIC_SITE_URL=https://leadbellus.com.br
-```
-
-Não coloque `OPENAI_API_KEY`, `STRIPE_SECRET_KEY`, `TWILIO_*`/`D360_*` ou Firebase
-Admin no Vercel. Para Cloud Run, use `gcloud builds submit --config cloudbuild.yaml`.
+> Vercel e Cloud Run podem coexistir enquanto a coordenação decidir; não parta
+> do pressuposto de que só um deles está ativo.
 
 ## Rotas principais
 

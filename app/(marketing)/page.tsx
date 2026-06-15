@@ -33,34 +33,34 @@ const dores = [
 
 const heroHooks = [
   {
-    emoji: "💸",
-    title: "Perguntou preço e sumiu",
-    desc: "Você joga valor cedo demais e perde margem antes de criar desejo.",
+    emoji: "⏱️",
+    title: "Resposta demorada faz cliente sumir",
+    desc: "No tempo que você pensa, ela já foi para a concorrente. Clientes reclamam de espera e perdem o interesse.",
   },
   {
-    emoji: "⏱️",
-    title: "Resposta demorada",
-    desc: "No tempo que você pensa no que responder, a cliente esfria.",
+    emoji: "📝",
+    title: "MUITO TEXTO que estressa",
+    desc: "Atendimento 'humanizado' vira parede de mensagem. Clientes odeiam enrolação — querem respostas curtas e diretas que levam ao agendamento.",
   },
   {
     emoji: "📱",
     title: "Cada atendente fala de um jeito",
-    desc: "A conversa sai sem padrão, sem valor percebido e sem direção.",
+    desc: "Sem padrão, a conversa fica fria, sem valor percebido e sem direção para a agenda.",
   },
 ];
 
 const vazamentos = [
   {
-    title: "Preço sem contexto",
-    desc: "Quando a resposta vira só número, a cliente compara você com a mais barata.",
+    title: "Respostas longas e demoradas",
+    desc: "Clientes de 2026 reclamam de 'muito texto' e espera — perdem o interesse e vão embora.",
   },
   {
-    title: "Sem CTA claro",
-    desc: "A conversa fica morna porque ninguém conduz para avaliação ou agenda.",
+    title: "Sem CTA claro e rápido",
+    desc: "A conversa fica morna porque ninguém conduz direto para horário ou agendamento. Perde vendas por falta de objetividade.",
   },
   {
-    title: "Tom frio demais",
-    desc: "Parece pressa, improviso ou recepção cansada. A venda morre no WhatsApp.",
+    title: "Sem padrão que converte",
+    desc: "Cada atendente fala diferente. A cliente sente improviso e a venda morre no WhatsApp antes de chegar na avaliação.",
   },
 ];
 
@@ -86,7 +86,7 @@ export default function LandingPage() {
               href={funilHref}
               className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-soft hover:bg-brand-600"
             >
-              Quero testar
+              Teste grátis agora — agende mais em minutos
             </Link>
           </div>
         </nav>
@@ -500,7 +500,7 @@ export default function LandingPage() {
             href={funilHref}
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-lavender-400 px-6 py-3 text-base font-semibold text-brand-900 shadow-soft hover:bg-lavender-300"
           >
-            Quero testar no meu WhatsApp hoje <ArrowRight size={18} />
+            Teste grátis e agende mais em minutos (respostas curtas que convertem) <ArrowRight size={18} />
           </Link>
         </div>
       </section>
@@ -514,16 +514,19 @@ export default function LandingPage() {
                 Conversão para clínicas de estética — responda melhor e agende mais
                 pelo WhatsApp.
               </p>
+              <p className="text-[10px] text-muted/70">LeadBellus · ResonAnza Inova Simples I S</p>
             </div>
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-ink">Contato</h4>
               <p>Av. Rômulo Maiorana, 1695, Marco<br />Belém - PA, 66093-674</p>
               <p>WhatsApp: +55 91 8515-6690</p>
+              <p className="text-[10px]">vpaes.freire02@gmail.com</p>
             </div>
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-ink">Horário</h4>
               <p>Respostas prontas 24h, todo dia</p>
-              <p>© 2026 LeadBellus · VPS Automações</p>
+              <p>© 2026 LeadBellus · Vinicius Paes da Serra Freire (MEI)</p>
+              <p className="text-[10px] text-muted/70">vpaes.freire02@gmail.com</p>
             </div>
           </div>
         </div>
