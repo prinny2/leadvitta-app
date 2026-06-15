@@ -8,7 +8,7 @@ import {
   type ClinicBilling,
 } from "@/lib/stripe/billing-sync";
 import { getStripe } from "@/lib/stripe/server";
-import { sendZapierEvent } from "@/lib/zapier";
+import { sendOpsNotify } from "@/lib/ops-notify";
 
 export const runtime = "nodejs";
 
@@ -68,7 +68,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     await saveBillingPending(email, billing);
   }
 
-  await sendZapierEvent("stripe.checkout.completed", {
+  await sendOpsNotify("stripe.checkout.completed", {
     plan,
     stripe_session_id: session.id,
     stripe_customer_id:
@@ -87,7 +87,7 @@ async function handleSubscriptionEvent(subscription: Stripe.Subscription) {
   const firebaseUid = subscription.metadata?.firebase_uid?.trim() || undefined;
   await syncSubscriptionBilling(subscription, getStripe());
 
-  await sendZapierEvent(`stripe.${subscription.object}.${subscription.status}`, {
+  await sendOpsNotify(`stripe.subscription.${subscription.status}`, {
     plan: subscription.metadata?.plan,
     stripe_customer_id:
       typeof subscription.customer === "string"

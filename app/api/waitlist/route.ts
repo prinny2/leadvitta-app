@@ -1,7 +1,7 @@
 import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { parseBillingPlan } from "@/lib/billing";
-import { sendZapierEvent } from "@/lib/zapier";
+import { sendOpsNotify } from "@/lib/ops-notify";
 
 export const runtime = "nodejs";
 
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     { merge: true }
   );
 
-  await sendZapierEvent("waitlist.joined", { email, plan }).catch(() => {});
+  await sendOpsNotify("waitlist.joined", { email, plan }).catch(() => {});
 
   return jsonNoStore({ ok: true });
 }

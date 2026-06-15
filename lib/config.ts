@@ -55,8 +55,16 @@ export const isStripeConfigured =
     !!process.env.STRIPE_PRICE_ID_PRO ||
     !!process.env.STRIPE_PRICE_ID_PREMIUM);
 
-/** True quando há webhook do Zapier configurado no servidor. */
-export const isZapierConfigured = !!process.env.ZAPIER_WEBHOOK_URL;
+/** Número que recebe alertas operacionais (signup, checkout, waitlist). Só dígitos. */
+export const opsNotifyPhone = (
+  process.env.OPS_WHATSAPP_NUMBER || ""
+).replace(/\D/g, "");
+
+/** True quando Z-API + número de alerta estão configurados. */
+export const isOpsNotifyConfigured =
+  !!process.env.ZAPI_INSTANCE_ID?.trim() &&
+  !!process.env.ZAPI_TOKEN?.trim() &&
+  !!opsNotifyPhone;
 
 /** True quando o WhatsApp (Z-API) está configurado. */
 export const isZApiConfigured =

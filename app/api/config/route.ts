@@ -7,7 +7,7 @@ import {
   isOpenAIConfigured,
   isStripeConfigured,
   isZApiConfigured,
-  isZapierConfigured,
+  isOpsNotifyConfigured,
 } from "@/lib/config";
 import { getWhatsAppProvider } from "@/lib/whatsapp";
 import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
@@ -29,7 +29,7 @@ export async function GET() {
       anthropic: isAnthropicConfigured,
       gemini: isGeminiConfigured,
     },
-    zapier_enabled: isZapierConfigured,
+    ops_notify_enabled: isOpsNotifyConfigured,
     zapi_enabled: isZApiConfigured,
     whatsapp_provider: getWhatsAppProvider().name,
   });
