@@ -515,14 +515,14 @@ export default function LandingPage() {
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-ink">Contato</h4>
               <p>Av. Rômulo Maiorana, 1695, Marco<br />Belém - PA, 66093-674</p>
-              <p>WhatsApp: +55 91 8515-6690</p>
-              <p className="text-[10px]">vpaes.freire02@gmail.com</p>
+              <p>WhatsApp: <a href="https://wa.me/559185156690" target="_blank" rel="noopener noreferrer" className="hover:text-brand-500 transition-colors">+55 91 8515-6690</a></p>
+              <p className="text-[10px]"><a href="mailto:contato@leadbellus.com.br" className="hover:text-brand-500 transition-colors">contato@leadbellus.com.br</a></p>
             </div>
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-ink">Horário</h4>
               <p>Respostas prontas 24h, todo dia</p>
               <p>© 2026 LeadBellus · Vinicius Paes da Serra Freire (MEI)</p>
-              <p className="text-[10px] text-muted/70">vpaes.freire02@gmail.com</p>
+              <p className="text-[10px] text-muted/70"><a href="mailto:contato@leadbellus.com.br" className="hover:text-brand-500 transition-colors">contato@leadbellus.com.br</a></p>
             </div>
           </div>
         </div>
