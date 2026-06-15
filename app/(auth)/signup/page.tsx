@@ -26,10 +26,11 @@ function SignupInner() {
     }
   }, []);
 
-  if (!plan && !checkoutAfter) {
-    router.replace("/onboarding");
-    return null;
-  }
+  const redirecionarParaFunil = !plan && !checkoutAfter;
+  useEffect(() => {
+    if (redirecionarParaFunil) router.replace("/onboarding");
+  }, [redirecionarParaFunil, router]);
+  if (redirecionarParaFunil) return null;
 
   return (
     <Card className="w-full max-w-3xl">

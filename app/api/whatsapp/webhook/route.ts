@@ -144,11 +144,16 @@ export async function GET(req: Request) {
   const challenge = url.searchParams.get("hub.challenge");
   const expected = process.env.D360_WEBHOOK_TOKEN || process.env.WHATSAPP_VERIFY_TOKEN;
   if (mode === "subscribe" && challenge) {
-    if (!expected || token === expected) {
+    // Exige um verify token configurado E correto. Sem token no servidor,
+    // qualquer um completaria o handshake — então recusamos até estar setado.
+    if (expected && token === expected) {
       return new NextResponse(challenge, { status: 200 });
     }
-    // Token errado com verificação configurada: falhar alto pra expor
-    // misconfiguração já no handshake (não fingir que deu certo).
+    if (!expected) {
+      console.warn(
+        "[whatsapp] handshake recusado: defina D360_WEBHOOK_TOKEN ou WHATSAPP_VERIFY_TOKEN."
+      );
+    }
     return new NextResponse("forbidden", { status: 403 });
   }
   return new NextResponse("", { status: 200 });
