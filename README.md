@@ -134,6 +134,24 @@ ZAPIER_SHARED_SECRET=
 2. Refaça o build sempre que mudar qualquer `NEXT_PUBLIC_*`.
 3. Valide `GET /api/health` e `GET /api/config` após o deploy.
 
+## Testes
+
+Testes unitários com **Vitest** cobrem a lógica pura (sem rede): geração de
+prompts, guardrails de compliance, parsing de respostas da IA, segurança das
+APIs (rate limit, CORS, validação de payload), billing, ativação de billing via
+webhook do Stripe, flags de configuração e os catálogos de dados.
+
+```bash
+npm test            # roda toda a suíte uma vez
+npm run test:watch  # modo watch durante o desenvolvimento
+npm run test:coverage  # relatório de cobertura (texto + HTML em ./coverage)
+```
+
+Os testes ficam em `tests/`, espelhando a estrutura de `lib/`, `data/` e
+`app/api/`. Os SDKs externos (OpenAI/Anthropic/Stripe), o Firestore Admin e
+`fetch` são mockados — nenhum teste faz chamada de rede real nem precisa de
+chaves.
+
 ## Rotas principais
 
 - `/` marketing
