@@ -16,6 +16,7 @@ import { saveClinica } from "@/lib/store";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import type { BillingPlan } from "@/lib/billing";
 import { trackEvent } from "@/components/Analytics";
+import { reconcileBillingClient } from "@/lib/billing-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -86,7 +87,8 @@ export function VisualAuthPanel({
     }
   }
 
-  async function afterAuth() {
+  async function finishAuth(idToken: string) {
+    await reconcileBillingClient(idToken);
     if (onSuccess) {
       onSuccess();
       return;
@@ -105,9 +107,13 @@ export function VisualAuthPanel({
     setErro("");
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(getFirebaseAuth(), email, senha);
+      const credential = await signInWithEmailAndPassword(
+        getFirebaseAuth(),
+        email,
+        senha
+      );
       setAuthCookie();
-      await afterAuth();
+      await finishAuth(await credential.user.getIdToken());
     } catch {
       setErro("E-mail ou senha inválidos.");
     } finally {
@@ -126,10 +132,11 @@ export function VisualAuthPanel({
         senha
       );
       setAuthCookie();
-      notifyZapierSignup(await credential.user.getIdToken());
+      const idToken = await credential.user.getIdToken();
+      notifyZapierSignup(idToken);
       trackEvent("sign_up", { method: "Email/Password" });
       await persistDraft();
-      await afterAuth();
+      await finishAuth(idToken);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "";
       setErro(
@@ -151,11 +158,13 @@ export function VisualAuthPanel({
         new GoogleAuthProvider()
       );
       setAuthCookie();
+      const idToken = await credential.user.getIdToken();
       if (mode === "signup") {
+        notifyZapierSignup(idToken);
         trackEvent("sign_up", { method: "Google" });
         await persistDraft();
       }
-      await afterAuth();
+      await finishAuth(idToken);
     } catch {
       setErro("Não foi possível continuar com o Google.");
     } finally {

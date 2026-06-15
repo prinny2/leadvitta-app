@@ -178,6 +178,7 @@ const requiredRuleSnippets = [
   ['match /numeros_whatsapp/{numero}', "numeros_whatsapp server-only rules"],
   ['match /mensagens_processadas/{id}', "mensagens_processadas server-only rules"],
   ['match /stripe_events/{eventId}', "stripe_events server-only rules"],
+  ['match /billing_pending/{email}', "billing_pending server-only rules"],
   ['match /waitlist/{entryId}', "waitlist server-only rules"],
   ['match /{document=**}', "deny-by-default catchall"],
 ];
@@ -186,7 +187,7 @@ for (const [snippet, label] of requiredRuleSnippets) {
   if (!rules.includes(snippet)) fail(`firestore.rules no longer contains expected ${label}.`);
 }
 
-for (const collection of ["numeros_whatsapp", "mensagens_processadas", "stripe_events", "waitlist"]) {
+for (const collection of ["numeros_whatsapp", "mensagens_processadas", "stripe_events", "billing_pending", "waitlist"]) {
   const re = new RegExp(
     `match /${collection}/\\{[^}]+\\}\\s*\\{[\\s\\S]*?allow read, write: if false;`,
     "m"

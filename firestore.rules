@@ -104,6 +104,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ---- Checkout guest — billing pendente por e-mail até signup/login ----
+    match /billing_pending/{email} {
+      allow read, write: if false;
+    }
+
     // ---- Waitlist — gravada só pelo servidor (Admin SDK) ----
     // O endpoint público aplica validação/rate limit; o cliente nunca acessa
     // a coleção diretamente.
