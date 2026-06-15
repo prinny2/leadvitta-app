@@ -264,19 +264,19 @@ export default function LandingPage() {
                 <Sparkles size={14} /> EXCLUSIVO · LEAD INTELLIGENCE
               </span>
               <h2 className="mt-4 font-serif text-3xl font-semibold text-nude-50">
-                Identifique o lucro antes mesmo de responder
+                Filtro de ROI: O fim do tempo perdido com curiosos
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-nude-200">
-                Nossa inteligência lê e organiza cada conversa por potencial de fechamento.
-                Saiba instantaneamente quem está pronta para agendar e quem precisa de um acompanhamento.
-                Foque no que traz faturamento e não perca tempo com quem só está curiosa.
+                Nossa inteligência separa quem quer agendar hoje de quem só está pesquisando preço. 
+                O LeadBellus prioriza os agendamentos no seu WhatsApp e pode até fechar o horário 
+                sozinho enquanto você atende.
               </p>
               <div className="mt-6 flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-300 border border-brand-500/30">
-                  Agendamento Autônomo (Em breve)
+                  Agendamento Autônomo (Zero Toque)
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-lavender-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-lavender-300 border border-lavender-500/30">
-                  Priorização de ROI
+                  Priorização de Faturamento
                 </span>
               </div>
             </div>
