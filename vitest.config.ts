@@ -16,7 +16,12 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "text-summary", "html", "lcov"],
       reportsDirectory: "./coverage",
-      include: ["lib/**/*.ts", "data/**/*.ts"],
+      include: [
+        "lib/**/*.ts",
+        "data/**/*.ts",
+        // Caminho de billing (assinatura/ativação) coberto pelos testes de rota.
+        "app/api/stripe/**/*.ts",
+      ],
       exclude: [
         // Módulos que só inicializam SDKs externos (Firebase/Stripe) e
         // dependem de ambiente — sem lógica pura para cobrir em unidade.
