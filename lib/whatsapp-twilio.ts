@@ -127,4 +127,12 @@ export const twilioProvider: WhatsAppProvider = {
     const data = await res.json().catch(() => ({}));
     return { ok: res.ok, status: res.status, data };
   },
+
+  async sendImage(): Promise<WhatsAppResult> {
+    return { ok: false, status: 501, data: { error: "sendImage não implementado para Twilio." } };
+  },
+
+  async sendButtons(): Promise<WhatsAppResult> {
+    return { ok: false, status: 501, data: { error: "sendButtons não implementado para Twilio." } };
+  },
 };

@@ -27,7 +27,7 @@ export const zapiProvider: WhatsAppProvider = {
     const expected = process.env.ZAPI_SECURITY_TOKEN;
     // Z-API não impõe uma assinatura padrão no webhook, mas permite que o usuário
     // configure um token na URL (ex: /api/webhook/whatsapp?token=XYZ).
-    if (!expected) return true;
+    if (!expected) return process.env.NODE_ENV !== "production";
     
     const url = new URL(req.url);
     const got = url.searchParams.get("token") || req.headers.get("x-zapi-token") || "";

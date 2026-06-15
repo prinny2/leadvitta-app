@@ -82,4 +82,12 @@ export const dialog360Provider: WhatsAppProvider = {
     const data = await res.json().catch(() => ({}));
     return { ok: res.ok, status: res.status, data };
   },
+
+  async sendImage(): Promise<WhatsAppResult> {
+    return { ok: false, status: 501, data: { error: "sendImage não implementado para 360dialog." } };
+  },
+
+  async sendButtons(): Promise<WhatsAppResult> {
+    return { ok: false, status: 501, data: { error: "sendButtons não implementado para 360dialog." } };
+  },
 };
