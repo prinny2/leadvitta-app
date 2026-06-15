@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { parseBillingPlan } from "@/lib/billing";
@@ -9,7 +8,6 @@ import { VisualAuthPanel } from "@/components/visual-auth-panel";
 import { Card, CardBody } from "@/components/ui/card";
 
 function SignupInner() {
-  const router = useRouter();
   const params = useSearchParams();
   const plan = parseBillingPlan(params.get("plan"));
   const checkoutAfter = params.get("next") === "checkout";
@@ -26,29 +24,22 @@ function SignupInner() {
     }
   }, []);
 
-  const redirecionarParaFunil = !plan && !checkoutAfter;
-  useEffect(() => {
-    if (redirecionarParaFunil) router.replace("/onboarding");
-  }, [redirecionarParaFunil, router]);
-  if (redirecionarParaFunil) return null;
-
   return (
     <Card className="w-full max-w-3xl">
       <CardBody className="space-y-6 p-6 sm:p-8">
         <Link
-          href="/onboarding?aba=planos"
+          href="/onboarding"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink"
         >
           <ArrowLeft size={16} />
-          Voltar ao funil
+          Voltar
         </Link>
         <VisualAuthPanel
           mode="signup"
-          plan={plan ?? "start"}
-          checkoutAfter={checkoutAfter || !!plan}
+          plan={plan ?? undefined}
+          checkoutAfter={checkoutAfter}
           clinicName={clinicName}
-
-          next="/onboarding"
+          next="/gerador"
         />
       </CardBody>
     </Card>
