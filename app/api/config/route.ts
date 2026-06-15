@@ -1,5 +1,12 @@
 import { jsonNoStore } from "@/lib/api-security";
-import { isStripeConfigured, isFirebaseConfigured, isOpenAIConfigured, isAnthropicConfigured } from "@/lib/config";
+import {
+  isAnyAIConfigured,
+  isAnthropicConfigured,
+  isFirebaseConfigured,
+  isGeminiConfigured,
+  isOpenAIConfigured,
+  isStripeConfigured,
+} from "@/lib/config";
 import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 
 export const runtime = "nodejs";
@@ -13,9 +20,11 @@ export async function GET() {
     stripe_enabled: isStripeConfigured,
     firebase_enabled: isFirebaseConfigured,
     firebase_admin_enabled: isFirebaseAdminConfigured(),
+    ai_enabled: isAnyAIConfigured,
     ai_providers: {
       openai: isOpenAIConfigured,
       anthropic: isAnthropicConfigured,
+      gemini: isGeminiConfigured,
     }
   });
 }

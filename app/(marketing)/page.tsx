@@ -20,7 +20,7 @@ import { LoadingRespostas } from "@/components/loading-respostas";
 
 // Funil de captação (sem login). Visitante deslogado experimenta antes de criar conta.
 const funilHref = "/onboarding";
-const entrarHref = isFirebaseConfigured ? "/login" : "/dashboard";
+const entrarHref = isFirebaseConfigured ? "/onboarding?entrar=1" : "/dashboard";
 
 const dores = [
   "respostas para quem pergunta preço",

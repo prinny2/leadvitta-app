@@ -4,7 +4,7 @@ Micro-SaaS para clínicas e profissionais de estética responderem melhor no
 WhatsApp: gera respostas estratégicas, quebra objeções, faz follow-up e conduz a
 cliente até o agendamento com guardrails de compliance.
 
-Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore + OpenAI/Anthropic + Stripe + Zapier + Cloud Run**.
+Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore + OpenAI/Claude/Gemini + Stripe + Zapier + Cloud Run/Vercel**.
 
 ## Rodar local
 
@@ -61,14 +61,14 @@ Esse comando sempre valida contratos estáticos de Firebase: `firebase.json`,
 `firestore.rules`, `firestore.indexes.json`, queries do app, inicialização do
 Admin SDK, `/api/config` e rotas que exigem Firebase ID token.
 
-Para validar as rules dinamicamente no Firestore emulator, instale JRE/JDK 17+
+Para validar as rules dinamicamente no Firestore emulator, instale JRE/JDK 21+
 e rode:
 
 ```bash
 npm run firebase:emulator:check
 ```
 
-No CI, o workflow `Firebase Verify` instala Java 17 e roda `firebase:verify` com
+No CI, o workflow `Firebase Verify` instala Java 21 e roda `firebase:verify` com
 `REQUIRE_FIREBASE_EMULATOR=1`, então o emulator é obrigatório no GitHub Actions.
 
 ### IA
@@ -78,10 +78,13 @@ Configure pelo menos uma chave:
 ```env
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
-AI_MODEL=gpt-4o-mini
+GEMINI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
+ANTHROPIC_MODEL=claude-haiku-4-5
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
-Sem chaves, o app mantém o modo demonstração com exemplos.
+O backend tenta os provedores nesta ordem: **OpenAI -> Claude/Anthropic -> Gemini**. Sem chaves, o app mantém o modo demonstração com exemplos.
 
 ### Stripe
 
@@ -118,13 +121,15 @@ Quando houver Firebase Admin, o webhook grava eventos em `stripe_events` e atual
 
 ### WhatsApp
 
-Para envio de mensagens e recebimento de webhooks da WhatsApp Cloud API, configure:
+O provedor atual de WhatsApp é **Twilio Sandbox**. Configure:
 
 ```env
-WHATSAPP_TOKEN=
-WHATSAPP_PHONE_NUMBER_ID=
-WHATSAPP_VERIFY_TOKEN=
-WHATSAPP_APP_SECRET=
+WHATSAPP_PROVIDER=twilio
+TWILIO_ACCOUNT_SID=
+TWILIO_API_KEY_SID=
+TWILIO_API_KEY_SECRET=
+TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+TWILIO_AUTH_TOKEN=
 ```
 
 O webhook público fica em:
@@ -135,9 +140,9 @@ https://SEU-DOMINIO/api/whatsapp/webhook
 
 Comportamento atual:
 
-- `GET /api/whatsapp/webhook` valida o `hub.challenge` usando `WHATSAPP_VERIFY_TOKEN`
-- `POST /api/whatsapp/webhook` valida `X-Hub-Signature-256` quando `WHATSAPP_APP_SECRET` existir
-- as mensagens recebidas já são parseadas e registradas, prontas para a próxima etapa de resposta automática
+- `GET /api/whatsapp/webhook` responde ao health/check do webhook.
+- `POST /api/whatsapp/webhook` valida `X-Twilio-Signature` quando `TWILIO_AUTH_TOKEN` existir.
+- as mensagens recebidas são parseadas, vinculadas à clínica, respondidas com IA e registradas no histórico quando Firebase Admin está configurado.
 
 #### Teste sem WhatsApp real
 
@@ -150,8 +155,8 @@ npm run whatsapp:simulate -- --text "Oi, queria saber sobre botox"
 ```
 
 O simulador faz `POST` para `http://localhost:3000/api/whatsapp/webhook` com um
-payload compatível com a WhatsApp Cloud API. Ele também lê `.env.local`; se
-`WHATSAPP_APP_SECRET` existir, assina o payload com `X-Hub-Signature-256`.
+payload compatível com Twilio. Ele também lê `.env.local`; se
+`TWILIO_AUTH_TOKEN` existir, assina o payload com `X-Twilio-Signature`.
 
 Para testar o fluxo completo de IA + histórico, o Firestore precisa ter uma
 clínica com:
@@ -159,9 +164,9 @@ clínica com:
 - `whatsapp` igual ao número usado no simulador (`--to`, padrão `5591999999999`)
 - `billing.status` igual a `active`, `paid` ou `trialing`
 
-Sem `WHATSAPP_TOKEN` e `WHATSAPP_PHONE_NUMBER_ID`, o app não envia mensagem real,
-mas ainda dá para validar o parse do webhook, a geração da resposta e a tentativa
-de registro no histórico. Para testar apenas IA, use `POST /api/generate`.
+Sem as variáveis `TWILIO_*`, o app não envia mensagem real, mas ainda dá para
+validar o parse do webhook, a geração da resposta e a tentativa de registro no
+histórico. Para testar apenas IA, use `POST /api/generate`.
 
 ### Zapier
 
@@ -175,20 +180,33 @@ ZAPIER_SHARED_SECRET=
 O app envia eventos de signup, checkout iniciado e checkout concluído. O segredo
 opcional vai dentro do payload para filtros/validações no Zap.
 
-## Deploy no Cloud Run
+## Deploy
 
-1. Use `gcloud builds submit --config cloudbuild.yaml`.
-2. Configure segredos e env vars server-side no serviço do Cloud Run e/ou no
-   Secret Manager.
-3. Defina `NEXT_PUBLIC_SITE_URL=https://SEU-HOST` antes do build.
-4. Refaça o build/deploy sempre que mudar qualquer `NEXT_PUBLIC_*`, porque essas
+Leia `COORDINATION.md` antes de publicar. A arquitetura atual é híbrida:
+**Vercel** serve o domínio/frontend e **Cloud Run** processa `/api/*`, integrações
+e segredos.
+
+Checklist comum:
+
+1. Configure segredos e env vars server-side no Cloud Run.
+2. Defina `NEXT_PUBLIC_SITE_URL=https://SEU-HOST` antes do build.
+3. Refaça o build/deploy sempre que mudar qualquer `NEXT_PUBLIC_*`, porque essas
    vars entram no bundle.
-5. Cadastre o webhook do Stripe apontando para `/api/stripe/webhook`.
-6. No Firebase Auth, adicione a URL do Cloud Run e qualquer domínio próprio aos
-   domínios autorizados.
-7. Valide `GET /api/health` depois de cada deploy.
+4. Cadastre o webhook do Stripe apontando para `/api/stripe/webhook`.
+5. Cadastre o webhook da Twilio apontando para `/api/whatsapp/webhook`.
+6. No Firebase Auth, adicione o domínio público aos domínios autorizados.
+7. Valide `GET /api/health` e `GET /api/config` depois de cada deploy.
 
-> O deploy oficial é **Cloud Run**. Não use Vercel como ambiente ativo deste app.
+No Vercel/frontend, deixe só variáveis públicas e o proxy de API:
+
+```env
+ENABLE_API_PROXY=true
+API_PROXY_ORIGIN=https://leadbellus-87102725202.southamerica-east1.run.app
+NEXT_PUBLIC_SITE_URL=https://leadbellus.com.br
+```
+
+Não coloque `OPENAI_API_KEY`, `STRIPE_SECRET_KEY`, `TWILIO_*` ou Firebase Admin
+no Vercel. Para Cloud Run, use `gcloud builds submit --config cloudbuild.yaml`.
 
 ## Rotas principais
 

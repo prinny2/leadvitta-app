@@ -35,6 +35,8 @@ const text =
   process.env.WHATSAPP_SIM_TEXT ||
   "Oi, queria saber sobre botox";
 const appSecret = options.appSecret || process.env.WHATSAPP_APP_SECRET || "";
+const twilioAuthToken =
+  options.twilioAuthToken || process.env.TWILIO_AUTH_TOKEN || "";
 
 // O formato do POST acompanha o provedor ativo no servidor (lib/whatsapp.ts):
 // "twilio" (default) = form-urlencoded; "dialog360" = JSON do Cloud API.
@@ -91,16 +93,22 @@ if (provider === "dialog360" || provider === "360dialog") {
   }
 } else {
   // Twilio: form-urlencoded, campos From/To com prefixo "whatsapp:".
-  rawBody = new URLSearchParams({
+  const params = new URLSearchParams({
     MessageSid: `SM_simulated_${Date.now()}`,
     From: `whatsapp:+${from}`,
     To: `whatsapp:+${displayPhoneNumber}`,
     Body: text,
     ProfileName: contactName,
-  }).toString();
+  });
+  rawBody = params.toString();
   headers["Content-Type"] = "application/x-www-form-urlencoded";
-  // Em dev (sem TWILIO_AUTH_TOKEN) o webhook libera; em produção exige a
-  // assinatura real do Twilio — este simulador é só pra ambiente local.
+  if (twilioAuthToken) {
+    headers["X-Twilio-Signature"] = signTwilioRequest(
+      twilioAuthToken,
+      url,
+      Object.fromEntries(params.entries())
+    );
+  }
 }
 
 console.log("[whatsapp:simulate] POST", url);
@@ -131,7 +139,7 @@ console.log("[whatsapp:simulate] body =", responseBody || "(empty)");
 
 if (!response.ok) {
   console.error(
-    "[whatsapp:simulate] Webhook did not accept the payload. If your server has WHATSAPP_APP_SECRET, run this script with the same secret available locally."
+    "[whatsapp:simulate] Webhook did not accept the payload. Check that --provider matches WHATSAPP_PROVIDER and the local signing secret matches the server env."
   );
   process.exit(1);
 }
@@ -179,9 +187,19 @@ function normalizeKey(key) {
     "--text": "text",
     "--message": "text",
     "--app-secret": "appSecret",
+    "--twilio-auth-token": "twilioAuthToken",
     "--provider": "provider",
   };
   return map[key];
+}
+
+function signTwilioRequest(authToken, requestUrl, params) {
+  const sortedKeys = Object.keys(params).sort();
+  const paramString = sortedKeys.map((key) => key + params[key]).join("");
+  return crypto
+    .createHmac("sha1", authToken)
+    .update(requestUrl + paramString, "utf8")
+    .digest("base64");
 }
 
 function onlyDigits(value) {
@@ -220,7 +238,7 @@ function formatError(error) {
 
 function printHelp() {
   console.log(`
-Simulate an inbound WhatsApp Cloud API text message against the local webhook.
+Simulate an inbound WhatsApp text message against the local webhook.
 
 Usage:
   npm run whatsapp:simulate
@@ -235,6 +253,7 @@ Options:
   --name, --contact-name   Simulated contact name
   --text, --message        Simulated inbound message text
   --app-secret             Meta app secret used to sign X-Hub-Signature-256 (dialog360)
+  --twilio-auth-token      Twilio auth token used to sign X-Twilio-Signature
   --provider               "twilio" (default) or "dialog360" — must match the
                            server's WHATSAPP_PROVIDER (also read from .env.local)
 

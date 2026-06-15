@@ -26,8 +26,9 @@ export function updateSession(request: NextRequest) {
   const autenticado = !!request.cookies.get("firebase_auth");
   if (!autenticado) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/onboarding";
     url.search = "";
+    url.searchParams.set("entrar", "1");
     url.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(url);
   }

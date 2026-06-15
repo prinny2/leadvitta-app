@@ -13,7 +13,7 @@ if (java.error || java.status !== 0) {
   console.error(
     [
       "[firebase:emulator:check] Java não está disponível no PATH.",
-      "Instale um JRE/JDK 17+ e rode novamente:",
+      "Instale um JRE/JDK 21+ e rode novamente:",
       "  npm run firebase:emulator:check",
       "",
       "Sem Java, o Firebase CLI não consegue iniciar o Firestore emulator",

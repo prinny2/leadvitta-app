@@ -42,6 +42,7 @@ const indexes = indexesJson.indexes ?? [];
 const admin = read("lib/firebase/admin.ts");
 const config = read("lib/config.ts");
 const configRoute = read("app/api/config/route.ts");
+const nextConfig = read("next.config.mjs");
 const routeClinicaWhatsapp = read("app/api/clinica/whatsapp/route.ts");
 const routeConversasReply = read("app/api/conversas/reply/route.ts");
 const routeStripeCheckout = read("app/api/stripe/checkout/route.ts");
@@ -119,6 +120,7 @@ const requiredConfigSnippets = [
   ["NEXT_PUBLIC_FIREBASE_API_KEY", "reads public Firebase api key"],
   ["NEXT_PUBLIC_FIREBASE_PROJECT_ID", "reads public Firebase project id"],
   ["!!firebaseConfig.apiKey && !!firebaseConfig.projectId", "only enables Firebase when api key and project id exist"],
+  ["GEMINI_API_KEY", "detects Gemini server-side api key"],
 ];
 
 for (const [snippet, label] of requiredConfigSnippets) {
@@ -129,10 +131,24 @@ const requiredConfigRouteSnippets = [
   ["firebase_enabled: isFirebaseConfigured", "reports Firebase client availability"],
   ["firebase_admin_enabled: isFirebaseAdminConfigured()", "reports Firebase Admin availability"],
   ["stripe_enabled: isStripeConfigured", "reports Stripe availability"],
+  ["ai_enabled: isAnyAIConfigured", "reports AI availability"],
+  ["gemini: isGeminiConfigured", "reports Gemini availability"],
 ];
 
 for (const [snippet, label] of requiredConfigRouteSnippets) {
   if (!configRoute.includes(snippet)) fail(`app/api/config/route.ts no longer ${label}.`);
+}
+
+const requiredNextConfigSnippets = [
+  ["beforeFiles", "proxies API routes before local Next API handlers on Vercel"],
+  ["ENABLE_API_PROXY", "allows explicit API proxy enablement"],
+  ["process.env.VERCEL", "enables the API proxy automatically on Vercel"],
+  ["API_PROXY_ORIGIN", "supports a configurable Cloud Run proxy origin"],
+  ["leadbellus-87102725202.southamerica-east1.run.app", "defaults API proxy to the direct Cloud Run service"],
+];
+
+for (const [snippet, label] of requiredNextConfigSnippets) {
+  if (!nextConfig.includes(snippet)) fail(`next.config.mjs no longer ${label}.`);
 }
 
 for (const secretName of [

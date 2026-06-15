@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -19,7 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlanCTA } from "@/components/plan-cta";
 import { WaitlistForm } from "@/components/waitlist-form";
-import { billingPlanList } from "@/lib/billing";
+import { billingPlanList, parseBillingPlan } from "@/lib/billing";
+import { VisualAuthPanel } from "@/components/visual-auth-panel";
 import { procedimentos } from "@/data/procedimentos";
 import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { isFirebaseConfigured } from "@/lib/config";
@@ -62,9 +63,17 @@ function respostaNossaFallback(c: Clinica): string {
   return `${saud}O valor do botox depende muito do seu objetivo e de uma avaliação — cada rosto é único.${casa} a gente prefere te entender primeiro pra indicar o que faz sentido pra você. Quer que eu já deixe sua avaliação reservada pra você decidir com calma? 💛`;
 }
 
-export default function OnboardingFunnelPage() {
+function OnboardingFunnelInner() {
   const router = useRouter();
-  const [aba, setAba] = useState<Aba>("clinica");
+  const searchParams = useSearchParams();
+  const querEntrar = searchParams.get("entrar") === "1";
+  const querPagar = searchParams.get("pagar") === "1";
+  const planoUrl = parseBillingPlan(searchParams.get("plan"));
+  const nextAfterLogin = searchParams.get("next") || "/dashboard";
+  const abaUrl = searchParams.get("aba");
+  const [aba, setAba] = useState<Aba>(
+    abaUrl === "planos" || abaUrl === "diferenca" ? abaUrl : "clinica"
+  );
   const [c, setC] = useState<Clinica>(clinicaVazia);
   const [logado, setLogado] = useState(false);
   const [salvando, setSalvando] = useState(false);
@@ -102,19 +111,29 @@ export default function OnboardingFunnelPage() {
       const unsub = onAuthStateChanged(auth, (u) => {
         setLogado(!!u);
         if (!u) return;
-        // Logada: o DNA salvo na conta VENCE o rascunho local — senão um draft
-        // vazio/velho sobrescreveria o Firestore no próximo salvar.
         getClinica()
           .then((salva) => {
             if (salva.nome_clinica || salva.onboarded) setC(salva);
           })
           .catch(() => {});
+        if (querEntrar || querPagar) {
+          const dest = querPagar && planoUrl
+            ? `/configuracoes?plan=${planoUrl}&next=checkout`
+            : nextAfterLogin;
+          router.replace(dest);
+        }
       });
       return () => unsub();
     } catch {
       /* sem firebase: segue como visitante */
     }
-  }, []);
+  }, [querEntrar, querPagar, planoUrl, nextAfterLogin, router]);
+
+  useEffect(() => {
+    if (planoUrl && c.nome_clinica.trim()) {
+      setAba("planos");
+    }
+  }, [planoUrl, c.nome_clinica]);
 
   function set<K extends keyof Clinica>(key: K, value: Clinica[K]) {
     setC((prev) => ({ ...prev, [key]: value }));
@@ -207,6 +226,13 @@ export default function OnboardingFunnelPage() {
 
   const nossa = respostaNossa || respostaNossaFallback(c);
 
+  useEffect(() => {
+    if (aba === "diferenca" && !respostaNossa && !gerando) {
+      gerarRespostaNossa();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aba]);
+
   return (
     <div className="min-h-screen bg-nude-50">
       {/* topo */}
@@ -218,7 +244,10 @@ export default function OnboardingFunnelPage() {
               Ir para o painel
             </Link>
           ) : (
-            <Link href="/login" className="text-sm font-medium text-muted hover:text-ink">
+            <Link
+              href="/onboarding?entrar=1"
+              className="text-sm font-medium text-muted hover:text-ink"
+            >
               Já tenho conta
             </Link>
           )}
@@ -226,6 +255,28 @@ export default function OnboardingFunnelPage() {
       </header>
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
+        {querEntrar && !logado && (
+          <Card className="mb-10">
+            <CardBody className="p-6 sm:p-8">
+              <VisualAuthPanel
+                mode="login"
+                next={nextAfterLogin}
+                clinicName={c.nome_clinica}
+                previewMessage={nossa}
+              />
+              <div className="mt-6 text-center">
+                <Link
+                  href="/onboarding"
+                  className="text-sm font-medium text-brand-600 hover:text-brand-700"
+                >
+                  Primeira vez? Testar grátis sem conta →
+                </Link>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+
+        {!querEntrar && (
         <div className="text-center">
           {logado ? (
             <>
@@ -251,13 +302,15 @@ export default function OnboardingFunnelPage() {
                 <span className="text-gold-gradient">a resposta mudar na hora.</span>
               </h1>
               <p className="mx-auto mt-4 max-w-xl text-muted">
-                Sem cadastro para testar. Escolha o tom, os procedimentos e o CTA
-                que combinam com sua clínica e veja como isso muda a conversa.
+                Toque, veja a resposta mudar — conta só na hora de pagar.
               </p>
             </>
           )}
         </div>
+        )}
 
+        {!querEntrar && (
+        <>
         {/* abas */}
         <div className="mt-9 flex justify-center">
           <div className="inline-flex w-full max-w-md gap-1 rounded-2xl bg-nude-100 p-1.5 sm:w-auto">
@@ -348,13 +401,7 @@ export default function OnboardingFunnelPage() {
 
                 <div className="space-y-5">
                   <div>
-                    <p className="text-sm font-semibold text-ink">1. Identidade rápida</p>
-                    <p className="mt-1 text-sm text-muted">
-                      O básico para as respostas saírem com cara de atendimento da sua clínica.
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="nome">Qual o nome da sua clínica?</Label>
+                    <Label htmlFor="nome">Nome da clínica</Label>
                     <Input
                       id="nome"
                       value={c.nome_clinica}
@@ -363,23 +410,11 @@ export default function OnboardingFunnelPage() {
                       autoFocus
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="cidade">Cidade <span className="text-muted">(opcional)</span></Label>
-                    <Input
-                      id="cidade"
-                      value={c.cidade}
-                      onChange={(e) => set("cidade", e.target.value)}
-                      placeholder="Ex.: São Paulo - SP"
-                    />
-                  </div>
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <Label>2. O que mais entra na sua agenda?</Label>
-                    <p className="mt-1 text-sm text-muted">
-                      Escolha os procedimentos que mais aparecem no seu WhatsApp.
-                    </p>
+                    <Label>Procedimentos da agenda</Label>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {procedimentosVisiveis.map((p) => {
@@ -432,10 +467,7 @@ export default function OnboardingFunnelPage() {
                 <div className="space-y-4">
                   <div className="space-y-3">
                     <div>
-                      <Label>3. Como você fala com suas clientes?</Label>
-                      <p className="mt-1 text-sm text-muted">
-                        Escolha o clima da conversa que mais parece com o seu atendimento.
-                      </p>
+                      <Label>Como você chama a cliente?</Label>
                     </div>
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                       {comoChamarOptions.map((o) => (
@@ -457,7 +489,7 @@ export default function OnboardingFunnelPage() {
                   </div>
 
                   <div className="space-y-3 pt-1">
-                    <Label htmlFor="form">Seu nível de formalidade</Label>
+                    <Label htmlFor="form">Tom da conversa</Label>
                     <input
                       id="form"
                       type="range"
@@ -478,7 +510,7 @@ export default function OnboardingFunnelPage() {
                   </div>
 
                   <div className="space-y-3">
-                    <Label>4. Qual CTA combina mais com sua clínica?</Label>
+                    <Label>Como você fecha?</Label>
                     <div className="grid gap-2 sm:grid-cols-3">
                       {ctaOptions.map((opcao) => (
                         <button
@@ -655,6 +687,20 @@ export default function OnboardingFunnelPage() {
                 </div>
               )}
 
+              {querPagar && planoUrl && !logado && (
+                <Card>
+                  <CardBody className="p-6 sm:p-8">
+                    <VisualAuthPanel
+                      mode="signup"
+                      plan={planoUrl}
+                      checkoutAfter
+                      clinicName={c.nome_clinica}
+                      previewMessage={nossa}
+                    />
+                  </CardBody>
+                </Card>
+              )}
+
               <div className="grid gap-5 md:grid-cols-3">
                 {billingPlanList.map((plano) => (
                   <div
@@ -705,18 +751,38 @@ export default function OnboardingFunnelPage() {
                       ))}
                     </ul>
                     {plano.disponivel ? (
-                      <PlanCTA
-                        plan={plano.id}
-                        className={cn(
-                          "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-60",
-                          plano.destaque
-                            ? "bg-brand-500 text-white shadow-soft hover:bg-brand-600"
-                            : "border border-brand-300 text-brand-600 hover:bg-brand-50"
-                        )}
-                      >
-                        Começar com o {plano.label}
-                        {plano.destaque && <ArrowRight size={16} />}
-                      </PlanCTA>
+                      logado ? (
+                        <PlanCTA
+                          plan={plano.id}
+                          className={cn(
+                            "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-60",
+                            plano.destaque
+                              ? "bg-brand-500 text-white shadow-soft hover:bg-brand-600"
+                              : "border border-brand-300 text-brand-600 hover:bg-brand-50"
+                          )}
+                        >
+                          Começar com o {plano.label}
+                          {plano.destaque && <ArrowRight size={16} />}
+                        </PlanCTA>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            router.push(
+                              `/onboarding?aba=planos&plan=${plano.id}&pagar=1`
+                            )
+                          }
+                          className={cn(
+                            "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors",
+                            plano.destaque
+                              ? "bg-brand-500 text-white shadow-soft hover:bg-brand-600"
+                              : "border border-brand-300 text-brand-600 hover:bg-brand-50"
+                          )}
+                        >
+                          Começar com o {plano.label}
+                          {plano.destaque && <ArrowRight size={16} />}
+                        </button>
+                      )
                     ) : (
                       <WaitlistForm plan={plano.id} className="mt-6" />
                     )}
@@ -746,7 +812,17 @@ export default function OnboardingFunnelPage() {
         <div className="mt-12 flex items-center justify-center gap-2 text-center text-xs text-muted">
           <MessageSquareText size={14} /> Responda melhor. Agende mais.
         </div>
+        </>
+        )}
       </div>
     </div>
+  );
+}
+
+export default function OnboardingFunnelPage() {
+  return (
+    <Suspense fallback={null}>
+      <OnboardingFunnelInner />
+    </Suspense>
   );
 }

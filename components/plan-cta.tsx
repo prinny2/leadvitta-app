@@ -38,7 +38,7 @@ export function PlanCTA({ plan, className, children }: PlanCTAProps) {
 
     const user = getFirebaseAuth().currentUser;
     if (!user) {
-      router.push(`/signup?plan=${plan}&next=checkout`);
+      router.push(`/onboarding?aba=planos&plan=${plan}&pagar=1`);
       return;
     }
 
