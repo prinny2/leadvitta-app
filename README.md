@@ -168,6 +168,30 @@ Sem as variáveis `TWILIO_*`, o app não envia mensagem real, mas ainda dá para
 validar o parse do webhook, a geração da resposta e a tentativa de registro no
 histórico. Para testar apenas IA, use `POST /api/generate`.
 
+#### Teste sem WhatsApp real
+
+Você consegue simular uma mensagem recebida sem Meta/WhatsApp real usando o
+script local:
+
+```bash
+npm run dev
+npm run whatsapp:simulate -- --text "Oi, queria saber sobre botox"
+```
+
+O simulador faz `POST` para `http://localhost:3000/api/whatsapp/webhook` com um
+payload compatível com a WhatsApp Cloud API. Ele também lê `.env.local`; se
+`WHATSAPP_APP_SECRET` existir, assina o payload com `X-Hub-Signature-256`.
+
+Para testar o fluxo completo de IA + histórico, o Firestore precisa ter uma
+clínica com:
+
+- `whatsapp` igual ao número usado no simulador (`--to`, padrão `5591999999999`)
+- `billing.status` igual a `active`, `paid` ou `trialing`
+
+Sem `WHATSAPP_TOKEN` e `WHATSAPP_PHONE_NUMBER_ID`, o app não envia mensagem real,
+mas ainda dá para validar o parse do webhook, a geração da resposta e a tentativa
+de registro no histórico. Para testar apenas IA, use `POST /api/generate`.
+
 ### Zapier
 
 No Zapier, crie um Zap com **Webhooks by Zapier -> Catch Hook** e configure:
@@ -182,9 +206,8 @@ opcional vai dentro do payload para filtros/validações no Zap.
 
 ## Deploy
 
-Leia `COORDINATION.md` antes de publicar. A arquitetura atual é híbrida:
-**Vercel** serve o domínio/frontend e **Cloud Run** processa `/api/*`, integrações
-e segredos.
+A arquitetura atual é híbrida: **Vercel** serve o domínio/frontend e
+**Cloud Run** processa `/api/*`, integrações e segredos.
 
 Checklist comum:
 
@@ -193,7 +216,8 @@ Checklist comum:
 3. Refaça o build/deploy sempre que mudar qualquer `NEXT_PUBLIC_*`, porque essas
    vars entram no bundle.
 4. Cadastre o webhook do Stripe apontando para `/api/stripe/webhook`.
-5. Cadastre o webhook da Twilio apontando para `/api/whatsapp/webhook`.
+5. Cadastre o webhook do WhatsApp (provedor ativo, default `dialog360`) apontando
+   para `/api/whatsapp/webhook`.
 6. No Firebase Auth, adicione o domínio público aos domínios autorizados.
 7. Valide `GET /api/health` e `GET /api/config` depois de cada deploy.
 
@@ -205,8 +229,8 @@ API_PROXY_ORIGIN=https://leadbellus-87102725202.southamerica-east1.run.app
 NEXT_PUBLIC_SITE_URL=https://leadbellus.com.br
 ```
 
-Não coloque `OPENAI_API_KEY`, `STRIPE_SECRET_KEY`, `TWILIO_*` ou Firebase Admin
-no Vercel. Para Cloud Run, use `gcloud builds submit --config cloudbuild.yaml`.
+Não coloque `OPENAI_API_KEY`, `STRIPE_SECRET_KEY`, `TWILIO_*`/`D360_*` ou Firebase
+Admin no Vercel. Para Cloud Run, use `gcloud builds submit --config cloudbuild.yaml`.
 
 ## Rotas principais
 

@@ -39,11 +39,13 @@ const twilioAuthToken =
   options.twilioAuthToken || process.env.TWILIO_AUTH_TOKEN || "";
 
 // O formato do POST acompanha o provedor ativo no servidor (lib/whatsapp.ts):
-// "twilio" (default) = form-urlencoded; "dialog360" = JSON do Cloud API.
+// "dialog360" (default) = JSON do Cloud API; "twilio" = form-urlencoded.
+// Alinhado com getWhatsAppProvider() (default dialog360) — senão o webhook
+// responde 200 mas não processa o payload enviado.
 const provider = (
   options.provider ||
   process.env.WHATSAPP_PROVIDER ||
-  "twilio"
+  "dialog360"
 ).toLowerCase();
 
 let rawBody;
@@ -254,7 +256,7 @@ Options:
   --text, --message        Simulated inbound message text
   --app-secret             Meta app secret used to sign X-Hub-Signature-256 (dialog360)
   --twilio-auth-token      Twilio auth token used to sign X-Twilio-Signature
-  --provider               "twilio" (default) or "dialog360" — must match the
+  --provider               "dialog360" (default) or "twilio" — must match the
                            server's WHATSAPP_PROVIDER (also read from .env.local)
 
 Notes:

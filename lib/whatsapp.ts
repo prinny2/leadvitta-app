@@ -1,13 +1,26 @@
 // Registry de provedores de WhatsApp. A escolha é EXPLÍCITA por env
-// WHATSAPP_PROVIDER ("dialog360"); sem env, dialog360.
+// WHATSAPP_PROVIDER ("dialog360" | "twilio"); sem env, dialog360.
+// Sem auto-detecção por credenciais de propósito: comutar o provedor
+// implicitamente derrubaria o parse/validação dos webhooks em silêncio.
 import { dialog360Provider } from "@/lib/whatsapp-dialog360";
+import { twilioProvider } from "@/lib/whatsapp-twilio";
 import type { WhatsAppProvider, WhatsAppResult } from "@/lib/whatsapp-types";
 
 export type { WhatsAppProvider, WhatsAppResult, InboundMessage } from "@/lib/whatsapp-types";
 
 export function getWhatsAppProvider(): WhatsAppProvider {
-  // Atualmente apenas o 360dialog (Meta Cloud API) é suportado nativamente.
-  return dialog360Provider;
+  const pref = (process.env.WHATSAPP_PROVIDER || "dialog360").toLowerCase();
+  switch (pref) {
+    case "dialog360":
+    case "360dialog":
+      return dialog360Provider;
+    case "twilio":
+      return twilioProvider;
+    default:
+      throw new Error(
+        `WHATSAPP_PROVIDER inválido: "${pref}" (use "dialog360" ou "twilio").`
+      );
+  }
 }
 
 /** True quando o provedor ativo está configurado para enviar. */

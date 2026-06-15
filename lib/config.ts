@@ -60,3 +60,10 @@ export const isZapierConfigured = !!process.env.ZAPIER_WEBHOOK_URL;
 
 /** True quando o WhatsApp (360dialog) está configurado. */
 export const isWhatsappConfigured = !!process.env.D360_API_KEY;
+
+/** True quando Twilio WhatsApp está configurado. */
+export const isTwilioConfigured =
+  !!process.env.TWILIO_ACCOUNT_SID &&
+  !!process.env.TWILIO_API_KEY_SID &&
+  !!process.env.TWILIO_API_KEY_SECRET &&
+  !!process.env.TWILIO_WHATSAPP_FROM;
