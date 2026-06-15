@@ -30,6 +30,7 @@ import { getClinica, saveClinica } from "@/lib/store";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/components/Analytics";
+import { reconcileBillingClient } from "@/lib/billing-client";
 
 type Aba = "clinica" | "diferenca" | "planos";
 
@@ -110,6 +111,7 @@ function OnboardingFunnelInner() {
       const unsub = onAuthStateChanged(auth, async (u) => {
         setLogado(!!u);
         if (!u) return;
+        reconcileBillingClient(await u.getIdToken());
         // Reúne o DNA: rascunho do navegador como base, sobrescrito pela clínica
         // salva se já existir (evita closure desatualizada do estado `c`).
         let clinicaAtual: Clinica = clinicaVazia;
