@@ -111,6 +111,23 @@ ZAPIER_SHARED_SECRET=
 O app envia eventos de signup, checkout iniciado e checkout concluído. O segredo
 opcional vai dentro do payload para filtros/validações no Zap.
 
+## Testes
+
+Testes unitários com **Vitest** cobrem a lógica pura (sem rede): geração de
+prompts, guardrails de compliance, parsing de respostas da IA, segurança das
+APIs (rate limit, CORS, validação de payload), billing, flags de configuração e
+os catálogos de dados.
+
+```bash
+npm test            # roda toda a suíte uma vez
+npm run test:watch  # modo watch durante o desenvolvimento
+npm run test:coverage  # relatório de cobertura (texto + HTML em ./coverage)
+```
+
+Os testes ficam em `tests/`, espelhando a estrutura de `lib/` e `data/`. Os SDKs
+externos (OpenAI/Anthropic) e `fetch` são mockados — nenhum teste faz chamada de
+rede real nem precisa de chaves.
+
 ## Deploy na Vercel
 
 1. Importe o repositório na Vercel.
