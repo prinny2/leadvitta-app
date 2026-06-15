@@ -169,9 +169,26 @@ describe("provider — OpenAI configurada", () => {
   });
 
   it("reescreve quando a resposta viola compliance", async () => {
-    openaiCreate
-      // 1ª chamada: gerador (viola)
-      .mockResolvedValueOnce(
+    // Mock por conteúdo (não por ordem): o gerador e o classificador rodam em
+    // paralelo via Promise.all, então a ordem das chamadas não é garantida.
+    openaiCreate.mockImplementation((args: any) => {
+      const user: string = args?.messages?.[1]?.content ?? "";
+      if (user.startsWith("MENSAGEM:")) {
+        return Promise.resolve(oai(JSON.stringify({ intent: "objecao" })));
+      }
+      if (user.includes("termos proibidos")) {
+        return Promise.resolve(
+          oai(
+            JSON.stringify({
+              resposta_curta: "depende da avaliação",
+              resposta_consultiva: "ok",
+              resposta_persuasiva: "ok",
+            })
+          )
+        );
+      }
+      // Primeira geração: viola compliance.
+      return Promise.resolve(
         oai(
           JSON.stringify({
             resposta_curta: "resultado garantido pra você",
@@ -179,22 +196,12 @@ describe("provider — OpenAI configurada", () => {
             resposta_persuasiva: "ok",
           })
         )
-      )
-      // 2ª chamada: classificador (paralelo)
-      .mockResolvedValueOnce(oai(JSON.stringify({ intent: "objecao" })))
-      // 3ª chamada: revisão de compliance
-      .mockResolvedValueOnce(
-        oai(
-          JSON.stringify({
-            resposta_curta: "depende da avaliação",
-            resposta_consultiva: "ok",
-            resposta_persuasiva: "ok",
-          })
-        )
       );
+    });
     const { gerarRespostas } = await loadProvider();
     const res = await gerarRespostas(geradorInput);
     expect(res.respostas.curta).toBe("depende da avaliação");
+    // gerador + classificador (paralelo) + revisão de compliance.
     expect(openaiCreate).toHaveBeenCalledTimes(3);
   });
 
