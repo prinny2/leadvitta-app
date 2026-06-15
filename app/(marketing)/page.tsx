@@ -17,10 +17,10 @@ import { PlanCTA } from "@/components/plan-cta";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
+import { cn } from "@/lib/utils";
 
 // Funil de captação (sem login). Visitante deslogado experimenta antes de criar conta.
 const funilHref = "/onboarding";
-const entrarHref = isFirebaseConfigured ? "/onboarding?entrar=1" : "/dashboard";
 
 const dores = [
   "respostas para quem pergunta preço",
@@ -33,34 +33,40 @@ const dores = [
 
 const heroHooks = [
   {
-    emoji: "⏱️",
-    title: "Resposta demorada faz cliente sumir",
-    desc: "No tempo que você pensa, ela já foi para a concorrente. Clientes reclamam de espera e perdem o interesse.",
+    emoji: "📜",
+    title: "\"Muito texto\" estressa a cliente",
+    desc: "Textões robóticos afastam quem quer praticidade. O cliente premium lê e foge.",
+    tone: "pain" as const,
   },
   {
-    emoji: "📝",
-    title: "MUITO TEXTO que estressa",
-    desc: "Atendimento 'humanizado' vira parede de mensagem. Clientes odeiam enrolação — querem respostas curtas e diretas que levam ao agendamento.",
+    emoji: "⏱️",
+    title: "A demora faz ela sumir",
+    desc: "Demorou uma eternidade? Nesse tempo ela já agendou na concorrente.",
+    tone: "pain" as const,
   },
   {
     emoji: "📱",
-    title: "Cada atendente fala de um jeito",
-    desc: "Sem padrão, a conversa fica fria, sem valor percebido e sem direção para a agenda.",
+    title: "Respostas que não fecham",
+    desc: "A conversa esfria sem um puxão firme para o agendamento.",
+    tone: "muted" as const,
   },
 ];
 
 const vazamentos = [
   {
-    title: "Respostas longas e demoradas",
-    desc: "Clientes de 2026 reclamam de 'muito texto' e espera — perdem o interesse e vão embora.",
+    stat: "R$ 500–2.000",
+    title: "Preço sem contexto",
+    desc: "Só número na mensagem. A cliente vai pra quem explica melhor — ou pra quem é mais barata.",
   },
   {
-    title: "Sem CTA claro e rápido",
-    desc: "A conversa fica morna porque ninguém conduz direto para horário ou agendamento. Perde vendas por falta de objetividade.",
+    stat: "3 em 5",
+    title: "Conversa sem CTA",
+    desc: "A conversa esfria porque ninguém conduz pro horário. Venda morre no WhatsApp.",
   },
   {
-    title: "Sem padrão que converte",
-    desc: "Cada atendente fala diferente. A cliente sente improviso e a venda morre no WhatsApp antes de chegar na avaliação.",
+    stat: "Toda semana",
+    title: "Cliente que some",
+    desc: "Orçou, não fechou, desapareceu. Sem follow-up certo, esse dinheiro não volta.",
   },
 ];
 
@@ -70,53 +76,36 @@ export default function LandingPage() {
       {/* Top nav */}
       <header className="relative overflow-hidden bg-hero">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-12 top-10 h-48 w-48 rounded-full bg-lavender-200/30 blur-3xl animate-float" />
-          <div className="absolute -right-12 top-20 h-56 w-56 rounded-full bg-brand-200/25 blur-3xl animate-float-delayed" />
+          <div className="absolute -left-12 top-10 h-48 w-48 rounded-full bg-brand-200/40 blur-3xl animate-float" />
+          <div className="absolute -right-12 top-20 h-56 w-56 rounded-full bg-gold-200/50 blur-3xl animate-float-delayed" />
         </div>
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
           <Logo href="/" textClass="text-lg text-ink" />
-          <div className="flex items-center gap-2">
-            <Link
-              href={entrarHref}
-              className="rounded-xl px-4 py-2 text-sm font-medium text-ink hover:bg-white/60"
-            >
-              Entrar
-            </Link>
-            <Link
-              href={funilHref}
-              className="rounded-xl bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-soft hover:bg-brand-600"
-            >
-              Teste grátis agora — agende mais em minutos
-            </Link>
-          </div>
+          <Link href={funilHref} className="btn-cta px-4 py-2 text-sm">
+            Teste grátis e agende mais
+          </Link>
         </nav>
 
         {/* Hero */}
         <section className="mx-auto max-w-5xl px-4 pb-12 pt-10 text-center sm:pt-16">
-          <span className="inline-flex animate-float items-center gap-1.5 rounded-full border border-lavender-300 bg-white/70 px-3 py-1 text-xs font-medium text-lavender-700 shadow-sm">
-            <Sparkles size={14} className="text-brand-500" /> Responda melhor. Agende mais.
+          <span className="badge-pain animate-float border border-pain-200 bg-white/80">
+            <TrendingDown size={14} /> Clínicas perdem até R$8 mil/mês no WhatsApp
           </span>
           <h1 className="mt-6 font-serif text-4xl font-semibold leading-tight text-ink sm:text-6xl">
-            Toda semana sua clínica perde dinheiro no WhatsApp por{" "}
-            <span className="text-gold-gradient">responder do jeito errado.</span>
+            Ela perguntou o preço.{" "}
+            <span className="text-gold-gradient">Você respondeu errado.</span>{" "}
+            Ela sumiu.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-            Quando a cliente pergunta preço, hesita ou some, sua equipe não pode
-            improvisar. O LeadBellus te entrega a resposta certa, no tom da sua clínica,
-            para criar valor e puxar para a avaliação sem soar robótico.
+            Resposta curta, no tom da sua clínica, que cria valor e puxa pra
+            avaliação — sem parede de texto e sem improviso.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href={funilHref}
-              className="inline-flex min-w-[280px] items-center justify-center gap-2 rounded-xl bg-brand-500 px-8 py-4 text-base font-semibold text-white shadow-soft transition-all hover:scale-105 hover:bg-brand-600"
-            >
-              Quero parar de perder clientes <ArrowRight size={18} />
+            <Link href={funilHref} className="btn-cta min-w-[260px] px-8 py-4">
+              Ver minha resposta em 1 min <ArrowRight size={18} />
             </Link>
-            <Link
-              href="#demo"
-              className="inline-flex min-w-[220px] items-center justify-center gap-2 rounded-xl border border-brand-200 bg-white/70 px-8 py-4 text-base font-semibold text-ink transition-all hover:bg-white"
-            >
-              Ver 1 conversa virar agenda
+            <Link href="#demo" className="btn-cta-outline min-w-[220px] px-8 py-4">
+              Comparar antes e depois
             </Link>
           </div>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted">
@@ -128,10 +117,22 @@ export default function LandingPage() {
             {heroHooks.map((hook) => (
               <div
                 key={hook.title}
-                className="rounded-2xl border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur"
+                className={cn(
+                  "rounded-2xl border p-4 shadow-sm backdrop-blur",
+                  hook.tone === "pain"
+                    ? "border-pain-200 bg-pain-50/80"
+                    : "border-brand-100 bg-white/80"
+                )}
               >
                 <div className="text-2xl">{hook.emoji}</div>
-                <p className="mt-3 text-sm font-semibold text-ink">{hook.title}</p>
+                <p
+                  className={cn(
+                    "mt-3 text-sm font-bold",
+                    hook.tone === "pain" ? "text-pain-600" : "text-ink"
+                  )}
+                >
+                  {hook.title}
+                </p>
                 <p className="mt-1 text-sm leading-relaxed text-muted">{hook.desc}</p>
               </div>
             ))}
@@ -182,12 +183,12 @@ export default function LandingPage() {
 
       {/* Dor */}
       <section className="mx-auto max-w-5xl px-4 py-16">
-        <div className="mx-auto mb-4 flex w-fit items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600">
+        <div className="mx-auto mb-4 badge-pain">
           <TrendingDown size={14} /> Onde o dinheiro vaza
         </div>
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="font-serif text-3xl font-semibold text-ink">
-            A cliente até quer saber mais. O problema é que a conversa morre antes.
+            Ela queria agendar. A conversa morreu no meio do caminho.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-muted">
             Na estética, a venda se perde quando a resposta não cria valor, não acolhe
@@ -198,12 +199,10 @@ export default function LandingPage() {
           {vazamentos.map((item) => (
             <div
               key={item.title}
-              className="rounded-3xl border border-red-100 bg-white p-6 shadow-card"
+              className="card-pain rounded-3xl p-6"
             >
-              <div className="inline-flex rounded-full bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-red-600">
-                Sinal de perda
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-ink">{item.title}</h3>
+              <p className="font-serif text-2xl font-bold text-pain-500">{item.stat}</p>
+              <h3 className="mt-2 text-lg font-semibold text-ink">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">{item.desc}</p>
             </div>
           ))}
@@ -213,19 +212,19 @@ export default function LandingPage() {
       {/* Antes / Depois */}
       <section className="mx-auto max-w-5xl px-4 pb-16">
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-3xl border border-red-100 bg-red-50/50 p-8 shadow-sm">
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-red-600">
+          <div className="rounded-3xl border border-pain-200 bg-pain-50/70 p-8 shadow-sm">
+            <div className="badge-pain mb-4">
               <X size={14} /> Resposta qualquer
             </div>
-            <p className="font-serif text-xl italic text-red-900/70">“Botox é R$900.”</p>
-            <p className="mt-4 text-sm leading-relaxed text-red-800/60">
+            <p className="font-serif text-xl italic text-pain-600">“Botox é R$900.”</p>
+            <p className="mt-4 text-sm leading-relaxed text-pain-600/80">
               Resposta seca, focada só no preço. A cliente sente que é só mais um
               número, compara com o concorrente mais barato e some. Venda perdida.
             </p>
           </div>
-          <div className="relative overflow-hidden rounded-3xl border border-brand-200 bg-gradient-to-br from-white to-brand-50 p-8 shadow-soft">
-            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-brand-200/20 blur-2xl" />
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-brand-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-600">
+          <div className="relative overflow-hidden rounded-3xl border-2 border-gold-300 bg-gradient-to-br from-white to-gold-50 p-8 shadow-cta">
+            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gold-200/40 blur-2xl" />
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-gold-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-700">
               <Check size={14} /> A resposta que agenda
             </div>
             <p className="text-lg font-medium leading-relaxed text-ink">
@@ -234,8 +233,8 @@ export default function LandingPage() {
               de galinha ou prevenir marcas? Assim consigo te orientar melhor e
               ver o melhor caminho para você.”
             </p>
-            <p className="mt-4 text-sm font-medium text-brand-700">
-              Resultado: gera autoridade, acolhe e conduz pra avaliação.
+            <p className="mt-4 text-sm font-semibold text-gold-700">
+              Resultado: acolhe, cria valor e puxa pra avaliação.
             </p>
           </div>
         </div>
@@ -247,7 +246,7 @@ export default function LandingPage() {
           ].map((item) => (
             <span
               key={item}
-              className="rounded-full border border-brand-200 bg-brand-50 px-4 py-2 text-xs font-semibold text-brand-700"
+              className="rounded-full border border-gold-200 bg-gold-50 px-4 py-2 text-xs font-semibold text-gold-700"
             >
               {item}
             </span>
@@ -356,7 +355,7 @@ export default function LandingPage() {
                 <span
                   className={
                     plano.destaque
-                      ? "absolute -top-3 right-5 rounded-full bg-brand-500 px-3 py-1 text-xs font-semibold text-white"
+                      ? "absolute -top-3 right-5 rounded-full bg-gold-500 px-3 py-1 text-xs font-semibold text-brand-900"
                       : "absolute -top-3 right-5 rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-700"
                   }
                 >
@@ -405,8 +404,8 @@ export default function LandingPage() {
                   plan={plano.id}
                   className={
                     plano.destaque
-                      ? "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-soft transition-all hover:bg-brand-600 disabled:opacity-60"
-                      : "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-60"
+                      ? "btn-cta mt-6 w-full px-4 py-2.5 text-sm disabled:opacity-60"
+                      : "btn-cta-outline mt-6 w-full px-4 py-2.5 text-sm disabled:opacity-60"
                   }
                 >
                   {plano.destaque ? `Quero o ${plano.label}` : `Entrar na fila do ${plano.label}`}
@@ -496,11 +495,8 @@ export default function LandingPage() {
             Teste no seu ritmo, no celular, e veja como a conversa muda quando a
             resposta já nasce com valor, acolhimento e CTA.
           </p>
-          <Link
-            href={funilHref}
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-lavender-400 px-6 py-3 text-base font-semibold text-brand-900 shadow-soft hover:bg-lavender-300"
-          >
-            Teste grátis e agende mais em minutos (respostas curtas que convertem) <ArrowRight size={18} />
+          <Link href={funilHref} className="btn-cta mt-6 px-8 py-4">
+            Teste grátis agora e agende mais em minutos <ArrowRight size={18} />
           </Link>
         </div>
       </section>
