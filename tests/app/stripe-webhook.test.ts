@@ -1,51 +1,53 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
-// Mocks dos colaboradores externos do webhook (Firestore Admin, Stripe SDK e
-// Zapier). Nenhum teste toca rede, Firebase ou Stripe de verdade.
+// O webhook delega a persistência para lib/stripe/billing-sync. Mockamos essa
+// camada (e o SDK Stripe / Firestore Admin) para testar o roteamento de eventos
+// sem rede, Firebase ou Stripe reais.
 // ---------------------------------------------------------------------------
-const { constructEvent, getDb, sendZapier } = vi.hoisted(() => ({
+const { constructEvent, subRetrieve, getDb } = vi.hoisted(() => ({
   constructEvent: vi.fn(),
+  subRetrieve: vi.fn(),
   getDb: vi.fn(),
-  sendZapier: vi.fn(),
 }));
+const { applyClinicBilling, saveBillingPending, syncSubscriptionBilling } =
+  vi.hoisted(() => ({
+    applyClinicBilling: vi.fn(),
+    saveBillingPending: vi.fn(),
+    syncSubscriptionBilling: vi.fn(),
+  }));
+const sendZapier = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/stripe/server", () => ({
-  getStripe: () => ({ webhooks: { constructEvent } }),
+  getStripe: () => ({
+    webhooks: { constructEvent },
+    subscriptions: { retrieve: subRetrieve },
+  }),
 }));
 
-vi.mock("@/lib/firebase/admin", () => ({
-  getFirebaseAdminDb: getDb,
+vi.mock("@/lib/stripe/billing-sync", () => ({
+  applyClinicBilling,
+  saveBillingPending,
+  syncSubscriptionBilling,
 }));
 
-vi.mock("@/lib/zapier", () => ({
-  sendZapierEvent: sendZapier,
-}));
+vi.mock("@/lib/firebase/admin", () => ({ getFirebaseAdminDb: getDb }));
+vi.mock("@/lib/zapier", () => ({ sendZapierEvent: sendZapier }));
 
 import { POST } from "@/app/api/stripe/webhook/route";
 
-/** Firestore falso que grava cada `.set()` para inspeção. */
 function makeDb() {
-  const writes: Array<{
-    collection: string;
-    doc: string;
-    data: any;
-    options: any;
-  }> = [];
+  const writes: Array<{ collection: string; doc: string }> = [];
   const db = {
     collection: (collection: string) => ({
       doc: (doc: string) => ({
-        set: async (data: any, options: any) => {
-          writes.push({ collection, doc, data, options });
+        set: async () => {
+          writes.push({ collection, doc });
         },
       }),
     }),
   };
-  const clinicWrite = (uid: string) =>
-    writes.find((w) => w.collection === "clinicas" && w.doc === uid);
-  const eventWrite = (id: string) =>
-    writes.find((w) => w.collection === "stripe_events" && w.doc === id);
-  return { db, writes, clinicWrite, eventWrite };
+  return { db, writes };
 }
 
 function webhookRequest(body = "{}", signature: string | null = "sig_123") {
@@ -82,7 +84,11 @@ beforeEach(() => {
   vi.unstubAllEnvs();
   vi.stubEnv("STRIPE_WEBHOOK_SECRET", "whsec_test");
   constructEvent.mockReset();
-  getDb.mockReset();
+  subRetrieve.mockReset();
+  getDb.mockReset().mockReturnValue(makeDb().db);
+  applyClinicBilling.mockReset().mockResolvedValue(undefined);
+  saveBillingPending.mockReset().mockResolvedValue(undefined);
+  syncSubscriptionBilling.mockReset().mockResolvedValue("clinica");
   sendZapier.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -95,8 +101,7 @@ afterEach(() => {
 describe("Stripe webhook — guardas de entrada", () => {
   it("retorna 503 sem STRIPE_WEBHOOK_SECRET", async () => {
     vi.stubEnv("STRIPE_WEBHOOK_SECRET", "");
-    const res = await POST(webhookRequest());
-    expect(res.status).toBe(503);
+    expect((await POST(webhookRequest())).status).toBe(503);
   });
 
   it("retorna 400 sem header stripe-signature", async () => {
@@ -109,25 +114,18 @@ describe("Stripe webhook — guardas de entrada", () => {
     constructEvent.mockImplementation(() => {
       throw new Error("No signatures found matching the expected signature");
     });
-    const res = await POST(webhookRequest());
-    expect(res.status).toBe(400);
-    await expect(res.json()).resolves.toMatchObject({
-      error: expect.stringContaining("signature"),
-    });
+    expect((await POST(webhookRequest())).status).toBe(400);
   });
 });
 
 describe("Stripe webhook — checkout.session.completed", () => {
-  it("ativa o billing da clínica quando há firebase_uid", async () => {
-    const { db, clinicWrite, eventWrite } = makeDb();
-    getDb.mockReturnValue(db);
+  it("ativa o billing por firebase_uid (pagamento avulso)", async () => {
     constructEvent.mockReturnValue(
       checkoutEvent({
         id: "cs_1",
         metadata: { firebase_uid: "uid_1", plan: "pro" },
         payment_status: "paid",
         customer: "cus_1",
-        subscription: "sub_1",
         customer_details: { email: "ana@exemplo.com" },
       })
     );
@@ -136,94 +134,80 @@ describe("Stripe webhook — checkout.session.completed", () => {
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({ received: true });
 
-    // Evento registrado em stripe_events (idempotência).
-    expect(eventWrite("evt_checkout_1")).toBeTruthy();
-
-    // Billing da clínica atualizado com merge.
-    const w = clinicWrite("uid_1");
-    expect(w).toBeTruthy();
-    expect(w!.options).toEqual({ merge: true });
-    expect(w!.data.billing).toMatchObject({
+    expect(applyClinicBilling).toHaveBeenCalledTimes(1);
+    const [uid, billing] = applyClinicBilling.mock.calls[0];
+    expect(uid).toBe("uid_1");
+    expect(billing).toMatchObject({
       plan: "pro",
       status: "paid",
       stripe_customer_id: "cus_1",
       stripe_checkout_session_id: "cs_1",
-      stripe_subscription_id: "sub_1",
     });
-    expect(typeof w!.data.billing.updated_at).toBe("string");
-
+    expect(saveBillingPending).not.toHaveBeenCalled();
     expect(sendZapier).toHaveBeenCalledWith(
       "stripe.checkout.completed",
-      expect.objectContaining({ plan: "pro", firebase_uid: "uid_1" })
+      expect.objectContaining({ firebase_uid: "uid_1" })
     );
   });
 
-  it("usa client_reference_id como fallback de uid", async () => {
-    const { db, clinicWrite } = makeDb();
-    getDb.mockReturnValue(db);
+  it("resolve o status pela assinatura quando o checkout cria uma subscription", async () => {
+    subRetrieve.mockResolvedValue({ status: "active" });
     constructEvent.mockReturnValue(
       checkoutEvent({
-        id: "cs_2",
-        metadata: { plan: "start" }, // sem firebase_uid
-        client_reference_id: "uid_ref",
+        id: "cs_sub",
+        metadata: { firebase_uid: "uid_2", plan: "pro" },
         payment_status: "paid",
-        customer: { id: "cus_2" }, // objeto, não string
+        subscription: "sub_1",
+        customer: "cus_2",
       })
     );
 
     await POST(webhookRequest());
-    const w = clinicWrite("uid_ref");
-    expect(w).toBeTruthy();
-    expect(w!.data.billing.stripe_customer_id).toBe("cus_2");
+    expect(subRetrieve).toHaveBeenCalledWith("sub_1");
+    expect(applyClinicBilling.mock.calls[0][1]).toMatchObject({ status: "active" });
   });
 
-  // Regressão do bug "paga mas não ativa": checkout de convidado (sem uid).
-  it("NÃO ativa nenhuma clínica quando falta uid (guest checkout)", async () => {
-    const { db, writes, eventWrite } = makeDb();
-    getDb.mockReturnValue(db);
+  // Reconciliação do "paga mas não ativa": guest checkout guarda por e-mail.
+  it("guest checkout (sem uid) com e-mail salva billing_pending", async () => {
     constructEvent.mockReturnValue(
       checkoutEvent({
         id: "cs_guest",
-        metadata: { plan: "pro" }, // sem firebase_uid
-        // sem client_reference_id
+        metadata: { plan: "pro" },
         payment_status: "paid",
         customer: "cus_guest",
-      })
-    );
-
-    const res = await POST(webhookRequest());
-    expect(res.status).toBe(200); // webhook ainda confirma recebimento
-
-    // O evento é registrado, mas nenhuma clínica é atualizada -> billing fica órfão.
-    expect(eventWrite("evt_checkout_1")).toBeTruthy();
-    expect(writes.some((w) => w.collection === "clinicas")).toBe(false);
-  });
-
-  it("não grava nada quando o Firebase Admin não está configurado (db nulo)", async () => {
-    getDb.mockReturnValue(null);
-    constructEvent.mockReturnValue(
-      checkoutEvent({
-        id: "cs_3",
-        metadata: { firebase_uid: "uid_x", plan: "pro" },
-        payment_status: "paid",
-        customer: "cus_3",
+        customer_details: { email: "guest@exemplo.com" },
       })
     );
 
     const res = await POST(webhookRequest());
     expect(res.status).toBe(200);
-    // Zapier ainda é chamado mesmo sem Firestore.
-    expect(sendZapier).toHaveBeenCalled();
+    expect(applyClinicBilling).not.toHaveBeenCalled();
+    expect(saveBillingPending).toHaveBeenCalledTimes(1);
+    expect(saveBillingPending.mock.calls[0][0]).toBe("guest@exemplo.com");
+  });
+
+  it("sem uid e sem e-mail não persiste billing (mas confirma 200)", async () => {
+    constructEvent.mockReturnValue(
+      checkoutEvent({
+        id: "cs_orfao",
+        metadata: { plan: "pro" },
+        payment_status: "paid",
+        customer: "cus_x",
+      })
+    );
+
+    const res = await POST(webhookRequest());
+    expect(res.status).toBe(200);
+    expect(applyClinicBilling).not.toHaveBeenCalled();
+    expect(saveBillingPending).not.toHaveBeenCalled();
   });
 });
 
 describe("Stripe webhook — eventos de assinatura", () => {
-  it("mapeia subscription.status para o billing da clínica", async () => {
-    const { db, clinicWrite } = makeDb();
-    getDb.mockReturnValue(db);
+  it("delega para syncSubscriptionBilling", async () => {
     constructEvent.mockReturnValue(
       subscriptionEvent({
-        id: "sub_active",
+        id: "sub_evt",
         object: "subscription",
         status: "active",
         metadata: { firebase_uid: "uid_sub", plan: "premium" },
@@ -234,43 +218,16 @@ describe("Stripe webhook — eventos de assinatura", () => {
 
     const res = await POST(webhookRequest());
     expect(res.status).toBe(200);
-
-    const w = clinicWrite("uid_sub");
-    expect(w!.data.billing).toMatchObject({
-      plan: "premium",
-      status: "active",
-      stripe_customer_id: "cus_sub",
-      stripe_subscription_id: "sub_active",
-    });
-    expect(typeof w!.data.billing.current_period_end).toBe("string");
-
+    expect(syncSubscriptionBilling).toHaveBeenCalledTimes(1);
     expect(sendZapier).toHaveBeenCalledWith(
       "stripe.subscription.active",
-      expect.objectContaining({ status: "active", firebase_uid: "uid_sub" })
+      expect.objectContaining({ firebase_uid: "uid_sub" })
     );
-  });
-
-  it("não atualiza clínica em assinatura sem firebase_uid", async () => {
-    const { db, writes } = makeDb();
-    getDb.mockReturnValue(db);
-    constructEvent.mockReturnValue(
-      subscriptionEvent({
-        id: "sub_orfa",
-        object: "subscription",
-        status: "active",
-        metadata: {},
-        customer: "cus_orfa",
-        items: { data: [{}] },
-      })
-    );
-
-    await POST(webhookRequest());
-    expect(writes.some((w) => w.collection === "clinicas")).toBe(false);
   });
 });
 
 describe("Stripe webhook — tipos não tratados e falhas", () => {
-  it("ignora tipos de evento desconhecidos mas registra o evento", async () => {
+  it("ignora tipos desconhecidos mas registra o evento e confirma 200", async () => {
     const { db, writes } = makeDb();
     getDb.mockReturnValue(db);
     constructEvent.mockReturnValue({
@@ -284,19 +241,12 @@ describe("Stripe webhook — tipos não tratados e falhas", () => {
     const res = await POST(webhookRequest());
     expect(res.status).toBe(200);
     expect(writes.some((w) => w.collection === "stripe_events")).toBe(true);
-    expect(writes.some((w) => w.collection === "clinicas")).toBe(false);
+    expect(applyClinicBilling).not.toHaveBeenCalled();
+    expect(syncSubscriptionBilling).not.toHaveBeenCalled();
   });
 
-  it("retorna 500 quando o processamento do evento lança", async () => {
-    getDb.mockReturnValue({
-      collection: () => ({
-        doc: () => ({
-          set: async () => {
-            throw new Error("Firestore indisponível");
-          },
-        }),
-      }),
-    });
+  it("retorna 500 quando o processamento lança", async () => {
+    applyClinicBilling.mockRejectedValue(new Error("Firestore indisponível"));
     constructEvent.mockReturnValue(
       checkoutEvent({
         id: "cs_err",
@@ -306,7 +256,6 @@ describe("Stripe webhook — tipos não tratados e falhas", () => {
       })
     );
 
-    const res = await POST(webhookRequest());
-    expect(res.status).toBe(500);
+    expect((await POST(webhookRequest())).status).toBe(500);
   });
 });

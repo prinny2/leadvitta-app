@@ -1,0 +1,21 @@
+{
+  "name": "ApolloDocsRead",
+  "description": "Fetches the complete markdown content of an Apollo documentation page using its slug, or everything after https://apollographql.com/docs. Documentation slugs can be obtained from the SearchDocs tool results. Use this after ApolloDocsSearch to read full pages rather than just excerpts. Content will be given in chunks with the totalCount field specifying the total number of chunks. Start with a chunkIndex of 0 and fetch each chunk.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "slug": {
+        "description": "The slug returned from the ApolloDocsSearch tool",
+        "type": "string"
+      },
+      "chunkIndex": {
+        "description": "The character index to start reading from, will return up to the next 10000 characters",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "slug",
+      "chunkIndex"
+    ]
+  }
+}

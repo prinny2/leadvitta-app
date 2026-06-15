@@ -1,0 +1,16 @@
+{
+  "name": "getDocsPage",
+  "description": "\"Get the content of a page from the Appwrite documentation by path\";\n  Note, for code examples and technology-specific information, it's best to use listFeatures and getFeatureExamples tools.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "path": {
+        "type": "string",
+        "description": "The path of the page to get the content of. E.g. \"/docs/getting-started/introduction\""
+      }
+    },
+    "required": [
+      "path"
+    ]
+  }
+}

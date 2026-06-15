@@ -45,18 +45,46 @@ describe("lib/config", () => {
     expect(aiModel).toBe("claude-opus-4-8");
   });
 
-  it("aiModel cai em gpt-4o-mini quando há OpenAI e sem AI_MODEL", async () => {
+  it("aiModel cai no default gpt-4o-mini sem AI_MODEL", async () => {
     vi.stubEnv("AI_MODEL", "");
-    vi.stubEnv("OPENAI_API_KEY", "sk-openai");
     const { aiModel } = await loadConfig();
     expect(aiModel).toBe("gpt-4o-mini");
   });
 
-  it("aiModel cai no default Claude sem AI_MODEL nem OpenAI", async () => {
-    vi.stubEnv("AI_MODEL", "");
+  it("isGeminiConfigured segue GEMINI_API_KEY/GOOGLE_API_KEY", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "");
+    vi.stubEnv("GOOGLE_API_KEY", "g-key");
+    const { isGeminiConfigured } = await loadConfig();
+    expect(isGeminiConfigured).toBe(true);
+  });
+
+  it("isAnyAIConfigured é true se qualquer provedor tiver chave", async () => {
     vi.stubEnv("OPENAI_API_KEY", "");
-    const { aiModel } = await loadConfig();
-    expect(aiModel).toBe("claude-haiku-4-5");
+    vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant");
+    vi.stubEnv("GEMINI_API_KEY", "");
+    vi.stubEnv("GOOGLE_API_KEY", "");
+    const { isAnyAIConfigured } = await loadConfig();
+    expect(isAnyAIConfigured).toBe(true);
+  });
+
+  it("modelos por provedor respeitam AI_MODEL conforme o vendor", async () => {
+    vi.stubEnv("AI_MODEL", "claude-haiku-4-5");
+    vi.stubEnv("OPENAI_MODEL", "");
+    vi.stubEnv("ANTHROPIC_MODEL", "");
+    vi.stubEnv("GEMINI_MODEL", "");
+    const { openaiModel, anthropicModel, geminiModel } = await loadConfig();
+    // AI_MODEL é claude-*, então só o anthropicModel o herda; os demais usam default.
+    expect(anthropicModel).toBe("claude-haiku-4-5");
+    expect(openaiModel).toBe("gpt-4o-mini");
+    expect(geminiModel).toBe("gemini-2.5-flash");
+  });
+
+  it("isZApiConfigured exige ZAPI_INSTANCE_ID + ZAPI_TOKEN", async () => {
+    vi.stubEnv("ZAPI_INSTANCE_ID", "inst");
+    vi.stubEnv("ZAPI_TOKEN", "tok");
+    const { isZApiConfigured, isWhatsappConfigured } = await loadConfig();
+    expect(isZApiConfigured).toBe(true);
+    expect(isWhatsappConfigured).toBe(true);
   });
 
   it("siteUrl usa o default localhost quando não configurado", async () => {

@@ -1,10 +1,10 @@
 # Deploy do LeadBellus no Cloud Run.
 # Uso: gcloud builds submit --config cloudbuild.yaml
 # Ajuste as substitutions para o seu projeto (confirme = onde o Núcleo já roda).
-# Segredos (ANTHROPIC_API_KEY etc.) NÃO ficam aqui — configure no serviço Cloud Run:
+# Segredos (OPENAI_API_KEY, ANTHROPIC_API_KEY, GEMINI_API_KEY etc.) NÃO ficam aqui — configure no serviço Cloud Run:
 #   gcloud run services update $_SERVICE --region $_REGION \
 #     --set-env-vars NEXT_PUBLIC_SITE_URL=https://SEU-SERVICO.run.app \
-#     --set-secrets ANTHROPIC_API_KEY=anthropic-api-key:latest
+#     --set-secrets OPENAI_API_KEY=openai-api-key:latest,ANTHROPIC_API_KEY=anthropic-api-key:latest,GEMINI_API_KEY=gemini-api-key:latest
 
 substitutions:
   _REGION: southamerica-east1

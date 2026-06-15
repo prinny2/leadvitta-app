@@ -26,7 +26,8 @@ export default defineConfig({
         // Módulos que só inicializam SDKs externos (Firebase/Stripe) e
         // dependem de ambiente — sem lógica pura para cobrir em unidade.
         "lib/firebase/**",
-        "lib/stripe/**",
+        // billing-sync tem lógica testável; só o init do SDK fica de fora.
+        "lib/stripe/server.ts",
         "lib/store.ts",
         "lib/hooks/**",
         "lib/types.ts",

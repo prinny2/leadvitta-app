@@ -1,44 +1,26 @@
 import { NextResponse, after } from "next/server";
-import crypto from "crypto";
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { gerarRespostas } from "@/lib/ai/provider";
-import { sendWhatsAppText } from "@/lib/whatsapp";
+import { getWhatsAppProvider } from "@/lib/whatsapp";
+import type { InboundMessage } from "@/lib/whatsapp-types";
+import { resolverClinicaPorNumero } from "@/lib/numeros";
+import {
+  registrarMensagemRecebida,
+  registrarMensagemEnviada,
+  marcarPrecisaAtencao,
+  reservarProcessamento,
+  liberarProcessamento,
+} from "@/lib/conversas";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// GET = verificação do webhook. A Meta chama UMA vez ao configurar o webhook.
-// Devolve o hub.challenge se o verify_token bater com WHATSAPP_VERIFY_TOKEN.
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const mode = url.searchParams.get("hub.mode");
-  const token = url.searchParams.get("hub.verify_token");
-  const challenge = url.searchParams.get("hub.challenge");
-
-  if (mode === "subscribe" && token && token === process.env.WHATSAPP_VERIFY_TOKEN) {
-    return new NextResponse(challenge ?? "", { status: 200 });
-  }
-  return new NextResponse("forbidden", { status: 403 });
-}
-
-// Status de billing que liberam a auto-resposta. O checkout grava "paid"
-// (payment_status) e os eventos de subscription gravam "active"/"trialing"
-// — aceitar só "active" deixaria de fora quem acabou de pagar.
+// Status de billing que liberam a auto-resposta.
 const STATUS_ATIVOS = new Set(["active", "paid", "trialing"]);
 
-// Processa a mensagem FORA do caminho da resposta HTTP (ver POST). Nunca lança:
-// loga e retorna, pra não derrubar o ack de 200 pra Meta.
-async function processarMensagem(value: any, msg: any) {
-  const from: string = msg.from; // número da cliente (E.164 sem '+')
-  const text: string = msg.text?.body ?? "";
-  const displayPhoneNumber: string | undefined =
-    value?.metadata?.display_phone_number;
-
-  // Guarda: sem número de destino ou sem texto, não há o que fazer.
-  if (!displayPhoneNumber || !text) {
-    console.warn("[whatsapp] sem display_phone_number ou texto — ignorando.");
-    return;
-  }
+/** Processa fora do caminho HTTP para não atrasar o ACK ao provedor. */
+async function processarMensagem(msg: InboundMessage) {
+  if (!msg.text) return;
 
   const db = getFirebaseAdminDb();
   if (!db) {
@@ -46,72 +28,99 @@ async function processarMensagem(value: any, msg: any) {
     return;
   }
 
-  // Acha a clínica dona deste número. O DNA guarda o número no campo root
-  // `whatsapp` (ver lib/types.ts / saveClinica em lib/store.ts).
-  // Modelo: 1 número de WhatsApp por clínica.
-  const snapshot = await db
-    .collection("clinicas")
-    .where("whatsapp", "==", displayPhoneNumber)
-    .limit(1)
-    .get();
+  // Idempotência: ignora reentregas do provedor (não duplica msg nem auto-resposta).
+  if (!(await reservarProcessamento(msg.providerMessageId))) {
+    console.log(`[whatsapp] mensagem ${msg.providerMessageId} já processada — ignorando retry.`);
+    return;
+  }
 
-  if (snapshot.empty) {
+  // Descobre a clínica pelo número que RECEBEU, via mapa canônico (único/verificado).
+  // Falha de roteamento devolve a reserva: um retry futuro ainda pode processar.
+  const clinicaId = await resolverClinicaPorNumero(msg.to);
+  if (!clinicaId) {
+    console.warn(`[whatsapp] nenhuma clínica conectada ao número ${msg.to}.`);
+    await liberarProcessamento(msg.providerMessageId);
+    return;
+  }
+  const clinicaSnap = await db.collection("clinicas").doc(clinicaId).get();
+  if (!clinicaSnap.exists) {
+    await liberarProcessamento(msg.providerMessageId);
+    return;
+  }
+  const clinica = clinicaSnap.data() as Record<string, any>;
+  const ativo = STATUS_ATIVOS.has(clinica.billing?.status);
+
+  // Sem plano ativo: guarda a mensagem (aparece no inbox), mas não auto-responde.
+  if (!ativo) {
+    await registrarMensagemRecebida({
+      clinicaId,
+      from: msg.from,
+      text: msg.text,
+      contactName: msg.contactName,
+      providerMessageId: msg.providerMessageId,
+    });
     console.warn(
-      `[whatsapp] nenhuma clínica para o número ${displayPhoneNumber}.`
+      `[whatsapp] clínica ${clinicaId} sem plano ativo (status=${clinica.billing?.status}) — só armazenado.`
     );
     return;
   }
 
-  const clinica = snapshot.docs[0].data() as Record<string, any>;
-  const clinicaId = snapshot.docs[0].id;
-
-  // Billing: aceita os status que significam pago/ativo (ver STATUS_ATIVOS).
-  if (!STATUS_ATIVOS.has(clinica.billing?.status)) {
-    console.warn(
-      `[whatsapp] clínica ${clinicaId} sem plano ativo (status=${clinica.billing?.status}).`
-    );
-    return;
+  let nlp: Awaited<ReturnType<typeof gerarRespostas>> | null = null;
+  try {
+    nlp = await gerarRespostas({
+      modo: "gerar",
+      objetivo: "responder à dúvida do cliente via WhatsApp de forma consultiva e empática",
+      nomeCliente: msg.contactName || "Cliente",
+      mensagemCliente: msg.text,
+      procedimento: "geral",
+      situacao: "pergunta_geral",
+      tom: clinica.tom_padrao || "acolhedor",
+      clinica: {
+        nome_clinica: clinica.nome_clinica || "LeadBellus",
+        formalidade: clinica.formalidade ?? 50,
+        como_chamar: clinica.como_chamar || "nenhum",
+        cta_preferido: clinica.cta_preferido || "agendar uma avaliação",
+      },
+    });
+  } catch (e) {
+    console.error("[whatsapp] falha ao gerar resposta:", e);
   }
 
-  // Gera a resposta com o DNA REAL da clínica (campos root do documento).
-  const nlp = await gerarRespostas({
-    modo: "gerar",
-    objetivo:
-      "responder à dúvida do cliente via WhatsApp de forma consultiva e empática",
-    nomeCliente: value?.contacts?.[0]?.profile?.name || "Cliente",
-    mensagemCliente: text,
-    procedimento: "geral",
-    situacao: "pergunta_geral",
-    tom: clinica.tom_padrao || "acolhedor",
-    clinica: {
-      nome_clinica: clinica.nome_clinica || "LeadBellus",
-      formalidade: clinica.formalidade ?? 50,
-      como_chamar: clinica.como_chamar || "nenhum",
-      cta_preferido: clinica.cta_preferido || "agendar uma avaliação",
-    },
+  await registrarMensagemRecebida({
+    clinicaId,
+    from: msg.from,
+    text: msg.text,
+    contactName: msg.contactName,
+    providerMessageId: msg.providerMessageId,
+    intent: nlp?.intent ?? null,
+    sentiment: nlp?.sentiment ?? null,
+    score: nlp?.score ?? null,
   });
 
+  if (!nlp) return;
   const respostaFinal = nlp.respostas.consultiva;
 
-  // Envia e registra o resultado (sendWhatsAppText não lança; devolve {ok}).
-  const envio = await sendWhatsAppText(from, respostaFinal);
-  if (!envio.ok) {
+  const envio = await getWhatsAppProvider().sendText(msg.from, respostaFinal, {
+    channelApiKey: clinica.whatsapp_channel_key,
+  });
+  if (envio.ok) {
+    // Auto-resposta NÃO marca como lida — fica na triagem até um humano abrir.
+    await registrarMensagemEnviada(clinicaId, msg.from, respostaFinal, { marcarLida: false });
+  } else {
     console.error(
-      `[whatsapp] falha ao enviar para ${from}: status=${envio.status}`,
+      `[whatsapp] falha ao enviar para ${msg.from}: status=${envio.status}`,
       envio.data
     );
+    await marcarPrecisaAtencao(clinicaId, msg.from);
   }
 
-  // Salva no MESMO histórico que a página /historico lê: coleção top-level
-  // `historico`, com user_id = id da clínica e created_at em ISO (como o
-  // resto do app — ver lib/store.ts). `entregue` marca se o envio funcionou.
   await db.collection("historico").add({
     user_id: clinicaId,
     tipo: "gerador",
     contexto: {
       canal: "whatsapp",
-      de: from,
-      mensagemCliente: text,
+      de: msg.from,
+      mensagemCliente: msg.text,
       entregue: envio.ok,
     },
     respostas: [respostaFinal],
@@ -123,53 +132,37 @@ async function processarMensagem(value: any, msg: any) {
   });
 
   console.log(
-    `[whatsapp] resposta ${envio.ok ? "enviada" : "FALHOU"} para ${from} (clínica ${clinicaId}).`
+    `[whatsapp] resposta ${envio.ok ? "enviada" : "FALHOU"} para ${msg.from} (clínica ${clinicaId}).`
   );
 }
 
-// POST = mensagens recebidas. Valida a assinatura, responde 200 NA HORA e
-// processa em background com after() — senão a Meta re-tenta e a cliente
-// recebe a resposta duplicada.
+// Z-API não usa handshake Meta; GET só confirma que o endpoint está vivo.
+export async function GET() {
+  return new NextResponse("ok", { status: 200 });
+}
+
 export async function POST(req: Request) {
   const raw = await req.text();
+  const provider = getWhatsAppProvider();
 
-  // Valida a assinatura do Meta (X-Hub-Signature-256) quando há WHATSAPP_APP_SECRET.
-  const appSecret = process.env.WHATSAPP_APP_SECRET;
-  if (appSecret) {
-    const sig = req.headers.get("x-hub-signature-256") || "";
-    const expected =
-      "sha256=" + crypto.createHmac("sha256", appSecret).update(raw).digest("hex");
-    const valid =
-      sig.length === expected.length &&
-      crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
-    if (!valid) {
-      console.warn("[whatsapp] assinatura inválida no webhook.");
-      return new NextResponse("invalid signature", { status: 403 });
-    }
+  const valido = await provider.validateWebhook(req, raw);
+  if (!valido) {
+    console.warn(`[whatsapp] webhook recusado (provider=${provider.name}).`);
+    return new NextResponse("invalid signature", { status: 403 });
   }
 
-  let body: any;
-  try {
-    body = JSON.parse(raw);
-  } catch {
-    return NextResponse.json({ ok: true });
-  }
-
-  const value = body?.entry?.[0]?.changes?.[0]?.value;
-  const msg = value?.messages?.[0];
-
-  if (msg?.type === "text") {
-    // Ack imediato pra Meta; o trabalho pesado (IA + envio + Firestore) roda
-    // depois da resposta, fora do caminho crítico.
+  const msg = provider.parseInbound(raw, req);
+  if (msg) {
     after(() =>
-      processarMensagem(value, msg).catch((e) =>
-        console.error("[whatsapp] erro no processamento:", e)
-      )
+      processarMensagem(msg).catch(async (e) => {
+        console.error("[whatsapp] erro no processamento:", e);
+        // Crash após a reserva: devolve, senão o retry vira "duplicata" e a
+        // mensagem se perde (o provedor já recebeu 200).
+        await liberarProcessamento(msg.providerMessageId);
+      })
     );
-  } else if (msg) {
-    console.log(`[whatsapp] tipo de mensagem não-texto ignorado: ${msg.type}`);
   }
 
-  // Responder 200 rápido SEMPRE — senão a Meta re-tenta e duplica.
-  return NextResponse.json({ ok: true });
+  // Provedores esperam 200 rápido.
+  return new NextResponse("", { status: 200 });
 }

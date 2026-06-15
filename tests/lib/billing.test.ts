@@ -25,8 +25,9 @@ describe("parseBillingPlan", () => {
 describe("getBillingPlan", () => {
   it("retorna a configuração correspondente ao plano", () => {
     expect(getBillingPlan("pro")).toBe(billingPlans.pro);
-    expect(getBillingPlan("pro").label).toBe("Plano Pro");
-    expect(getBillingPlan("start").priceLabel).toBe("R$197/mês");
+    expect(getBillingPlan("pro").label).toBe("Pro");
+    expect(getBillingPlan("start").priceLabel).toBe("R$97");
+    expect(getBillingPlan("start").price).toBe(97);
   });
 
   it("cobre todos os planos do mapa", () => {

@@ -60,17 +60,17 @@ const VARIANTES: { key: Variante; label: string; hint: string }[] = [
   {
     key: "curta",
     label: "Suave",
-    hint: "Curta e acolhedora",
+    hint: "Curtinha e carinhosa",
   },
   {
     key: "consultiva",
-    label: "Consultiva",
-    hint: "Educa e posiciona valor",
+    label: "Explica",
+    hint: "Mostra o valor antes do preço",
   },
   {
     key: "persuasiva",
     label: "Fechamento",
-    hint: "Conduz para agendar",
+    hint: "Puxa pro agendamento",
   },
 ];
 
@@ -167,7 +167,7 @@ export function LandingWhatsAppDemo() {
       if (data.mock) {
         setAviso(
           data.aviso ||
-            "Demonstração: sem chave de IA configurada, mostramos um exemplo realista."
+            "Modo demonstração: mostramos um exemplo realista pra você ver como fica."
         );
       } else if (data.aviso) {
         setAviso(data.aviso);
@@ -186,7 +186,9 @@ export function LandingWhatsAppDemo() {
           <div>
             <CardTitle>Simulador rápido</CardTitle>
             <p className="mt-1 text-sm text-muted">
-              Brinque com o tom e a “DNA da clínica” e veja as respostas mudarem.
+              É simples: <strong>1.</strong> diga o nome e o tom da sua clínica ·{" "}
+              <strong>2.</strong> cole a mensagem da cliente · <strong>3.</strong>{" "}
+              veja 3 jeitos de responder e copie o melhor.
             </p>
           </div>
 

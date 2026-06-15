@@ -1,0 +1,41 @@
+node_modules
+.next
+out
+build
+.env.local
+.env*.local
+*.log
+tsconfig.tsbuildinfo
+
+# Local AI/tooling state
+.codex/
+.claude/scheduled_tasks.lock
+.codesight/
+.cursor/
+.gemini/
+.qodo/
+.snapshots/
+.vscode/
+conductor/
+prinny2/
+
+# Local reports and screenshots, not app assets
+status.md
+ESTADO.md
+relatorio_atividades.txt
+/LeadBellus_Dossie_Completo.pdf
+/LeadBellus_Dossie_Operacional_*.docx
+/WhatsApp Image*
+/cloudrun_login_real.png
+/cockpit_mapa_verticais.png
+/cockpit_resonanza.png
+/cockpit_verticais.png
+/mapa_arquitetura.png
+/mesa_atual.png
+/mesa_final.png
+/mesa_icon_preview.png
+/mesa_personalizada.png
+/MESA_PARA_EDUARDO.png
+/✦*.txt
+/sponsors.md
+/config.json

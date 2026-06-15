@@ -6,7 +6,11 @@ const cfg = vi.hoisted(() => ({
   isStripeConfigured: true,
   siteUrl: "http://localhost:3000",
 }));
-const billingState = vi.hoisted(() => ({ priceId: "price_pro", mode: "payment" }));
+const billingState = vi.hoisted(() => ({
+  priceId: "price_pro",
+  mode: "payment",
+  disponivel: true,
+}));
 const { verifyToken, sessionsCreate, sendZapier } = vi.hoisted(() => ({
   verifyToken: vi.fn(),
   sessionsCreate: vi.fn(),
@@ -22,6 +26,7 @@ vi.mock("@/lib/billing", () => ({
     id: p,
     label: p,
     priceLabel: "x",
+    disponivel: billingState.disponivel,
     priceId: billingState.priceId,
   }),
   getStripeCheckoutMode: () => billingState.mode,
@@ -59,6 +64,7 @@ beforeEach(() => {
   cfg.siteUrl = "http://localhost:3000";
   billingState.priceId = "price_pro";
   billingState.mode = "payment";
+  billingState.disponivel = true;
   verifyToken.mockReset().mockResolvedValue(null);
   sessionsCreate.mockReset().mockResolvedValue({ id: "cs_new", url: "https://stripe/checkout/cs_new" });
   sendZapier.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
@@ -88,11 +94,11 @@ describe("Stripe checkout — validações", () => {
     expect(res.status).toBe(503);
   });
 
-  it("exige login quando o Firebase está configurado e não há token válido", async () => {
-    cfg.isFirebaseConfigured = true;
-    verifyToken.mockResolvedValue(null);
-    const res = await POST(checkoutRequest({ plan: "pro" }));
-    expect(res.status).toBe(401);
+  it("retorna 400 quando o plano ainda não está disponível", async () => {
+    billingState.disponivel = false;
+    const res = await POST(checkoutRequest({ plan: "premium" }));
+    expect(res.status).toBe(400);
+    expect(sessionsCreate).not.toHaveBeenCalled();
   });
 });
 

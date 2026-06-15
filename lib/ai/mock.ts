@@ -1,4 +1,4 @@
-// Respostas de exemplo (modo demonstração — quando não há chave da Anthropic).
+// Respostas de exemplo (modo demonstração — quando não há provedor de IA).
 // Mesmo sem IA real, seguem a fórmula e respeitam o "como chamar" do DNA.
 
 import { procedimentoPorId } from "@/data/procedimentos";

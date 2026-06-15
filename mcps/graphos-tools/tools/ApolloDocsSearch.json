@@ -1,0 +1,16 @@
+{
+  "name": "ApolloDocsSearch",
+  "description": "Searches official Apollo GraphQL documentation (Apollo GraphQL, GraphOS, Apollo Router, Apollo Client, API orchestration, MCP Server, schema design, deployment best practices, connectors, and platform usage). Returns url, slug, and markdown content excerpts. For complete page content, you MUST use the returned slug with the ApolloDocsRead tool. Use this tool when you need technical information, configuration examples, best practices, and troubleshooting guides for any Apollo GraphQL technology.\n\n Use the ApolloDocsRead tool to get all of the content for a given search result using the slug, don't use a WebSearch.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "description": "Use terms that would lead to broad result with a maximum of 2 keywords.",
+        "type": "string"
+      }
+    },
+    "required": [
+      "query"
+    ]
+  }
+}

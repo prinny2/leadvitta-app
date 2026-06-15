@@ -77,7 +77,7 @@ export default function FollowUpPage() {
       if (data.mock) {
         setAviso(
           data.aviso ||
-            "Exemplo de demonstração — configure a chave da IA para mensagens reais."
+            "Modo demonstração — mostrando um exemplo. As mensagens reais entram quando a clínica está ativa."
         );
       } else if (data.aviso) {
         setAviso(data.aviso);
@@ -98,11 +98,12 @@ export default function FollowUpPage() {
     <div>
       <header className="mb-6">
         <h1 className="font-serif text-3xl font-semibold text-ink">
-          Follow-up Inteligente
+          Follow-up
         </h1>
         <p className="text-sm text-muted">
-          A maioria das vendas se perde por falta de follow-up. Reative quem
-          sumiu sem parecer insistente.
+          Follow-up é o retorno pra cliente que sumiu depois de perguntar ou
+          agendar. É onde a maioria das vendas se perde — a gente te dá a
+          mensagem certa pra reativar sem parecer chata.
         </p>
       </header>
 
