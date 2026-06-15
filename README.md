@@ -12,6 +12,14 @@ cliente até o agendamento com guardrails de compliance.
 
 Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore + OpenAI/Anthropic/Gemini + Stripe + Zapier + Cloud Run/Vercel (Híbrido)**.
 
+## Status (produção) — atualizado 2026-06-15
+
+- **LIVE:** `https://leadbellus.com.br` em arquitetura **híbrida** — Vercel serve o frontend, Cloud Run processa `/api/*` (proxy). Modo demonstração desligado (config Firebase real no bundle).
+- **Auth:** Firebase Auth (e-mail/senha + Google). **Billing:** Stripe LIVE com webhook configurado.
+- **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
+- **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID, número +55 91 8515-6690). Auto-resposta (webhook) em rollout.
+
+
 ## Rodar local
 
 ```bash
