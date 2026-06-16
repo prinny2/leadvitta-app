@@ -126,7 +126,7 @@ export default function DashboardPage() {
               <span className="text-[11px] font-semibold uppercase tracking-wider text-navy-100">{kpi.label}</span>
               <kpi.icon size={16} className={kpi.color} />
             </div>
-            <p className={cn("font-serif text-3xl font-bold", kpi.color)}>{kpi.value}</p>
+            <p className="font-serif text-3xl font-bold text-white">{kpi.value}</p>
             <p className="text-xs text-navy-100 mt-0.5">{kpi.sub}</p>
           </div>
         ))}
@@ -254,9 +254,9 @@ export default function DashboardPage() {
             return (
               <div key={s.sit} className="flex items-center gap-3">
                 <span className="w-24 text-xs text-navy-100 shrink-0">{s.sit}</span>
-                <div className="flex-1 h-2 rounded-full bg-navy-600 overflow-hidden">
+                <div className="flex-1 h-2.5 rounded-full bg-navy-600 overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all"
+                    className="h-2.5 rounded-full transition-all"
                     style={{
                       width: `${pct}%`,
                       background: `linear-gradient(90deg, #6B8CAE ${i * 15}%, #C9A060 100%)`,

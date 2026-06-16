@@ -11,17 +11,17 @@ export default {
       colors: {
         // Navy — identidade LeadBellus
         navy: {
-          950: "#030810",
-          900: "#060F1C",  // app background
-          800: "#0A1628",  // sidebar
-          700: "#0D1B30",  // cards / surfaces
-          600: "#111F38",  // cards elevadas
-          500: "#162540",  // bordas
-          400: "#1E3050",  // bordas hover
-          300: "#2A4265",
-          200: "#3D5A7A",
-          100: "#6B8CAE",  // texto muted
-          50:  "#A0BDD4",  // texto secundário
+          950: "#040912",
+          900: "#07101e",   // body bg — deeper
+          800: "#0b1424",   // sidebar
+          700: "#0f1b2f",   // cards
+          600: "#131f35",   // elevated cards
+          500: "#1a2840",   // borders
+          400: "#243450",
+          300: "#304565",
+          200: "#3f5878",
+          100: "#5a7a9a",   // muted text
+          50:  "#8aacc8",
         },
         // Mantém brand como alias navy para compatibilidade
         brand: {
@@ -99,8 +99,8 @@ export default {
       },
       backgroundImage: {
         "gold-shimmer": "linear-gradient(135deg, #D4A84A 0%, #C9A060 45%, #B8860B 100%)",
-        "navy-card": "linear-gradient(135deg, #0D1B30 0%, #111F38 100%)",
-        "navy-deep": "linear-gradient(180deg, #060F1C 0%, #030810 100%)",
+        "navy-card": "linear-gradient(135deg, #0f1b2f 0%, #131f35 100%)",
+        "navy-deep": "linear-gradient(180deg, #07101e 0%, #040912 100%)",
       },
       keyframes: {
         "fade-in": {

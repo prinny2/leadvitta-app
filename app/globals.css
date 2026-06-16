@@ -7,31 +7,31 @@ html {
 }
 
 body {
-  background-color: #060F1C;
+  background-color: #07101e;
   text-rendering: optimizeLegibility;
 }
 
 /* ── Fundos ── */
 .bg-app {
-  background: #060F1C;
+  background: #07101e;
 }
 
 .bg-hero {
   background:
     radial-gradient(1200px 500px at 12% -10%, rgba(201, 160, 96, 0.08), transparent 60%),
     radial-gradient(1000px 520px at 100% 0%, rgba(201, 160, 96, 0.12), transparent 55%),
-    #060F1C;
+    #07101e;
 }
 
 .bg-navy-glow {
   background:
     radial-gradient(800px 420px at 82% 0%, rgba(201, 160, 96, 0.10), transparent 60%),
-    #0A1628;
+    #0b1424;
 }
 
 /* ── Glassmorphism cards ── */
 .glass-card {
-  background: rgba(13, 27, 48, 0.8);
+  background: rgba(15, 27, 47, 0.85);
   border: 1px solid rgba(201, 160, 96, 0.15);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -76,14 +76,14 @@ body {
 /* ── Scrollbar ── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #C9A060 #0A1628;
+  scrollbar-color: #C9A060 #0b1424;
 }
 *::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 *::-webkit-scrollbar-track {
-  background: #0A1628;
+  background: #0b1424;
 }
 *::-webkit-scrollbar-thumb {
   background: #C9A060;

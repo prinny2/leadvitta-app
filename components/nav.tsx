@@ -80,8 +80,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                 active
-                  ? "bg-gold-500/15 text-gold-400 border border-gold-500/25 gold-glow"
-                  : "text-navy-50 hover:bg-navy-600/50 hover:text-champagne-300"
+                  ? "bg-white/5 text-gold-400 border-l-2 border-gold-500 pl-[10px]"
+                  : "text-navy-100 hover:bg-white/5 hover:text-champagne-300"
               )}
             >
               <Icon size={17} className={active ? "text-gold-400" : "text-navy-100"} />
@@ -127,7 +127,7 @@ export function MobileNav() {
             className={cn(
               "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
               isActive(pathname, href)
-                ? "bg-gold-500/15 text-gold-400 border border-gold-500/25"
+                ? "bg-gold-500/10 text-gold-400"
                 : "text-navy-100 hover:text-champagne-300"
             )}
           >
