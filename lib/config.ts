@@ -14,6 +14,12 @@ export const firebaseConfig = {
 export const isFirebaseConfigured =
   !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
 
+/** Chave pública VAPID para Web Push (FCM). Pública por design — vai no frontend. */
+export const firebaseVapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+
+/** True quando o Web Push está pronto pra uso (Firebase + chave VAPID pública). */
+export const isWebPushConfigured = isFirebaseConfigured && !!firebaseVapidKey;
+
 /** True quando há chave da Anthropic (apenas no servidor). */
 export const isAnthropicConfigured = !!process.env.ANTHROPIC_API_KEY;
 
@@ -55,8 +61,16 @@ export const isStripeConfigured =
     !!process.env.STRIPE_PRICE_ID_PRO ||
     !!process.env.STRIPE_PRICE_ID_PREMIUM);
 
-/** True quando há webhook do Zapier configurado no servidor. */
-export const isZapierConfigured = !!process.env.ZAPIER_WEBHOOK_URL;
+/** Número que recebe alertas operacionais (signup, checkout, waitlist). Só dígitos. */
+export const opsNotifyPhone = (
+  process.env.OPS_WHATSAPP_NUMBER || ""
+).replace(/\D/g, "");
+
+/** True quando Z-API + número de alerta estão configurados. */
+export const isOpsNotifyConfigured =
+  !!process.env.ZAPI_INSTANCE_ID?.trim() &&
+  !!process.env.ZAPI_TOKEN?.trim() &&
+  !!opsNotifyPhone;
 
 /** True quando o WhatsApp (Z-API) está configurado. */
 export const isZApiConfigured =

@@ -8,20 +8,56 @@ import {
   type ClinicBilling,
 } from "@/lib/stripe/billing-sync";
 import { getStripe } from "@/lib/stripe/server";
-import { sendZapierEvent } from "@/lib/zapier";
+import { sendOpsNotify } from "@/lib/ops-notify";
 
 export const runtime = "nodejs";
 
-async function markStripeEvent(event: Stripe.Event) {
+/**
+ * Reivindica o evento de forma idempotente. Retorna false se ele JÁ foi
+ * processado — o Stripe entrega at-least-once e reentrega em retries. O
+ * processed=true só é gravado no finishStripeEvent, depois do handler rodar com
+ * sucesso: se o processamento falhar, o evento fica "não processado" e o retry
+ * reprocessa (não perde ativação). Sem Admin SDK / sem runTransaction, falha
+ * aberto (processa) — a assinatura já foi validada antes de chegar aqui.
+ */
+async function claimStripeEvent(event: Stripe.Event): Promise<boolean> {
+  const db = getFirebaseAdminDb();
+  if (!db) return true;
+
+  const ref = db.collection("stripe_events").doc(event.id);
+  try {
+    return await db.runTransaction(async (tx) => {
+      const snap = await tx.get(ref);
+      if (snap.exists && snap.get("processed") === true) return false;
+      tx.set(
+        ref,
+        {
+          type: event.type,
+          livemode: event.livemode,
+          created: event.created,
+          processed: false,
+          received_at: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+      return true;
+    });
+  } catch (err) {
+    console.error("[stripe.webhook] falha ao reivindicar evento", err);
+    return true;
+  }
+}
+
+async function finishStripeEvent(event: Stripe.Event) {
   const db = getFirebaseAdminDb();
   if (!db) return;
-
   await db.collection("stripe_events").doc(event.id).set(
     {
       type: event.type,
       livemode: event.livemode,
       created: event.created,
-      received_at: new Date().toISOString(),
+      processed: true,
+      processed_at: new Date().toISOString(),
     },
     { merge: true }
   );
@@ -68,7 +104,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     await saveBillingPending(email, billing);
   }
 
-  await sendZapierEvent("stripe.checkout.completed", {
+  await sendOpsNotify("stripe.checkout.completed", {
     plan,
     stripe_session_id: session.id,
     stripe_customer_id:
@@ -87,7 +123,7 @@ async function handleSubscriptionEvent(subscription: Stripe.Subscription) {
   const firebaseUid = subscription.metadata?.firebase_uid?.trim() || undefined;
   await syncSubscriptionBilling(subscription, getStripe());
 
-  await sendZapierEvent(`stripe.${subscription.object}.${subscription.status}`, {
+  await sendOpsNotify(`stripe.subscription.${subscription.status}`, {
     plan: subscription.metadata?.plan,
     stripe_customer_id:
       typeof subscription.customer === "string"
@@ -100,7 +136,12 @@ async function handleSubscriptionEvent(subscription: Stripe.Subscription) {
 }
 
 async function handleStripeEvent(event: Stripe.Event) {
-  await markStripeEvent(event);
+  if (!(await claimStripeEvent(event))) {
+    console.log(
+      `[stripe.webhook] evento ${event.id} já processado — ignorando replay.`
+    );
+    return;
+  }
 
   switch (event.type) {
     case "checkout.session.completed":
@@ -114,6 +155,8 @@ async function handleStripeEvent(event: Stripe.Event) {
     default:
       break;
   }
+
+  await finishStripeEvent(event);
 }
 
 export async function POST(request: Request) {

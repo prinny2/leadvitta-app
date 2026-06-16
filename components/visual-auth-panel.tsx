@@ -24,8 +24,8 @@ function setAuthCookie() {
   document.cookie = "firebase_auth=1; path=/; SameSite=Lax; max-age=604800";
 }
 
-async function notifyZapierSignup(idToken: string) {
-  await fetch("/api/zapier/lead", {
+async function notifyOpsSignup(idToken: string) {
+  await fetch("/api/notify/signup", {
     method: "POST",
     headers: {
       "content-type": "application/json",
@@ -133,7 +133,7 @@ export function VisualAuthPanel({
       );
       setAuthCookie();
       const idToken = await credential.user.getIdToken();
-      notifyZapierSignup(idToken);
+      notifyOpsSignup(idToken);
       trackEvent("sign_up", { method: "Email/Password" });
       await persistDraft();
       await finishAuth(idToken);
@@ -160,7 +160,7 @@ export function VisualAuthPanel({
       setAuthCookie();
       const idToken = await credential.user.getIdToken();
       if (mode === "signup") {
-        notifyZapierSignup(idToken);
+        notifyOpsSignup(idToken);
         trackEvent("sign_up", { method: "Google" });
         await persistDraft();
       }

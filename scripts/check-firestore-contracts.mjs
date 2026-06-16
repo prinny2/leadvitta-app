@@ -46,7 +46,7 @@ const nextConfig = read("next.config.mjs");
 const routeClinicaWhatsapp = read("app/api/clinica/whatsapp/route.ts");
 const routeConversasReply = read("app/api/conversas/reply/route.ts");
 const routeStripeCheckout = read("app/api/stripe/checkout/route.ts");
-const routeZapierLead = read("app/api/zapier/lead/route.ts");
+const routeNotifySignup = read("app/api/notify/signup/route.ts");
 const routeWaitlist = read("app/api/waitlist/route.ts");
 
 const forbiddenAppDirs = new Set(["dist", "build", "out"]);
@@ -226,12 +226,13 @@ const requiredRouteContracts = [
     ],
   },
   {
-    file: "app/api/zapier/lead/route.ts",
-    source: routeZapierLead,
+    file: "app/api/notify/signup/route.ts",
+    source: routeNotifySignup,
     snippets: [
       ['import { verifyFirebaseIdToken }', "imports Firebase token verification"],
       ["verifyFirebaseIdToken(getBearerToken(request))", "verifies Bearer Firebase ID token"],
       ["firebase_uid: decodedToken.uid", "sends authenticated uid downstream"],
+      ['import { sendOpsNotify }', "sends ops alerts via Z-API"],
     ],
   },
   {
