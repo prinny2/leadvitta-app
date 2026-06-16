@@ -1635,8 +1635,6 @@ export default function LandingPage() {
                       "Tudo do Start",
                       "Lead Intelligence — score de conversão + perfil psicológico + estratégia exata por lead",
                       "Chatbot WhatsApp Business — atende, qualifica e conduz a lead automaticamente",
-                      "Lembrete + Orientações Pré-consulta — confirmação automática 24h antes com preparo por procedimento",
-                      "Gestão Pós-consulta — acompanhamento automático após o procedimento, fidelização e próximo agendamento",
                     ].map((f) => (
                       <li
                         key={f}
@@ -1686,25 +1684,50 @@ export default function LandingPage() {
               return (
                 <div
                   style={{
-                    background: "#0a1220",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "linear-gradient(160deg, #0f1b2f 0%, #0a1220 60%, #111820 100%)",
+                    border: "1.5px solid rgba(201,160,96,0.35)",
                     borderRadius: "24px",
                     padding: "36px 28px",
                     position: "relative",
+                    boxShadow: "0 0 40px rgba(201,160,96,0.08), inset 0 1px 0 rgba(201,160,96,0.12)",
+                    overflow: "hidden",
                   }}
                 >
+                  {/* Glow orb decorativo */}
+                  <div style={{ position: "absolute", top: "-40px", right: "-40px", width: "140px", height: "140px", background: "radial-gradient(circle, rgba(201,160,96,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+                  {/* Selo topo */}
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      background: "linear-gradient(90deg, rgba(201,160,96,0.2), rgba(201,160,96,0.08))",
+                      border: "1px solid rgba(201,160,96,0.4)",
+                      borderRadius: "9999px",
+                      padding: "5px 14px",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: "#C9A060",
+                      letterSpacing: "0.06em",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    ✦ PILOTO AUTOMÁTICO
+                  </div>
+
                   <p style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "8px" }}>
                     Para quem
                   </p>
-                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.6, marginBottom: "20px" }}>
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.75)", lineHeight: 1.6, marginBottom: "20px" }}>
                     Quer que a clínica funcione no piloto automático — do primeiro contato ao agendamento fechado, sem tocar em nada
                   </p>
 
-                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>Plano Premium</p>
+                  <p style={{ fontSize: "13px", color: "rgba(201,160,96,0.7)", marginBottom: "4px", fontWeight: 600 }}>Plano Premium</p>
                   <p
                     style={{
                       fontFamily: "var(--font-fraunces, Georgia, serif)",
-                      fontSize: "48px",
+                      fontSize: "52px",
                       fontWeight: 700,
                       color: "#ffffff",
                       margin: "0 0 4px",
@@ -1717,38 +1740,46 @@ export default function LandingPage() {
 
                   <div
                     style={{
-                      background: "rgba(255,255,255,0.03)",
-                      border: "1px solid rgba(255,255,255,0.06)",
+                      background: "rgba(201,160,96,0.06)",
+                      border: "1px solid rgba(201,160,96,0.18)",
                       borderRadius: "10px",
                       padding: "12px 14px",
-                      marginBottom: "20px",
+                      marginBottom: "24px",
                     }}
                   >
-                    <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", lineHeight: 1.65, margin: 0 }}>
+                    <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.75)", lineHeight: 1.7, margin: 0 }}>
                       Zero toque humano. O sistema atende, qualifica, agenda e acompanha. Você só aparece pra fazer o procedimento.
                     </p>
                   </div>
 
                   <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px" }}>
                     {[
-                      "Tudo do Pro",
-                      "Agendamento Autônomo — configure sua disponibilidade, o bot conduz a conversa e fecha a consulta sem intervenção humana",
-                      "Acesso prioritário a todos os módulos futuros, assim que saírem",
+                      { text: "Tudo do Pro", highlight: false },
+                      { text: "Lembrete + Orientações Pré-consulta — confirmação automática 24h antes, com preparo por procedimento", highlight: true },
+                      { text: "Gestão Pós-consulta — acompanhamento automático após o procedimento, fidelização e próximo agendamento", highlight: true },
+                      { text: "Agendamento Autônomo — configure sua disponibilidade, o bot conduz e fecha a consulta sem intervenção humana", highlight: true },
+                      { text: "Acesso prioritário a todos os módulos futuros, assim que saírem", highlight: false },
                     ].map((f) => (
                       <li
-                        key={f}
+                        key={f.text}
                         style={{
                           display: "flex",
                           gap: "10px",
                           alignItems: "flex-start",
                           marginBottom: "10px",
                           fontSize: "13px",
-                          color: "rgba(255,255,255,0.75)",
+                          color: f.highlight ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.65)",
                           lineHeight: 1.5,
+                          background: f.highlight ? "rgba(201,160,96,0.04)" : "transparent",
+                          border: f.highlight ? "1px solid rgba(201,160,96,0.1)" : "none",
+                          borderRadius: f.highlight ? "8px" : "0",
+                          padding: f.highlight ? "8px 10px" : "0",
+                          marginLeft: f.highlight ? "-10px" : "0",
+                          marginRight: f.highlight ? "-10px" : "0",
                         }}
                       >
                         <Check size={14} color="#C9A060" style={{ flexShrink: 0, marginTop: "2px" }} />
-                        {f}
+                        {f.text}
                       </li>
                     ))}
                   </ul>
