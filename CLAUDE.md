@@ -4,8 +4,8 @@ Guidance for AI assistants (and humans) working in this repository.
 
 > **`AGENTS.md` is the authoritative rulebook** for agent roles, deployment, and
 > safety constraints. This file summarizes the codebase; where the two overlap,
-> AGENTS.md wins. The live project-state file is **`COORDINATION.md`** (kept
-> locally, outside git).
+> AGENTS.md wins. The live project-state file is **`ESTADO.md`** (kept locally,
+> outside git).
 
 ## ⚠️ This app is LIVE and billing in production
 
@@ -24,9 +24,7 @@ results, no fixed pricing, no medical diagnoses). It also generates objection
 rebuttals, follow-ups, and sales scripts, and logs every response with
 intent/sentiment/score.
 
-Business model: monthly subscriptions (Start R$97 / Pro R$197 / Premium R$347).
-Only Start is currently vendável; Pro and Premium stay as "Em breve" / waitlist
-until the launch plan flips them on.
+Business model: monthly subscriptions (Start R$197 / Pro R$297 / Premium R$397).
 
 ## Tech stack
 
@@ -38,10 +36,10 @@ until the launch plan flips them on.
 - **Auth + data:** Firebase Auth (email/password + Google) and Cloud Firestore;
   Firebase Admin SDK for server-side webhook writes.
 - **Billing:** Stripe (subscription mode), reconciled into Firestore via webhook.
-- **Integrations:** Twilio (current WhatsApp provider) and Zapier.
-- **Deploy:** Vercel and Cloud Run are both live; Cloud Run still uses Docker /
-  Node 20 / `output: "standalone"` in `southamerica-east1` with service
-  `leadbellus`. Check `COORDINATION.md` before changing routing or DNS.
+- **Integrations:** WhatsApp Cloud API (Meta) and Zapier.
+- **Deploy:** Docker (Node 20, `output: "standalone"`) → Cloud Build → Cloud Run
+  (region `southamerica-east1`, service `leadbellus`). Firebase Hosting rewrites
+  all traffic to the Cloud Run service.
 
 > **Use Node 20** to match the Dockerfile. If the VM ships Node 22:
 > `export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 20`.
@@ -145,10 +143,10 @@ or `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY`),
 **AI** (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `AI_MODEL`),
 **Stripe** (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CHECKOUT_MODE`,
 `STRIPE_PRICE_ID_{START,PRO,PREMIUM}`),
-**WhatsApp** (`WHATSAPP_PROVIDER`, Twilio `TWILIO_*`, optional `D360_API_KEY` /
-`D360_WEBHOOK_TOKEN`, legacy GET fallback `WHATSAPP_VERIFY_TOKEN`),
-**Zapier** (`ZAPIER_WEBHOOK_URL`, `ZAPIER_SHARED_SECRET`), and optional analytics
-(`NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_META_PIXEL_ID`), plus `NEXT_PUBLIC_SITE_URL`.
+**WhatsApp** (`WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_VERIFY_TOKEN`,
+`WHATSAPP_APP_SECRET`), **Zapier** (`ZAPIER_WEBHOOK_URL`, `ZAPIER_SHARED_SECRET`),
+and optional analytics (`NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_META_PIXEL_ID`),
+plus `NEXT_PUBLIC_SITE_URL`.
 
 > `NEXT_PUBLIC_*` are **build-time** — changing them requires a rebuild
 > (`gcloud builds submit`), not just `services update`.
@@ -157,10 +155,10 @@ or `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY`),
 
 - **Never commit secrets** (not in code, chat, or `cloudbuild.yaml`). Local
   secrets live outside the repo; production secrets live in Secret Manager.
-- **No Auth0** — `feat/auth0` is intentionally parked; Firebase Auth is the
-  official v1 auth. Don't add `AUTH0_*`, Auth0 deps, or new `/auth/*` routes
-  without a dedicated migration. Routing between Vercel and Cloud Run is
-  coordinated in `COORDINATION.md`.
+- **No Vercel** — official deploy is Cloud Run only (Vercel caused domain
+  split-brain). **No Auth0** — `feat/auth0` is intentionally parked; Firebase
+  Auth is the official v1 auth. Don't add `AUTH0_*`, Auth0 deps, or new
+  `/auth/*` routes without a dedicated migration.
 - Each agent works on its **own branch**; never commit directly to the branch
   that deploys.
 - New API routes should follow the `lib/api-security.ts` pattern: origin check +
