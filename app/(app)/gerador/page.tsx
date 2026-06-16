@@ -21,6 +21,7 @@ import { CopyButton } from "@/components/copy-button";
 import { ResponseCard } from "@/components/response-card";
 import { AvisoIA } from "@/components/aviso-ia";
 import { LoadingRespostas } from "@/components/loading-respostas";
+import { LeadTermometro } from "@/components/lead-termometro";
 import { EmptyState } from "@/components/empty-state";
 import { procedimentos } from "@/data/procedimentos";
 import { situacoes } from "@/data/situacoes";
@@ -336,42 +337,39 @@ export default function GeradorPage() {
           {loading && <LoadingRespostas />}
 
           {!loading && nlp && (
-            <Card className="border-brand-200 bg-brand-50/30">
+            <Card className="animate-fade-in border-brand-200 bg-gradient-to-br from-brand-50 to-lavender-50">
               <CardBody className="py-4">
-                <div className="flex items-center gap-2 mb-2 text-brand-700">
+                <div className="mb-3 flex items-center gap-2 text-brand-700">
                   <Sparkles size={16} />
                   <span className="text-xs font-bold uppercase tracking-wider">Lead Intelligence</span>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-[10px] uppercase text-muted font-medium">Intenção</p>
-                    <p className="text-sm font-semibold text-ink capitalize">{nlp.intent?.replace(/_/g, " ")}</p>
+                <LeadTermometro score={nlp.score} />
+                {(nlp.intent || nlp.sentiment) && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {nlp.intent && (
+                      <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-ink capitalize shadow-sm">
+                        Intenção: {nlp.intent.replace(/_/g, " ")}
+                      </span>
+                    )}
+                    {nlp.sentiment && (
+                      <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-ink shadow-sm">
+                        Sentimento: {nlp.sentiment}
+                      </span>
+                    )}
                   </div>
-                  <div>
-                    <p className="text-[10px] uppercase text-muted font-medium">Sentimento</p>
-                    <p className="text-sm font-semibold text-ink">{nlp.sentiment}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase text-muted font-medium">Prioridade</p>
-                    <div className="flex items-center gap-1.5">
-                       <div className="h-2 w-full bg-nude-200 rounded-full overflow-hidden max-w-[60px]">
-                          <div 
-                            className={cn("h-full transition-all", (nlp.score ?? 0) > 70 ? "bg-green-500" : (nlp.score ?? 0) > 40 ? "bg-amber-500" : "bg-brand-400")} 
-                            style={{ width: `${nlp.score ?? 0}%` }}
-                          />
-                       </div>
-                       <span className="text-sm font-bold text-ink">{nlp.score ?? 0}%</span>
-                    </div>
-                  </div>
-                </div>
+                )}
               </CardBody>
             </Card>
           )}
 
           {!loading && respostas && (
             <>
-              {VARIANTES.map((v) => (
-                <div key={v.key} className="relative">
+              {VARIANTES.map((v, idx) => (
+                <div
+                  key={v.key}
+                  className="relative animate-fade-in"
+                  style={{ animationDelay: `${idx * 120}ms` }}
+                >
                   <ResponseCard
                     titulo={v.titulo}
                     descricao={v.descricao}
