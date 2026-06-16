@@ -12,7 +12,7 @@ export const PRIO: Record<Prioridade, { emoji: string; label: string; cls: strin
  * `lib/conversas.ts` (lá é só-servidor); aqui é client-safe para UI.
  */
 export function prioridadeFromScore(score?: number | null): Prioridade {
-  if (typeof score !== "number") return "frio";
+  if (typeof score !== "number") return "morno";
   if (score > 70) return "quente";
   if (score > 40) return "morno";
   return "frio";
