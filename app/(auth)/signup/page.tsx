@@ -41,6 +41,7 @@ function SignupInner() {
           plan={plan ?? undefined}
           checkoutAfter={checkoutAfter}
           next="/dashboard"
+          compact
         />
       </CardBody>
     </Card>

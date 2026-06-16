@@ -182,6 +182,12 @@ export function VisualAuthPanel({
 
   const isSignup = mode === "signup";
 
+  // Preserva o funil (plano escolhido + retomar checkout pós-login) ao
+  // alternar entre /signup e /login.
+  const switchQuery = plan
+    ? `?plan=${plan}${checkoutAfter ? "&next=checkout" : ""}`
+    : "";
+
   return (
     <div className={compact ? "space-y-4" : "grid gap-6 md:grid-cols-2"}>
       {!compact && (
@@ -267,14 +273,14 @@ export function VisualAuthPanel({
           {isSignup ? (
             <>
               Já tem conta?{" "}
-              <Link href="/login" className="font-medium text-brand-600">
+              <Link href={`/login${switchQuery}`} className="font-medium text-brand-600">
                 Entrar
               </Link>
             </>
           ) : (
             <>
               Primeira vez?{" "}
-              <Link href="/signup" className="font-medium text-brand-600">
+              <Link href={`/signup${switchQuery}`} className="font-medium text-brand-600">
                 Testar grátis
               </Link>
             </>
