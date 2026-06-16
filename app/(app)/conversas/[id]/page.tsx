@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Loader2, Send } from "lucide-react";
+import { ArrowLeft, Loader2, Send, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
@@ -23,6 +23,7 @@ export default function ConversaThreadPage() {
   const [mensagens, setMensagens] = useState<MensagemConversa[] | null>(null);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [sugerindo, setSugerindo] = useState(false);
   const [erro, setErro] = useState("");
   const [erroCarregamento, setErroCarregamento] = useState(false);
   const fimRef = useRef<HTMLDivElement>(null);
@@ -89,6 +90,41 @@ export default function ConversaThreadPage() {
     }
   }
 
+  // Última mensagem que a cliente enviou (alimenta a sugestão da IA).
+  const ultimaEntrada = [...(mensagens ?? [])]
+    .reverse()
+    .find((m) => m.direcao === "in");
+
+  async function sugerir() {
+    if (!ultimaEntrada || sugerindo) return;
+    setSugerindo(true);
+    setErro("");
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          modo: "gerar",
+          situacao: "preco",
+          tom: "acolhedor",
+          objetivo: "direcionar para a avaliação",
+          nomeCliente: conversa?.cliente_nome,
+          mensagemCliente: ultimaEntrada.texto,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data?.respostas?.consultiva) {
+        setTexto(data.respostas.consultiva);
+      } else {
+        setErro(data?.error || "Não consegui sugerir agora.");
+      }
+    } catch {
+      setErro("Falha ao sugerir resposta.");
+    } finally {
+      setSugerindo(false);
+    }
+  }
+
   const prio = conversa ? PRIO[conversa.prioridade] ?? PRIO.morno : null;
 
   return (
@@ -110,6 +146,7 @@ export default function ConversaThreadPage() {
             {prio && (
               <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold", prio.cls)}>
                 {prio.emoji} {prio.label}
+                {typeof conversa?.score === "number" ? ` · ${conversa.score}%` : ""}
               </span>
             )}
           </div>
@@ -166,6 +203,21 @@ export default function ConversaThreadPage() {
       {/* responder */}
       <div className="border-t border-brand-100 pt-3">
         {erro && <p className="mb-2 text-xs text-red-600">{erro}</p>}
+        {ultimaEntrada && (
+          <button
+            type="button"
+            onClick={sugerir}
+            disabled={sugerindo}
+            className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-100 disabled:opacity-60"
+          >
+            {sugerindo ? (
+              <Loader2 size={13} className="animate-spin" />
+            ) : (
+              <Sparkles size={13} />
+            )}
+            {sugerindo ? "Pensando…" : "Sugerir resposta com IA"}
+          </button>
+        )}
         <div className="flex items-end gap-2">
           <textarea
             value={texto}
