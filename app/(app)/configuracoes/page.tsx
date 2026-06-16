@@ -11,12 +11,13 @@ import { tons } from "@/data/tons";
 import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { getClinica, saveClinica } from "@/lib/store";
 import { onAuthStateChanged, updatePassword } from "firebase/auth";
-import { isFirebaseConfigured } from "@/lib/config";
+import { isFirebaseConfigured, isWebPushConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CheckoutButton } from "@/components/checkout-button";
 import { BillingPortalButton } from "@/components/billing-portal-button";
+import { NotificacoesToggle } from "@/components/notificacoes-toggle";
 import { billingPlanList, billingPlans, parseBillingPlan } from "@/lib/billing";
 import { trackEvent } from "@/components/Analytics";
 
@@ -368,6 +369,8 @@ export default function ConfiguracoesPage() {
           </div>
         </div>
       </div>
+
+      {isWebPushConfigured && <NotificacoesToggle />}
 
       {/* ── Trocar senha ── */}
       {isFirebaseConfigured && (
