@@ -48,8 +48,8 @@ const VARIANTES: {
     num: "01",
     titulo: "Suave",
     descricao: "Acolhe sem pressionar; reabre com uma pergunta.",
-    cor: "border-brand-200 bg-white",
-    badge: "bg-brand-500 text-white",
+    cor: "border-navy-500 bg-navy-700",
+    badge: "bg-navy-800 text-white",
   },
   {
     key: "consultiva",
@@ -57,15 +57,15 @@ const VARIANTES: {
     titulo: "Consultiva",
     descricao: "Educa, qualifica e posiciona autoridade.",
     cor: "border-gold-200 bg-gradient-to-br from-white to-gold-50/40",
-    badge: "bg-gold-500 text-brand-900",
+    badge: "bg-gold-500 text-navy-900",
   },
   {
     key: "persuasiva",
     num: "03",
     titulo: "Fechamento",
     descricao: "Conduz direto para a avaliação/agendamento.",
-    cor: "border-brand-200 bg-white",
-    badge: "bg-brand-500 text-white",
+    cor: "border-navy-500 bg-navy-700",
+    badge: "bg-navy-800 text-white",
   },
 ];
 
@@ -204,15 +204,15 @@ export default function GeradorPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-semibold text-ink">
+          <h1 className="font-serif text-3xl font-semibold text-champagne-300">
             Gerador de Respostas
           </h1>
-          <p className="text-sm text-muted mt-1">
+          <p className="text-sm text-navy-100 mt-1">
             Cole a mensagem da cliente e receba 3 respostas estratégicas — já no tom da sua clínica.
           </p>
         </div>
         {nomeDna && (
-          <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700">
+          <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border border-navy-500 bg-gold-500/10 px-3 py-1.5 text-xs font-semibold text-gold-400">
             <Dna size={12} />
             DNA ativo · {nomeDna}
           </span>
@@ -220,7 +220,7 @@ export default function GeradorPage() {
       </div>
 
       {/* Toggle modo */}
-      <div className="inline-flex rounded-xl bg-nude-100 p-1 shadow-sm">
+      <div className="inline-flex rounded-xl bg-navy-700 p-1 shadow-sm">
         {(["gerar", "reescrever"] as const).map((m) => (
           <button
             key={m}
@@ -229,8 +229,8 @@ export default function GeradorPage() {
             className={cn(
               "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all",
               modo === m
-                ? "bg-brand-500 text-gold-400 shadow-sm"
-                : "text-muted hover:text-ink"
+                ? "bg-navy-800 text-gold-400 shadow-sm"
+                : "text-navy-100 hover:text-champagne-300"
             )}
           >
             {m === "gerar" ? <Sparkles size={15} /> : <Wand2 size={15} />}
@@ -242,9 +242,9 @@ export default function GeradorPage() {
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
 
         {/* ── Formulário ── */}
-        <div className="rounded-2xl border border-brand-100 bg-white shadow-card">
+        <div className="rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
           <div className="border-b border-brand-50 px-5 py-4 sm:px-6">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+            <p className="text-xs font-semibold uppercase tracking-wider text-navy-100">
               {modo === "reescrever" ? "Sua mensagem" : "Contexto da conversa"}
             </p>
           </div>
@@ -300,8 +300,8 @@ export default function GeradorPage() {
                       className={cn(
                         "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                         oQueMelhorar.includes(o.value)
-                          ? "border-brand-500 bg-brand-500 text-white"
-                          : "border-brand-200 bg-white text-muted hover:bg-nude-100"
+                          ? "border-brand-500 bg-navy-800 text-white"
+                          : "border-navy-500 bg-navy-700 text-navy-100 hover:bg-navy-700"
                       )}
                     >
                       {o.label}
@@ -329,14 +329,14 @@ export default function GeradorPage() {
             </div>
 
             {erro && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{erro}</p>
+              <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">{erro}</p>
             )}
 
             <button
               type="button"
               onClick={gerar}
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-3 text-sm font-bold text-gold-400 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-cta disabled:opacity-60 disabled:translate-y-0"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-navy-800 px-4 py-3 text-sm font-bold text-gold-400 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-cta disabled:opacity-60 disabled:translate-y-0"
             >
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
               {modo === "reescrever" ? "Melhorar mensagem" : "Gerar 3 respostas"}
@@ -352,7 +352,7 @@ export default function GeradorPage() {
 
           {/* Lead Intelligence */}
           {!loading && nlp && (
-            <div className="rounded-2xl border border-brand-100 bg-brand-500 p-4 shadow-soft">
+            <div className="rounded-2xl border border-navy-500 bg-navy-800 p-4 shadow-soft">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles size={14} className="text-gold-400" />
                 <span className="text-xs font-bold uppercase tracking-wider text-gold-400">Lead Intelligence</span>
@@ -363,14 +363,14 @@ export default function GeradorPage() {
                   { label: "Sentimento", val: nlp.sentiment ?? "—" },
                 ].map((item) => (
                   <div key={item.label} className="col-span-1">
-                    <p className="text-[10px] uppercase text-lavender-400 font-medium">{item.label}</p>
+                    <p className="text-[10px] uppercase text-navy-100 font-medium">{item.label}</p>
                     <p className="text-sm font-semibold text-white capitalize">{item.val}</p>
                   </div>
                 ))}
                 <div>
-                  <p className="text-[10px] uppercase text-lavender-400 font-medium">Prioridade</p>
+                  <p className="text-[10px] uppercase text-navy-100 font-medium">Prioridade</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <div className="h-1.5 w-full rounded-full bg-white/20 overflow-hidden">
+                    <div className="h-1.5 w-full rounded-full bg-navy-700/20 overflow-hidden">
                       <div
                         className={cn(
                           "h-full rounded-full transition-all",
@@ -400,8 +400,8 @@ export default function GeradorPage() {
                         {v.num}
                       </span>
                       <div>
-                        <p className="text-sm font-semibold text-ink">{v.titulo}</p>
-                        <p className="text-xs text-muted">{v.descricao}</p>
+                        <p className="text-sm font-semibold text-champagne-300">{v.titulo}</p>
+                        <p className="text-xs text-navy-100">{v.descricao}</p>
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-1.5">
@@ -409,7 +409,7 @@ export default function GeradorPage() {
                         type="button"
                         onClick={() => melhorar(v.key)}
                         disabled={refinando !== null}
-                        className="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-50"
+                        className="inline-flex items-center gap-1 rounded-lg border border-navy-500 bg-navy-700 px-2.5 py-1.5 text-xs font-medium text-gold-400 transition-colors hover:bg-gold-500/10 disabled:opacity-50"
                       >
                         {refinando === v.key
                           ? <Loader2 size={12} className="animate-spin" />
@@ -419,7 +419,7 @@ export default function GeradorPage() {
                       <CopyButton text={respostas[v.key]} />
                     </div>
                   </div>
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-champagne-300">
                     {respostas[v.key]}
                   </p>
                 </div>
@@ -428,9 +428,9 @@ export default function GeradorPage() {
               <button
                 type="button"
                 onClick={salvar}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2.5 text-sm font-medium text-brand-700 transition-colors hover:bg-brand-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-navy-500 bg-navy-700 px-4 py-2.5 text-sm font-medium text-gold-400 transition-colors hover:bg-gold-500/10"
               >
-                {salvo ? <Check size={15} className="text-green-600" /> : <Save size={15} />}
+                {salvo ? <Check size={15} className="text-green-400" /> : <Save size={15} />}
                 {salvo ? "Salvo no histórico!" : "Salvar no histórico"}
               </button>
             </>
@@ -438,17 +438,17 @@ export default function GeradorPage() {
 
           {/* Empty state */}
           {!loading && !respostas && (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-brand-200 bg-white py-14 text-center">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50">
-                <MessageSquareText size={22} className="text-brand-400" />
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-navy-500 bg-navy-700 py-14 text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-500/10">
+                <MessageSquareText size={22} className="text-gold-500" />
               </div>
-              <p className="text-sm font-medium text-ink mb-1">Suas respostas aparecem aqui</p>
-              <p className="text-xs text-muted max-w-[220px] leading-relaxed">
+              <p className="text-sm font-medium text-champagne-300 mb-1">Suas respostas aparecem aqui</p>
+              <p className="text-xs text-navy-100 max-w-[220px] leading-relaxed">
                 Preencha o contexto ao lado e clique em{" "}
-                <strong className="text-brand-600">Gerar 3 respostas</strong>.
+                <strong className="text-gold-400">Gerar 3 respostas</strong>.
               </p>
-              <div className="mt-4 flex items-center gap-1 text-xs text-muted">
-                <ChevronRight size={14} className="text-brand-400" />
+              <div className="mt-4 flex items-center gap-1 text-xs text-navy-100">
+                <ChevronRight size={14} className="text-gold-500" />
                 Suave · Consultiva · Fechamento
               </div>
             </div>

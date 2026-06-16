@@ -24,13 +24,13 @@ const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
 
 function SectionHeader({ icon: Icon, title, subtitle }: { icon: React.ElementType; title: string; subtitle?: string }) {
   return (
-    <div className="flex items-center gap-3 border-b border-brand-50 bg-brand-500 px-5 py-4 sm:px-6">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10">
+    <div className="flex items-center gap-3 border-b border-brand-50 bg-navy-800 px-5 py-4 sm:px-6">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-navy-700/10">
         <Icon size={18} className="text-gold-400" />
       </div>
       <div>
         <p className="font-serif text-base font-semibold text-white">{title}</p>
-        {subtitle && <p className="text-xs text-lavender-300">{subtitle}</p>}
+        {subtitle && <p className="text-xs text-champagne-300">{subtitle}</p>}
       </div>
     </div>
   );
@@ -176,8 +176,8 @@ export default function ConfiguracoesPage() {
   if (carregando || abrindoCheckout) {
     return (
       <div className="flex flex-col items-center gap-3 py-20">
-        <Loader2 className="animate-spin text-brand-400" />
-        {abrindoCheckout && <p className="text-sm text-muted">Abrindo o pagamento seguro…</p>}
+        <Loader2 className="animate-spin text-gold-500" />
+        {abrindoCheckout && <p className="text-sm text-navy-100">Abrindo o pagamento seguro…</p>}
       </div>
     );
   }
@@ -187,15 +187,15 @@ export default function ConfiguracoesPage() {
 
       {/* Header */}
       <div>
-        <h1 className="font-serif text-3xl font-semibold text-ink">Configurações</h1>
-        <p className="text-sm text-muted mt-1">
+        <h1 className="font-serif text-3xl font-semibold text-champagne-300">Configurações</h1>
+        <p className="text-sm text-navy-100 mt-1">
           O DNA da sua clínica deixa todas as respostas com a sua identidade.
         </p>
       </div>
 
       {/* ── Dados + DNA ── */}
       <form onSubmit={salvar}>
-        <div className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-card">
+        <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
           <SectionHeader icon={Building2} title="Dados da clínica" subtitle="Nome, cidade e WhatsApp" />
 
           <div className="space-y-4 p-5 sm:p-6">
@@ -220,9 +220,9 @@ export default function ConfiguracoesPage() {
           </div>
 
           {/* Divisor DNA */}
-          <div className="flex items-center gap-3 border-y border-brand-100 bg-nude-50 px-5 py-3 sm:px-6">
-            <Dna size={16} className="text-brand-500" />
-            <p className="text-xs font-semibold uppercase tracking-wider text-brand-600">DNA da Clínica</p>
+          <div className="flex items-center gap-3 border-y border-navy-500 bg-navy-800 px-5 py-3 sm:px-6">
+            <Dna size={16} className="text-gold-500" />
+            <p className="text-xs font-semibold uppercase tracking-wider text-gold-400">DNA da Clínica</p>
           </div>
 
           <div className="space-y-5 p-5 sm:p-6">
@@ -237,11 +237,11 @@ export default function ConfiguracoesPage() {
                 step={5}
                 value={c.formalidade}
                 onChange={(e) => set("formalidade", Number(e.target.value))}
-                className="mt-2 w-full accent-brand-500"
+                className="mt-2 w-full accent-gold-500"
               />
-              <div className="flex justify-between text-xs text-muted mt-1">
+              <div className="flex justify-between text-xs text-navy-100 mt-1">
                 <span>Bem íntimo</span>
-                <span className="font-semibold text-brand-600">{formalidadeLabel(c.formalidade)}</span>
+                <span className="font-semibold text-gold-400">{formalidadeLabel(c.formalidade)}</span>
                 <span>Formal</span>
               </div>
             </div>
@@ -258,8 +258,8 @@ export default function ConfiguracoesPage() {
                     className={cn(
                       "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
                       c.como_chamar === o.value
-                        ? "border-brand-500 bg-brand-500 text-white"
-                        : "border-brand-200 bg-white text-ink hover:bg-nude-100"
+                        ? "border-brand-500 bg-navy-800 text-white"
+                        : "border-navy-500 bg-navy-700 text-champagne-300 hover:bg-navy-700"
                     )}
                   >
                     {o.label}
@@ -288,8 +288,8 @@ export default function ConfiguracoesPage() {
                       className={cn(
                         "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                         ativo
-                          ? "border-brand-500 bg-brand-500 text-white"
-                          : "border-brand-200 bg-white text-muted hover:bg-nude-100"
+                          ? "border-brand-500 bg-navy-800 text-white"
+                          : "border-navy-500 bg-navy-700 text-navy-100 hover:bg-navy-700"
                       )}
                     >
                       {p.label}
@@ -299,19 +299,19 @@ export default function ConfiguracoesPage() {
               </div>
             </div>
 
-            {erro && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{erro}</p>}
+            {erro && <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">{erro}</p>}
 
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <button
                 type="submit"
                 disabled={salvando}
-                className="flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 text-sm font-bold text-gold-400 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-cta disabled:opacity-60 disabled:translate-y-0"
+                className="flex items-center gap-2 rounded-xl bg-navy-800 px-5 py-2.5 text-sm font-bold text-gold-400 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-cta disabled:opacity-60 disabled:translate-y-0"
               >
                 {salvando ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                 Salvar DNA
               </button>
               {ok && (
-                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-green-600">
+                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-green-400">
                   <Check size={15} /> Salvo com sucesso!
                 </span>
               )}
@@ -321,11 +321,11 @@ export default function ConfiguracoesPage() {
       </form>
 
       {/* ── Plano e pagamento ── */}
-      <div className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-card">
+      <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
         <SectionHeader icon={CreditCard} title="Plano e pagamento" subtitle="Stripe · cobrança segura" />
 
         <div className="space-y-4 p-5 sm:p-6">
-          <p className="text-sm text-muted">
+          <p className="text-sm text-navy-100">
             No lançamento, o Start está disponível. Os demais planos entram por lista de espera.
           </p>
 
@@ -336,22 +336,22 @@ export default function ConfiguracoesPage() {
                 className={cn(
                   "rounded-2xl border p-4",
                   plano.destaque
-                    ? "border-brand-300 bg-gradient-to-br from-nude-50 to-brand-50"
-                    : "border-brand-100 bg-nude-50"
+                    ? "border-navy-400 bg-gradient-to-br from-nude-50 to-brand-50"
+                    : "border-navy-500 bg-navy-800"
                 )}
               >
-                <p className="text-xs font-medium text-muted">Plano {plano.label}</p>
-                <p className="font-serif text-3xl font-semibold text-ink mt-0.5">
+                <p className="text-xs font-medium text-navy-100">Plano {plano.label}</p>
+                <p className="font-serif text-3xl font-semibold text-champagne-300 mt-0.5">
                   {plano.priceLabel}
-                  <span className="text-sm font-normal text-muted">{plano.periodLabel}</span>
+                  <span className="text-sm font-normal text-navy-100">{plano.periodLabel}</span>
                 </p>
-                <p className="mt-1 text-xs text-muted">{plano.tagline}</p>
+                <p className="mt-1 text-xs text-navy-100">{plano.tagline}</p>
                 {plano.disponivel ? (
                   <CheckoutButton plan={plano.id} variant={plano.destaque ? "primary" : "outline"} className="mt-4 w-full">
                     Assinar {plano.label}
                   </CheckoutButton>
                 ) : (
-                  <p className="mt-4 rounded-xl bg-nude-100 px-3 py-2 text-center text-xs font-medium text-muted">
+                  <p className="mt-4 rounded-xl bg-navy-700 px-3 py-2 text-center text-xs font-medium text-navy-100">
                     Em breve — lista de espera
                   </p>
                 )}
@@ -359,10 +359,10 @@ export default function ConfiguracoesPage() {
             ))}
           </div>
 
-          <div className="flex flex-col gap-3 rounded-2xl border border-brand-100 bg-nude-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 rounded-2xl border border-navy-500 bg-navy-800 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-ink">Já assinou?</p>
-              <p className="mt-0.5 text-xs text-muted">Abra o portal para atualizar cartão ou cancelar.</p>
+              <p className="text-sm font-semibold text-champagne-300">Já assinou?</p>
+              <p className="mt-0.5 text-xs text-navy-100">Abra o portal para atualizar cartão ou cancelar.</p>
             </div>
             <BillingPortalButton />
           </div>
@@ -371,7 +371,7 @@ export default function ConfiguracoesPage() {
 
       {/* ── Trocar senha ── */}
       {isFirebaseConfigured && (
-        <div className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-card">
+        <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
           <SectionHeader icon={KeyRound} title="Trocar senha" />
 
           <div className="p-5 sm:p-6">
@@ -389,7 +389,7 @@ export default function ConfiguracoesPage() {
               <Button type="submit" variant="outline">Atualizar</Button>
             </form>
             {senhaMsg && (
-              <p className={cn("mt-3 text-sm", senhaMsg.startsWith("Erro") ? "text-red-600" : "text-green-600")}>
+              <p className={cn("mt-3 text-sm", senhaMsg.startsWith("Erro") ? "text-red-400" : "text-green-400")}>
                 {senhaMsg}
               </p>
             )}

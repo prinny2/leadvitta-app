@@ -18,8 +18,8 @@ const tipoLabel: Record<string, string> = {
 };
 
 const tipoBadge: Record<string, string> = {
-  gerador: "bg-brand-500 text-white",
-  follow_up: "bg-gold-500 text-brand-900",
+  gerador: "bg-navy-800 text-white",
+  follow_up: "bg-gold-500 text-navy-900",
   reescrever: "bg-brand-200 text-brand-800",
 };
 
@@ -68,8 +68,8 @@ export default function HistoricoPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="font-serif text-3xl font-semibold text-ink">Histórico</h1>
-          <p className="text-sm text-muted mt-1">
+          <h1 className="font-serif text-3xl font-semibold text-champagne-300">Histórico</h1>
+          <p className="text-sm text-navy-100 mt-1">
             Tudo que você gerou fica salvo aqui para reaproveitar a qualquer momento.
           </p>
         </div>
@@ -87,8 +87,8 @@ export default function HistoricoPage() {
               className={cn(
                 "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                 filtroTipo === f.value
-                  ? "border-brand-500 bg-brand-500 text-white"
-                  : "border-brand-200 bg-white text-muted hover:bg-nude-100"
+                  ? "border-brand-500 bg-navy-800 text-white"
+                  : "border-navy-500 bg-navy-700 text-navy-100 hover:bg-navy-700"
               )}
             >
               {f.label}
@@ -101,7 +101,7 @@ export default function HistoricoPage() {
               "ml-1 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               soFavoritos
                 ? "border-gold-400 bg-gold-50 text-gold-700"
-                : "border-brand-200 bg-white text-muted hover:bg-nude-100"
+                : "border-navy-500 bg-navy-700 text-navy-100 hover:bg-navy-700"
             )}
           >
             <Star size={12} fill={soFavoritos ? "currentColor" : "none"} /> Favoritos
@@ -112,20 +112,20 @@ export default function HistoricoPage() {
       {/* Loading */}
       {itens === null && (
         <div className="flex justify-center py-16">
-          <Loader2 className="animate-spin text-brand-400" />
+          <Loader2 className="animate-spin text-gold-500" />
         </div>
       )}
 
       {/* Empty */}
       {itens && filtrados.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-brand-200 bg-white py-16 text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50">
-            <HistoryIcon size={22} className="text-brand-400" />
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-navy-500 bg-navy-700 py-16 text-center">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-500/10">
+            <HistoryIcon size={22} className="text-gold-500" />
           </div>
-          <p className="text-sm font-medium text-ink mb-1">
+          <p className="text-sm font-medium text-champagne-300 mb-1">
             {itens.length === 0 ? "Nenhuma resposta salva ainda" : "Nenhum item para esse filtro"}
           </p>
-          <p className="text-xs text-muted max-w-xs">
+          <p className="text-xs text-navy-100 max-w-xs">
             {itens.length === 0
               ? "Gere respostas no Gerador e salve no histórico para acessar aqui."
               : "Tente outro filtro ou remova o filtro de favoritos."}
@@ -138,11 +138,11 @@ export default function HistoricoPage() {
         <div className="space-y-4">
           {filtrados.map((item) => {
             const resumo = resumoContexto(item.contexto || {});
-            const badge = tipoBadge[item.tipo] ?? "bg-brand-100 text-brand-700";
+            const badge = tipoBadge[item.tipo] ?? "bg-brand-100 text-gold-400";
             return (
               <div
                 key={item.id}
-                className="rounded-2xl border border-brand-100 bg-white shadow-card"
+                className="rounded-2xl border border-navy-500 bg-navy-700 shadow-card"
               >
                 {/* Cabeçalho do item */}
                 <div className="flex flex-wrap items-center gap-2 border-b border-brand-50 px-4 py-3">
@@ -150,22 +150,22 @@ export default function HistoricoPage() {
                     {tipoLabel[item.tipo] ?? item.tipo}
                   </span>
                   {item.intent && (
-                    <span className="rounded-full bg-nude-100 px-2.5 py-0.5 text-xs font-medium text-ink capitalize">
+                    <span className="rounded-full bg-navy-700 px-2.5 py-0.5 text-xs font-medium text-champagne-300 capitalize">
                       {item.intent.replace(/_/g, " ")}
                     </span>
                   )}
                   {item.score !== undefined && (
                     <span className={cn(
                       "rounded-full px-2.5 py-0.5 text-xs font-bold",
-                      item.score > 70 ? "bg-green-100 text-green-700"
+                      item.score > 70 ? "bg-green-900/30 text-green-400"
                         : item.score > 40 ? "bg-gold-100 text-gold-700"
-                        : "bg-brand-100 text-brand-700"
+                        : "bg-brand-100 text-gold-400"
                     )}>
                       Score {item.score}%
                     </span>
                   )}
-                  {resumo && <span className="text-xs text-muted">{resumo}</span>}
-                  <span className="ml-auto text-xs text-muted">{formatarData(item.created_at)}</span>
+                  {resumo && <span className="text-xs text-navy-100">{resumo}</span>}
+                  <span className="ml-auto text-xs text-navy-100">{formatarData(item.created_at)}</span>
                   <button
                     type="button"
                     onClick={() => favoritar(item)}
@@ -184,9 +184,9 @@ export default function HistoricoPage() {
                   {item.respostas.map((r, i) => (
                     <div
                       key={i}
-                      className="flex items-start justify-between gap-3 rounded-xl bg-nude-50 p-3"
+                      className="flex items-start justify-between gap-3 rounded-xl bg-navy-800 p-3"
                     >
-                      <p className="text-sm leading-relaxed text-ink">{r}</p>
+                      <p className="text-sm leading-relaxed text-champagne-300">{r}</p>
                       <CopyButton text={r} />
                     </div>
                   ))}

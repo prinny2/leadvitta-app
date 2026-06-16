@@ -92,10 +92,10 @@ export default function FollowUpPage() {
 
       {/* Header */}
       <div>
-        <h1 className="font-serif text-3xl font-semibold text-ink">
+        <h1 className="font-serif text-3xl font-semibold text-champagne-300">
           Follow-up Inteligente
         </h1>
-        <p className="text-sm text-muted mt-1">
+        <p className="text-sm text-navy-100 mt-1">
           Reative quem sumiu depois de perguntar ou agendar — sem parecer insistente.
           São 3 mensagens escalonadas no ritmo certo.
         </p>
@@ -104,9 +104,9 @@ export default function FollowUpPage() {
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
 
         {/* Formulário */}
-        <div className="rounded-2xl border border-brand-100 bg-white shadow-card">
+        <div className="rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
           <div className="border-b border-brand-50 px-5 py-4 sm:px-6">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+            <p className="text-xs font-semibold uppercase tracking-wider text-navy-100">
               Contexto da cliente
             </p>
           </div>
@@ -151,14 +151,14 @@ export default function FollowUpPage() {
             </div>
 
             {erro && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{erro}</p>
+              <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">{erro}</p>
             )}
 
             <button
               type="button"
               onClick={gerar}
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-3 text-sm font-bold text-gold-400 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-cta disabled:opacity-60 disabled:translate-y-0"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-navy-800 px-4 py-3 text-sm font-bold text-gold-400 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-cta disabled:opacity-60 disabled:translate-y-0"
             >
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
               Gerar sequência de follow-up
@@ -186,23 +186,23 @@ export default function FollowUpPage() {
                     {/* Ícone */}
                     <div className={cn(
                       "relative z-10 mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[11px] font-bold shadow-sm",
-                      isGold ? "bg-gold-500 text-brand-900" : "bg-brand-500 text-white"
+                      isGold ? "bg-gold-500 text-navy-900" : "bg-navy-800 text-white"
                     )}>
                       {meta.icon}
                     </div>
                     {/* Card */}
                     <div className={cn(
                       "flex-1 rounded-2xl border p-4",
-                      isGold ? "border-gold-200 bg-gradient-to-br from-white to-gold-50/40" : "border-brand-100 bg-white"
+                      isGold ? "border-gold-200 bg-gradient-to-br from-white to-gold-50/40" : "border-navy-500 bg-navy-700"
                     )}>
                       <div className="mb-2 flex items-start justify-between gap-2">
                         <div>
-                          <p className="text-sm font-semibold text-ink">{meta.titulo}</p>
-                          <p className="text-xs text-muted">{meta.descricao}</p>
+                          <p className="text-sm font-semibold text-champagne-300">{meta.titulo}</p>
+                          <p className="text-xs text-navy-100">{meta.descricao}</p>
                         </div>
                         <CopyButton text={m} />
                       </div>
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink">{m}</p>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-champagne-300">{m}</p>
                     </div>
                   </div>
                 );
@@ -211,16 +211,16 @@ export default function FollowUpPage() {
           )}
 
           {!loading && !mensagens && (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-brand-200 bg-white py-14 text-center">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50">
-                <Clock size={22} className="text-brand-400" />
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-navy-500 bg-navy-700 py-14 text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-500/10">
+                <Clock size={22} className="text-gold-500" />
               </div>
-              <p className="text-sm font-medium text-ink mb-1">Sequência aparece aqui</p>
-              <p className="text-xs text-muted max-w-[220px] leading-relaxed">
+              <p className="text-sm font-medium text-champagne-300 mb-1">Sequência aparece aqui</p>
+              <p className="text-xs text-navy-100 max-w-[220px] leading-relaxed">
                 Escolha o tempo e o contexto ao lado para gerar 3 mensagens escalonadas.
               </p>
-              <div className="mt-4 flex items-center gap-1 text-xs text-muted">
-                <ChevronRight size={14} className="text-brand-400" />
+              <div className="mt-4 flex items-center gap-1 text-xs text-navy-100">
+                <ChevronRight size={14} className="text-gold-500" />
                 Abertura · Meio · Fechamento
               </div>
             </div>
