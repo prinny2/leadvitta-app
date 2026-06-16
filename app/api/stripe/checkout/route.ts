@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     : "/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}";
   const cancelPath = firebaseUid
     ? "/configuracoes?checkout=cancelado"
-    : "/?checkout=cancelado";
+    : "/#demo";
   const params: Stripe.Checkout.SessionCreateParams = {
     mode: checkoutMode,
     line_items: [{ price: planConfig.priceId, quantity: 1 }],
