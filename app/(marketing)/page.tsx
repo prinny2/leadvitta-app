@@ -29,6 +29,7 @@ import { WaitlistForm } from "@/components/waitlist-form";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 import { HeroDevices } from "@/components/hero-devices";
+import { PricingCardAnimated } from "@/components/pricing-card-animated";
 
 const funilHref = "/signup";
 
@@ -1469,8 +1470,10 @@ export default function LandingPage() {
             {(() => {
               const plano = billingPlanList[0];
               return (
-                <div
-                  style={{
+                <PricingCardAnimated
+                  index={0}
+                  isPopular={false}
+                  cardStyle={{
                     background: "#0a1220",
                     border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: "24px",
@@ -1561,7 +1564,7 @@ export default function LandingPage() {
                   ) : (
                     <WaitlistForm plan="start" className="" />
                   )}
-                </div>
+                </PricingCardAnimated>
               );
             })()}
 
@@ -1569,8 +1572,10 @@ export default function LandingPage() {
             {(() => {
               const plano = billingPlanList[1];
               return (
-                <div
-                  style={{
+                <PricingCardAnimated
+                  index={1}
+                  isPopular={true}
+                  cardStyle={{
                     background: "#0f1b2f",
                     border: "2px solid #C9A060",
                     borderRadius: "24px",
@@ -1674,7 +1679,7 @@ export default function LandingPage() {
                       <WaitlistForm plan="pro" className="" />
                     </>
                   )}
-                </div>
+                </PricingCardAnimated>
               );
             })()}
 
@@ -1682,8 +1687,10 @@ export default function LandingPage() {
             {(() => {
               const plano = billingPlanList[2];
               return (
-                <div
-                  style={{
+                <PricingCardAnimated
+                  index={2}
+                  isPopular={false}
+                  cardStyle={{
                     background: "linear-gradient(160deg, #0f1b2f 0%, #0a1220 60%, #111820 100%)",
                     border: "1.5px solid rgba(201,160,96,0.35)",
                     borderRadius: "24px",
@@ -1807,7 +1814,7 @@ export default function LandingPage() {
                       </p>
                     </>
                   )}
-                </div>
+                </PricingCardAnimated>
               );
             })()}
           </div>
