@@ -8,7 +8,7 @@ import {
 } from "recharts";
 import { Sparkles, TrendingUp, Flame, Snowflake, Sun, ArrowRight, ChevronRight,
   MessagesSquare, Send, ListChecks, History, Settings, Zap, Brain, Target } from "lucide-react";
-import { getClinica } from "@/lib/store";
+import { getClinica, getBillingPlan } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/theme-provider";
 
@@ -94,13 +94,8 @@ export default function DashboardPage() {
   const isPro = plano === "pro" || plano === "premium";
 
   useEffect(() => {
-    getClinica().then((c) => {
-      setNome(c.nome_clinica || "");
-      // billing é server-only; em demo mode usa "start"
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const b = (c as any).billing;
-      if (b?.plan === "pro" || b?.plan === "premium") setPlano(b.plan);
-    });
+    getClinica().then((c) => setNome(c.nome_clinica || ""));
+    getBillingPlan().then((plan) => setPlano(plan));
   }, []);
 
   const totalLeads = dadosLeads.reduce((a, b) => a + b.value, 0);
