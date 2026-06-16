@@ -44,16 +44,20 @@ export default function DashboardPage() {
 
   useEffect(() => {
     let vivo = true;
-    Promise.all([getClinica(), listHistorico(), listConversas()]).then(
-      ([c, hist, convs]) => {
+    Promise.all([getClinica(), listHistorico(), listConversas()])
+      .then(([c, hist, convs]) => {
         if (!vivo) return;
         setNome(c.nome_clinica || "");
         setTotalGerado(hist.length);
         setFavoritos(hist.filter((h) => h.favorito).length);
         setConversas(convs);
-        setCarregando(false);
-      }
-    );
+      })
+      .catch(() => {
+        /* mantém os contadores neutros; o finally encerra o loading */
+      })
+      .finally(() => {
+        if (vivo) setCarregando(false);
+      });
     return () => {
       vivo = false;
     };
@@ -89,14 +93,14 @@ export default function DashboardPage() {
         <StatCard
           icon={Flame}
           tone="pain"
-          value={contagem.quente}
+          value={carregando ? "—" : contagem.quente}
           label="Leads quentes"
           hint="querem fechar agora"
         />
         <StatCard
           icon={Inbox}
           tone={naoLidas > 0 ? "pain" : "brand"}
-          value={naoLidas}
+          value={carregando ? "—" : naoLidas}
           label="Sem resposta"
           hint="conversas não lidas"
         />
@@ -124,7 +128,18 @@ export default function DashboardPage() {
             <Sparkles size={14} /> LEAD INTELLIGENCE
           </span>
 
-          {temInbox ? (
+          {carregando ? (
+            <>
+              <h2 className="mb-5 font-serif text-2xl font-semibold">
+                Lendo suas conversas…
+              </h2>
+              <div className="grid grid-cols-3 gap-3 sm:max-w-md">
+                {[0, 1, 2].map((n) => (
+                  <div key={n} className="h-[92px] animate-pulse rounded-2xl bg-white/8" />
+                ))}
+              </div>
+            </>
+          ) : temInbox ? (
             <>
               <h2 className="mb-5 font-serif text-2xl font-semibold">
                 Sua fila de hoje, já priorizada

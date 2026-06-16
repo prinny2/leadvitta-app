@@ -18,12 +18,21 @@ const ETAPAS = [
  */
 export function LoadingRespostas({ etapas = ETAPAS }: { etapas?: string[] }) {
   const [i, setI] = useState(0);
+  const total = etapas.length;
   useEffect(() => {
+    setI(0);
+    if (total <= 1) return;
     const t = setInterval(() => {
-      setI((prev) => (prev < etapas.length - 1 ? prev + 1 : prev));
+      setI((prev) => {
+        if (prev >= total - 1) {
+          clearInterval(t);
+          return prev;
+        }
+        return prev + 1;
+      });
     }, 1100);
     return () => clearInterval(t);
-  }, [etapas.length]);
+  }, [total]);
 
   const pct = Math.round(((i + 1) / etapas.length) * 100);
 

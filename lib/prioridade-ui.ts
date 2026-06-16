@@ -9,10 +9,11 @@ export const PRIO: Record<Prioridade, { emoji: string; label: string; cls: strin
 
 /**
  * Deriva a prioridade do score (0–100). Espelha `prioridadeDoScore` de
- * `lib/conversas.ts` (lá é só-servidor); aqui é client-safe para UI.
+ * `lib/conversas.ts` (lá é só-servidor); aqui é client-safe para UI —
+ * inclusive o fallback "morno" quando o score ainda não foi calculado.
  */
 export function prioridadeFromScore(score?: number | null): Prioridade {
-  if (typeof score !== "number") return "frio";
+  if (typeof score !== "number") return "morno";
   if (score > 70) return "quente";
   if (score > 40) return "morno";
   return "frio";
