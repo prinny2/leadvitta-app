@@ -134,7 +134,6 @@ describe("violaCompliance / DENYLIST", () => {
     "Eu garanto que você vai amar",
     "O botox custa R$ 900",
     "Fica em R$ 1200 e pronto",
-    "Trabalhamos com preço fixo",
   ])("detecta promessa proibida: %s", (texto) => {
     expect(violaCompliance(texto)).toBe(true);
   });
@@ -143,6 +142,10 @@ describe("violaCompliance / DENYLIST", () => {
     "O resultado varia de pessoa para pessoa e depende da avaliação.",
     "O investimento começa a partir de R$ 300, mas depende da avaliação.",
     "Fica tranquila, a gente avalia primeiro e te orienta.",
+    // Negação de preço fixo não pode ser flagrada como violação.
+    "Não trabalhamos com preço fixo — cada caso depende da avaliação.",
+    // Estimativa ("em torno de") não é preço cravado.
+    "O valor fica em torno de R$ 500, mas só a avaliação confirma.",
   ])("não acusa texto em conformidade: %s", (texto) => {
     expect(violaCompliance(texto)).toBe(false);
   });

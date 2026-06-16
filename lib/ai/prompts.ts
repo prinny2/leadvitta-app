@@ -193,7 +193,6 @@ export const DENYLIST: RegExp[] = [
   // como "a partir de R$" ou "em torno de R$" não casam.
   /\bcusta\s+R\$\s*\d/i,
   /\b(fica|sai)\s+(por\s+|em\s+)?R\$\s*\d/i,
-  /pre[çc]o\s+fixo/i,
 ];
 
 export function violaCompliance(texto: string): boolean {

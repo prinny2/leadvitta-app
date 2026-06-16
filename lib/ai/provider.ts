@@ -229,13 +229,16 @@ const INTENTS_VALIDOS = new Set([
 ]);
 
 function clampScore(v: unknown): number | undefined {
+  if (v === null || v === undefined || v === "") return undefined;
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isFinite(n)) return undefined;
   return Math.min(100, Math.max(0, Math.round(n)));
 }
 
 function validarIntent(v: unknown): string | undefined {
-  return typeof v === "string" && INTENTS_VALIDOS.has(v) ? v : undefined;
+  if (typeof v !== "string") return undefined;
+  const s = v.trim().toLowerCase();
+  return INTENTS_VALIDOS.has(s) ? s : undefined;
 }
 
 function validarSentiment(v: unknown): string | undefined {
@@ -434,21 +437,25 @@ export async function gerarFollowUp(
 
     // Compliance: o follow-up também não pode prometer resultado/cura/preço fixo.
     if (mensagens.some(violaCompliance)) {
+      // Preserva as mensagens que já passam — uma reescrita curta não pode
+      // descartar mensagens compliant que vieram na primeira geração.
+      const compliantOriginais = mensagens.filter((m) => !violaCompliance(m));
+      let reescritas: string[] = [];
       try {
         const revRaw = await callAI(
           SYSTEM_FOLLOWUP,
           user +
             "\n\nATENÇÃO: a resposta anterior usou termos proibidos. Reescreva as 3 mensagens sem QUALQUER promessa de resultado, cura, ausência de risco ou preço fixo. Responda só com o JSON."
         );
-        const revMsgs = (parseJson<{ mensagens?: string[] }>(revRaw)?.mensagens ?? [])
+        reescritas = (parseJson<{ mensagens?: string[] }>(revRaw)?.mensagens ?? [])
           .map((m) => String(m).trim())
-          .filter(Boolean);
-        if (revMsgs.length) mensagens = revMsgs;
+          .filter((m) => m && !violaCompliance(m));
       } catch (err) {
         console.warn("[gerarFollowUp] reescrita de compliance falhou:", err);
       }
-      // Remove as que ainda violam; se sobrar vazio, usa o mock seguro.
-      mensagens = mensagens.filter((m) => !violaCompliance(m));
+      // Reescritas compliant primeiro, completadas pelas originais que já passavam
+      // (sem duplicar). Se nada sobrar compliant, usa o mock seguro.
+      mensagens = Array.from(new Set([...reescritas, ...compliantOriginais]));
       if (mensagens.length === 0) {
         mensagens = mockFollowup(input);
       }
