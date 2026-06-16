@@ -3,6 +3,7 @@ import type {
   WhatsAppResult,
   InboundMessage,
 } from "@/lib/whatsapp-types";
+import { isProductionRuntime } from "@/lib/runtime";
 
 function stripPrefix(n: string): string {
   return n.replace(/^whatsapp:/, "").replace(/^\+/, "");
@@ -27,8 +28,11 @@ export const zapiProvider: WhatsAppProvider = {
     const expected = process.env.ZAPI_SECURITY_TOKEN;
     // Z-API não impõe uma assinatura padrão no webhook, mas permite que o usuário
     // configure um token na URL (ex: /api/webhook/whatsapp?token=XYZ).
-    if (!expected) return process.env.NODE_ENV !== "production";
-    
+    // Sem token configurado: aberto só FORA de produção (dev/local). Em produção
+    // — inclusive Cloud Run, onde NODE_ENV pode não ser "production" mas K_SERVICE
+    // existe — fecha (fail-closed), senão o webhook público fica exposto.
+    if (!expected) return !isProductionRuntime();
+
     const url = new URL(req.url);
     const got = url.searchParams.get("token") || req.headers.get("x-zapi-token") || "";
     return got === expected;
