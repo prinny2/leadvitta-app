@@ -282,6 +282,44 @@ describe("provider — OpenAI configurada", () => {
     }
   });
 
+  it("preserva as variantes compliant quando só uma viola (reescrita ruim)", async () => {
+    openaiCreate.mockImplementation((args: any) => {
+      const user: string = args?.messages?.[1]?.content ?? "";
+      if (user.startsWith("MENSAGEM:")) {
+        return Promise.resolve(oai(JSON.stringify({ intent: "objecao" })));
+      }
+      if (user.includes("termos proibidos")) {
+        // Reescrita ruim: viola TODAS — não pode contaminar as originais boas.
+        return Promise.resolve(
+          oai(
+            JSON.stringify({
+              resposta_curta: "resultado garantido",
+              resposta_consultiva: "resultado garantido",
+              resposta_persuasiva: "resultado garantido",
+            })
+          )
+        );
+      }
+      // Geração: só a curta viola; consultiva/persuasiva já são compliant.
+      return Promise.resolve(
+        oai(
+          JSON.stringify({
+            resposta_curta: "resultado garantido",
+            resposta_consultiva: "Depende da avaliação — me conta seu objetivo?",
+            resposta_persuasiva: "Quer ver um horário pra avaliarmos juntas?",
+          })
+        )
+      );
+    });
+    const { gerarRespostas } = await loadProvider();
+    const res = await gerarRespostas(geradorInput);
+    // As originalmente compliant são preservadas (não viram mock).
+    expect(res.respostas.consultiva).toBe("Depende da avaliação — me conta seu objetivo?");
+    expect(res.respostas.persuasiva).toBe("Quer ver um horário pra avaliarmos juntas?");
+    // A que violava (e cuja reescrita também violou) é saneada.
+    expect(violaCompliance(res.respostas.curta)).toBe(false);
+  });
+
   it("gerarFollowUp reescreve e mantém as mensagens compliant originais", async () => {
     openaiCreate.mockImplementation((args: any) => {
       const user: string = args?.messages?.[1]?.content ?? "";

@@ -273,10 +273,19 @@ async function garantirCompliance(
     );
     const rev = parseJson<GeradorJson>(revisaoRaw);
     if (rev) {
+      // Só adota a reescrita nos campos que ORIGINALMENTE violavam — um campo que
+      // já passava não pode ser sobrescrito (e depois virar mock) por causa de uma
+      // reescrita ruim de OUTRO campo.
       respostas = {
-        curta: rev.resposta_curta?.trim() || respostas.curta,
-        consultiva: rev.resposta_consultiva?.trim() || respostas.consultiva,
-        persuasiva: rev.resposta_persuasiva?.trim() || respostas.persuasiva,
+        curta: violaCompliance(respostas.curta)
+          ? rev.resposta_curta?.trim() || respostas.curta
+          : respostas.curta,
+        consultiva: violaCompliance(respostas.consultiva)
+          ? rev.resposta_consultiva?.trim() || respostas.consultiva
+          : respostas.consultiva,
+        persuasiva: violaCompliance(respostas.persuasiva)
+          ? rev.resposta_persuasiva?.trim() || respostas.persuasiva
+          : respostas.persuasiva,
       };
     }
   } catch (err) {
