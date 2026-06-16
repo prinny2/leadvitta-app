@@ -135,6 +135,16 @@ gcloud run services update <SERVICE> --region <REGION> --set-secrets ANTHROPIC_A
 After every deploy, validate `GET /api/health`. Public webhooks live at
 `/api/stripe/webhook` and `/api/whatsapp/webhook` on the Cloud Run URL.
 
+## Domains & DNS
+
+- The canonical public host is **`leadbellus.com.br`** (+ `www`). Point
+  `NEXT_PUBLIC_SITE_URL`, OAuth authorized domains, and Stripe/WhatsApp webhooks
+  at it (or at the active Cloud Run / production URL).
+- ⛔ **Never use `leadvitta.com`.** Despite the repo/GCP project being named
+  `leadvitta-app`, the domain `leadvitta.com` is **not** this app — it resolves
+  to a parked HostGator placeholder page. Do not point DNS, `NEXT_PUBLIC_SITE_URL`,
+  webhooks, OAuth domains, or any user-facing link at it.
+
 ## Environment variables
 
 Copy `.env.local.example` → `.env.local`; it is the source of truth for names.
