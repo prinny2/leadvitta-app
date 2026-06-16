@@ -123,14 +123,4 @@ describe("lib/config", () => {
     const { isStripeConfigured } = await loadConfig();
     expect(isStripeConfigured).toBe(false);
   });
-
-  it("isZapierConfigured segue ZAPIER_WEBHOOK_URL", async () => {
-    vi.stubEnv("ZAPIER_WEBHOOK_URL", "https://hooks.zapier.com/x");
-    const cfg = await loadConfig();
-    expect(cfg.isZapierConfigured).toBe(true);
-
-    vi.stubEnv("ZAPIER_WEBHOOK_URL", "");
-    const cfg2 = await loadConfig();
-    expect(cfg2.isZapierConfigured).toBe(false);
-  });
 });

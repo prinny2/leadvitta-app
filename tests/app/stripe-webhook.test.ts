@@ -16,7 +16,7 @@ const { applyClinicBilling, saveBillingPending, syncSubscriptionBilling } =
     saveBillingPending: vi.fn(),
     syncSubscriptionBilling: vi.fn(),
   }));
-const sendZapier = vi.hoisted(() => vi.fn());
+const sendOpsNotify = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/stripe/server", () => ({
   getStripe: () => ({
@@ -32,7 +32,7 @@ vi.mock("@/lib/stripe/billing-sync", () => ({
 }));
 
 vi.mock("@/lib/firebase/admin", () => ({ getFirebaseAdminDb: getDb }));
-vi.mock("@/lib/zapier", () => ({ sendZapierEvent: sendZapier }));
+vi.mock("@/lib/ops-notify", () => ({ sendOpsNotify }));
 
 import { POST } from "@/app/api/stripe/webhook/route";
 
@@ -89,7 +89,7 @@ beforeEach(() => {
   applyClinicBilling.mockReset().mockResolvedValue(undefined);
   saveBillingPending.mockReset().mockResolvedValue(undefined);
   syncSubscriptionBilling.mockReset().mockResolvedValue("clinica");
-  sendZapier.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
+  sendOpsNotify.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -144,7 +144,7 @@ describe("Stripe webhook — checkout.session.completed", () => {
       stripe_checkout_session_id: "cs_1",
     });
     expect(saveBillingPending).not.toHaveBeenCalled();
-    expect(sendZapier).toHaveBeenCalledWith(
+    expect(sendOpsNotify).toHaveBeenCalledWith(
       "stripe.checkout.completed",
       expect.objectContaining({ firebase_uid: "uid_1" })
     );
@@ -219,7 +219,7 @@ describe("Stripe webhook — eventos de assinatura", () => {
     const res = await POST(webhookRequest());
     expect(res.status).toBe(200);
     expect(syncSubscriptionBilling).toHaveBeenCalledTimes(1);
-    expect(sendZapier).toHaveBeenCalledWith(
+    expect(sendOpsNotify).toHaveBeenCalledWith(
       "stripe.subscription.active",
       expect.objectContaining({ firebase_uid: "uid_sub" })
     );

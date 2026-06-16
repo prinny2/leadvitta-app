@@ -11,10 +11,10 @@ const billingState = vi.hoisted(() => ({
   mode: "payment",
   disponivel: true,
 }));
-const { verifyToken, sessionsCreate, sendZapier } = vi.hoisted(() => ({
+const { verifyToken, sessionsCreate, sendOpsNotify } = vi.hoisted(() => ({
   verifyToken: vi.fn(),
   sessionsCreate: vi.fn(),
-  sendZapier: vi.fn(),
+  sendOpsNotify: vi.fn(),
 }));
 
 vi.mock("@/lib/config", () => cfg);
@@ -40,8 +40,8 @@ vi.mock("@/lib/stripe/server", () => ({
   getStripe: () => ({ checkout: { sessions: { create: sessionsCreate } } }),
 }));
 
-vi.mock("@/lib/zapier", () => ({
-  sendZapierEvent: sendZapier,
+vi.mock("@/lib/ops-notify", () => ({
+  sendOpsNotify,
 }));
 
 import { POST } from "@/app/api/stripe/checkout/route";
@@ -67,7 +67,7 @@ beforeEach(() => {
   billingState.disponivel = true;
   verifyToken.mockReset().mockResolvedValue(null);
   sessionsCreate.mockReset().mockResolvedValue({ id: "cs_new", url: "https://stripe/checkout/cs_new" });
-  sendZapier.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
+  sendOpsNotify.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -126,7 +126,7 @@ describe("Stripe checkout — criação da sessão", () => {
     // Modo payment embute metadata no payment_intent.
     expect(params.payment_intent_data.metadata.firebase_uid).toBe("uid_1");
 
-    expect(sendZapier).toHaveBeenCalledWith(
+    expect(sendOpsNotify).toHaveBeenCalledWith(
       "checkout.started",
       expect.objectContaining({ firebase_uid: "uid_1", plan: "pro" })
     );

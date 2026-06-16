@@ -19,8 +19,12 @@ export default defineConfig({
       include: [
         "lib/**/*.ts",
         "data/**/*.ts",
-        // Caminho de billing (assinatura/ativação) coberto pelos testes de rota.
+        // Rotas de API cobertas por testes de rota: billing (Stripe) e o
+        // fluxo de WhatsApp/Z-API (webhook público, inbox, conexão de número).
         "app/api/stripe/**/*.ts",
+        "app/api/whatsapp/**/*.ts",
+        "app/api/conversas/**/*.ts",
+        "app/api/clinica/**/*.ts",
       ],
       exclude: [
         // Módulos que só inicializam SDKs externos (Firebase/Stripe) e

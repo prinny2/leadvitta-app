@@ -171,4 +171,99 @@ describe("zapiProvider.validateWebhook", () => {
     expect(good).toBe(true);
     expect(bad).toBe(false);
   });
+
+  // Segurança: em produção (Cloud Run seta K_SERVICE) sem token configurado o
+  // webhook público precisa FECHAR — senão qualquer um injeta mensagens.
+  it("sem token configurado, FECHA em produção (K_SERVICE setado)", async () => {
+    vi.stubEnv("ZAPI_SECURITY_TOKEN", "");
+    vi.stubEnv("K_SERVICE", "leadbellus");
+    const ok = await zapiProvider.validateWebhook(
+      new Request("http://x/api/whatsapp/webhook"),
+      "{}"
+    );
+    expect(ok).toBe(false);
+  });
+});
+
+describe("zapiProvider.sendImage", () => {
+  it("chama send-image, remove prefixo e inclui Client-Token quando há", async () => {
+    configureZapi();
+    vi.stubEnv("ZAPI_CLIENT_TOKEN", "CLIENT789");
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ messageId: "IMG1" }),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const res = await zapiProvider.sendImage(
+      "whatsapp:+5591985156690",
+      "https://img/x.png",
+      "legenda"
+    );
+    expect(res).toEqual({ ok: true, status: 200, data: { messageId: "IMG1" } });
+
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(url).toBe(
+      "https://api.z-api.io/instances/INST123/token/TOK456/send-image"
+    );
+    const headers = (init as RequestInit).headers as Record<string, string>;
+    expect(headers["Client-Token"]).toBe("CLIENT789");
+    expect(JSON.parse((init as RequestInit).body as string)).toEqual({
+      phone: "5591985156690",
+      image: "https://img/x.png",
+      caption: "legenda",
+    });
+  });
+
+  it("retorna não configurado (status 0) sem credenciais", async () => {
+    vi.stubEnv("ZAPI_INSTANCE_ID", "");
+    vi.stubEnv("ZAPI_TOKEN", "");
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    const res = await zapiProvider.sendImage("5591985156690", "https://img/x.png");
+    expect(res).toMatchObject({ ok: false, status: 0 });
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe("zapiProvider.sendButtons", () => {
+  it("chama send-button-list e mapeia os botões para {id,label}", async () => {
+    configureZapi();
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ messageId: "BTN1" }),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    await zapiProvider.sendButtons("5591985156690", "Escolha:", [
+      { id: "a", label: "Agendar" },
+      { id: "b", label: "Saber mais" },
+    ]);
+
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(url).toBe(
+      "https://api.z-api.io/instances/INST123/token/TOK456/send-button-list"
+    );
+    expect(JSON.parse((init as RequestInit).body as string)).toEqual({
+      phone: "5591985156690",
+      message: "Escolha:",
+      buttonList: {
+        buttons: [
+          { id: "a", label: "Agendar" },
+          { id: "b", label: "Saber mais" },
+        ],
+      },
+    });
+  });
+
+  it("retorna não configurado (status 0) sem credenciais", async () => {
+    vi.stubEnv("ZAPI_INSTANCE_ID", "");
+    vi.stubEnv("ZAPI_TOKEN", "");
+    const res = await zapiProvider.sendButtons("5591985156690", "x", [
+      { id: "a", label: "A" },
+    ]);
+    expect(res).toMatchObject({ ok: false, status: 0 });
+  });
 });
