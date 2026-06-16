@@ -4,6 +4,8 @@ import type {
   RefineInput,
   FollowUpInput,
 } from "@/lib/types";
+import { violaCompliance } from "@/lib/ai/prompts";
+import { mockFollowup } from "@/lib/ai/mock";
 
 // Mocks dos SDKs externos: nenhum teste faz chamada de rede real.
 const { openaiCreate, anthropicCreate } = vi.hoisted(() => ({
@@ -249,6 +251,160 @@ describe("provider — OpenAI configurada", () => {
     const res = await gerarFollowUp(followInput);
     expect(res.mock).toBe(false);
     expect(res.mensagens).toHaveLength(3); // mockFollowup
+  });
+
+  it("se a reescrita AINDA viola, devolve texto seguro (compliant)", async () => {
+    openaiCreate.mockImplementation((args: any) => {
+      const user: string = args?.messages?.[1]?.content ?? "";
+      if (user.startsWith("MENSAGEM:")) {
+        return Promise.resolve(oai(JSON.stringify({ intent: "objecao" })));
+      }
+      // Geração E reescrita violam: a última linha de defesa deve sanear.
+      return Promise.resolve(
+        oai(
+          JSON.stringify({
+            resposta_curta: "resultado garantido",
+            resposta_consultiva: "resultado garantido",
+            resposta_persuasiva: "resultado garantido",
+          })
+        )
+      );
+    });
+    const { gerarRespostas } = await loadProvider();
+    const res = await gerarRespostas(geradorInput);
+    for (const t of [
+      res.respostas.curta,
+      res.respostas.consultiva,
+      res.respostas.persuasiva,
+    ]) {
+      expect(t).toBeTruthy();
+      expect(violaCompliance(t)).toBe(false);
+    }
+  });
+
+  it("preserva as variantes compliant quando só uma viola (reescrita ruim)", async () => {
+    openaiCreate.mockImplementation((args: any) => {
+      const user: string = args?.messages?.[1]?.content ?? "";
+      if (user.startsWith("MENSAGEM:")) {
+        return Promise.resolve(oai(JSON.stringify({ intent: "objecao" })));
+      }
+      if (user.includes("termos proibidos")) {
+        // Reescrita ruim: viola TODAS — não pode contaminar as originais boas.
+        return Promise.resolve(
+          oai(
+            JSON.stringify({
+              resposta_curta: "resultado garantido",
+              resposta_consultiva: "resultado garantido",
+              resposta_persuasiva: "resultado garantido",
+            })
+          )
+        );
+      }
+      // Geração: só a curta viola; consultiva/persuasiva já são compliant.
+      return Promise.resolve(
+        oai(
+          JSON.stringify({
+            resposta_curta: "resultado garantido",
+            resposta_consultiva: "Depende da avaliação — me conta seu objetivo?",
+            resposta_persuasiva: "Quer ver um horário pra avaliarmos juntas?",
+          })
+        )
+      );
+    });
+    const { gerarRespostas } = await loadProvider();
+    const res = await gerarRespostas(geradorInput);
+    // As originalmente compliant são preservadas (não viram mock).
+    expect(res.respostas.consultiva).toBe("Depende da avaliação — me conta seu objetivo?");
+    expect(res.respostas.persuasiva).toBe("Quer ver um horário pra avaliarmos juntas?");
+    // A que violava (e cuja reescrita também violou) é saneada.
+    expect(violaCompliance(res.respostas.curta)).toBe(false);
+  });
+
+  it("gerarFollowUp reescreve e mantém as mensagens compliant originais", async () => {
+    openaiCreate.mockImplementation((args: any) => {
+      const user: string = args?.messages?.[1]?.content ?? "";
+      if (user.includes("termos proibidos")) {
+        return Promise.resolve(
+          oai(JSON.stringify({ mensagens: ["oi de novo", "tudo bem?", "vamos marcar?"] }))
+        );
+      }
+      return Promise.resolve(
+        oai(JSON.stringify({ mensagens: ["resultado garantido!", "ok", "ok"] }))
+      );
+    });
+    const { gerarFollowUp } = await loadProvider();
+    const res = await gerarFollowUp(followInput);
+    expect(res.mensagens.length).toBeGreaterThan(0);
+    for (const m of res.mensagens) {
+      expect(violaCompliance(m)).toBe(false);
+    }
+    // A original "ok" (compliant) não pode ser descartada pela reescrita.
+    expect(res.mensagens).toContain("ok");
+  });
+
+  it("gerarFollowUp cai no mock quando até a reescrita viola", async () => {
+    // Geração e reescrita sempre violam → todas filtradas → fallback no mock.
+    openaiCreate.mockResolvedValue(
+      oai(
+        JSON.stringify({
+          mensagens: [
+            "resultado garantido",
+            "resultado garantido de novo",
+            "resultado garantido sempre",
+          ],
+        })
+      )
+    );
+    const { gerarFollowUp } = await loadProvider();
+    const res = await gerarFollowUp(followInput);
+    expect(res.mensagens.length).toBeGreaterThan(0);
+    for (const m of res.mensagens) {
+      expect(violaCompliance(m)).toBe(false);
+    }
+    expect(res.mensagens).toEqual(mockFollowup(followInput));
+  });
+
+  describe("classificarMensagem — saneamento", () => {
+    async function classificar(payload: Record<string, unknown>) {
+      openaiCreate.mockResolvedValue(oai(JSON.stringify(payload)));
+      const { classificarMensagem } = await loadProvider();
+      return classificarMensagem("quanto custa?");
+    }
+
+    it("descarta intent/sentiment fora do vocabulário e clampa score alto", async () => {
+      const res = await classificar({ intent: "xpto", sentiment: "banana", score: 9999 });
+      expect(res.score).toBe(100);
+      expect(res.intent).toBeUndefined();
+      expect(res.sentiment).toBeUndefined();
+    });
+
+    it("converte score em string e arredonda", async () => {
+      const res = await classificar({ intent: "objecao", sentiment: "3 stars", score: "42.7" });
+      expect(res.score).toBe(43);
+      expect(res.intent).toBe("objecao");
+      expect(res.sentiment).toBe("3 stars");
+    });
+
+    it("clampa score negativo para 0", async () => {
+      expect((await classificar({ score: -10 })).score).toBe(0);
+    });
+
+    it("descarta score nulo/NaN", async () => {
+      expect((await classificar({ score: null })).score).toBeUndefined();
+      expect((await classificar({ score: "abc" })).score).toBeUndefined();
+    });
+
+    it("normaliza intent com capitalização diferente", async () => {
+      const res = await classificar({ intent: "OBJECAO", score: 75 });
+      expect(res.intent).toBe("objecao");
+      expect(res.score).toBe(75);
+    });
+
+    it("normaliza sentiment por espaços/caixa e descarta inválido", async () => {
+      expect((await classificar({ sentiment: " 5star " })).sentiment).toBe("5 stars");
+      expect((await classificar({ sentiment: "3 STARS" })).sentiment).toBe("3 stars");
+      expect((await classificar({ sentiment: "muito bom" })).sentiment).toBeUndefined();
+    });
   });
 });
 

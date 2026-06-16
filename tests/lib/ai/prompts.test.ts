@@ -132,16 +132,22 @@ describe("violaCompliance / DENYLIST", () => {
     "Emagrece 10 quilos em uma sessão",
     "Cura o melasma de vez",
     "Eu garanto que você vai amar",
+    "O botox custa R$ 900",
+    "Fica em R$ 1200 e pronto",
   ])("detecta promessa proibida: %s", (texto) => {
     expect(violaCompliance(texto)).toBe(true);
   });
 
-  it("não acusa texto em conformidade", () => {
-    expect(
-      violaCompliance(
-        "O resultado varia de pessoa para pessoa e depende da avaliação."
-      )
-    ).toBe(false);
+  it.each([
+    "O resultado varia de pessoa para pessoa e depende da avaliação.",
+    "O investimento começa a partir de R$ 300, mas depende da avaliação.",
+    "Fica tranquila, a gente avalia primeiro e te orienta.",
+    // Negação de preço fixo não pode ser flagrada como violação.
+    "Não trabalhamos com preço fixo — cada caso depende da avaliação.",
+    // Estimativa ("em torno de") não é preço cravado.
+    "O valor fica em torno de R$ 500, mas só a avaliação confirma.",
+  ])("não acusa texto em conformidade: %s", (texto) => {
+    expect(violaCompliance(texto)).toBe(false);
   });
 
   it("a denylist contém ao menos uma regra e todas são RegExp", () => {
