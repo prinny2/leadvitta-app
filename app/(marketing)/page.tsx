@@ -1465,62 +1465,69 @@ export default function LandingPage() {
               marginBottom: "40px",
             }}
           >
-            {billingPlanList.map((plano) => {
-              const isHighlighted = plano.destaque;
+            {/* ── START ── */}
+            {(() => {
+              const plano = billingPlanList[0];
               return (
                 <div
-                  key={plano.id}
                   style={{
-                    background: isHighlighted ? "#0f1b2f" : "#0a1220",
-                    border: isHighlighted ? "2px solid #C9A060" : "1px solid rgba(255,255,255,0.08)",
+                    background: "#0a1220",
+                    border: "1px solid rgba(255,255,255,0.08)",
                     borderRadius: "24px",
                     padding: "36px 28px",
                     position: "relative",
-                    transition: "transform 0.15s",
                   }}
                 >
-                  {plano.selo && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        top: "-14px",
-                        right: "20px",
-                        background: plano.disponivel ? "#22c55e" : "rgba(201,160,96,0.9)",
-                        color: plano.disponivel ? "#ffffff" : "#07101e",
-                        borderRadius: "9999px",
-                        padding: "4px 14px",
-                        fontSize: "11px",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {plano.disponivel ? plano.selo : plano.selo}
-                    </span>
-                  )}
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "-14px",
+                      right: "20px",
+                      background: "rgba(201,160,96,0.9)",
+                      color: "#07101e",
+                      borderRadius: "9999px",
+                      padding: "4px 14px",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Preço de lançamento
+                  </span>
 
-                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "6px" }}>
-                    Plano {plano.label}
+                  <p style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "8px" }}>
+                    Para quem
                   </p>
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.6, marginBottom: "20px" }}>
+                    Quer a ferramenta completa de atendimento e nunca mais improvisar no WhatsApp
+                  </p>
+
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>Plano Start</p>
                   <p
                     style={{
                       fontFamily: "var(--font-fraunces, Georgia, serif)",
                       fontSize: "48px",
                       fontWeight: 700,
-                      color: isHighlighted ? "#C9A060" : "#ffffff",
+                      color: "#ffffff",
                       margin: "0 0 4px",
                       lineHeight: 1,
                     }}
                   >
-                    {plano.priceLabel}
-                    <span style={{ fontSize: "16px", fontWeight: 400, color: "rgba(255,255,255,0.4)" }}>
-                      {plano.periodLabel}
-                    </span>
+                    R$97
+                    <span style={{ fontSize: "16px", fontWeight: 400, color: "rgba(255,255,255,0.4)" }}>/mês</span>
                   </p>
-                  <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.55)", marginBottom: "24px" }}>
-                    {plano.tagline}
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "20px" }}>
+                    O arsenal completo de resposta. Você no controle, sempre com a mensagem certa.
                   </p>
 
                   <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px" }}>
-                    {plano.features.map((f) => (
+                    {[
+                      "Gerador de Respostas ilimitado — 3 versões por situação, no seu tom",
+                      "Biblioteca de Objeções completa — resposta pronta pra cada objeção",
+                      "Follow-up Inteligente — reative quem sumiu no timing certo, com progressão psicológica",
+                      `Scripts de Atendimento Completo — fluxos de 4–5 mensagens com timing, do primeiro "oi" ao agendamento`,
+                      "DNA da Clínica — personalização total do seu jeito de falar",
+                      "Histórico de respostas geradas",
+                    ].map((f) => (
                       <li
                         key={f}
                         style={{
@@ -1542,10 +1549,120 @@ export default function LandingPage() {
                   {plano.disponivel ? (
                     <>
                       <PlanCTA
-                        plan={plano.id}
+                        plan="start"
                         className="w-full block text-center font-bold text-sm rounded-xl py-3 px-5 mb-3 bg-[#C9A060] text-[#07101e] border-0"
                       >
-                        Começar com o {plano.label} — 7 dias grátis →
+                        Começar com o Start — 7 dias grátis →
+                      </PlanCTA>
+                      <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", textAlign: "center" }}>
+                        Sem cartão · Cancele quando quiser · Sem multa
+                      </p>
+                    </>
+                  ) : (
+                    <WaitlistForm plan="start" className="" />
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* ── PRO ── */}
+            {(() => {
+              const plano = billingPlanList[1];
+              return (
+                <div
+                  style={{
+                    background: "#0f1b2f",
+                    border: "2px solid #C9A060",
+                    borderRadius: "24px",
+                    padding: "36px 28px",
+                    position: "relative",
+                  }}
+                >
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "-14px",
+                      right: "20px",
+                      background: "#C9A060",
+                      color: "#07101e",
+                      borderRadius: "9999px",
+                      padding: "4px 14px",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    ⭐ Mais escolhido
+                  </span>
+
+                  <p style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "8px" }}>
+                    Para quem
+                  </p>
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.6, marginBottom: "20px" }}>
+                    Quer inteligência pra qualificar leads e um chatbot que prepara o terreno — você entra só pra fechar
+                  </p>
+
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>Plano Pro</p>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-fraunces, Georgia, serif)",
+                      fontSize: "48px",
+                      fontWeight: 700,
+                      color: "#C9A060",
+                      margin: "0 0 4px",
+                      lineHeight: 1,
+                    }}
+                  >
+                    R$197
+                    <span style={{ fontSize: "16px", fontWeight: 400, color: "rgba(255,255,255,0.4)" }}>/mês</span>
+                  </p>
+
+                  <div
+                    style={{
+                      background: "rgba(201,160,96,0.08)",
+                      border: "1px solid rgba(201,160,96,0.2)",
+                      borderRadius: "10px",
+                      padding: "12px 14px",
+                      marginBottom: "20px",
+                    }}
+                  >
+                    <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", lineHeight: 1.65, margin: 0 }}>
+                      O bot trabalha. Você fecha. No PRO, o LeadBellus conecta direto ao seu WhatsApp Business. O bot aquece a conversa — você entra só pra confirmar o agendamento.
+                    </p>
+                  </div>
+
+                  <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px" }}>
+                    {[
+                      "Tudo do Start",
+                      "Lead Intelligence — score de conversão + perfil psicológico + estratégia exata por lead",
+                      "Chatbot WhatsApp Business — atende, qualifica e conduz a lead automaticamente",
+                      "Lembrete + Orientações Pré-consulta — confirmação automática 24h antes com preparo por procedimento",
+                      "Gestão Pós-consulta — acompanhamento automático após o procedimento, fidelização e próximo agendamento",
+                    ].map((f) => (
+                      <li
+                        key={f}
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "flex-start",
+                          marginBottom: "10px",
+                          fontSize: "13px",
+                          color: "rgba(255,255,255,0.75)",
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        <Check size={14} color="#C9A060" style={{ flexShrink: 0, marginTop: "2px" }} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {plano.disponivel ? (
+                    <>
+                      <PlanCTA
+                        plan="pro"
+                        className="w-full block text-center font-bold text-sm rounded-xl py-3 px-5 mb-3 bg-[#C9A060] text-[#07101e] border-0"
+                      >
+                        Começar com o Pro — 7 dias grátis →
                       </PlanCTA>
                       <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", textAlign: "center" }}>
                         Sem cartão · Cancele quando quiser · Sem multa
@@ -1554,14 +1671,114 @@ export default function LandingPage() {
                   ) : (
                     <>
                       <p style={{ fontSize: "13px", color: "#C9A060", fontWeight: 600, marginBottom: "12px" }}>
-                        Entrar na fila de prioridade →
+                        Entrar na lista de prioridade →
                       </p>
-                      <WaitlistForm plan={plano.id} className="" />
+                      <WaitlistForm plan="pro" className="" />
                     </>
                   )}
                 </div>
               );
-            })}
+            })()}
+
+            {/* ── PREMIUM ── */}
+            {(() => {
+              const plano = billingPlanList[2];
+              return (
+                <div
+                  style={{
+                    background: "#0a1220",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "24px",
+                    padding: "36px 28px",
+                    position: "relative",
+                  }}
+                >
+                  <p style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "8px" }}>
+                    Para quem
+                  </p>
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.65)", lineHeight: 1.6, marginBottom: "20px" }}>
+                    Quer que a clínica funcione no piloto automático — do primeiro contato ao agendamento fechado, sem tocar em nada
+                  </p>
+
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>Plano Premium</p>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-fraunces, Georgia, serif)",
+                      fontSize: "48px",
+                      fontWeight: 700,
+                      color: "#ffffff",
+                      margin: "0 0 4px",
+                      lineHeight: 1,
+                    }}
+                  >
+                    R$347
+                    <span style={{ fontSize: "16px", fontWeight: 400, color: "rgba(255,255,255,0.4)" }}>/mês</span>
+                  </p>
+
+                  <div
+                    style={{
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      borderRadius: "10px",
+                      padding: "12px 14px",
+                      marginBottom: "20px",
+                    }}
+                  >
+                    <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", lineHeight: 1.65, margin: 0 }}>
+                      Zero toque humano. O sistema atende, qualifica, agenda e acompanha. Você só aparece pra fazer o procedimento.
+                    </p>
+                  </div>
+
+                  <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px" }}>
+                    {[
+                      "Tudo do Pro",
+                      "Agendamento Autônomo — configure sua disponibilidade, o bot conduz a conversa e fecha a consulta sem intervenção humana",
+                      "Acesso prioritário a todos os módulos futuros, assim que saírem",
+                    ].map((f) => (
+                      <li
+                        key={f}
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "flex-start",
+                          marginBottom: "10px",
+                          fontSize: "13px",
+                          color: "rgba(255,255,255,0.75)",
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        <Check size={14} color="#C9A060" style={{ flexShrink: 0, marginTop: "2px" }} />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {plano.disponivel ? (
+                    <>
+                      <PlanCTA
+                        plan="premium"
+                        className="w-full block text-center font-bold text-sm rounded-xl py-3 px-5 mb-3 bg-[#C9A060] text-[#07101e] border-0"
+                      >
+                        Garantir meu acesso Premium agora →
+                      </PlanCTA>
+                      <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", textAlign: "center" }}>
+                        Preço de lançamento garantido · Cancele quando quiser
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p style={{ fontSize: "13px", color: "#C9A060", fontWeight: 600, marginBottom: "12px" }}>
+                        Entrar na lista de prioridade →
+                      </p>
+                      <WaitlistForm plan="premium" className="" />
+                      <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
+                        Preço de lançamento garantido · Agendamento autônomo chegando em breve
+                      </p>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* Comparison table */}
