@@ -182,11 +182,16 @@ export function VisualAuthPanel({
 
   const isSignup = mode === "signup";
 
-  // Preserva o funil (plano escolhido + retomar checkout pós-login) ao
-  // alternar entre /signup e /login.
-  const switchQuery = plan
-    ? `?plan=${plan}${checkoutAfter ? "&next=checkout" : ""}`
-    : "";
+  // Preserva o funil (plano + retomar checkout) e o deep-link do middleware
+  // (?next=/rota) ao alternar entre /signup e /login.
+  const switchQuery = (() => {
+    const sp = new URLSearchParams();
+    if (plan) sp.set("plan", plan);
+    if (checkoutAfter) sp.set("next", "checkout");
+    else if (next && next !== "/dashboard") sp.set("next", next);
+    const s = sp.toString();
+    return s ? `?${s}` : "";
+  })();
 
   return (
     <div className={compact ? "space-y-4" : "grid gap-6 md:grid-cols-2"}>

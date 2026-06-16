@@ -53,7 +53,18 @@ export default function ConfiguracoesPage() {
 
     const params = new URLSearchParams(window.location.search);
     if (params.get("checkout") === "sucesso") {
-      trackEvent("purchase", { stripe_session_id: params.get("session_id") });
+      // Dispara o purchase uma vez por session_id — refresh/revisita da URL
+      // de sucesso não reconta (mesmo guard do /signup).
+      const sid = params.get("session_id");
+      const key = `lb_purchase_${sid ?? "sem_sessao"}`;
+      let already = false;
+      try {
+        already = !!localStorage.getItem(key);
+        if (!already) localStorage.setItem(key, "1");
+      } catch {
+        // localStorage indisponível: dispara mesmo assim.
+      }
+      if (!already) trackEvent("purchase", { stripe_session_id: sid });
     }
   }, []);
 

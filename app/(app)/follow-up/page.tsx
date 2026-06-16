@@ -169,7 +169,16 @@ export default function FollowUpPage() {
         {/* Resultados */}
         <div className="space-y-4">
           <AvisoIA aviso={aviso} />
-          {loading && <LoadingRespostas mensagem="Preparando mensagens de reativação..." />}
+          {loading && (
+            <LoadingRespostas
+              etapas={[
+                "Relembrando o contexto da conversa…",
+                "Pensando no melhor gancho de reativação…",
+                "Escrevendo 3 mensagens, da suave à direta…",
+                "Conferindo a conformidade…",
+              ]}
+            />
+          )}
 
           {!loading && mensagens && (
             <div className="space-y-3">

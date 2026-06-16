@@ -108,6 +108,12 @@ body {
   border: 1px solid rgba(217, 79, 58, 0.25);
 }
 
+/* Esquema de cores nativo (inputs, scrollbar, UA styles) por tema. */
+html,
+html.dark-theme {
+  color-scheme: dark;
+}
+
 /* ─────────────────────────────────────────────
    LIGHT THEME
    ───────────────────────────────────────────── */

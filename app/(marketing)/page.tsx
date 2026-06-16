@@ -425,7 +425,7 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
-          <Suspense fallback={<LoadingRespostas mensagem="Carregando a demo…" />}>
+          <Suspense fallback={<LoadingRespostas etapas={["Carregando a demo…"]} />}>
             <LandingWhatsAppDemo />
           </Suspense>
         </div>

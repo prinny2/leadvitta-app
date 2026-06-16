@@ -10,7 +10,13 @@ import { trackEvent } from "@/components/Analytics";
 function SignupInner() {
   const params = useSearchParams();
   const plan = parseBillingPlan(params.get("plan"));
-  const checkoutAfter = params.get("next") === "checkout";
+  const rawNext = params.get("next");
+  const checkoutAfter = rawNext === "checkout";
+  // Deep-link do middleware (?next=/rota): só caminhos internos, senão /dashboard.
+  const nextPath =
+    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//")
+      ? rawNext
+      : "/dashboard";
   const checkoutSucesso = params.get("checkout") === "sucesso";
   const sessionId = params.get("session_id");
 
@@ -47,7 +53,7 @@ function SignupInner() {
           mode="signup"
           plan={plan ?? undefined}
           checkoutAfter={checkoutAfter}
-          next="/dashboard"
+          next={nextPath}
           compact
         />
       </CardBody>
