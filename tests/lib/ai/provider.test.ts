@@ -250,6 +250,66 @@ describe("provider — OpenAI configurada", () => {
     expect(res.mock).toBe(false);
     expect(res.mensagens).toHaveLength(3); // mockFollowup
   });
+
+  it("se a reescrita AINDA viola, devolve texto seguro (sem termo proibido)", async () => {
+    openaiCreate.mockImplementation((args: any) => {
+      const user: string = args?.messages?.[1]?.content ?? "";
+      if (user.startsWith("MENSAGEM:")) {
+        return Promise.resolve(oai(JSON.stringify({ intent: "objecao" })));
+      }
+      // Geração E reescrita violam: a última linha de defesa deve sanear.
+      return Promise.resolve(
+        oai(
+          JSON.stringify({
+            resposta_curta: "resultado garantido",
+            resposta_consultiva: "resultado garantido",
+            resposta_persuasiva: "resultado garantido",
+          })
+        )
+      );
+    });
+    const { gerarRespostas } = await loadProvider();
+    const res = await gerarRespostas(geradorInput);
+    for (const t of [
+      res.respostas.curta,
+      res.respostas.consultiva,
+      res.respostas.persuasiva,
+    ]) {
+      expect(t).toBeTruthy();
+      expect(/resultado\s+garantid/i.test(t)).toBe(false);
+    }
+  });
+
+  it("gerarFollowUp reescreve quando uma mensagem viola compliance", async () => {
+    openaiCreate.mockImplementation((args: any) => {
+      const user: string = args?.messages?.[1]?.content ?? "";
+      if (user.includes("termos proibidos")) {
+        return Promise.resolve(
+          oai(JSON.stringify({ mensagens: ["oi de novo", "tudo bem?", "vamos marcar?"] }))
+        );
+      }
+      return Promise.resolve(
+        oai(JSON.stringify({ mensagens: ["resultado garantido!", "ok", "ok"] }))
+      );
+    });
+    const { gerarFollowUp } = await loadProvider();
+    const res = await gerarFollowUp(followInput);
+    expect(res.mensagens.length).toBeGreaterThan(0);
+    for (const m of res.mensagens) {
+      expect(/resultado\s+garantid/i.test(m)).toBe(false);
+    }
+  });
+
+  it("classificarMensagem saneia score/intent/sentiment inválidos", async () => {
+    openaiCreate.mockResolvedValue(
+      oai(JSON.stringify({ intent: "xpto_invalido", sentiment: "banana", score: 9999 }))
+    );
+    const { classificarMensagem } = await loadProvider();
+    const res = await classificarMensagem("quanto custa?");
+    expect(res.score).toBe(100); // clampado a 0-100
+    expect(res.intent).toBeUndefined(); // fora do vocabulário
+    expect(res.sentiment).toBeUndefined(); // fora do padrão "N stars"
+  });
 });
 
 describe("provider — Anthropic configurada", () => {

@@ -188,6 +188,12 @@ export const DENYLIST: RegExp[] = [
   /cura\w*\s+(o\s+|do\s+)?melasma/i,
   /rejuvenesc\w*\s+\d+\s*anos/i,
   /\bgaranto\b/i,
+  // Preço cravado como fixo (deveria depender da avaliação). Conservador: só
+  // pega o valor colado no verbo ("custa R$ 900", "fica em R$ 900"); estimativas
+  // como "a partir de R$" ou "em torno de R$" não casam.
+  /\bcusta\s+R\$\s*\d/i,
+  /\b(fica|sai)\s+(por\s+|em\s+)?R\$\s*\d/i,
+  /pre[çc]o\s+fixo/i,
 ];
 
 export function violaCompliance(texto: string): boolean {
