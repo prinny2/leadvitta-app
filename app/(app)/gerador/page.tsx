@@ -5,23 +5,21 @@ import {
   Sparkles,
   Wand2,
   Loader2,
-  Info,
   MessageSquareText,
   RefreshCw,
   Save,
   Check,
+  ChevronRight,
+  Dna,
 } from "lucide-react";
-import { Card, CardBody } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { CopyButton } from "@/components/copy-button";
-import { ResponseCard } from "@/components/response-card";
 import { AvisoIA } from "@/components/aviso-ia";
 import { LoadingRespostas } from "@/components/loading-respostas";
-import { EmptyState } from "@/components/empty-state";
 import { procedimentos } from "@/data/procedimentos";
 import { situacoes } from "@/data/situacoes";
 import { tons } from "@/data/tons";
@@ -30,7 +28,7 @@ import { objetivoOptions, oQueMelhorarOptions } from "@/data/opcoes";
 import { addHistorico } from "@/lib/store";
 import { useClinica } from "@/lib/hooks/use-clinica";
 import { cn } from "@/lib/utils";
-import type { Clinica, RespostaTripla, Variante } from "@/lib/types";
+import type { RespostaTripla, Variante } from "@/lib/types";
 
 const procOptions = procedimentos.map((p) => ({ value: p.id, label: p.label }));
 const sitOptions = situacoes.map((s) => ({ value: s.id, label: s.label }));
@@ -39,13 +37,36 @@ const perfilOptions = perfisCliente.map((p) => ({ value: p.value, label: p.label
 
 const VARIANTES: {
   key: Variante;
+  num: string;
   titulo: string;
   descricao: string;
-  accent: "brand" | "lavender";
+  cor: string;
+  badge: string;
 }[] = [
-  { key: "curta", titulo: "Resposta Suave", descricao: "Acolhe sem pressionar; reabre com uma pergunta.", accent: "brand" },
-  { key: "consultiva", titulo: "Resposta Consultiva", descricao: "Educa, qualifica e posiciona autoridade.", accent: "lavender" },
-  { key: "persuasiva", titulo: "Resposta de Fechamento", descricao: "Conduz direto para a avaliação/agendamento.", accent: "brand" },
+  {
+    key: "curta",
+    num: "01",
+    titulo: "Suave",
+    descricao: "Acolhe sem pressionar; reabre com uma pergunta.",
+    cor: "border-brand-200 bg-white",
+    badge: "bg-brand-500 text-white",
+  },
+  {
+    key: "consultiva",
+    num: "02",
+    titulo: "Consultiva",
+    descricao: "Educa, qualifica e posiciona autoridade.",
+    cor: "border-gold-200 bg-gradient-to-br from-white to-gold-50/40",
+    badge: "bg-gold-500 text-brand-900",
+  },
+  {
+    key: "persuasiva",
+    num: "03",
+    titulo: "Fechamento",
+    descricao: "Conduz direto para a avaliação/agendamento.",
+    cor: "border-brand-200 bg-white",
+    badge: "bg-brand-500 text-white",
+  },
 ];
 
 export default function GeradorPage() {
@@ -73,7 +94,6 @@ export default function GeradorPage() {
     if (clinica?.tom_padrao) setTom(clinica.tom_padrao);
   }, [clinica]);
 
-  // Pré-preenchimento vindo do "Personalizar com IA" (Biblioteca de Objeções).
   useEffect(() => {
     if (typeof window === "undefined") return;
     const raw = window.sessionStorage.getItem("re_prefill");
@@ -83,9 +103,7 @@ export default function GeradorPage() {
       if (p.mensagem) setMensagemCliente(p.mensagem);
       if (p.situacao) setSituacao(p.situacao);
       if (p.procedimento) setProcedimento(p.procedimento);
-    } catch {
-      /* ignora */
-    }
+    } catch { /* ignora */ }
     window.sessionStorage.removeItem("re_prefill");
   }, []);
 
@@ -110,11 +128,7 @@ export default function GeradorPage() {
 
   async function gerar() {
     if (!mensagemCliente.trim()) {
-      setErro(
-        modo === "reescrever"
-          ? "Escreva a mensagem que você quer melhorar."
-          : "Cole a mensagem da cliente."
-      );
+      setErro(modo === "reescrever" ? "Escreva a mensagem que você quer melhorar." : "Cole a mensagem da cliente.");
       return;
     }
     setLoading(true);
@@ -128,30 +142,17 @@ export default function GeradorPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          modo,
-          procedimento,
-          situacao,
-          tom,
-          objetivo,
-          perfilCliente,
+          modo, procedimento, situacao, tom, objetivo, perfilCliente,
           oQueMelhorar: modo === "reescrever" ? oQueMelhorar : undefined,
-          nomeCliente,
-          mensagemCliente,
-          clinica: dnaPayload(),
+          nomeCliente, mensagemCliente, clinica: dnaPayload(),
         }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        setErro(data.error || "Não foi possível gerar agora.");
-        return;
-      }
+      if (!res.ok) { setErro(data.error || "Não foi possível gerar agora."); return; }
       setRespostas(data.respostas);
       setNlp({ intent: data.intent, sentiment: data.sentiment, score: data.score });
       if (data.mock) {
-        setAviso(
-          data.aviso ||
-            "Modo demonstração — mostrando um exemplo. As respostas reais entram quando a clínica está ativa."
-        );
+        setAviso(data.aviso || "Modo demonstração — mostrando um exemplo. As respostas reais entram quando a clínica está ativa.");
       } else if (data.aviso) {
         setAviso(data.aviso);
       }
@@ -170,17 +171,9 @@ export default function GeradorPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          acao: "refinar",
-          variante,
-          respostaAtual: respostas[variante],
-          procedimento,
-          situacao,
-          tom,
-          objetivo,
-          perfilCliente,
-          nomeCliente,
-          mensagemCliente,
-          clinica: dnaPayload(),
+          acao: "refinar", variante, respostaAtual: respostas[variante],
+          procedimento, situacao, tom, objetivo, perfilCliente,
+          nomeCliente, mensagemCliente, clinica: dnaPayload(),
         }),
       });
       const data = await res.json();
@@ -188,11 +181,7 @@ export default function GeradorPage() {
         setRespostas((prev) => (prev ? { ...prev, [variante]: data.texto } : prev));
         setSalvo(false);
       }
-    } catch {
-      /* silencioso */
-    } finally {
-      setRefinando(null);
-    }
+    } catch { /* silencioso */ } finally { setRefinando(null); }
   }
 
   async function salvar() {
@@ -201,57 +190,75 @@ export default function GeradorPage() {
       tipo: modo === "reescrever" ? "reescrever" : "gerador",
       contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
       respostas: [respostas.curta, respostas.consultiva, respostas.persuasiva],
-      intent: nlp?.intent,
-      sentiment: nlp?.sentiment,
-      score: nlp?.score,
+      intent: nlp?.intent, sentiment: nlp?.sentiment, score: nlp?.score,
     });
     setSalvo(true);
     setTimeout(() => setSalvo(false), 2500);
   }
 
-  return (
-    <div>
-      <header className="mb-6">
-        <h1 className="font-serif text-3xl font-semibold text-ink">
-          Gerador de Respostas
-        </h1>
-        <p className="text-sm text-muted">
-          Cole a mensagem da cliente e receba 3 respostas estratégicas — já no
-          tom da sua clínica.
-        </p>
-      </header>
+  const nomeDna = clinica?.nome_clinica;
 
-      <div className="mb-6 inline-flex rounded-xl bg-nude-100 p-1">
-        <button
-          type="button"
-          onClick={() => setModo("gerar")}
-          className={cn(
-            "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-            modo === "gerar" ? "bg-white text-brand-600 shadow-sm" : "text-muted hover:text-ink"
-          )}
-        >
-          <Sparkles size={16} /> Gerar resposta
-        </button>
-        <button
-          type="button"
-          onClick={() => setModo("reescrever")}
-          className={cn(
-            "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-            modo === "reescrever" ? "bg-white text-brand-600 shadow-sm" : "text-muted hover:text-ink"
-          )}
-        >
-          <Wand2 size={16} /> Reescrever minha mensagem
-        </button>
+  return (
+    <div className="space-y-6 animate-fade-in">
+
+      {/* Header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-serif text-3xl font-semibold text-ink">
+            Gerador de Respostas
+          </h1>
+          <p className="text-sm text-muted mt-1">
+            Cole a mensagem da cliente e receba 3 respostas estratégicas — já no tom da sua clínica.
+          </p>
+        </div>
+        {nomeDna && (
+          <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700">
+            <Dna size={12} />
+            DNA ativo · {nomeDna}
+          </span>
+        )}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Formulário */}
-        <Card>
-          <CardBody className="space-y-4">
+      {/* Toggle modo */}
+      <div className="inline-flex rounded-xl bg-nude-100 p-1 shadow-sm">
+        {(["gerar", "reescrever"] as const).map((m) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => setModo(m)}
+            className={cn(
+              "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all",
+              modo === m
+                ? "bg-brand-500 text-gold-400 shadow-sm"
+                : "text-muted hover:text-ink"
+            )}
+          >
+            {m === "gerar" ? <Sparkles size={15} /> : <Wand2 size={15} />}
+            {m === "gerar" ? "Gerar resposta" : "Reescrever mensagem"}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+
+        {/* ── Formulário ── */}
+        <div className="rounded-2xl border border-brand-100 bg-white shadow-card">
+          <div className="border-b border-brand-50 px-5 py-4 sm:px-6">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+              {modo === "reescrever" ? "Sua mensagem" : "Contexto da conversa"}
+            </p>
+          </div>
+
+          <div className="space-y-4 p-5 sm:p-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="nome">Nome da cliente (opcional)</Label>
-                <Input id="nome" value={nomeCliente} onChange={(e) => setNomeCliente(e.target.value)} placeholder="Ex.: Ana" />
+                <Label htmlFor="nome">Nome da cliente</Label>
+                <Input
+                  id="nome"
+                  value={nomeCliente}
+                  onChange={(e) => setNomeCliente(e.target.value)}
+                  placeholder="Ex.: Ana (opcional)"
+                />
               </div>
               <div>
                 <Label htmlFor="proc">Procedimento</Label>
@@ -265,14 +272,14 @@ export default function GeradorPage() {
                 <Select id="sit" value={situacao} onChange={setSituacao} options={sitOptions} />
               </div>
               <div>
-                <Label htmlFor="perfil">Perfil da cliente (opcional)</Label>
+                <Label htmlFor="perfil">Perfil da cliente</Label>
                 <Select id="perfil" value={perfilCliente} onChange={setPerfilCliente} options={perfilOptions} placeholder="Não sei / tanto faz" />
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="tom">Tom da resposta</Label>
+                <Label htmlFor="tom">Tom</Label>
                 <Select id="tom" value={tom} onChange={setTom} options={tomOptions} />
               </div>
               <div>
@@ -283,8 +290,8 @@ export default function GeradorPage() {
 
             {modo === "reescrever" && (
               <div>
-                <Label>O que você quer melhorar? (opcional)</Label>
-                <div className="flex flex-wrap gap-2">
+                <Label>O que melhorar? (opcional)</Label>
+                <div className="mt-1.5 flex flex-wrap gap-2">
                   {oQueMelhorarOptions.map((o) => (
                     <button
                       key={o.value}
@@ -293,7 +300,7 @@ export default function GeradorPage() {
                       className={cn(
                         "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                         oQueMelhorar.includes(o.value)
-                          ? "border-brand-400 bg-brand-50 text-brand-600"
+                          ? "border-brand-500 bg-brand-500 text-white"
                           : "border-brand-200 bg-white text-muted hover:bg-nude-100"
                       )}
                     >
@@ -317,103 +324,134 @@ export default function GeradorPage() {
                     ? "Ex.: O botox é 900, quer marcar?"
                     : "Ex.: Oi, quanto tá o preenchimento labial?"
                 }
+                className="min-h-[100px]"
               />
             </div>
 
-            {erro && <p className="text-sm text-red-600">{erro}</p>}
+            {erro && (
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{erro}</p>
+            )}
 
-            <Button onClick={gerar} disabled={loading} size="lg" className="w-full">
+            <button
+              type="button"
+              onClick={gerar}
+              disabled={loading}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-3 text-sm font-bold text-gold-400 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-cta disabled:opacity-60 disabled:translate-y-0"
+            >
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-              {modo === "reescrever" ? "Melhorar mensagem" : "Gerar respostas"}
-            </Button>
-          </CardBody>
-        </Card>
+              {modo === "reescrever" ? "Melhorar mensagem" : "Gerar 3 respostas"}
+            </button>
+          </div>
+        </div>
 
-        {/* Resultados */}
+        {/* ── Resultados ── */}
         <div className="space-y-4">
           <AvisoIA aviso={aviso} />
 
           {loading && <LoadingRespostas />}
 
+          {/* Lead Intelligence */}
           {!loading && nlp && (
-            <Card className="border-brand-200 bg-brand-50/30">
-              <CardBody className="py-4">
-                <div className="flex items-center gap-2 mb-2 text-brand-700">
-                  <Sparkles size={16} />
-                  <span className="text-xs font-bold uppercase tracking-wider">Lead Intelligence</span>
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-[10px] uppercase text-muted font-medium">Intenção</p>
-                    <p className="text-sm font-semibold text-ink capitalize">{nlp.intent?.replace(/_/g, " ")}</p>
+            <div className="rounded-2xl border border-brand-100 bg-brand-500 p-4 shadow-soft">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles size={14} className="text-gold-400" />
+                <span className="text-xs font-bold uppercase tracking-wider text-gold-400">Lead Intelligence</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "Intenção", val: nlp.intent?.replace(/_/g, " ") ?? "—" },
+                  { label: "Sentimento", val: nlp.sentiment ?? "—" },
+                ].map((item) => (
+                  <div key={item.label} className="col-span-1">
+                    <p className="text-[10px] uppercase text-lavender-400 font-medium">{item.label}</p>
+                    <p className="text-sm font-semibold text-white capitalize">{item.val}</p>
                   </div>
-                  <div>
-                    <p className="text-[10px] uppercase text-muted font-medium">Sentimento</p>
-                    <p className="text-sm font-semibold text-ink">{nlp.sentiment}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase text-muted font-medium">Prioridade</p>
-                    <div className="flex items-center gap-1.5">
-                       <div className="h-2 w-full bg-nude-200 rounded-full overflow-hidden max-w-[60px]">
-                          <div 
-                            className={cn("h-full transition-all", (nlp.score ?? 0) > 70 ? "bg-green-500" : (nlp.score ?? 0) > 40 ? "bg-amber-500" : "bg-brand-400")} 
-                            style={{ width: `${nlp.score ?? 0}%` }}
-                          />
-                       </div>
-                       <span className="text-sm font-bold text-ink">{nlp.score ?? 0}%</span>
+                ))}
+                <div>
+                  <p className="text-[10px] uppercase text-lavender-400 font-medium">Prioridade</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="h-1.5 w-full rounded-full bg-white/20 overflow-hidden">
+                      <div
+                        className={cn(
+                          "h-full rounded-full transition-all",
+                          (nlp.score ?? 0) > 70 ? "bg-green-400" : (nlp.score ?? 0) > 40 ? "bg-gold-400" : "bg-blue-300"
+                        )}
+                        style={{ width: `${nlp.score ?? 0}%` }}
+                      />
                     </div>
+                    <span className="text-sm font-bold text-white shrink-0">{nlp.score ?? 0}%</span>
                   </div>
                 </div>
-              </CardBody>
-            </Card>
+              </div>
+            </div>
           )}
 
+          {/* Cards de resposta */}
           {!loading && respostas && (
             <>
               {VARIANTES.map((v) => (
-                <div key={v.key} className="relative">
-                  <ResponseCard
-                    titulo={v.titulo}
-                    descricao={v.descricao}
-                    texto={respostas[v.key]}
-                    accent={v.accent}
-                  />
-                  <div className="absolute right-14 top-4">
-                    <button
-                      type="button"
-                      onClick={() => melhorar(v.key)}
-                      disabled={refinando !== null}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-50"
-                    >
-                      {refinando === v.key ? (
-                        <Loader2 size={14} className="animate-spin" />
-                      ) : (
-                        <RefreshCw size={14} />
-                      )}
-                      Melhorar
-                    </button>
+                <div
+                  key={v.key}
+                  className={cn("rounded-2xl border p-4 shadow-card transition-shadow hover:shadow-soft", v.cor)}
+                >
+                  <div className="mb-3 flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className={cn("inline-flex h-6 w-6 items-center justify-center rounded-lg text-[10px] font-bold", v.badge)}>
+                        {v.num}
+                      </span>
+                      <div>
+                        <p className="text-sm font-semibold text-ink">{v.titulo}</p>
+                        <p className="text-xs text-muted">{v.descricao}</p>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => melhorar(v.key)}
+                        disabled={refinando !== null}
+                        className="inline-flex items-center gap-1 rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-50"
+                      >
+                        {refinando === v.key
+                          ? <Loader2 size={12} className="animate-spin" />
+                          : <RefreshCw size={12} />}
+                        Refinar
+                      </button>
+                      <CopyButton text={respostas[v.key]} />
+                    </div>
                   </div>
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
+                    {respostas[v.key]}
+                  </p>
                 </div>
               ))}
 
-              <Button onClick={salvar} variant="outline" className="w-full">
-                {salvo ? <Check size={16} className="text-green-600" /> : <Save size={16} />}
+              <button
+                type="button"
+                onClick={salvar}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2.5 text-sm font-medium text-brand-700 transition-colors hover:bg-brand-50"
+              >
+                {salvo ? <Check size={15} className="text-green-600" /> : <Save size={15} />}
                 {salvo ? "Salvo no histórico!" : "Salvar no histórico"}
-              </Button>
+              </button>
             </>
           )}
 
+          {/* Empty state */}
           {!loading && !respostas && (
-            <EmptyState
-              icon={MessageSquareText}
-              mensagem={
-                <>
-                  Preencha ao lado e clique em{" "}
-                  <strong>{modo === "reescrever" ? "Melhorar mensagem" : "Gerar respostas"}</strong>{" "}
-                  para ver 3 opções prontas aqui.
-                </>
-              }
-            />
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-brand-200 bg-white py-14 text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50">
+                <MessageSquareText size={22} className="text-brand-400" />
+              </div>
+              <p className="text-sm font-medium text-ink mb-1">Suas respostas aparecem aqui</p>
+              <p className="text-xs text-muted max-w-[220px] leading-relaxed">
+                Preencha o contexto ao lado e clique em{" "}
+                <strong className="text-brand-600">Gerar 3 respostas</strong>.
+              </p>
+              <div className="mt-4 flex items-center gap-1 text-xs text-muted">
+                <ChevronRight size={14} className="text-brand-400" />
+                Suave · Consultiva · Fechamento
+              </div>
+            </div>
           )}
         </div>
       </div>
