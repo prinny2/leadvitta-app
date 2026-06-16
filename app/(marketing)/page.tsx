@@ -364,7 +364,7 @@ export default function LandingPage() {
               ))}
             </ul>
             <Link
-              href={comecarHref}
+              href={funilHref}
               className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-brand-300 px-4 py-2.5 text-sm font-medium text-brand-600 hover:bg-brand-50"
             >
               Começar com o Start
@@ -397,7 +397,7 @@ export default function LandingPage() {
               ))}
             </ul>
             <Link
-              href={comecarHref}
+              href={funilHref}
               className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-medium text-white shadow-soft hover:bg-brand-600"
             >
               Quero o Pro <ArrowRight size={16} />
@@ -425,7 +425,7 @@ export default function LandingPage() {
               ))}
             </ul>
             <Link
-              href={comecarHref}
+              href={funilHref}
               className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-lavender-300 px-4 py-2.5 text-sm font-medium text-lavender-700 hover:bg-lavender-50"
             >
               Quero o Premium <ArrowRight size={16} />
