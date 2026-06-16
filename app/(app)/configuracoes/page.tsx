@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Loader2, Check, Save, KeyRound, Wand2, CreditCard, Dna, Building2 } from "lucide-react";
+import { Loader2, Check, Save, KeyRound, CreditCard, Dna, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -316,12 +315,6 @@ export default function ConfiguracoesPage() {
                   <Check size={15} /> Salvo com sucesso!
                 </span>
               )}
-              <Link
-                href="/onboarding"
-                className="ml-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:underline"
-              >
-                <Wand2 size={14} /> Refazer o DNA passo a passo
-              </Link>
             </div>
           </div>
         </div>

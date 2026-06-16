@@ -19,8 +19,7 @@ import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 import { cn } from "@/lib/utils";
 
-// Funil de captação (sem login). Visitante deslogado experimenta antes de criar conta.
-const funilHref = "/onboarding";
+const funilHref = "/signup";
 
 const dores = [
   "respostas para quem pergunta preço",

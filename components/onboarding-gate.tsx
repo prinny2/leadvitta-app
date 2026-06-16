@@ -5,24 +5,21 @@ import { usePathname, useRouter } from "next/navigation";
 import { getClinica } from "@/lib/store";
 
 /**
- * Redireciona para /onboarding enquanto o DNA da Clínica não estiver concluído.
- * A própria página /onboarding é isenta para evitar loop.
+ * Redireciona para /configuracoes enquanto o DNA da Clínica não estiver concluído.
  */
 export function OnboardingGate() {
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    if (pathname.startsWith("/onboarding")) return;
-    // Checkout em andamento (?plan=... ou retorno do Stripe): deixa concluir o
-    // pagamento primeiro; o gate pega na próxima navegação.
+    if (pathname.startsWith("/configuracoes")) return;
     if (typeof window !== "undefined") {
       const q = new URLSearchParams(window.location.search);
       if (q.get("plan") || q.get("checkout")) return;
     }
     let active = true;
     getClinica().then((c) => {
-      if (active && !c.onboarded) router.replace("/onboarding");
+      if (active && !c.onboarded) router.replace("/configuracoes");
     });
     return () => {
       active = false;
