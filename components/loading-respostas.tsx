@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 
@@ -18,21 +18,35 @@ const ETAPAS = [
  */
 export function LoadingRespostas({ etapas = ETAPAS }: { etapas?: string[] }) {
   const [i, setI] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => {
-      setI((prev) => (prev < etapas.length - 1 ? prev + 1 : prev));
-    }, 1100);
-    return () => clearInterval(t);
-  }, [etapas.length]);
+  const etapasAtivas = etapas.length > 0 ? etapas : ETAPAS;
+  const etapasSignature = etapasAtivas.join("\u0000");
+  const etapasForRun = useMemo(() => etapasAtivas, [etapasSignature]);
 
-  const pct = Math.round(((i + 1) / etapas.length) * 100);
+  useEffect(() => {
+    setI(0);
+    if (etapasForRun.length <= 1) return;
+
+    const t = setInterval(() => {
+      setI((prev) => {
+        const next = prev < etapasForRun.length - 1 ? prev + 1 : prev;
+        if (next >= etapasForRun.length - 1) {
+          clearInterval(t);
+        }
+        return next;
+      });
+    }, 1100);
+
+    return () => clearInterval(t);
+  }, [etapasForRun]);
+
+  const pct = Math.round(((i + 1) / etapasForRun.length) * 100);
 
   return (
     <Card className="animate-fade-in border-brand-200">
       <CardBody className="py-8">
         <div className="mb-4 flex items-center gap-2.5 text-brand-700">
           <Sparkles size={18} className="animate-pulse" />
-          <span className="text-sm font-semibold transition-opacity">{etapas[i]}</span>
+          <span className="text-sm font-semibold transition-opacity">{etapasForRun[i]}</span>
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-nude-200">
           <div
