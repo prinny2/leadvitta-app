@@ -510,7 +510,6 @@ export default function LandingPage() {
                 Conversão para clínicas de estética — responda melhor e agende mais
                 pelo WhatsApp.
               </p>
-              <p className="text-[10px] text-muted/70">LeadBellus · ResonAnza Inova Simples I S</p>
             </div>
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-ink">Contato</h4>
@@ -521,8 +520,7 @@ export default function LandingPage() {
             <div className="space-y-3">
               <h4 className="text-sm font-bold text-ink">Horário</h4>
               <p>Respostas prontas 24h, todo dia</p>
-              <p>© 2026 LeadBellus · Vinicius Paes da Serra Freire (MEI)</p>
-              <p className="text-[10px] text-muted/70"><a href="mailto:contato@leadbellus.com.br" className="hover:text-brand-500 transition-colors">contato@leadbellus.com.br</a></p>
+              <p>© 2026 LeadBellus · Vinícius Paes da Serra Freire (MEI)</p>
             </div>
           </div>
         </div>
