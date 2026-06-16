@@ -92,6 +92,22 @@ function mockAnalysis(msg: string): LeadIntelligenceResult {
   };
 }
 
+function isValidAnalysis(value: unknown): value is LeadIntelligenceResult {
+  if (typeof value !== "object" || value === null) return false;
+  const v = value as Record<string, unknown>;
+  if (typeof v.score !== "number") return false;
+  const eixos = v.eixos;
+  if (typeof eixos !== "object" || eixos === null) return false;
+  const e = eixos as Record<string, unknown>;
+  return (
+    typeof e.urgencia === "number" &&
+    typeof e.intencao === "number" &&
+    typeof e.confianca === "number" &&
+    typeof e.receptividade === "number" &&
+    typeof e.maturidade === "number"
+  );
+}
+
 async function aiAnalysis(msg: string): Promise<LeadIntelligenceResult> {
   const systemPrompt = `Você é um especialista em vendas para clínicas de estética brasileiras.
 Analise a mensagem de um potencial cliente e retorne JSON com esta estrutura exata:
@@ -124,7 +140,8 @@ Responda APENAS com o JSON, sem explicações.`;
       response_format: { type: "json_object" },
       max_tokens: 400,
     });
-    return JSON.parse(res.choices[0].message.content ?? "{}") as LeadIntelligenceResult;
+    const parsed = JSON.parse(res.choices[0].message.content ?? "{}");
+    return isValidAnalysis(parsed) ? parsed : mockAnalysis(msg);
   }
 
   if (isAnthropicConfigured) {
@@ -137,7 +154,8 @@ Responda APENAS com o JSON, sem explicações.`;
     });
     const text = res.content[0].type === "text" ? res.content[0].text : "{}";
     const match = text.match(/\{[\s\S]+\}/);
-    return JSON.parse(match?.[0] ?? "{}") as LeadIntelligenceResult;
+    const parsed = JSON.parse(match?.[0] ?? "{}");
+    return isValidAnalysis(parsed) ? parsed : mockAnalysis(msg);
   }
 
   return mockAnalysis(msg);
