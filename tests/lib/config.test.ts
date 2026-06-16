@@ -124,13 +124,14 @@ describe("lib/config", () => {
     expect(isStripeConfigured).toBe(false);
   });
 
-  it("isZapierConfigured segue ZAPIER_WEBHOOK_URL", async () => {
-    vi.stubEnv("ZAPIER_WEBHOOK_URL", "https://hooks.zapier.com/x");
+  it("isZApiConfigured segue ZAPI_INSTANCE_ID + ZAPI_TOKEN", async () => {
+    vi.stubEnv("ZAPI_INSTANCE_ID", "inst_1");
+    vi.stubEnv("ZAPI_TOKEN", "tok_1");
     const cfg = await loadConfig();
-    expect(cfg.isZapierConfigured).toBe(true);
+    expect(cfg.isZApiConfigured).toBe(true);
 
-    vi.stubEnv("ZAPIER_WEBHOOK_URL", "");
+    vi.stubEnv("ZAPI_TOKEN", "");
     const cfg2 = await loadConfig();
-    expect(cfg2.isZapierConfigured).toBe(false);
+    expect(cfg2.isZApiConfigured).toBe(false);
   });
 });
