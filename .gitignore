@@ -37,3 +37,14 @@ WhatsApp Image*
 .qodo/
 *.log
 /.codex-*
+
+# Dumps de tooling / logs de terminal / artefatos de trabalho (não são código)
+/mcps/
+/terminals/
+/config.json
+*.docx
+/cockpit_*.png
+/mesa_*.png
+/mapa_arquitetura.png
+/cloudrun_login_real.png
+/MESA_PARA_EDUARDO.png

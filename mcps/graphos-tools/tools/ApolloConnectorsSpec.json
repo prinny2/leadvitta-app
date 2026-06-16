@@ -1,8 +1,0 @@
-{
-  "name": "ApolloConnectorsSpec",
-  "description": "This tool provides the agent with the specification which describes how to use Apollo Connectors in a graphql schema to send an HTTP request or use any REST API with a graph. A user may refer to an Apollo Connector as 'Apollo Connector', 'REST Connector', or even just 'Connector'. Treat these all as synonyms for the same thing. You MUST ALWAYS call this tool to use this specification as a guide BEFORE planning, making, or proposing ANY edits or additions to a connectors schema file and/or a graphql file containing @connect or @source. This tool is to provide the agent with guidance, not the user.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {}
-  }
-}
