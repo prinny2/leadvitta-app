@@ -19,6 +19,7 @@ import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CheckoutButton } from "@/components/checkout-button";
 import { BillingPortalButton } from "@/components/billing-portal-button";
+import { NotificacoesToggle } from "@/components/notificacoes-toggle";
 import { billingPlanList, billingPlans, parseBillingPlan } from "@/lib/billing";
 import { trackEvent } from "@/components/Analytics";
 
@@ -418,6 +419,8 @@ export default function ConfiguracoesPage() {
           </p>
         </CardBody>
       </Card>
+
+      {isFirebaseConfigured && <NotificacoesToggle />}
 
       {isFirebaseConfigured && (
         <Card>

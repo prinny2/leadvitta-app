@@ -16,6 +16,7 @@ import {
   orderBy,
   limit,
   updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import {
   clinicaVazia,
@@ -71,6 +72,22 @@ export async function saveClinica(c: Clinica): Promise<void> {
   }
   if (typeof window === "undefined") return;
   window.localStorage.setItem(LS_CLINICA, JSON.stringify(c));
+}
+
+/**
+ * Guarda o token de Web Push (FCM) do dispositivo na clínica do usuário.
+ * Só funciona com Firebase; em modo demonstração é um no-op silencioso.
+ * As regras permitem este update (não toca em `billing`/`whatsapp`).
+ */
+export async function saveFcmToken(token: string): Promise<void> {
+  if (!isFirebaseConfigured) return;
+  const user = getFirebaseAuth().currentUser;
+  if (!user || !token) return;
+  await setDoc(
+    doc(getFirebaseDb(), "clinicas", user.uid),
+    { fcm_tokens: arrayUnion(token), updated_at: new Date().toISOString() },
+    { merge: true }
+  );
 }
 
 // ---------------- Histórico ----------------
