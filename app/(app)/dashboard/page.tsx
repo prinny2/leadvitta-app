@@ -10,6 +10,7 @@ import { Sparkles, TrendingUp, Flame, Snowflake, Sun, ArrowRight, ChevronRight,
   MessagesSquare, Send, ListChecks, History, Settings, Zap, Brain, Target } from "lucide-react";
 import { getClinica } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/components/theme-provider";
 
 const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const MESES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
@@ -87,6 +88,8 @@ function DarkTooltip({ active, payload, label }: any) {
 
 export default function DashboardPage() {
   const [nome, setNome] = useState("");
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   useEffect(() => {
     getClinica().then((c) => setNome(c.nome_clinica || ""));
@@ -138,9 +141,13 @@ export default function DashboardPage() {
         href="/lead-intelligence"
         className="group relative flex flex-col sm:flex-row items-center gap-5 rounded-2xl p-5 sm:p-6 overflow-hidden transition-all hover:-translate-y-0.5"
         style={{
-          background: "linear-gradient(135deg, #0f1b2f 0%, #131f35 60%, #0d1a2e 100%)",
+          background: isLight
+            ? "linear-gradient(135deg, #FFFFFF 0%, #FBF9F5 100%)"
+            : "linear-gradient(135deg, #0f1b2f 0%, #131f35 60%, #0d1a2e 100%)",
           border: "1px solid rgba(201,160,96,0.3)",
-          boxShadow: "0 0 40px rgba(201,160,96,0.06), 0 8px 32px rgba(0,0,0,0.3)",
+          boxShadow: isLight
+            ? "0 2px 16px rgba(201,160,96,0.1)"
+            : "0 0 40px rgba(201,160,96,0.06), 0 8px 32px rgba(0,0,0,0.3)",
         }}
       >
         {/* Glow radial */}
@@ -173,13 +180,13 @@ export default function DashboardPage() {
         {/* Texto */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <p className="font-serif text-lg sm:text-xl font-semibold text-white">Lead Intelligence</p>
+            <p className="font-serif text-lg sm:text-xl font-semibold" style={{ color: isLight ? "#0A1628" : "#FFFFFF" }}>Lead Intelligence</p>
             <span className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider shrink-0"
               style={{ background: "rgba(201,160,96,0.2)", border: "1px solid rgba(201,160,96,0.35)", color: "#C9A060" }}>
               PRO
             </span>
           </div>
-          <p className="text-sm sm:pr-28" style={{ color: "#8aacc8" }}>
+          <p className="text-sm sm:pr-28" style={{ color: isLight ? "#6B7280" : "#8aacc8" }}>
             Cole a mensagem de uma cliente e descubra: score de conversão, perfil psicológico e a estratégia exata para fechar esse lead.
           </p>
           <div className="flex items-center gap-1.5 mt-3 text-sm font-semibold transition-all group-hover:gap-2.5"
