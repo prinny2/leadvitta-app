@@ -292,33 +292,27 @@ function PricingCard({
         </p>
       )}
 
-      {/* Tagline box */}
+      {/* Tagline box — igual em todos os planos */}
       <div
         style={{
-          background: isPro
-            ? "rgba(201,160,96,0.08)"
-            : isPremium
-            ? "rgba(201,160,96,0.06)"
-            : "transparent",
-          border: isPro || isPremium ? "1px solid rgba(201,160,96,0.2)" : "none",
-          borderRadius: "10px",
-          padding: isPro || isPremium ? "12px 14px" : "0",
+          background: "rgba(201,160,96,0.07)",
+          border: "1px solid rgba(201,160,96,0.18)",
+          borderRadius: "12px",
+          padding: "12px 16px",
           marginBottom: "20px",
+          clipPath: "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%)",
         }}
       >
         <p
           style={{
             fontSize: "13px",
-            color: isPro
-              ? "rgba(255,255,255,0.7)"
-              : isPremium
-              ? "rgba(255,255,255,0.75)"
-              : "rgba(255,255,255,0.5)",
-            lineHeight: 1.65,
+            color: "rgba(255,255,255,0.78)",
+            lineHeight: 1.7,
             margin: 0,
+            fontStyle: "italic",
           }}
         >
-          {plan.id === "start" ? plan.tagline : plan.tagline}
+          {plan.tagline}
         </p>
       </div>
 
