@@ -22,17 +22,17 @@ const links = [
 
 function LogoMark({ size = 32 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Folha esquerda */}
-      <path d="M50 100 C20 80 10 55 20 30 C30 20 45 18 50 22" stroke="#C9A060" strokeWidth="4" strokeLinecap="round" fill="none"/>
-      {/* Folha direita */}
-      <path d="M50 100 C80 80 90 55 80 30 C70 20 55 18 50 22" stroke="#C9A060" strokeWidth="4" strokeLinecap="round" fill="none"/>
-      {/* Losango central */}
-      <path d="M50 8 L70 35 L50 62 L30 35 Z" stroke="#C9A060" strokeWidth="3.5" strokeLinejoin="round" fill="none"/>
+    <svg width={size} height={size} viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Losango externo */}
+      <path d="M40 4 L76 40 L40 76 L4 40 Z" stroke="#C9A060" strokeWidth="3" strokeLinejoin="round" fill="none"/>
+      {/* Folha esquerda inferior */}
+      <path d="M40 76 C22 68 10 54 16 40" stroke="#C9A060" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
+      {/* Folha direita inferior */}
+      <path d="M40 76 C58 68 70 54 64 40" stroke="#C9A060" strokeWidth="2.8" strokeLinecap="round" fill="none"/>
       {/* Haste vertical */}
-      <line x1="50" y1="40" x2="50" y2="100" stroke="#C9A060" strokeWidth="3" strokeLinecap="round"/>
-      {/* Ponto do pin */}
-      <circle cx="50" cy="36" r="4" fill="#C9A060"/>
+      <line x1="40" y1="30" x2="40" y2="76" stroke="#C9A060" strokeWidth="2.5" strokeLinecap="round"/>
+      {/* Pin dot */}
+      <circle cx="40" cy="27" r="5" fill="#C9A060"/>
     </svg>
   );
 }
@@ -64,12 +64,9 @@ export function Sidebar() {
       {/* Logo */}
       <Link href="/dashboard" className="flex items-center gap-3 px-2 mb-8">
         <LogoMark size={34} />
-        <div>
-          <span className="font-serif text-base font-semibold text-champagne-300">
-            Lead<span className="text-gold-500">Bellus</span>
-          </span>
-          <p className="text-[10px] text-navy-100 tracking-widest uppercase">by IA</p>
-        </div>
+        <span className="font-serif text-base font-semibold text-champagne-300">
+          Lead<span className="text-gold-500">Bellus</span>
+        </span>
       </Link>
 
       {/* Linha dourada separadora */}
