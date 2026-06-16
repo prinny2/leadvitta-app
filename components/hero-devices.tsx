@@ -513,8 +513,8 @@ export function HeroDevices() {
       const { width, height } = entry.contentRect;
       const sx = (width - 16) / NAT_W;
       const sy = (height - 16) / NAT_H;
-      // Use whichever is smaller, allow scaling beyond 1 to fill large containers
-      setScale(Math.min(sx, sy));
+      // cap at 0.78 so devices stay smaller than natural size
+      setScale(Math.min(sx, sy, 0.78));
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -550,7 +550,7 @@ export function HeroDevices() {
     : ScreenObjecoes;
 
   return (
-    // Outer: fills parent absolutely
+    // Outer: fills parent absolutely, anchored to top
     <div
       ref={containerRef}
       style={{
@@ -559,14 +559,15 @@ export function HeroDevices() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
+        paddingTop: "28px",
         overflow: "hidden",
       }}
     >
-      {/* Everything inside is scaled to fill the container */}
+      {/* Everything inside is scaled, anchored at top-center */}
       <div style={{
         transform: `scale(${scale})`,
-        transformOrigin: "center center",
+        transformOrigin: "top center",
         width: `${NAT_W}px`,
         height: `${NAT_H}px`,
         display: "flex",
