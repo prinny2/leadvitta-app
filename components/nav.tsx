@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Home, Sparkles, MessagesSquare, Send, ListChecks, History, Settings, LogOut,
+  Home, Sparkles, MessagesSquare, Send, ListChecks, History, Settings, LogOut, Brain,
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
@@ -11,13 +11,14 @@ import { getFirebaseAuth } from "@/lib/firebase/client";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/dashboard",    label: "Início",        icon: Home },
-  { href: "/gerador",      label: "Gerador",       icon: Sparkles },
-  { href: "/objecoes",     label: "Objeções",      icon: MessagesSquare },
-  { href: "/follow-up",    label: "Follow-up",     icon: Send },
-  { href: "/scripts",      label: "Scripts",       icon: ListChecks },
-  { href: "/historico",    label: "Histórico",     icon: History },
-  { href: "/configuracoes",label: "Configurações", icon: Settings },
+  { href: "/dashboard",          label: "Início",             icon: Home,          pro: false },
+  { href: "/gerador",            label: "Gerador",            icon: Sparkles,      pro: false },
+  { href: "/lead-intelligence",  label: "Lead Intelligence",  icon: Brain,         pro: true  },
+  { href: "/objecoes",           label: "Objeções",           icon: MessagesSquare,pro: false },
+  { href: "/follow-up",          label: "Follow-up",          icon: Send,          pro: false },
+  { href: "/scripts",            label: "Scripts",            icon: ListChecks,    pro: false },
+  { href: "/historico",          label: "Histórico",          icon: History,       pro: false },
+  { href: "/configuracoes",      label: "Configurações",      icon: Settings,      pro: false },
 ];
 
 function LogoMark({ size = 32 }: { size?: number }) {
@@ -71,7 +72,7 @@ export function Sidebar() {
       <div className="gold-divider mb-5 mx-2" />
 
       <nav className="flex flex-1 flex-col gap-0.5">
-        {links.map(({ href, label, icon: Icon }) => {
+        {links.map(({ href, label, icon: Icon, pro }) => {
           const active = isActive(pathname, href);
           return (
             <Link
@@ -84,8 +85,14 @@ export function Sidebar() {
                   : "text-navy-100 hover:bg-white/5 hover:text-champagne-300"
               )}
             >
-              <Icon size={17} className={active ? "text-gold-400" : "text-navy-100"} />
-              {label}
+              <Icon size={17} className={active ? "text-gold-400" : pro ? "text-gold-500/70" : "text-navy-100"} />
+              <span className="flex-1">{label}</span>
+              {pro && (
+                <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+                  style={{ background: "rgba(201,160,96,0.15)", color: "#C9A060", border: "1px solid rgba(201,160,96,0.25)" }}>
+                  PRO
+                </span>
+              )}
             </Link>
           );
         })}

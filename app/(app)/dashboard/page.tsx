@@ -7,7 +7,7 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { Sparkles, TrendingUp, Flame, Snowflake, Sun, ArrowRight, ChevronRight,
-  MessagesSquare, Send, ListChecks, History, Settings, Zap } from "lucide-react";
+  MessagesSquare, Send, ListChecks, History, Settings, Zap, Brain, Target } from "lucide-react";
 import { getClinica } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -61,12 +61,13 @@ const dadosSituacoes = [
 ];
 
 const MODULES = [
-  { href: "/gerador",       label: "Gerador",       desc: "3 respostas no seu tom",          icon: Sparkles,      hot: true  },
-  { href: "/objecoes",      label: "Objeções",       desc: "Respostas prontas para objeções", icon: MessagesSquare, hot: false },
-  { href: "/follow-up",     label: "Follow-up",      desc: "Reative quem sumiu",              icon: Send,          hot: false },
-  { href: "/scripts",       label: "Scripts",        desc: "Fluxos até o agendamento",        icon: ListChecks,    hot: false },
-  { href: "/historico",     label: "Histórico",      desc: "Tudo que você já gerou",          icon: History,       hot: false },
-  { href: "/configuracoes", label: "Configurações",  desc: "DNA da sua clínica",              icon: Settings,      hot: false },
+  { href: "/gerador",           label: "Gerador",           desc: "3 respostas no seu tom",          icon: Sparkles,       hot: true  },
+  { href: "/lead-intelligence", label: "Lead Intelligence", desc: "Score e perfil de cada lead",     icon: Brain,          hot: true  },
+  { href: "/objecoes",          label: "Objeções",          desc: "Respostas prontas para objeções", icon: MessagesSquare, hot: false },
+  { href: "/follow-up",         label: "Follow-up",         desc: "Reative quem sumiu",              icon: Send,           hot: false },
+  { href: "/scripts",           label: "Scripts",           desc: "Fluxos até o agendamento",        icon: ListChecks,     hot: false },
+  { href: "/historico",         label: "Histórico",         desc: "Tudo que você já gerou",          icon: History,        hot: false },
+  { href: "/configuracoes",     label: "Configurações",     desc: "DNA da sua clínica",              icon: Settings,       hot: false },
 ];
 
 // Tooltip customizado dark
@@ -131,6 +132,63 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* ── Lead Intelligence — card de destaque ── */}
+      <Link
+        href="/lead-intelligence"
+        className="group relative flex flex-col sm:flex-row items-center gap-5 rounded-2xl p-5 sm:p-6 overflow-hidden transition-all hover:-translate-y-0.5"
+        style={{
+          background: "linear-gradient(135deg, #0f1b2f 0%, #131f35 60%, #0d1a2e 100%)",
+          border: "1px solid rgba(201,160,96,0.3)",
+          boxShadow: "0 0 40px rgba(201,160,96,0.06), 0 8px 32px rgba(0,0,0,0.3)",
+        }}
+      >
+        {/* Glow radial */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at 90% 50%, rgba(201,160,96,0.08) 0%, transparent 60%)" }} />
+
+        {/* Anel pulsante */}
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden sm:block pointer-events-none">
+          <div className="relative h-20 w-20">
+            <div className="absolute inset-0 rounded-full animate-ping"
+              style={{ background: "rgba(201,160,96,0.08)", animationDuration: "2.5s" }} />
+            <div className="absolute inset-2 rounded-full"
+              style={{ background: "rgba(201,160,96,0.06)", border: "1px solid rgba(201,160,96,0.2)" }} />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Brain size={24} style={{ color: "#C9A060", filter: "drop-shadow(0 0 8px rgba(201,160,96,0.6))" }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Ícone */}
+        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl"
+          style={{
+            background: "linear-gradient(135deg, rgba(201,160,96,0.2) 0%, rgba(201,160,96,0.08) 100%)",
+            border: "1px solid rgba(201,160,96,0.3)",
+            boxShadow: "0 0 20px rgba(201,160,96,0.2)",
+          }}>
+          <Brain size={28} style={{ color: "#C9A060" }} />
+        </div>
+
+        {/* Texto */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <p className="font-serif text-lg sm:text-xl font-semibold text-white">Lead Intelligence</p>
+            <span className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider shrink-0"
+              style={{ background: "rgba(201,160,96,0.2)", border: "1px solid rgba(201,160,96,0.35)", color: "#C9A060" }}>
+              PRO
+            </span>
+          </div>
+          <p className="text-sm sm:pr-28" style={{ color: "#8aacc8" }}>
+            Cole a mensagem de uma cliente e descubra: score de conversão, perfil psicológico e a estratégia exata para fechar esse lead.
+          </p>
+          <div className="flex items-center gap-1.5 mt-3 text-sm font-semibold transition-all group-hover:gap-2.5"
+            style={{ color: "#C9A060" }}>
+            <Target size={14} /> Analisar um lead agora
+            <ChevronRight size={14} className="transition-transform group-hover:translate-x-1" />
+          </div>
+        </div>
+      </Link>
 
       {/* ── Gráficos linha 1 ── */}
       <div className="grid gap-4 lg:grid-cols-3">
