@@ -17,6 +17,9 @@ export const isFirebaseConfigured =
 /** Chave pública VAPID para Web Push (FCM). Pública por design — vai no frontend. */
 export const firebaseVapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
 
+/** True quando o Web Push está pronto pra uso (Firebase + chave VAPID pública). */
+export const isWebPushConfigured = isFirebaseConfigured && !!firebaseVapidKey;
+
 /** True quando há chave da Anthropic (apenas no servidor). */
 export const isAnthropicConfigured = !!process.env.ANTHROPIC_API_KEY;
 
