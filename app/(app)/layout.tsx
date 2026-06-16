@@ -1,6 +1,5 @@
 import { Sidebar, MobileNav } from "@/components/nav";
 import { DemoBanner } from "@/components/demo-banner";
-import { OnboardingGate } from "@/components/onboarding-gate";
 import { ErrorBoundary } from "@/components/error-boundary";
 
 export default function AppLayout({
@@ -10,7 +9,6 @@ export default function AppLayout({
 }) {
   return (
     <div className="min-h-screen bg-nude-50 md:flex md:flex-col">
-      <OnboardingGate />
       <DemoBanner />
       <MobileNav />
       <div className="mx-auto flex w-full max-w-7xl">
