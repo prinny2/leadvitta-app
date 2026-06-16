@@ -20,7 +20,7 @@ const tipoLabel: Record<string, string> = {
 const tipoBadge: Record<string, string> = {
   gerador: "bg-navy-800 text-white",
   follow_up: "bg-gold-500 text-navy-900",
-  reescrever: "bg-brand-200 text-brand-800",
+  reescrever: "bg-gold-100 text-navy-900",
 };
 
 const filtros = [

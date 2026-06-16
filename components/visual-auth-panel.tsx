@@ -267,21 +267,14 @@ export function VisualAuthPanel({
           {isSignup ? (
             <>
               Já tem conta?{" "}
-              <Link
-                href={
-                  plan
-                    ? `/onboarding?entrar=1&plan=${plan}`
-                    : "/onboarding?entrar=1"
-                }
-                className="font-medium text-brand-600"
-              >
+              <Link href="/login" className="font-medium text-brand-600">
                 Entrar
               </Link>
             </>
           ) : (
             <>
               Primeira vez?{" "}
-              <Link href="/onboarding" className="font-medium text-brand-600">
+              <Link href="/signup" className="font-medium text-brand-600">
                 Testar grátis
               </Link>
             </>

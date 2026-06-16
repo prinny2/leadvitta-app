@@ -91,10 +91,10 @@ export async function POST(request: Request) {
   const baseUrl = getBaseUrl(request);
   const successPath = firebaseUid
     ? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"
-    : "/onboarding?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}";
+    : "/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}";
   const cancelPath = firebaseUid
     ? "/configuracoes?checkout=cancelado"
-    : "/onboarding?aba=planos&checkout=cancelado";
+    : "/?checkout=cancelado";
   const params: Stripe.Checkout.SessionCreateParams = {
     mode: checkoutMode,
     line_items: [{ price: planConfig.priceId, quantity: 1 }],
