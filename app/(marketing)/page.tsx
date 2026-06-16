@@ -221,152 +221,145 @@ export default function LandingPage() {
         style={{
           background: "#07101e",
           color: "#ffffff",
+          padding: "72px 24px 80px",
           position: "relative",
           overflow: "hidden",
-          minHeight: "calc(100vh - 102px)",
-          display: "flex",
-          alignItems: "stretch",
         }}
       >
         {/* Glow orbs */}
-        <div style={{ position: "absolute", top: "-100px", left: "-80px", width: "550px", height: "550px", background: "radial-gradient(circle, rgba(201,160,96,0.09) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: 0, right: 0, width: "500px", height: "500px", background: "radial-gradient(circle, rgba(201,160,96,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "-80px", left: "-100px", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(201,160,96,0.10) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "-60px", right: "-80px", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(201,160,96,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "30%", right: "10%", width: "300px", height: "300px", background: "radial-gradient(circle, rgba(96,160,201,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
 
-        {/* Full-width flex — no max-width so right column bleeds to viewport edge */}
-        <div className="hero-flex" style={{ display: "flex", alignItems: "center", width: "100%", minHeight: "inherit" }}>
-
-          {/* Left — text, aligned with nav content */}
-          <div
-            className="hero-text"
-            style={{
-              flexShrink: 0,
-              width: "min(500px, 42vw)",
-              paddingLeft: "max(24px, calc((100vw - 1152px) / 2 + 24px))",
-              paddingRight: "40px",
-              paddingTop: "60px",
-              paddingBottom: "60px",
-            }}
+        <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}>
+          {/* Two-column layout: text left, devices right */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "420px 1fr",
+            gap: "40px",
+            alignItems: "center",
+          }}
+            className="hero-grid"
           >
-            <TagPill>
-              ↘ Clínicas perdem em média R$8 mil/mês respondendo errado no WhatsApp
-            </TagPill>
+            {/* Left — copy */}
+            <div>
+              <TagPill>
+                ↘ Clínicas perdem em média R$8 mil/mês respondendo errado no WhatsApp
+              </TagPill>
 
-            <h1
-              style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "clamp(40px, 4.5vw, 68px)",
-                fontWeight: 700,
-                lineHeight: 1.05,
-                margin: "0 0 24px",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              Ela sumiu.
-              <br />
-              E não foi
-              <br />
-              <span style={{ color: "#C9A060" }}>pelo preço.</span>
-            </h1>
-
-            <p
-              style={{
-                fontSize: "17px",
-                lineHeight: 1.75,
-                color: "rgba(255,255,255,0.72)",
-                margin: "0 0 36px",
-              }}
-            >
-              Foi a resposta que não criou valor nenhum. O LeadBellus te dá a
-              resposta certa — pronta pra copiar e colar — antes que a cliente
-              esfrie. No seu tom, sem parecer robô.
-            </p>
-
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", marginBottom: "20px" }}>
-              <Link
-                href={funilHref}
+              <h1
                 style={{
-                  background: "#C9A060",
-                  color: "#07101e",
-                  borderRadius: "9999px",
-                  padding: "15px 30px",
-                  fontSize: "15px",
+                  fontFamily: "var(--font-fraunces, Georgia, serif)",
+                  fontSize: "clamp(40px, 5vw, 68px)",
                   fontWeight: 700,
-                  textDecoration: "none",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
+                  lineHeight: 1.05,
+                  margin: "0 0 24px",
+                  letterSpacing: "-0.02em",
                 }}
               >
-                Ver minha resposta em 1 min →
-              </Link>
-              <a
-                href="#demo"
+                Ela sumiu.
+                <br />
+                E não foi
+                <br />
+                <span style={{ color: "#C9A060" }}>pelo preço.</span>
+              </h1>
+
+              <p
                 style={{
-                  border: "1.5px solid rgba(201,160,96,0.5)",
-                  color: "#C9A060",
-                  borderRadius: "9999px",
-                  padding: "15px 28px",
-                  fontSize: "15px",
-                  fontWeight: 600,
-                  textDecoration: "none",
+                  fontSize: "17px",
+                  lineHeight: 1.75,
+                  color: "rgba(255,255,255,0.72)",
+                  maxWidth: "480px",
+                  margin: "0 0 36px",
                 }}
               >
-                Ver demo ↓
-              </a>
-            </div>
+                Foi a resposta que não criou valor nenhum. O LeadBellus te dá a
+                resposta certa — pronta pra copiar e colar — antes que a cliente
+                esfrie. No seu tom, sem parecer robô.
+              </p>
 
-            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)", marginBottom: "36px" }}>
-              Sem cartão pra testar · Pronto no celular · Feito para clínicas de estética
-            </p>
-
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-              {[
-                { icon: "💬", label: "Respostas estratégicas" },
-                { icon: "🔄", label: "Follow-ups" },
-                { icon: "🛡️", label: "Objeções" },
-                { icon: "🧠", label: "Lead Intelligence" },
-              ].map((f) => (
-                <div
-                  key={f.label}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", marginBottom: "20px" }}>
+                <Link
+                  href={funilHref}
                   style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(201,160,96,0.15)",
+                    background: "#C9A060",
+                    color: "#07101e",
                     borderRadius: "9999px",
-                    padding: "7px 14px",
-                    display: "flex",
+                    padding: "15px 30px",
+                    fontSize: "15px",
+                    fontWeight: 700,
+                    textDecoration: "none",
+                    display: "inline-flex",
                     alignItems: "center",
-                    gap: "6px",
+                    gap: "8px",
                   }}
                 >
-                  <span style={{ fontSize: "14px" }}>{f.icon}</span>
-                  <span style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.75)" }}>
-                    {f.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+                  Ver minha resposta em 1 min →
+                </Link>
+                <a
+                  href="#demo"
+                  style={{
+                    border: "1.5px solid rgba(201,160,96,0.5)",
+                    color: "#C9A060",
+                    borderRadius: "9999px",
+                    padding: "15px 28px",
+                    fontSize: "15px",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                  }}
+                >
+                  Ver demo ↓
+                </a>
+              </div>
 
-          {/* Right — devices fill the rest of the viewport */}
-          <div
-            className="hero-devices-col"
-            style={{
-              flex: 1,
-              alignSelf: "stretch",
-              position: "relative",
-              overflow: "hidden",
-              minHeight: "520px",
-            }}
-          >
-            <HeroDevices />
+              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)", marginBottom: "40px" }}>
+                Sem cartão pra testar · Pronto no celular · Feito para clínicas de estética
+              </p>
+
+              {/* 4 mini feature pills */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                {[
+                  { icon: "💬", label: "Respostas estratégicas" },
+                  { icon: "🔄", label: "Follow-ups" },
+                  { icon: "🛡️", label: "Objeções" },
+                  { icon: "🧠", label: "Lead Intelligence" },
+                ].map((f) => (
+                  <div
+                    key={f.label}
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(201,160,96,0.15)",
+                      borderRadius: "9999px",
+                      padding: "7px 14px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <span style={{ fontSize: "14px" }}>{f.icon}</span>
+                    <span style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.75)" }}>
+                      {f.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right — animated device mockups */}
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: "32px" }}>
+              <HeroDevices />
+            </div>
           </div>
         </div>
 
         <style>{`
-          @media (max-width: 860px) {
-            .hero-flex { flex-direction: column !important; min-height: auto !important; }
-            .hero-text { width: 100% !important; padding: 48px 24px 32px !important; }
-            .hero-devices-col { width: 100% !important; min-height: 420px !important; }
+          @media (max-width: 768px) {
+            .hero-grid {
+              grid-template-columns: 1fr !important;
+              text-align: center;
+            }
+            .hero-grid > div:first-child > p { margin-left: auto; margin-right: auto; }
+            .hero-grid > div:first-child > div { justify-content: center; }
           }
         `}</style>
       </section>
