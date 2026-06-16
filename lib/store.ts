@@ -75,6 +75,23 @@ export async function saveClinica(c: Clinica): Promise<void> {
 }
 
 /**
+ * Lê o plano de assinatura do usuário do Firestore (o campo `billing` é
+ * gravado só pelo webhook do Stripe via Admin SDK). Em modo demonstração
+ * — ou quando `billing` ainda não foi escrito — devolve `"start"`.
+ */
+export async function getBillingPlan(): Promise<"start" | "pro" | "premium"> {
+  if (isFirebaseConfigured) {
+    const user = getFirebaseAuth().currentUser;
+    if (!user) return "start";
+    const snap = await getDoc(doc(getFirebaseDb(), "clinicas", user.uid));
+    if (!snap.exists()) return "start";
+    const plan = snap.data()?.billing?.plan;
+    if (plan === "pro" || plan === "premium") return plan;
+  }
+  return "start";
+}
+
+/**
  * Guarda o token de Web Push (FCM) do dispositivo na clínica do usuário.
  * Só funciona com Firebase; em modo demonstração é um no-op silencioso.
  * As regras permitem este update (não toca em `billing`/`whatsapp`).

@@ -5,6 +5,7 @@ const ROTAS_PROTEGIDAS = [
   "/dashboard",
   "/conversas",
   "/gerador",
+  "/lead-intelligence",
   "/objecoes",
   "/follow-up",
   "/scripts",
