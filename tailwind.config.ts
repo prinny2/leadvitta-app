@@ -9,52 +9,67 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Creme quente — fundos (hero, cards)
-        nude: {
-          50: "#FBF9F3",
-          100: "#F5F0E4",
-          200: "#EBE3D2",
-          300: "#DDD2BC",
+        // Navy — identidade LeadBellus
+        navy: {
+          950: "#030810",
+          900: "#060F1C",  // app background
+          800: "#0A1628",  // sidebar
+          700: "#0D1B30",  // cards / surfaces
+          600: "#111F38",  // cards elevadas
+          500: "#162540",  // bordas
+          400: "#1E3050",  // bordas hover
+          300: "#2A4265",
+          200: "#3D5A7A",
+          100: "#6B8CAE",  // texto muted
+          50:  "#A0BDD4",  // texto secundário
         },
-        // Verde-escuro LeadBellus — marca, fundos premium
+        // Mantém brand como alias navy para compatibilidade
         brand: {
-          50: "#EEF6F3",
-          100: "#D5EBE3",
-          200: "#A8D4C4",
-          300: "#6BB59A",
-          400: "#3D8F72",
-          500: "#0E3A30",
-          600: "#0C3229",
-          700: "#0A2A22",
-          800: "#082219",
-          900: "#051A15",
-          dark: "#0E3A30",
+          50:  "#060F1C",
+          100: "#0A1628",
+          200: "#111F38",
+          300: "#162540",
+          400: "#1E3050",
+          500: "#0A1628",  // sidebar bg, botões primários
+          600: "#060F1C",
+          700: "#040C16",
+          800: "#020A12",
+          900: "#010608",
+          dark: "#0A1628",
         },
         // Dourado — CTAs, destaques, conversão
         gold: {
-          50: "#FDF8ED",
-          100: "#F9EDD4",
-          200: "#F0D9A8",
-          300: "#E5C47B",
-          400: "#D4AD5A",
-          500: "#CDA347",
+          50:  "#FDF6E8",
+          100: "#F9EAC8",
+          200: "#F0D090",
+          300: "#E4B85A",
+          400: "#D4A84A",
+          500: "#C9A060",  // dourado principal
           600: "#B8860B",
           700: "#9A6F09",
         },
         // Champagne — texto em fundo escuro
+        champagne: {
+          100: "#F0E6D3",
+          200: "#E8D5B7",
+          300: "#D4C4A0",  // texto principal
+          400: "#BEA882",
+          500: "#A08860",
+        },
+        // Legado lavender → agora champagne
         lavender: {
-          50: "#FAF7F2",
-          100: "#F3EDE3",
-          200: "#E8DCC8",
-          300: "#D9C9AD",
-          400: "#C4B08E",
-          500: "#A89572",
-          600: "#8A7A5E",
+          50:  "#F0E6D3",
+          100: "#E8D5B7",
+          200: "#D4C4A0",
+          300: "#D4C4A0",
+          400: "#BEA882",
+          500: "#A08860",
+          600: "#8A7860",
           700: "#6B6049",
         },
-        // Coral — gancho de dor / perda
+        // Dor / urgência
         pain: {
-          50: "#FEF2F0",
+          50:  "#FEF2F0",
           100: "#FDE4DF",
           200: "#FAC4BA",
           300: "#F49A88",
@@ -62,11 +77,13 @@ export default {
           500: "#D94F3A",
           600: "#B83D2B",
         },
-        ink: "#0E3A30",
-        muted: "#5C6B66",
+        // Semântica
+        ink:   "#D4C4A0",  // texto principal (champagne)
+        muted: "#6B8CAE",  // texto secundário (navy-100)
+        surface: "#0D1B30", // cards
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        sans:  ["var(--font-inter)", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
         serif: ["var(--font-fraunces)", "Georgia", "Cambria", "serif"],
       },
       borderRadius: {
@@ -74,24 +91,36 @@ export default {
         "3xl": "1.5rem",
       },
       boxShadow: {
-        soft: "0 4px 24px -8px rgba(14, 58, 48, 0.14)",
-        card: "0 2px 16px -6px rgba(14, 58, 48, 0.08)",
-        cta: "0 8px 28px -6px rgba(205, 163, 71, 0.45)",
+        soft:    "0 4px 24px -8px rgba(0, 0, 0, 0.5)",
+        card:    "0 2px 16px -6px rgba(0, 0, 0, 0.4)",
+        cta:     "0 8px 28px -6px rgba(201, 160, 96, 0.45)",
+        glow:    "0 0 40px -10px rgba(201, 160, 96, 0.3)",
+        "navy-lg": "0 8px 32px -8px rgba(3, 8, 16, 0.8)",
+      },
+      backgroundImage: {
+        "gold-shimmer": "linear-gradient(135deg, #D4A84A 0%, #C9A060 45%, #B8860B 100%)",
+        "navy-card": "linear-gradient(135deg, #0D1B30 0%, #111F38 100%)",
+        "navy-deep": "linear-gradient(180deg, #060F1C 0%, #030810 100%)",
       },
       keyframes: {
         "fade-in": {
           from: { opacity: "0", transform: "translateY(6px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
+          to:   { opacity: "1", transform: "translateY(0)" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-12px)" },
+          "50%":      { transform: "translateY(-12px)" },
+        },
+        shimmer: {
+          "0%":   { backgroundPosition: "-200% center" },
+          "100%": { backgroundPosition: "200% center" },
         },
       },
       animation: {
-        "fade-in": "fade-in 0.35s ease-out both",
-        float: "float 7s ease-in-out infinite",
+        "fade-in":       "fade-in 0.35s ease-out both",
+        float:           "float 7s ease-in-out infinite",
         "float-delayed": "float 7s ease-in-out infinite 0.6s",
+        shimmer:         "shimmer 2.5s linear infinite",
       },
     },
   },

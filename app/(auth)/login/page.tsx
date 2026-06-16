@@ -1,14 +1,12 @@
-import { redirect } from "next/navigation";
+import { VisualAuthPanel } from "@/components/visual-auth-panel";
+import { Card, CardBody } from "@/components/ui/card";
 
-type LoginPageProps = {
-  searchParams: Promise<{ next?: string }>;
-};
-
-/** Login não bloqueia o funil — manda pro onboarding. */
-export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const params = await searchParams;
-  const q = new URLSearchParams();
-  if (params.next) q.set("next", params.next);
-  const suffix = q.toString() ? `?${q.toString()}` : "";
-  redirect(`/onboarding${suffix}`);
+export default function LoginPage() {
+  return (
+    <Card className="w-full max-w-md">
+      <CardBody className="p-6 sm:p-8">
+        <VisualAuthPanel mode="login" next="/dashboard" />
+      </CardBody>
+    </Card>
+  );
 }

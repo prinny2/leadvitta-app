@@ -7,40 +7,54 @@ html {
 }
 
 body {
+  background-color: #060F1C;
   text-rendering: optimizeLegibility;
 }
 
-.bg-soft {
-  background: linear-gradient(180deg, #fbf9f3 0%, #f5f0e4 100%);
+/* ── Fundos ── */
+.bg-app {
+  background: #060F1C;
 }
 
 .bg-hero {
   background:
-    radial-gradient(1200px 500px at 12% -10%, rgba(14, 58, 48, 0.12), transparent 60%),
-    radial-gradient(1000px 520px at 100% 0%, rgba(205, 163, 71, 0.18), transparent 55%),
-    #fbf9f3;
+    radial-gradient(1200px 500px at 12% -10%, rgba(201, 160, 96, 0.08), transparent 60%),
+    radial-gradient(1000px 520px at 100% 0%, rgba(201, 160, 96, 0.12), transparent 55%),
+    #060F1C;
 }
 
-.bg-brand-dark {
+.bg-navy-glow {
   background:
-    radial-gradient(800px 420px at 82% 0%, rgba(205, 163, 71, 0.16), transparent 60%),
-    #0e3a30;
+    radial-gradient(800px 420px at 82% 0%, rgba(201, 160, 96, 0.10), transparent 60%),
+    #0A1628;
 }
 
+/* ── Glassmorphism cards ── */
 .glass-card {
-  @apply border border-white/20 bg-white/40 backdrop-blur-xl;
+  background: rgba(13, 27, 48, 0.8);
+  border: 1px solid rgba(201, 160, 96, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
+.glass-card-dark {
+  background: rgba(6, 15, 28, 0.9);
+  border: 1px solid rgba(30, 48, 80, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ── Gradiente texto dourado ── */
 .text-gold-gradient {
-  background: linear-gradient(135deg, #e5c47b 0%, #cda347 45%, #b8860b 100%);
+  background: linear-gradient(135deg, #E4B85A 0%, #C9A060 45%, #B8860B 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* CTA principal — dourado que converte */
+/* ── CTAs ── */
 .btn-cta {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gold-500 px-6 py-3 text-base font-semibold text-brand-900 shadow-cta transition-all;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gold-500 px-6 py-3 text-base font-semibold text-navy-800 shadow-cta transition-all;
 }
 .btn-cta:hover {
   @apply bg-gold-400 scale-[1.02];
@@ -49,43 +63,41 @@ body {
   @apply scale-[0.98];
 }
 
-/* CTA secundário — contorno verde */
 .btn-cta-outline {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-brand-200 bg-white/80 px-6 py-3 text-base font-semibold text-brand-600 transition-all hover:border-brand-400 hover:bg-white;
+  @apply inline-flex items-center justify-center gap-2 rounded-xl border border-gold-500/30 bg-transparent px-6 py-3 text-base font-semibold text-gold-400 transition-all hover:border-gold-400 hover:bg-gold-500/10;
 }
 
-/* Badge de gancho de dor */
-.badge-pain {
-  @apply inline-flex items-center gap-1.5 rounded-full bg-pain-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-pain-600;
+/* ── Linha separadora dourada ── */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #C9A060, transparent);
 }
 
-/* Card de dor — visual rápido */
-.card-pain {
-  @apply rounded-2xl border border-pain-200 bg-pain-50/60 p-4 shadow-sm;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-float-delayed {
-  animation: float 6s ease-in-out infinite 3s;
-}
-
+/* ── Scrollbar ── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #cda347 transparent;
+  scrollbar-color: #C9A060 #0A1628;
 }
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: #0A1628;
 }
 *::-webkit-scrollbar-thumb {
-  background: #cda347;
+  background: #C9A060;
   border-radius: 9999px;
+}
+
+/* ── Glow dourado em elementos ativos ── */
+.gold-glow {
+  box-shadow: 0 0 20px -5px rgba(201, 160, 96, 0.4);
+}
+
+/* ── Badge de dor ── */
+.badge-pain {
+  @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider;
+  background: rgba(185, 28, 28, 0.2);
+  color: #FCA5A5;
 }

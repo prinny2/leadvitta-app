@@ -37,3 +37,4 @@ WhatsApp Image*
 .qodo/
 *.log
 /.codex-*
+.claude/worktrees/
