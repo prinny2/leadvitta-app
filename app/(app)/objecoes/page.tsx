@@ -15,40 +15,16 @@ const sitMap: Record<string, string> = {
   pos_venda:   "pos_atendimento",
 };
 
-const catMeta: Record<string, { icon: React.ElementType; accent: string; spineBase: string; spineLight: string }> = {
-  preco:       { icon: Tag,          accent: "#C9A060", spineBase: "#1a1208", spineLight: "#2e2010" },
-  medo:        { icon: Shield,       accent: "#9AAEC9", spineBase: "#0e1520", spineLight: "#18253a" },
-  confianca:   { icon: Handshake,    accent: "#C9A060", spineBase: "#1a1208", spineLight: "#2e2010" },
-  agendamento: { icon: Calendar,     accent: "#A0C9A0", spineBase: "#101a10", spineLight: "#1a2e1a" },
-  pos_venda:   { icon: MessageCircle,accent: "#C9A060", spineBase: "#1a1208", spineLight: "#2e2010" },
+// Cores exatas dos livros na imagem de referência: azul-marinho escuro quase preto
+const catMeta: Record<string, { icon: React.ElementType; accent: string }> = {
+  preco:       { icon: Tag,           accent: "#C9A060" },
+  medo:        { icon: Shield,        accent: "#C9A060" },
+  confianca:   { icon: Handshake,     accent: "#C9A060" },
+  agendamento: { icon: Calendar,      accent: "#C9A060" },
+  pos_venda:   { icon: MessageCircle, accent: "#C9A060" },
 };
 
 const ITEMS_PER_PAGE = 4;
-
-// Cylindrical spine gradient simulating leather + reflected light
-function spineGradient(base: string, light: string) {
-  return `linear-gradient(90deg,
-    #060402 0%,
-    ${base} 10%,
-    ${light} 28%,
-    #3a2c18 45%,
-    ${light} 60%,
-    ${base} 78%,
-    #060402 100%
-  )`;
-}
-
-function OrnamentLine({ color }: { color: string }) {
-  return (
-    <div className="flex items-center justify-center gap-1 w-full">
-      <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, transparent, ${color}60)` }} />
-      <svg width="8" height="8" viewBox="0 0 8 8">
-        <path d="M4 0 L8 4 L4 8 L0 4 Z" fill={color} opacity="0.7" />
-      </svg>
-      <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${color}60, transparent)` }} />
-    </div>
-  );
-}
 
 export default function ObjecoesPage() {
   const router = useRouter();
@@ -59,21 +35,16 @@ export default function ObjecoesPage() {
 
   const catAtual = objecoes.find((c) => c.id === aberto);
   const totalPaginas = catAtual ? Math.ceil(catAtual.itens.length / ITEMS_PER_PAGE) : 0;
-  const itensPagina = catAtual ? catAtual.itens.slice(pagina * ITEMS_PER_PAGE, (pagina + 1) * ITEMS_PER_PAGE) : [];
+  const itensPagina = catAtual
+    ? catAtual.itens.slice(pagina * ITEMS_PER_PAGE, (pagina + 1) * ITEMS_PER_PAGE)
+    : [];
 
   function abrirLivro(id: string) {
     setAbrindo(true);
-    setTimeout(() => {
-      setAberto(id);
-      setPagina(0);
-      setAbrindo(false);
-    }, 350);
+    setTimeout(() => { setAberto(id); setPagina(0); setAbrindo(false); }, 350);
   }
 
-  function fecharLivro() {
-    setAberto(null);
-    setPagina(0);
-  }
+  function fecharLivro() { setAberto(null); setPagina(0); }
 
   function personalizar(catId: string, gatilho: string) {
     try {
@@ -88,23 +59,22 @@ export default function ObjecoesPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="font-serif text-3xl font-semibold text-champagne-300">
-            Biblioteca de Objeções
-          </h1>
-          <p className="text-sm text-navy-100 mt-1">
-            Conhecimento que transforma respostas em confiança.
-          </p>
+          <h1 className="font-serif text-3xl font-semibold text-champagne-300">Biblioteca de Objeções</h1>
+          <p className="text-sm text-navy-100 mt-1">Conhecimento que transforma respostas em confiança.</p>
         </div>
         {aberto ? (
           <button
-            type="button"
-            onClick={fecharLivro}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#C9A060]/30 bg-[#C9A060]/10 px-4 py-2 text-sm font-medium text-[#C9A060] hover:bg-[#C9A060]/20 transition-all"
+            type="button" onClick={fecharLivro}
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all"
+            style={{ background: "rgba(201,160,96,0.12)", border: "1px solid rgba(201,160,96,0.3)", color: "#C9A060" }}
           >
             <ChevronLeft size={16} /> Voltar para estante
           </button>
         ) : (
-          <span className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-[#C9A060]/20 bg-[#C9A060]/10 px-3 py-2 text-xs text-[#C9A060]">
+          <span
+            className="hidden sm:inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs"
+            style={{ background: "rgba(201,160,96,0.1)", border: "1px solid rgba(201,160,96,0.2)", color: "#C9A060" }}
+          >
             🖱️ Passe o mouse para puxar o livro
           </span>
         )}
@@ -113,34 +83,38 @@ export default function ObjecoesPage() {
       {/* ── ESTANTE ── */}
       {!aberto && (
         <div className={cn("transition-all duration-350", abrindo && "opacity-0 scale-95 pointer-events-none")}>
-          {/* Alcova / Nicho */}
+
+          {/* Alcova de madeira */}
           <div
             className="relative rounded-2xl overflow-hidden"
             style={{
-              background: "radial-gradient(ellipse at 50% 30%, #2a1f0e 0%, #150e06 40%, #0a0603 100%)",
-              boxShadow: "inset 0 0 80px rgba(0,0,0,0.8), inset 0 40px 60px rgba(0,0,0,0.5), 0 20px 60px rgba(0,0,0,0.5)",
-              border: "1px solid rgba(201,160,96,0.12)",
-              padding: "40px 32px 0 32px",
+              // Fundo da alcova: madeira escura quente como na referência
+              background: "radial-gradient(ellipse at 50% 0%, #3d2a12 0%, #221608 35%, #150e05 70%, #0e0903 100%)",
+              boxShadow: "inset 0 0 120px rgba(0,0,0,0.7), inset 0 60px 80px rgba(0,0,0,0.4), 0 24px 80px rgba(0,0,0,0.6)",
+              border: "2px solid #2a1c0a",
+              padding: "48px 28px 0 28px",
             }}
           >
-            {/* Luz de teto (candle glow) */}
+            {/* Luz de teto quente (candle glow) */}
             <div
-              className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-40 pointer-events-none"
+              className="absolute top-0 left-1/2 -translate-x-1/2 pointer-events-none"
               style={{
-                background: "radial-gradient(ellipse at 50% 0%, rgba(201,160,96,0.12) 0%, transparent 70%)",
+                width: "70%", height: "180px",
+                background: "radial-gradient(ellipse at 50% 0%, rgba(201,160,96,0.18) 0%, rgba(180,120,40,0.06) 50%, transparent 100%)",
               }}
             />
 
-            {/* Linhas de painel de madeira no fundo */}
+            {/* Textura de painel de madeira no fundo */}
             <div
-              className="absolute inset-0 pointer-events-none opacity-20"
+              className="absolute inset-0 pointer-events-none"
               style={{
-                backgroundImage: "repeating-linear-gradient(90deg, rgba(201,160,96,0.06) 0px, transparent 1px, transparent 80px, rgba(201,160,96,0.06) 80px)",
+                backgroundImage: "repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0px, transparent 1px, transparent 60px, rgba(0,0,0,0.05) 60px)",
+                opacity: 0.4,
               }}
             />
 
             {/* ── LIVROS ── */}
-            <div className="relative flex items-end justify-center gap-1.5 sm:gap-2.5" style={{ minHeight: "300px" }}>
+            <div className="relative flex items-end justify-center gap-2 sm:gap-3" style={{ minHeight: "320px" }}>
               {objecoes.map((cat, idx) => {
                 const meta = catMeta[cat.id] ?? catMeta.preco;
                 const Icon = meta.icon;
@@ -153,165 +127,232 @@ export default function ObjecoesPage() {
                     onClick={() => abrirLivro(cat.id)}
                     onMouseEnter={() => setHovered(cat.id)}
                     onMouseLeave={() => setHovered(null)}
-                    className="relative flex-1 max-w-[160px] min-w-[80px] focus:outline-none"
+                    className="relative flex-1 max-w-[180px] min-w-[90px] focus:outline-none group"
                     style={{
-                      transform: isHov
-                        ? "translateY(-40px) scale(1.06) rotateX(2deg)"
-                        : "translateY(0) scale(1) rotateX(0deg)",
-                      transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                      transform: isHov ? "translateY(-44px) scale(1.05)" : "translateY(0) scale(1)",
+                      transition: "transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)",
                       filter: isHov
-                        ? `drop-shadow(0 30px 40px rgba(0,0,0,0.8)) drop-shadow(0 0 30px ${meta.accent}50)`
-                        : "drop-shadow(0 12px 24px rgba(0,0,0,0.7))",
-                      transformStyle: "preserve-3d",
-                      perspective: "600px",
+                        ? "drop-shadow(0 40px 50px rgba(0,0,0,0.9)) drop-shadow(0 0 40px rgba(201,160,96,0.35))"
+                        : "drop-shadow(0 16px 32px rgba(0,0,0,0.8))",
                     }}
                   >
-                    {/* Lombada do livro (spine) - efeito cilíndrico */}
+                    {/* ── LOMBADA CILÍNDRICA ── */}
                     <div
                       className="relative w-full"
                       style={{
-                        height: "280px",
-                        background: spineGradient(meta.spineBase, meta.spineLight),
-                        borderRadius: "6px 3px 3px 6px",
-                        border: `1px solid ${meta.accent}20`,
-                        borderLeft: `2px solid ${meta.accent}10`,
+                        height: "290px",
+                        // Gradiente cilíndrico: escuro nas bordas, reflexo de luz no centro — igual referência
+                        background: `
+                          linear-gradient(90deg,
+                            #04060a 0%,
+                            #080d18 6%,
+                            #0d1525 14%,
+                            #121d35 24%,
+                            #1a2645 34%,
+                            #1e2d52 44%,
+                            #1a2645 54%,
+                            #121d35 64%,
+                            #0d1525 76%,
+                            #080d18 88%,
+                            #04060a 100%
+                          )
+                        `,
+                        borderRadius: "10px 4px 4px 10px",
                         overflow: "hidden",
+                        // Borda de cobre/bronze no hover
+                        border: isHov
+                          ? "1px solid rgba(180,130,60,0.7)"
+                          : "1px solid rgba(201,160,96,0.15)",
+                        borderLeft: isHov
+                          ? "2px solid rgba(201,150,50,0.8)"
+                          : "2px solid rgba(201,160,96,0.1)",
+                        transition: "border 0.3s",
                       }}
                     >
-                      {/* Reflexo superior (gloss no couro) */}
+                      {/* Reflexo de luz central (highlight do cilindro) */}
                       <div
-                        className="absolute top-0 left-0 right-0 h-16 pointer-events-none"
+                        className="absolute top-0 bottom-0 pointer-events-none"
                         style={{
-                          background: "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)",
+                          left: "30%", width: "40%",
+                          background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.035) 30%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.035) 70%, transparent 100%)",
                         }}
                       />
 
-                      {/* Sombra borda esquerda (encadernação) */}
+                      {/* Sombra de encadernação (borda esquerda escura) */}
                       <div
-                        className="absolute left-0 top-0 bottom-0 w-3 pointer-events-none"
+                        className="absolute left-0 top-0 bottom-0 pointer-events-none"
                         style={{
-                          background: "linear-gradient(90deg, rgba(0,0,0,0.5) 0%, transparent 100%)",
+                          width: "18%",
+                          background: "linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)",
                         }}
                       />
 
-                      {/* Textura de couro — linhas horizontais sutis */}
+                      {/* Sombra direita */}
                       <div
-                        className="absolute inset-0 pointer-events-none opacity-15"
+                        className="absolute right-0 top-0 bottom-0 pointer-events-none"
                         style={{
-                          backgroundImage: "repeating-linear-gradient(180deg, transparent, transparent 4px, rgba(0,0,0,0.3) 4px, rgba(0,0,0,0.3) 5px)",
+                          width: "10%",
+                          background: "linear-gradient(270deg, rgba(0,0,0,0.4) 0%, transparent 100%)",
                         }}
                       />
 
-                      {/* Borda decorativa interna dupla */}
+                      {/* Textura de couro: linhas horizontais muito sutis */}
+                      <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          backgroundImage: "repeating-linear-gradient(180deg, transparent, transparent 5px, rgba(0,0,0,0.12) 5px, rgba(0,0,0,0.12) 6px)",
+                          opacity: 0.6,
+                        }}
+                      />
+
+                      {/* Borda decorativa dupla interna */}
                       <div
                         className="absolute pointer-events-none"
-                        style={{
-                          inset: "8px 6px",
-                          border: `1px solid ${meta.accent}35`,
-                          borderRadius: "3px",
-                        }}
+                        style={{ inset: "8px 7px", border: "1px solid rgba(201,160,96,0.3)", borderRadius: "5px" }}
                       />
                       <div
                         className="absolute pointer-events-none"
-                        style={{
-                          inset: "12px 9px",
-                          border: `0.5px solid ${meta.accent}18`,
-                          borderRadius: "2px",
-                        }}
+                        style={{ inset: "12px 10px", border: "0.5px solid rgba(201,160,96,0.15)", borderRadius: "3px" }}
                       />
 
-                      {/* Conteúdo do livro */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-between py-5 px-3">
+                      {/* Ornamento de canto — topo */}
+                      {[["10px","10px"],["10px","auto"],["auto","10px"],["auto","auto"]].map(([t,r], ci) => (
+                        <div
+                          key={ci}
+                          className="absolute pointer-events-none"
+                          style={{
+                            top: t === "auto" ? undefined : "14px",
+                            bottom: t === "auto" ? "14px" : undefined,
+                            left: r === "auto" ? "12px" : undefined,
+                            right: r === "auto" ? undefined : "12px",
+                            width: "10px", height: "10px",
+                            borderTop: ci < 2 ? "1.5px solid rgba(201,160,96,0.5)" : undefined,
+                            borderBottom: ci >= 2 ? "1.5px solid rgba(201,160,96,0.5)" : undefined,
+                            borderLeft: (ci === 0 || ci === 2) ? "1.5px solid rgba(201,160,96,0.5)" : undefined,
+                            borderRight: (ci === 1 || ci === 3) ? "1.5px solid rgba(201,160,96,0.5)" : undefined,
+                          }}
+                        />
+                      ))}
+
+                      {/* Conteúdo */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-between py-6 px-3">
 
                         {/* Capítulo */}
                         <div className="text-center">
                           <p
-                            className="text-[8px] uppercase tracking-[0.25em] font-bold"
-                            style={{ color: `${meta.accent}90` }}
+                            className="text-[7px] uppercase tracking-[0.3em] font-bold"
+                            style={{ color: "rgba(201,160,96,0.75)" }}
                           >
                             Capítulo
                           </p>
                           <p
-                            className="font-serif text-3xl font-bold leading-none mt-1"
+                            className="font-serif leading-none mt-1"
                             style={{
-                              color: meta.accent,
-                              textShadow: `0 0 20px ${meta.accent}60, 0 2px 4px rgba(0,0,0,0.5)`,
+                              fontSize: "2rem",
+                              fontWeight: 700,
+                              color: "#C9A060",
+                              textShadow: "0 0 20px rgba(201,160,96,0.5), 0 2px 6px rgba(0,0,0,0.6)",
                             }}
                           >
                             {String(idx + 1).padStart(2, "0")}
                           </p>
                         </div>
 
-                        <OrnamentLine color={meta.accent} />
-
-                        {/* Ícone */}
-                        <div
-                          className="flex h-12 w-12 items-center justify-center rounded-full"
-                          style={{
-                            background: `radial-gradient(circle, ${meta.accent}20 0%, transparent 70%)`,
-                          }}
-                        >
-                          <Icon
-                            size={26}
-                            style={{
-                              color: meta.accent,
-                              filter: `drop-shadow(0 0 6px ${meta.accent}80)`,
-                            }}
-                            strokeWidth={1.2}
-                          />
+                        {/* Linha ornamental */}
+                        <div className="flex items-center justify-center gap-1 w-full px-2">
+                          <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, transparent, rgba(201,160,96,0.6))" }} />
+                          <svg width="6" height="6" viewBox="0 0 6 6">
+                            <path d="M3 0 L6 3 L3 6 L0 3 Z" fill="rgba(201,160,96,0.8)" />
+                          </svg>
+                          <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(201,160,96,0.6), transparent)" }} />
                         </div>
 
-                        <OrnamentLine color={meta.accent} />
+                        {/* Ícone */}
+                        <Icon
+                          size={32}
+                          style={{
+                            color: "#C9A060",
+                            filter: isHov ? "drop-shadow(0 0 10px rgba(201,160,96,0.8))" : "drop-shadow(0 0 4px rgba(201,160,96,0.4))",
+                            transition: "filter 0.3s",
+                          }}
+                          strokeWidth={1.2}
+                        />
+
+                        {/* Linha ornamental */}
+                        <div className="flex items-center justify-center gap-1 w-full px-2">
+                          <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, transparent, rgba(201,160,96,0.6))" }} />
+                          <svg width="6" height="6" viewBox="0 0 6 6">
+                            <path d="M3 0 L6 3 L3 6 L0 3 Z" fill="rgba(201,160,96,0.8)" />
+                          </svg>
+                          <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(201,160,96,0.6), transparent)" }} />
+                        </div>
 
                         {/* Título */}
-                        <div className="text-center">
+                        <div className="text-center px-1">
                           <p
-                            className="font-serif text-sm font-bold leading-tight"
+                            className="font-serif font-bold leading-tight"
                             style={{
-                              color: isHov ? meta.accent : `${meta.accent}CC`,
-                              textShadow: isHov ? `0 0 12px ${meta.accent}60` : "none",
+                              fontSize: "clamp(0.75rem, 1.5vw, 1rem)",
+                              color: isHov ? "#D4B070" : "#C9A060",
+                              textShadow: isHov ? "0 0 16px rgba(201,160,96,0.7)" : "none",
                               transition: "all 0.3s",
                             }}
                           >
                             {cat.titulo}
                           </p>
-                          <p className="text-[9px] mt-1.5 font-medium" style={{ color: `${meta.accent}60` }}>
+                          <p className="text-[8px] mt-1.5" style={{ color: "rgba(201,160,96,0.5)" }}>
                             {cat.itens.length} respostas
                           </p>
                         </div>
 
                         {/* Logo marca d'água */}
-                        <div style={{ opacity: 0.2 }}>
+                        <div style={{ opacity: isHov ? 0.35 : 0.2, transition: "opacity 0.3s" }}>
                           <svg width="14" height="18" viewBox="0 0 80 96" fill="none">
-                            <path d="M40 4 L76 40 L40 76 L4 40 Z" stroke={meta.accent} strokeWidth="4" fill="none" />
-                            <line x1="40" y1="32" x2="40" y2="76" stroke={meta.accent} strokeWidth="3" strokeLinecap="round" />
-                            <circle cx="40" cy="29" r="5" fill={meta.accent} />
+                            <path d="M40 4 L76 40 L40 76 L4 40 Z" stroke="#C9A060" strokeWidth="4" fill="none" />
+                            <line x1="40" y1="32" x2="40" y2="76" stroke="#C9A060" strokeWidth="3" strokeLinecap="round" />
+                            <circle cx="40" cy="29" r="5" fill="#C9A060" />
                           </svg>
                         </div>
                       </div>
 
-                      {/* Marcador de fita (bookmark) no topo quando hover */}
-                      {isHov && (
-                        <div
-                          className="absolute -top-1 left-1/2 -translate-x-1/2 w-4"
-                          style={{
-                            height: "24px",
-                            background: `linear-gradient(180deg, ${meta.accent} 0%, ${meta.accent}80 100%)`,
-                            clipPath: "polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%)",
-                          }}
-                        />
-                      )}
+                      {/* Marcador de fita no topo quando hover */}
+                      <div
+                        className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+                        style={{
+                          top: "-2px",
+                          width: "12px",
+                          height: isHov ? "20px" : "0px",
+                          background: "linear-gradient(180deg, #C9A060 0%, #8B6020 100%)",
+                          clipPath: "polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%)",
+                          transition: "height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                        }}
+                      />
                     </div>
 
-                    {/* Lombada lateral (espessura do livro) */}
+                    {/* Espessura do livro (lateral direita) */}
                     <div
-                      className="absolute top-2 -right-1.5 bottom-0"
+                      className="absolute top-1.5 -right-1 bottom-0 pointer-events-none"
                       style={{
-                        width: "6px",
-                        background: `linear-gradient(90deg, ${meta.accent}20 0%, rgba(0,0,0,0.6) 100%)`,
+                        width: "5px",
+                        background: isHov
+                          ? "linear-gradient(90deg, rgba(180,130,60,0.6) 0%, rgba(100,70,20,0.4) 100%)"
+                          : "linear-gradient(90deg, rgba(201,160,96,0.15) 0%, rgba(0,0,0,0.5) 100%)",
                         borderRadius: "0 2px 2px 0",
+                        transition: "background 0.3s",
                       }}
                     />
+
+                    {/* Luz no chão abaixo do livro quando hover */}
+                    {isHov && (
+                      <div
+                        className="absolute -bottom-3 left-1/2 -translate-x-1/2 pointer-events-none"
+                        style={{
+                          width: "80%", height: "12px",
+                          background: "radial-gradient(ellipse, rgba(201,160,96,0.25) 0%, transparent 70%)",
+                          filter: "blur(4px)",
+                        }}
+                      />
+                    )}
                   </button>
                 );
               })}
@@ -319,35 +360,32 @@ export default function ObjecoesPage() {
 
             {/* Prateleira de madeira */}
             <div
-              className="relative mt-0"
+              className="relative"
               style={{
-                height: "20px",
-                background: "linear-gradient(180deg, #3d2810 0%, #2a1c0a 40%, #1a1006 100%)",
-                boxShadow: "0 6px 20px rgba(0,0,0,0.8), inset 0 1px 0 rgba(201,160,96,0.15)",
-                borderTop: "1px solid rgba(201,160,96,0.2)",
+                height: "22px",
+                background: "linear-gradient(180deg, #5a3a18 0%, #3d2710 40%, #2a1c08 70%, #1a1005 100%)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.9), inset 0 2px 0 rgba(201,160,96,0.18), inset 0 1px 0 rgba(255,255,255,0.04)",
+                borderTop: "1px solid rgba(201,160,96,0.22)",
               }}
             >
-              {/* Grão de madeira */}
               <div
-                className="absolute inset-0 opacity-30"
-                style={{
-                  backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.15) 8px, rgba(0,0,0,0.15) 9px)",
-                }}
+                className="absolute inset-0 opacity-25"
+                style={{ backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 12px, rgba(0,0,0,0.2) 12px, rgba(0,0,0,0.2) 13px)" }}
               />
             </div>
 
-            {/* Sombra embaixo da estante */}
+            {/* Base da alcova */}
             <div
-              className="h-3 rounded-b-2xl"
               style={{
-                background: "linear-gradient(180deg, #100a04 0%, #0a0603 100%)",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.9)",
+                height: "16px",
+                background: "linear-gradient(180deg, #150f06 0%, #0a0703 100%)",
+                boxShadow: "0 12px 40px rgba(0,0,0,1)",
               }}
             />
           </div>
 
           {/* Citação */}
-          <p className="text-center text-xs text-navy-100 mt-5 italic" style={{ color: "rgba(201,160,96,0.5)" }}>
+          <p className="text-center text-xs italic mt-5" style={{ color: "rgba(201,160,96,0.4)" }}>
             &ldquo;Objeções não são barreiras, são convites para demonstrar valor com clareza.&rdquo;
           </p>
         </div>
@@ -357,7 +395,7 @@ export default function ObjecoesPage() {
       {aberto && catAtual && (
         <div className={cn("transition-all duration-300", abrindo ? "opacity-0 scale-95" : "opacity-100 scale-100")}>
 
-          {/* Cabeçalho do capítulo */}
+          {/* Cabeçalho */}
           {(() => {
             const meta = catMeta[catAtual.id] ?? catMeta.preco;
             const Icon = meta.icon;
@@ -366,12 +404,12 @@ export default function ObjecoesPage() {
               <div className="flex items-center gap-3 mb-6">
                 <div
                   className="flex h-11 w-11 items-center justify-center rounded-xl"
-                  style={{ background: `${meta.accent}18`, border: `1px solid ${meta.accent}30` }}
+                  style={{ background: "rgba(201,160,96,0.12)", border: "1px solid rgba(201,160,96,0.25)" }}
                 >
-                  <Icon size={22} style={{ color: meta.accent }} strokeWidth={1.4} />
+                  <Icon size={22} style={{ color: "#C9A060" }} strokeWidth={1.4} />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: meta.accent }}>
+                  <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: "#C9A060" }}>
                     Capítulo {capNum}
                   </p>
                   <h2 className="font-serif text-2xl font-semibold text-champagne-300">{catAtual.titulo}</h2>
@@ -392,32 +430,14 @@ export default function ObjecoesPage() {
               boxShadow: "0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(201,160,96,0.08)",
             }}
           >
-            {/* Canto dobrado — decoração topo-esquerdo e topo-direito */}
-            <div
-              className="absolute top-0 left-0 w-10 h-10 pointer-events-none"
-              style={{
-                background: "linear-gradient(135deg, rgba(201,160,96,0.12) 0%, transparent 60%)",
-                borderRight: "1px solid rgba(201,160,96,0.08)",
-                borderBottom: "1px solid rgba(201,160,96,0.08)",
-              }}
-            />
-            <div
-              className="absolute top-0 right-0 w-10 h-10 pointer-events-none"
-              style={{
-                background: "linear-gradient(225deg, rgba(201,160,96,0.12) 0%, transparent 60%)",
-                borderLeft: "1px solid rgba(201,160,96,0.08)",
-                borderBottom: "1px solid rgba(201,160,96,0.08)",
-              }}
-            />
-
             {/* Encadernação central */}
             <div
               className="absolute left-1/2 top-0 bottom-0 z-10 pointer-events-none hidden md:block"
               style={{
                 width: "28px",
                 transform: "translateX(-50%)",
-                background: "linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(201,160,96,0.06) 50%, rgba(0,0,0,0.6) 100%)",
-                boxShadow: "0 0 24px rgba(0,0,0,0.6)",
+                background: "linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(201,160,96,0.05) 50%, rgba(0,0,0,0.6) 100%)",
+                boxShadow: "0 0 24px rgba(0,0,0,0.5)",
               }}
             />
 
@@ -438,28 +458,23 @@ export default function ObjecoesPage() {
                   >
                     {/* Linhas de pauta */}
                     <div
-                      className="absolute inset-0 pointer-events-none opacity-25"
-                      style={{
-                        backgroundImage: "repeating-linear-gradient(180deg, transparent, transparent 30px, rgba(180,140,60,0.12) 30px, rgba(180,140,60,0.12) 31px)",
-                      }}
+                      className="absolute inset-0 pointer-events-none opacity-20"
+                      style={{ backgroundImage: "repeating-linear-gradient(180deg, transparent, transparent 30px, rgba(180,140,60,0.12) 30px, rgba(180,140,60,0.12) 31px)" }}
                     />
 
                     {/* Sombra borda encadernação */}
                     <div
                       className="absolute top-0 bottom-0 pointer-events-none"
                       style={{
-                        [col === 0 ? "right" : "left"]: 0,
-                        width: "20px",
-                        background: col === 0
-                          ? "linear-gradient(90deg, transparent, rgba(0,0,0,0.08))"
-                          : "linear-gradient(90deg, rgba(0,0,0,0.08), transparent)",
+                        [col === 0 ? "right" : "left"]: 0, width: "20px",
+                        background: col === 0 ? "linear-gradient(90deg, transparent, rgba(0,0,0,0.08))" : "linear-gradient(90deg, rgba(0,0,0,0.08), transparent)",
                       }}
                     />
 
-                    {/* Ornamento de canto */}
+                    {/* Canto decorativo */}
                     <div
                       className="absolute pointer-events-none opacity-20"
-                      style={{ top: 12, left: 12, right: 12, bottom: 12, border: "1px solid rgba(180,120,40,0.4)", borderRadius: "2px" }}
+                      style={{ inset: "12px", border: "1px solid rgba(180,120,40,0.4)", borderRadius: "2px" }}
                     />
 
                     <div className="relative space-y-4">
@@ -478,33 +493,21 @@ export default function ObjecoesPage() {
                             <p className="text-[9px] uppercase tracking-[0.22em] font-bold mb-2" style={{ color: "rgba(139,100,20,0.6)" }}>
                               Objeção {String(globalIdx + 1).padStart(2, "0")}
                             </p>
-
-                            {/* Linha decorativa */}
                             <div className="h-px mb-2" style={{ background: "linear-gradient(90deg, rgba(180,130,40,0.3), transparent)" }} />
-
                             <p className="font-serif text-base font-bold text-stone-800 mb-2 leading-snug">
                               &ldquo;{item.gatilho}&rdquo;
                             </p>
-
                             <div className="h-px mb-3" style={{ background: "rgba(180,130,40,0.12)" }} />
-
                             <p className="text-sm leading-relaxed text-stone-700 mb-4">{item.resposta}</p>
-
                             <div className="flex items-center gap-2 flex-wrap">
-                              <div
-                                className="[&_button]:rounded-lg [&_button]:border [&_button]:border-stone-800/20 [&_button]:bg-stone-800 [&_button]:text-stone-100 [&_button]:text-xs [&_button]:px-3 [&_button]:py-1.5 [&_button]:font-medium [&_button]:flex [&_button]:items-center [&_button]:gap-1.5 [&_button]:transition-colors [&_button:hover]:bg-stone-700"
-                              >
+                              <div className="[&_button]:rounded-lg [&_button]:border [&_button]:border-stone-800/20 [&_button]:bg-stone-800 [&_button]:text-stone-100 [&_button]:text-xs [&_button]:px-3 [&_button]:py-1.5 [&_button]:font-medium [&_button]:flex [&_button]:items-center [&_button]:gap-1.5">
                                 <CopyButton text={item.resposta} />
                               </div>
                               <button
                                 type="button"
                                 onClick={() => personalizar(catAtual.id, item.gatilho)}
                                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:scale-105"
-                                style={{
-                                  background: "rgba(180,130,40,0.15)",
-                                  color: "#7a5c10",
-                                  border: "1px solid rgba(180,130,40,0.3)",
-                                }}
+                                style={{ background: "rgba(180,130,40,0.15)", color: "#7a5c10", border: "1px solid rgba(180,130,40,0.3)" }}
                               >
                                 <Sparkles size={11} /> Adaptar ao meu tom
                               </button>
@@ -528,40 +531,28 @@ export default function ObjecoesPage() {
                 }}
               >
                 <button
-                  type="button"
-                  onClick={() => setPagina((p) => Math.max(0, p - 1))}
-                  disabled={pagina === 0}
+                  type="button" onClick={() => setPagina((p) => Math.max(0, p - 1))} disabled={pagina === 0}
                   className="flex h-8 w-8 items-center justify-center rounded-full transition-all disabled:opacity-30 hover:scale-110"
                   style={{ background: "rgba(180,130,40,0.2)", color: "#8B6914" }}
                 >
                   <ChevronLeft size={16} />
                 </button>
-
                 <div className="flex items-center gap-2">
                   {Array.from({ length: totalPaginas }).map((_, i) => (
                     <button
-                      key={i}
-                      type="button"
-                      onClick={() => setPagina(i)}
+                      key={i} type="button" onClick={() => setPagina(i)}
                       className="h-2 rounded-full transition-all"
-                      style={{
-                        width: i === pagina ? "28px" : "8px",
-                        background: i === pagina ? "#8B6914" : "rgba(139,105,20,0.3)",
-                      }}
+                      style={{ width: i === pagina ? "28px" : "8px", background: i === pagina ? "#8B6914" : "rgba(139,105,20,0.3)" }}
                     />
                   ))}
                 </div>
-
                 <button
-                  type="button"
-                  onClick={() => setPagina((p) => Math.min(totalPaginas - 1, p + 1))}
-                  disabled={pagina === totalPaginas - 1}
+                  type="button" onClick={() => setPagina((p) => Math.min(totalPaginas - 1, p + 1))} disabled={pagina === totalPaginas - 1}
                   className="flex h-8 w-8 items-center justify-center rounded-full transition-all disabled:opacity-30 hover:scale-110"
                   style={{ background: "rgba(180,130,40,0.2)", color: "#8B6914" }}
                 >
                   <ChevronRight size={16} />
                 </button>
-
                 <span className="text-xs font-medium" style={{ color: "#8B6914" }}>
                   Página {pagina + 1} de {totalPaginas}
                 </span>
