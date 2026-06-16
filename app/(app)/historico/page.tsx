@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { History as HistoryIcon, Loader2, Star } from "lucide-react";
-import { Card, CardBody } from "@/components/ui/card";
+import { History as HistoryIcon, Loader2, Star, BookOpen } from "lucide-react";
 import { CopyButton } from "@/components/copy-button";
 import { PrintButton } from "@/components/print-button";
 import { formatarData } from "@/lib/utils";
@@ -16,6 +15,12 @@ const tipoLabel: Record<string, string> = {
   gerador: "Gerador",
   follow_up: "Follow-up",
   reescrever: "Reescrever",
+};
+
+const tipoBadge: Record<string, string> = {
+  gerador: "bg-brand-500 text-white",
+  follow_up: "bg-gold-500 text-brand-900",
+  reescrever: "bg-brand-200 text-brand-800",
 };
 
 const filtros = [
@@ -58,20 +63,22 @@ export default function HistoricoPage() {
   );
 
   return (
-    <div>
-      <header className="mb-5 flex items-start justify-between gap-3">
+    <div className="space-y-6 animate-fade-in">
+
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="font-serif text-3xl font-semibold text-ink">Histórico</h1>
-          <p className="text-sm text-muted">
-            Tudo o que você já gerou fica salvo aqui para reaproveitar.
+          <p className="text-sm text-muted mt-1">
+            Tudo que você gerou fica salvo aqui para reaproveitar a qualquer momento.
           </p>
         </div>
         <PrintButton />
-      </header>
+      </div>
 
-      {/* filtros */}
+      {/* Filtros */}
       {itens && itens.length > 0 && (
-        <div className="mb-5 flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {filtros.map((f) => (
             <button
               key={f.value}
@@ -80,7 +87,7 @@ export default function HistoricoPage() {
               className={cn(
                 "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                 filtroTipo === f.value
-                  ? "border-brand-400 bg-brand-50 text-brand-600"
+                  ? "border-brand-500 bg-brand-500 text-white"
                   : "border-brand-200 bg-white text-muted hover:bg-nude-100"
               )}
             >
@@ -91,79 +98,89 @@ export default function HistoricoPage() {
             type="button"
             onClick={() => setSoFavoritos((v) => !v)}
             className={cn(
-              "ml-1 inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+              "ml-1 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               soFavoritos
-                ? "border-amber-300 bg-amber-50 text-amber-600"
+                ? "border-gold-400 bg-gold-50 text-gold-700"
                 : "border-brand-200 bg-white text-muted hover:bg-nude-100"
             )}
           >
-            <Star size={13} fill={soFavoritos ? "currentColor" : "none"} /> Favoritos
+            <Star size={12} fill={soFavoritos ? "currentColor" : "none"} /> Favoritos
           </button>
         </div>
       )}
 
+      {/* Loading */}
       {itens === null && (
         <div className="flex justify-center py-16">
           <Loader2 className="animate-spin text-brand-400" />
         </div>
       )}
 
+      {/* Empty */}
       {itens && filtrados.length === 0 && (
-        <Card>
-          <CardBody className="flex flex-col items-center gap-3 py-16 text-center text-muted">
-            <HistoryIcon size={28} className="text-brand-300" />
-            <p className="max-w-xs text-sm">
-              {itens.length === 0
-                ? "Você ainda não salvou nenhuma resposta. Comece pelo Gerador!"
-                : "Nenhum item para esse filtro."}
-            </p>
-          </CardBody>
-        </Card>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-brand-200 bg-white py-16 text-center">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50">
+            <HistoryIcon size={22} className="text-brand-400" />
+          </div>
+          <p className="text-sm font-medium text-ink mb-1">
+            {itens.length === 0 ? "Nenhuma resposta salva ainda" : "Nenhum item para esse filtro"}
+          </p>
+          <p className="text-xs text-muted max-w-xs">
+            {itens.length === 0
+              ? "Gere respostas no Gerador e salve no histórico para acessar aqui."
+              : "Tente outro filtro ou remova o filtro de favoritos."}
+          </p>
+        </div>
       )}
 
+      {/* Lista */}
       {filtrados.length > 0 && (
         <div className="space-y-4">
           {filtrados.map((item) => {
             const resumo = resumoContexto(item.contexto || {});
+            const badge = tipoBadge[item.tipo] ?? "bg-brand-100 text-brand-700";
             return (
               <div
                 key={item.id}
-                className="rounded-2xl border border-brand-100 bg-white p-4 shadow-card"
+                className="rounded-2xl border border-brand-100 bg-white shadow-card"
               >
-                <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-600">
+                {/* Cabeçalho do item */}
+                <div className="flex flex-wrap items-center gap-2 border-b border-brand-50 px-4 py-3">
+                  <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-semibold", badge)}>
                     {tipoLabel[item.tipo] ?? item.tipo}
                   </span>
                   {item.intent && (
-                    <span className="rounded-full bg-lavender-100 px-2.5 py-0.5 text-xs font-bold text-lavender-700 capitalize">
+                    <span className="rounded-full bg-nude-100 px-2.5 py-0.5 text-xs font-medium text-ink capitalize">
                       {item.intent.replace(/_/g, " ")}
                     </span>
                   )}
                   {item.score !== undefined && (
                     <span className={cn(
                       "rounded-full px-2.5 py-0.5 text-xs font-bold",
-                      item.score > 70 ? "bg-green-100 text-green-700" : item.score > 40 ? "bg-amber-100 text-amber-700" : "bg-brand-100 text-brand-700"
+                      item.score > 70 ? "bg-green-100 text-green-700"
+                        : item.score > 40 ? "bg-gold-100 text-gold-700"
+                        : "bg-brand-100 text-brand-700"
                     )}>
-                      Score: {item.score}%
+                      Score {item.score}%
                     </span>
                   )}
                   {resumo && <span className="text-xs text-muted">{resumo}</span>}
-                  <span className="ml-auto text-xs text-muted">
-                    {formatarData(item.created_at)}
-                  </span>
+                  <span className="ml-auto text-xs text-muted">{formatarData(item.created_at)}</span>
                   <button
                     type="button"
                     onClick={() => favoritar(item)}
                     aria-label="Favoritar"
                     className={cn(
                       "transition-colors",
-                      item.favorito ? "text-amber-500" : "text-brand-200 hover:text-amber-400"
+                      item.favorito ? "text-gold-500" : "text-brand-200 hover:text-gold-400"
                     )}
                   >
-                    <Star size={18} fill={item.favorito ? "currentColor" : "none"} />
+                    <Star size={16} fill={item.favorito ? "currentColor" : "none"} />
                   </button>
                 </div>
-                <div className="space-y-2">
+
+                {/* Respostas */}
+                <div className="space-y-2 p-4">
                   {item.respostas.map((r, i) => (
                     <div
                       key={i}
