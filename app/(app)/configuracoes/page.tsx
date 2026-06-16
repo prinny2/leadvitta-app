@@ -337,7 +337,7 @@ export default function ConfiguracoesPage() {
                 className={cn(
                   "rounded-2xl border p-4",
                   plano.destaque
-                    ? "border-navy-400 bg-gradient-to-br from-nude-50 to-brand-50"
+                    ? "border-gold-500/40 bg-gradient-to-br from-navy-700 to-navy-800"
                     : "border-navy-500 bg-navy-800"
                 )}
               >
