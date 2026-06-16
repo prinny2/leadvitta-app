@@ -347,7 +347,10 @@ export default function LandingPage() {
           <div className="rounded-3xl border border-brand-100 bg-white p-7">
             <p className="text-sm font-medium text-muted">Plano Start</p>
             <p className="mt-1 font-serif text-4xl font-semibold text-ink">
-              R$197<span className="text-lg font-normal text-muted">/mês</span>
+              {billingPlanList[0].priceLabel}
+              <span className="text-lg font-normal text-muted">
+                {billingPlanList[0].periodLabel}
+              </span>
             </p>
             <p className="mt-1 text-sm text-muted">Para validar e começar.</p>
             <ul className="mt-5 space-y-2 text-sm text-ink">
@@ -378,7 +381,10 @@ export default function LandingPage() {
             </span>
             <p className="text-sm font-medium text-muted">Plano Pro</p>
             <p className="mt-1 font-serif text-4xl font-semibold text-ink">
-              R$297<span className="text-lg font-normal text-muted">/mês</span>
+              {billingPlanList[1].priceLabel}
+              <span className="text-lg font-normal text-muted">
+                {billingPlanList[1].periodLabel}
+              </span>
             </p>
             <p className="mt-1 text-sm text-muted">O produto completo.</p>
             <ul className="mt-5 space-y-2 text-sm text-ink">
@@ -408,7 +414,10 @@ export default function LandingPage() {
           <div className="rounded-3xl border border-lavender-200 bg-gradient-to-br from-white to-lavender-50 p-7">
             <p className="text-sm font-medium text-muted">Plano Premium</p>
             <p className="mt-1 font-serif text-4xl font-semibold text-ink">
-              R$397<span className="text-lg font-normal text-muted">/mês</span>
+              {billingPlanList[2].priceLabel}
+              <span className="text-lg font-normal text-muted">
+                {billingPlanList[2].periodLabel}
+              </span>
             </p>
             <p className="mt-1 text-sm text-muted">Máximo desempenho e inteligência.</p>
             <ul className="mt-5 space-y-2 text-sm text-ink">
