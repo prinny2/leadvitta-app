@@ -47,7 +47,7 @@ const modulos = [
   {
     href: "/objecoes",
     title: "Objeções Prontas",
-    desc: "Respostas para "tá caro", "vou pensar", "na outra é mais barato".",
+    desc: "Respostas para 'tá caro', 'vou pensar', 'na outra é mais barato'.",
     icon: MessagesSquare,
   },
   {
@@ -59,7 +59,7 @@ const modulos = [
   {
     href: "/scripts",
     title: "Scripts de Atendimento",
-    desc: "Fluxos completos do primeiro "oi" até o agendamento.",
+    desc: "Fluxos completos do primeiro 'oi' até o agendamento.",
     icon: ListChecks,
   },
   {
