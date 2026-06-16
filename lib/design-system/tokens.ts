@@ -65,6 +65,30 @@ export const palette = {
     500: "#D94F3A",
     600: "#B83D2B",
   },
+  /** Azul-petróleo escuro — tema dark do Gerador. */
+  navy: {
+    50: "#EEF1F6",
+    100: "#C5CEDD",
+    200: "#9DA9BF",
+    300: "#6E7E9C",
+    400: "#47576F",
+    500: "#33415A",
+    600: "#27334A",
+    700: "#1C2638",
+    800: "#141C2B",
+    900: "#0D131E",
+  },
+  /** Champagne — texto claro/quente sobre o tema dark. */
+  champagne: {
+    50: "#FBF8F1",
+    100: "#F4ECDB",
+    200: "#EAD9B8",
+    300: "#E0CB9E",
+    400: "#D2B984",
+    500: "#BFA169",
+    600: "#9E8451",
+    700: "#7C6740",
+  },
   /** Tinta principal (texto) e cinza neutro de apoio. */
   ink: "#0E3A30",
   muted: "#5C6B66",

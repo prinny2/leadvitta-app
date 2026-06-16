@@ -48,8 +48,9 @@ export function LeadTermometro({
         </span>
       </div>
 
-      {/* Barra: frio (sky) → morno (amber) → quente (red) */}
-      <div className="relative">
+      {/* Barra: frio (sky) → morno (amber) → quente (red) — decorativa; o
+          rótulo e o % acima já comunicam a temperatura por texto. */}
+      <div className="relative" aria-hidden="true">
         <div
           className={cn(
             "h-2.5 w-full overflow-hidden rounded-full",

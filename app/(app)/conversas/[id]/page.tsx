@@ -195,6 +195,9 @@ export default function ConversaThreadPage() {
                   : "rounded-bl-md border border-brand-100 bg-white text-ink"
               )}
             >
+              <span className="sr-only">
+                {m.direcao === "out" ? "Você: " : "Cliente: "}
+              </span>
               {m.texto}
             </div>
           </div>
