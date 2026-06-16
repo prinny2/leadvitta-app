@@ -237,7 +237,7 @@ export default function LandingPage() {
             display: "grid",
             gridTemplateColumns: "420px 1fr",
             gap: "40px",
-            alignItems: "center",
+            alignItems: "flex-start",
           }}
             className="hero-grid"
           >
@@ -346,7 +346,7 @@ export default function LandingPage() {
             </div>
 
             {/* Right — animated device mockups */}
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: "32px" }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "48px" }}>
               <HeroDevices />
             </div>
           </div>
