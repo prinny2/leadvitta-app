@@ -35,9 +35,19 @@ export default function ConversasPage() {
 
   const visiveis = useMemo(() => {
     const base = (itens ?? []).filter((c) => !c.arquivada);
-    if (filtro === "quente") return base.filter((c) => c.prioridade === "quente");
-    if (filtro === "nao_lida") return base.filter((c) => c.nao_lida);
-    return base;
+    const filtrada =
+      filtro === "quente"
+        ? base.filter((c) => c.prioridade === "quente")
+        : filtro === "nao_lida"
+          ? base.filter((c) => c.nao_lida)
+          : base;
+    // Celebra a prioridade: mais quente primeiro, depois maior score.
+    const rank: Record<string, number> = { quente: 0, morno: 1, frio: 2 };
+    return [...filtrada].sort((a, b) =>
+      rank[a.prioridade] !== rank[b.prioridade]
+        ? rank[a.prioridade] - rank[b.prioridade]
+        : (b.score ?? 0) - (a.score ?? 0)
+    );
   }, [itens, filtro]);
 
   return (
@@ -111,11 +121,20 @@ export default function ConversasPage() {
         <div className="space-y-2">
           {visiveis.map((c) => {
             const prio = PRIO[c.prioridade] ?? PRIO.morno;
+            const acento =
+              c.prioridade === "quente"
+                ? "border-l-red-400"
+                : c.prioridade === "morno"
+                  ? "border-l-amber-400"
+                  : "border-l-sky-400";
             return (
               <Link
                 key={c.id}
                 href={`/conversas/${encodeURIComponent(c.id)}`}
-                className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-white p-4 shadow-card transition-colors hover:bg-nude-50"
+                className={cn(
+                  "flex items-center gap-3 rounded-2xl border border-l-4 border-brand-100 bg-white p-4 shadow-card transition-colors hover:bg-nude-50",
+                  acento
+                )}
               >
                 <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-lg">
                   {prio.emoji}
@@ -140,6 +159,7 @@ export default function ConversasPage() {
                       )}
                     >
                       {prio.label}
+                      {typeof c.score === "number" ? ` · ${c.score}%` : ""}
                     </span>
                   </div>
                   <p className="truncate text-sm text-muted">{c.ultima_mensagem}</p>
