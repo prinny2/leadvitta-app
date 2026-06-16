@@ -235,8 +235,8 @@ export default function LandingPage() {
           {/* Two-column layout: text left, devices right */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "48px",
+            gridTemplateColumns: "420px 1fr",
+            gap: "40px",
             alignItems: "center",
           }}
             className="hero-grid"
