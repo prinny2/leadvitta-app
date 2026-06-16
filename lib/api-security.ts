@@ -9,20 +9,47 @@ type RateLimitOptions = {
 
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
-function getAllowedOrigins(request: Request) {
-  const allowed = new Set<string>();
-
+function addOriginVariants(allowed: Set<string>, rawUrl: string) {
   try {
-    allowed.add(new URL(request.url).origin);
+    const url = new URL(rawUrl);
+    allowed.add(url.origin);
+
+    const host = url.hostname;
+    if (host.startsWith("www.")) {
+      allowed.add(`${url.protocol}//${host.slice(4)}${url.port ? `:${url.port}` : ""}`);
+    } else if (!host.includes("localhost") && !host.endsWith(".localhost")) {
+      allowed.add(`${url.protocol}//www.${host}${url.port ? `:${url.port}` : ""}`);
+    }
   } catch {
     // Ignora URL malformada; a checagem final vai bloquear.
   }
+}
 
-  try {
-    allowed.add(new URL(siteUrl).origin);
-  } catch {
-    // Em desenvolvimento, siteUrl pode estar vazio/malformado.
+function getForwardedOrigin(request: Request) {
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  if (!forwardedHost) return null;
+
+  const host = forwardedHost.split(",")[0]?.trim();
+  if (!host) return null;
+
+  const proto =
+    request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
+    "https";
+
+  return `${proto}://${host}`;
+}
+
+function getAllowedOrigins(request: Request) {
+  const allowed = new Set<string>();
+
+  addOriginVariants(allowed, request.url);
+
+  const forwardedOrigin = getForwardedOrigin(request);
+  if (forwardedOrigin) {
+    addOriginVariants(allowed, forwardedOrigin);
   }
+
+  addOriginVariants(allowed, siteUrl);
 
   return allowed;
 }
