@@ -1,0 +1,17 @@
+{
+  "name": "get_zapier_skill",
+  "description": "Fetch the full content of a Zapier Skill by name. ALWAYS call this before executing a skill. Follow the execution instructions appended at the end of the skill response. The \"zapier:onboarding\" skill is always available and should be used by default when onboarding a new user.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "name": {
+        "description": "The exact name of the skill to retrieve",
+        "type": "string"
+      }
+    },
+    "required": [
+      "name"
+    ]
+  }
+}

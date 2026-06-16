@@ -15,15 +15,29 @@ service cloud.firestore {
       // O cliente pode criar/editar o próprio doc, MAS nunca o campo `billing`
       // (status de assinatura). Isso impede o usuário de se auto-conceder plano.
       // Só o webhook do Stripe (Admin SDK, que ignora regras) grava `billing`.
+      // `whatsapp` e `whatsapp_channel_key` também são só-servidor: o vínculo
+      // número→clínica é feito pela API /api/clinica/whatsapp (com unicidade),
+      // senão uma clínica poderia "sequestrar" o número de outra.
       allow create: if request.auth != null
                     && request.auth.uid == uid
-                    && !("billing" in request.resource.data);
+                    && !("billing" in request.resource.data)
+                    && !("whatsapp_channel_key" in request.resource.data)
+                    && (!("whatsapp" in request.resource.data)
+                        || request.resource.data.whatsapp == "");
 
       allow update: if request.auth != null
                     && request.auth.uid == uid
                     && (
                       !("billing" in request.resource.data)
                       || request.resource.data.billing == resource.data.billing
+                    )
+                    && (
+                      !("whatsapp" in request.resource.data)
+                      || request.resource.data.whatsapp == resource.data.whatsapp
+                    )
+                    && (
+                      !("whatsapp_channel_key" in request.resource.data)
+                      || request.resource.data.whatsapp_channel_key == resource.data.whatsapp_channel_key
                     );
 
       allow delete: if false;
@@ -46,9 +60,59 @@ service cloud.firestore {
                     && resource.data.user_id == request.auth.uid;
     }
 
+    // ---- Conversas (inbox) — cada doc carrega clinica_id (uid do dono) ----
+    // Criação/escrita das mensagens é só do servidor (Admin SDK, ignora regras).
+    // O cliente só LÊ as próprias e pode marcar lida/arquivar — sem trocar o dono
+    // nem forjar as mensagens (a thread fica numa subcoleção, fora do alcance).
+    match /conversas/{convId} {
+      allow read: if request.auth != null
+                  && resource.data.clinica_id == request.auth.uid;
+
+      // O cliente só pode mexer em `nao_lida` e `arquivada` (allowlist). Score,
+      // prioridade, mensagens etc. são gravados só pelo servidor.
+      allow update: if request.auth != null
+                    && resource.data.clinica_id == request.auth.uid
+                    && request.resource.data.clinica_id == resource.data.clinica_id
+                    && request.resource.data.cliente_numero == resource.data.cliente_numero
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                         .hasOnly(['nao_lida', 'arquivada']);
+
+      allow create, delete: if false;
+
+      // Mensagens da thread. Importante: regras NÃO são filtros — uma query
+      // orderBy(em) sem where(clinica_id) seria negada se a regra olhasse
+      // resource.data. Por isso checamos o dono da conversa-PAI via get(),
+      // o que libera a query da thread sem exigir filtro nem índice extra.
+      match /mensagens/{msgId} {
+        allow read: if request.auth != null
+                    && get(/databases/$(database)/documents/conversas/$(convId)).data.clinica_id == request.auth.uid;
+        allow write: if false; // só o servidor grava
+      }
+    }
+
+    // ---- Mapa canônico número→clínica e dedupe — só servidor ----
+    match /numeros_whatsapp/{numero} {
+      allow read, write: if false;
+    }
+    match /mensagens_processadas/{id} {
+      allow read, write: if false;
+    }
+
     // ---- Eventos do Stripe — gravados só pelo servidor (Admin SDK) ----
     // O Admin SDK ignora as regras; o cliente nunca acessa.
     match /stripe_events/{eventId} {
+      allow read, write: if false;
+    }
+
+    // ---- Checkout guest — billing pendente por e-mail até signup/login ----
+    match /billing_pending/{email} {
+      allow read, write: if false;
+    }
+
+    // ---- Waitlist — gravada só pelo servidor (Admin SDK) ----
+    // O endpoint público aplica validação/rate limit; o cliente nunca acessa
+    // a coleção diretamente.
+    match /waitlist/{entryId} {
       allow read, write: if false;
     }
 

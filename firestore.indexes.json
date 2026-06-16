@@ -8,6 +8,15 @@
         { "fieldPath": "user_id", "order": "ASCENDING" },
         { "fieldPath": "created_at", "order": "DESCENDING" }
       ]
+    },
+    {
+      "_comment": "Inbox: listConversas() em lib/store.ts: where(clinica_id ==) + orderBy(ultima_atividade desc). Filtro de arquivada é feito no cliente para não exigir índice extra.",
+      "collectionGroup": "conversas",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "clinica_id", "order": "ASCENDING" },
+        { "fieldPath": "ultima_atividade", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

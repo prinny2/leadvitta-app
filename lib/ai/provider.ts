@@ -1,6 +1,15 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 import OpenAI from "openai";
-import { aiModel, isAnthropicConfigured, isOpenAIConfigured } from "@/lib/config";
+import {
+  anthropicModel,
+  geminiModel,
+  isAnthropicConfigured,
+  isAnyAIConfigured,
+  isGeminiConfigured,
+  isOpenAIConfigured,
+  openaiModel,
+} from "@/lib/config";
 import {
   SYSTEM_GERADOR,
   SYSTEM_REFINE,
@@ -22,6 +31,7 @@ import type {
 // Clients
 let anthropicClient: Anthropic | null = null;
 let openaiClient: OpenAI | null = null;
+let geminiClient: GoogleGenAI | null = null;
 
 function getAnthropic() {
   if (!anthropicClient) {
@@ -35,6 +45,15 @@ function getOpenAI() {
     openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
   return openaiClient;
+}
+
+function getGemini() {
+  if (!geminiClient) {
+    geminiClient = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
+    });
+  }
+  return geminiClient;
 }
 
 /** 
@@ -82,7 +101,7 @@ function parseJson<T>(text: string): T | null {
 }
 
 /** 
- * Chama a IA disponível (OpenAI > Anthropic) e devolve o texto.
+ * Chama a IA disponível (OpenAI > Anthropic > Gemini) e devolve o texto.
  * Implementa timeout e fallback automático.
  */
 async function callAI(system: string, user: string, retries = 1): Promise<string> {
@@ -93,7 +112,7 @@ async function callAI(system: string, user: string, retries = 1): Promise<string
     try {
       const resp = await withTimeout(
         getOpenAI().chat.completions.create({
-          model: aiModel,
+          model: openaiModel,
           messages: [
             { role: "system", content: system },
             { role: "user", content: user },
@@ -113,11 +132,10 @@ async function callAI(system: string, user: string, retries = 1): Promise<string
 
   const tryAnthropic = async () => {
     if (!isAnthropicConfigured) return null;
-    const fallbackModel = aiModel.startsWith("gpt") ? "claude-haiku-4-5" : aiModel;
     try {
       const resp = await withTimeout(
         getAnthropic().messages.create({
-          model: fallbackModel,
+          model: anthropicModel,
           max_tokens: 1024,
           temperature: 0.7,
           system: [
@@ -137,17 +155,40 @@ async function callAI(system: string, user: string, retries = 1): Promise<string
     }
   };
 
-  // Tenta as APIs em sequência
-  let content = await tryOpenAI();
-  if (!content) {
-    content = await tryAnthropic();
+  const tryGemini = async () => {
+    if (!isGeminiConfigured) return null;
+    try {
+      const resp = await withTimeout(
+        getGemini().models.generateContent({
+          model: geminiModel,
+          contents: user,
+          config: {
+            systemInstruction: system,
+            temperature: 0.7,
+            maxOutputTokens: 1024,
+            responseMimeType: "application/json",
+          },
+        }),
+        TIMEOUT_MS
+      );
+      return resp.text?.trim() || null;
+    } catch (err: any) {
+      console.warn("[callAI] Gemini falhou:", err?.message || err);
+      return null;
+    }
+  };
+
+  const providers = [tryOpenAI, tryAnthropic, tryGemini];
+  for (const provider of providers) {
+    const content = await provider();
+    if (content?.trim()) {
+      return content.trim();
+    }
   }
 
-  if (content) return content;
-
-  // Se ambos falharem, tenta novamente se houver retries
+  // Se todos falharem, tenta novamente se houver retries
   if (retries > 0) {
-    console.warn(`[callAI] Ambas APIs falharam. Tentando novamente... (${retries} restantes)`);
+    console.warn(`[callAI] Provedores de IA falharam. Tentando novamente... (${retries} restantes)`);
     await new Promise(r => setTimeout(r, 1000));
     return callAI(system, user, retries - 1);
   }
@@ -179,7 +220,7 @@ export type GerarResultado = {
 export async function classificarMensagem(
   texto: string
 ): Promise<Partial<GerarResultado>> {
-  if (!isOpenAIConfigured && !isAnthropicConfigured) return {};
+  if (!isAnyAIConfigured) return {};
 
   try {
     const raw = await callAI(SYSTEM_CLASSIFIER, `MENSAGEM: "${texto}"`);
@@ -199,7 +240,7 @@ export async function classificarMensagem(
 export async function gerarRespostas(
   input: GerarInput
 ): Promise<GerarResultado> {
-  if (!isOpenAIConfigured && !isAnthropicConfigured) {
+  if (!isAnyAIConfigured) {
     return { respostas: mockGerador(input), mock: true };
   }
 
@@ -272,7 +313,7 @@ export type RefineResultado = { texto: string; mock: boolean; aviso?: string };
 export async function refinarResposta(
   input: RefineInput
 ): Promise<RefineResultado> {
-  if (!isOpenAIConfigured && !isAnthropicConfigured) {
+  if (!isAnyAIConfigured) {
     return { texto: mockRefine(input), mock: true };
   }
   try {
@@ -304,7 +345,7 @@ export type FollowUpResultado = {
 export async function gerarFollowUp(
   input: FollowUpInput
 ): Promise<FollowUpResultado> {
-  if (!isOpenAIConfigured && !isAnthropicConfigured) {
+  if (!isAnyAIConfigured) {
     return { mensagens: mockFollowup(input), mock: true };
   }
 

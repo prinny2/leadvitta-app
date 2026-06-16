@@ -1,0 +1,16 @@
+{
+  "name": "search",
+  "description": "Search the Appwrite documentation.\nNote, for code examples and technology-specific information, it's best to use listFeatures and getFeatureExamples tools.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "The query to search the documentation for"
+      }
+    },
+    "required": [
+      "query"
+    ]
+  }
+}

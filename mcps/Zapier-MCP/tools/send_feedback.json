@@ -1,0 +1,24 @@
+{
+  "name": "send_feedback",
+  "description": "Send feedback about your experience with Zapier MCP to the Zapier team.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "feedback": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000,
+        "description": "Feedback message to send to the Zapier MCP team"
+      },
+      "feedback_positive": {
+        "type": "boolean",
+        "description": "Whether this is positive feedback (true) or negative (false)"
+      }
+    },
+    "required": [
+      "feedback",
+      "feedback_positive"
+    ]
+  }
+}

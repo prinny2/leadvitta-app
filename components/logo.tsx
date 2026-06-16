@@ -2,10 +2,6 @@ import Link from "next/link";
 import { Flower2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/**
- * Marca LeadBellus — flor dourada sobre verde-escuro.
- * Placeholder fiel à identidade; troque por um <svg> com o logo oficial quando tiver.
- */
 export function LogoMark({
   size = 18,
   className,
@@ -16,7 +12,7 @@ export function LogoMark({
   return (
     <span
       className={cn(
-        "flex items-center justify-center rounded-xl bg-brand-800 text-lavender-400",
+        "flex items-center justify-center rounded-xl bg-brand-800 text-gold-400",
         className
       )}
     >
@@ -28,7 +24,7 @@ export function LogoMark({
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("font-serif font-semibold tracking-tight", className)}>
-      Lead<span className="text-lavender-700">Bellus</span>
+      Lead<span className="text-gold-600">Bellus</span>
     </span>
   );
 }

@@ -7,3 +7,25 @@ npm-debug.log*
 .DS_Store
 .vercel
 .claude
+
+# Artefatos locais de IA, prints e documentos de trabalho.
+# Nao fazem parte do app e nao devem ir no contexto do Cloud Build.
+.codex
+.cursor
+.gemini
+.qodo
+.snapshots
+.vscode
+conductor
+prinny2
+*.log
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.docx
+✦*.txt
+status.md
+ESTADO.md
+relatorio_atividades.txt
+LeadBellus_Dossie_Completo.pdf

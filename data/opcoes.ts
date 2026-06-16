@@ -41,6 +41,7 @@ export const objetivoOptions = [
   { value: "continuar a conversa", label: "Continuar a conversa" },
   { value: "direcionar para a avaliação", label: "Direcionar para avaliação" },
   { value: "fechar o agendamento", label: "Fechar agendamento" },
+  { value: "agendamento rápido e breve", label: "Agendamento rápido (respostas concisas)" },
   { value: "reativar o interesse", label: "Reativar interesse" },
 ];
 

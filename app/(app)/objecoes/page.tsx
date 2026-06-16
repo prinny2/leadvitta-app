@@ -47,8 +47,9 @@ export default function ObjecoesPage() {
           Biblioteca de Objeções
         </h1>
         <p className="text-sm text-muted">
-          Respostas prontas para as objeções mais comuns. Copie na hora ou
-          personalize com IA no tom da sua clínica.
+          Objeção é quando a cliente trava — “tá caro”, “vou pensar”, “dói?”.
+          Aqui a resposta certa já está pronta: use na hora ou adapte ao tom da
+          sua clínica.
         </p>
       </header>
 
@@ -101,7 +102,7 @@ export default function ObjecoesPage() {
                         onClick={() => personalizar(cat.id, item.gatilho)}
                         className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-brand-600 hover:underline"
                       >
-                        <Sparkles size={14} /> Personalizar com IA
+                        <Sparkles size={14} /> Adaptar ao meu tom
                       </button>
                     </div>
                   ))}
