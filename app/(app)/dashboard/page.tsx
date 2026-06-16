@@ -88,11 +88,19 @@ function DarkTooltip({ active, payload, label }: any) {
 
 export default function DashboardPage() {
   const [nome, setNome] = useState("");
+  const [plano, setPlano] = useState<"start" | "pro" | "premium">("start");
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const isPro = plano === "pro" || plano === "premium";
 
   useEffect(() => {
-    getClinica().then((c) => setNome(c.nome_clinica || ""));
+    getClinica().then((c) => {
+      setNome(c.nome_clinica || "");
+      // billing é server-only; em demo mode usa "start"
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const b = (c as any).billing;
+      if (b?.plan === "pro" || b?.plan === "premium") setPlano(b.plan);
+    });
   }, []);
 
   const totalLeads = dadosLeads.reduce((a, b) => a + b.value, 0);
@@ -119,21 +127,97 @@ export default function DashboardPage() {
 
       {/* ── KPIs ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          { label: "Respostas hoje",    value: "12",  sub: "+3 vs ontem",       icon: Zap,       color: "text-gold-400"   },
-          { label: "Score médio",       value: "74%", sub: "esta semana",        icon: TrendingUp, color: "text-green-400" },
-          { label: "Leads quentes",     value: "3",   sub: "responda agora",     icon: Flame,      color: "text-orange-400"},
-          { label: "Follow-ups feitos", value: "8",   sub: "esta semana",        icon: Send,       color: "text-blue-400"  },
-        ].map((kpi) => (
-          <div key={kpi.label} className="rounded-2xl border border-navy-500 bg-navy-700 p-4 shadow-card">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-navy-100">{kpi.label}</span>
-              <kpi.icon size={16} className={kpi.color} />
-            </div>
-            <p className="font-serif text-3xl font-bold text-white">{kpi.value}</p>
-            <p className="text-xs text-navy-100 mt-0.5">{kpi.sub}</p>
+        {/* Respostas hoje */}
+        <div className="rounded-2xl border border-navy-500 bg-navy-700 p-4 shadow-card">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-navy-100">Respostas hoje</span>
+            <Zap size={16} className="text-gold-400" />
           </div>
-        ))}
+          <p className="font-serif text-3xl font-bold text-white">12</p>
+          <p className="text-xs text-navy-100 mt-0.5">+3 vs ontem</p>
+        </div>
+
+        {/* Score médio — PRO / ou card de upgrade */}
+        {isPro ? (
+          <div
+            className="relative rounded-2xl p-4 overflow-hidden"
+            style={{
+              background: isLight
+                ? "linear-gradient(135deg, #FFFBF2 0%, #FFF8EA 100%)"
+                : "linear-gradient(135deg, #1a1e0f 0%, #14180a 100%)",
+              border: "1px solid rgba(201,160,96,0.45)",
+              boxShadow: "0 0 20px rgba(201,160,96,0.12)",
+            }}
+          >
+            {/* Glow */}
+            <div className="absolute inset-0 pointer-events-none"
+              style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(201,160,96,0.15) 0%, transparent 60%)" }} />
+            <div className="relative flex items-center justify-between mb-3">
+              <span className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#C9A060" }}>Score médio</span>
+              <div className="flex items-center gap-1.5">
+                <TrendingUp size={14} style={{ color: "#C9A060" }} />
+                <span className="rounded-full px-1.5 py-0.5 text-[8px] font-bold uppercase"
+                  style={{ background: "rgba(201,160,96,0.2)", color: "#C9A060", border: "1px solid rgba(201,160,96,0.3)" }}>PRO</span>
+              </div>
+            </div>
+            <p className="relative font-serif text-3xl font-bold" style={{ color: "#C9A060" }}>74%</p>
+            <p className="relative text-xs mt-0.5" style={{ color: isLight ? "#9A7A40" : "rgba(201,160,96,0.6)" }}>esta semana</p>
+          </div>
+        ) : (
+          /* Plano Start — card de upgrade */
+          <Link
+            href="/configuracoes"
+            className="group relative rounded-2xl p-4 overflow-hidden transition-all hover:-translate-y-0.5"
+            style={{
+              background: isLight ? "#FFFFFF" : "#0f1b2f",
+              border: "1px solid rgba(201,160,96,0.2)",
+            }}
+          >
+            {/* Shimmer no hover */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+              style={{ background: "radial-gradient(ellipse at 60% 0%, rgba(201,160,96,0.06) 0%, transparent 70%)" }} />
+
+            <div className="relative flex items-center justify-between mb-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-navy-100">Seu plano</span>
+              <span className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase"
+                style={{ background: "rgba(107,140,174,0.15)", color: "#6B8CAE", border: "1px solid rgba(107,140,174,0.25)" }}>
+                START
+              </span>
+            </div>
+
+            <p className="relative font-serif text-xl font-bold text-white mb-1">R$97<span className="text-sm font-normal text-navy-100">/mês</span></p>
+
+            <div className="relative flex items-center gap-1 mt-2 text-[11px] font-semibold transition-all group-hover:gap-2"
+              style={{ color: "#C9A060" }}>
+              <span>🔓 Ver planos Pro</span>
+              <ChevronRight size={11} className="transition-transform group-hover:translate-x-0.5" />
+            </div>
+
+            <p className="relative text-[10px] mt-1 leading-snug" style={{ color: isLight ? "#9CA3AF" : "rgba(107,140,174,0.7)" }}>
+              Score Médio + Lead Intelligence no Pro
+            </p>
+          </Link>
+        )}
+
+        {/* Leads quentes */}
+        <div className="rounded-2xl border border-navy-500 bg-navy-700 p-4 shadow-card">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-navy-100">Leads quentes</span>
+            <Flame size={16} className="text-orange-400" />
+          </div>
+          <p className="font-serif text-3xl font-bold text-white">3</p>
+          <p className="text-xs text-navy-100 mt-0.5">responda agora</p>
+        </div>
+
+        {/* Follow-ups feitos */}
+        <div className="rounded-2xl border border-navy-500 bg-navy-700 p-4 shadow-card">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-navy-100">Follow-ups feitos</span>
+            <Send size={16} className="text-blue-400" />
+          </div>
+          <p className="font-serif text-3xl font-bold text-white">8</p>
+          <p className="text-xs text-navy-100 mt-0.5">esta semana</p>
+        </div>
       </div>
 
       {/* ── Lead Intelligence — card de destaque ── */}
