@@ -198,6 +198,18 @@ export default function ConfiguracoesPage() {
     );
   }
 
+  // Completude do "DNA" — sinaliza o quanto a IA tem pra trabalhar com a cara
+  // da clínica. Usa só dados que já existem; nenhum campo novo.
+  const dnaCampos = [
+    c.nome_clinica.trim(),
+    c.cidade.trim(),
+    c.whatsapp.trim(),
+    c.procedimentos.length > 0 ? "x" : "",
+  ];
+  const dnaPct = Math.round(
+    (dnaCampos.filter(Boolean).length / dnaCampos.length) * 100
+  );
+
   return (
     <div className="max-w-2xl space-y-6">
       <header>
@@ -253,7 +265,28 @@ export default function ConfiguracoesPage() {
             </div>
 
             <div className="border-t border-brand-100 pt-4">
-              <CardTitle>DNA da Clínica</CardTitle>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <CardTitle>DNA da Clínica</CardTitle>
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold",
+                    dnaPct === 100
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gold-100 text-gold-700"
+                  )}
+                >
+                  DNA {dnaPct}% completo
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-muted">
+                Quanto mais completo, mais a IA responde com a sua cara. ✨
+              </p>
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-nude-200">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-brand-400 to-gold-500 transition-[width] duration-500"
+                  style={{ width: `${dnaPct}%` }}
+                />
+              </div>
             </div>
 
             <div>
@@ -309,7 +342,14 @@ export default function ConfiguracoesPage() {
             </div>
 
             <div>
-              <Label>Procedimentos que você oferece</Label>
+              <Label>
+                Procedimentos que você oferece
+                {c.procedimentos.length > 0 && (
+                  <span className="ml-1 font-normal text-muted">
+                    ({c.procedimentos.length} selecionado{c.procedimentos.length > 1 ? "s" : ""})
+                  </span>
+                )}
+              </Label>
               <div className="flex flex-wrap gap-2">
                 {procedimentos.map((p) => {
                   const ativo = c.procedimentos.includes(p.label);
