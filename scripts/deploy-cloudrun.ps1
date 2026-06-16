@@ -12,7 +12,6 @@ $shortSha = (git rev-parse --short HEAD).Trim()
 if (-not $shortSha) { throw "git rev-parse falhou — rode na raiz do repo." }
 
 $subs = @(
-  "SHORT_SHA=$shortSha"
   "_NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyBMlo174XZFQUdvPE1JBJJLt4R6DUk2hls"
   "_NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=leadvitta-app.firebaseapp.com"
   "_NEXT_PUBLIC_FIREBASE_PROJECT_ID=leadvitta-app"
