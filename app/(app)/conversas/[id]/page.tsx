@@ -8,18 +8,20 @@ import { cn } from "@/lib/utils";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import {
+  getClinica,
   getConversa,
   getMensagens,
   marcarConversaLida,
 } from "@/lib/store";
 import { PRIO } from "@/lib/prioridade-ui";
-import type { Conversa, MensagemConversa } from "@/lib/types";
+import type { Clinica, Conversa, MensagemConversa } from "@/lib/types";
 
 export default function ConversaThreadPage() {
   const params = useParams();
   const id = decodeURIComponent(String(params?.id ?? ""));
 
   const [conversa, setConversa] = useState<Conversa | null>(null);
+  const [clinica, setClinica] = useState<Clinica | null>(null);
   const [mensagens, setMensagens] = useState<MensagemConversa[] | null>(null);
   const [texto, setTexto] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -46,6 +48,10 @@ export default function ConversaThreadPage() {
       });
     marcarConversaLida(id).catch(() => {});
   }, [id]);
+
+  useEffect(() => {
+    getClinica().then(setClinica).catch(() => {});
+  }, []);
 
   useEffect(() => {
     fimRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -90,13 +96,14 @@ export default function ConversaThreadPage() {
     }
   }
 
-  // Última mensagem que a cliente enviou (alimenta a sugestão da IA).
-  const ultimaEntrada = [...(mensagens ?? [])]
-    .reverse()
-    .find((m) => m.direcao === "in");
+  // A sugestão só faz sentido quando a ÚLTIMA mensagem é da cliente (ou seja,
+  // a conversa está aguardando a resposta da clínica).
+  const ultimaMsg =
+    mensagens && mensagens.length ? mensagens[mensagens.length - 1] : null;
+  const aguardandoResposta = ultimaMsg?.direcao === "in";
 
   async function sugerir() {
-    if (!ultimaEntrada || sugerindo) return;
+    if (!aguardandoResposta || !ultimaMsg || sugerindo) return;
     setSugerindo(true);
     setErro("");
     try {
@@ -105,11 +112,23 @@ export default function ConversaThreadPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           modo: "gerar",
-          situacao: "preco",
-          tom: "acolhedor",
+          // Sem situação fixa: a IA lê a mensagem real da cliente.
+          situacao: "",
+          tom: clinica?.tom_padrao || "acolhedor",
           objetivo: "direcionar para a avaliação",
           nomeCliente: conversa?.cliente_nome,
-          mensagemCliente: ultimaEntrada.texto,
+          mensagemCliente: ultimaMsg.texto,
+          // Usa o DNA salvo da clínica (nome, formalidade, CTA, procedimentos).
+          clinica: clinica
+            ? {
+                nome_clinica: clinica.nome_clinica,
+                cidade: clinica.cidade,
+                procedimentos: clinica.procedimentos,
+                formalidade: clinica.formalidade,
+                como_chamar: clinica.como_chamar,
+                cta_preferido: clinica.cta_preferido,
+              }
+            : undefined,
         }),
       });
       const data = await res.json();
@@ -203,7 +222,7 @@ export default function ConversaThreadPage() {
       {/* responder */}
       <div className="border-t border-brand-100 pt-3">
         {erro && <p className="mb-2 text-xs text-red-600">{erro}</p>}
-        {ultimaEntrada && (
+        {aguardandoResposta && (
           <button
             type="button"
             onClick={sugerir}
