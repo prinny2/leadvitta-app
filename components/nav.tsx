@@ -9,6 +9,7 @@ import { signOut } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const links = [
   { href: "/dashboard",          label: "Início",             icon: Home,          pro: false },
@@ -101,6 +102,11 @@ export function Sidebar() {
       {/* Linha dourada separadora */}
       <div className="gold-divider mt-4 mb-4 mx-2" />
 
+      {/* Theme toggle */}
+      <div className="flex justify-start px-1 mb-2">
+        <ThemeToggle />
+      </div>
+
       <button
         type="button"
         onClick={logout}
@@ -125,6 +131,7 @@ export function MobileNav() {
             Lead<span className="text-gold-500">Bellus</span>
           </span>
         </Link>
+        <ThemeToggle />
       </div>
       <nav className="flex gap-1 overflow-x-auto px-3 pb-2">
         {links.map(({ href, label, icon: Icon }) => (
