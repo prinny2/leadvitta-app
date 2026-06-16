@@ -1,8 +1,0 @@
-{
-  "name": "get_configuration_url",
-  "description": "Returns the URL where users can configure this MCP server - adding, editing, or removing actions. Provide this URL to users who want to customize their available tools.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {}
-  }
-}
