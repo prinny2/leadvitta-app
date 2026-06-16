@@ -9,13 +9,13 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-nude-50">
+    <div className="min-h-screen bg-nude-50 md:flex md:flex-col">
       <OnboardingGate />
       <DemoBanner />
       <MobileNav />
       <div className="mx-auto flex w-full max-w-7xl">
         <Sidebar />
-        <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-10">
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-10 bg-nude-50">
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
