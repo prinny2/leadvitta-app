@@ -178,13 +178,18 @@ export default function FollowUpPage() {
           {!loading &&
             mensagens &&
             mensagens.map((m, i) => (
-              <ResponseCard
+              <div
                 key={i}
-                titulo={`Mensagem ${i + 1}`}
-                descricao={i === 0 ? "Mais suave" : i === mensagens.length - 1 ? "Mais direta" : "Intermediária"}
-                texto={m}
-                accent={i % 2 === 1 ? "lavender" : "brand"}
-              />
+                className="animate-fade-in"
+                style={{ animationDelay: `${i * 120}ms` }}
+              >
+                <ResponseCard
+                  titulo={`Mensagem ${i + 1}`}
+                  descricao={i === 0 ? "Mais suave" : i === mensagens.length - 1 ? "Mais direta" : "Intermediária"}
+                  texto={m}
+                  accent={i % 2 === 1 ? "lavender" : "brand"}
+                />
+              </div>
             ))}
 
           {!loading && !mensagens && (
