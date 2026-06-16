@@ -2,28 +2,53 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Sparkles, Tag, Shield, Handshake, Calendar, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Sparkles, Tag, Shield, Handshake, Calendar, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { objecoes } from "@/data/objecoes";
 import { CopyButton } from "@/components/copy-button";
 import { cn } from "@/lib/utils";
 
 const sitMap: Record<string, string> = {
-  preco: "preco",
-  medo: "medo",
-  confianca: "antes_depois",
+  preco:       "preco",
+  medo:        "medo",
+  confianca:   "antes_depois",
   agendamento: "agendar",
-  pos_venda: "pos_atendimento",
+  pos_venda:   "pos_atendimento",
 };
 
-const catMeta: Record<string, { icon: React.ElementType; cor: string; spine: string }> = {
-  preco:      { icon: Tag,         cor: "#C9A060", spine: "from-[#1a2a1a] to-[#0d1a0d]" },
-  medo:       { icon: Shield,      cor: "#7B9EC9", spine: "from-[#1a1a2e] to-[#0d0d1a]" },
-  confianca:  { icon: Handshake,   cor: "#C9A060", spine: "from-[#2a1a10] to-[#1a0d08]" },
-  agendamento:{ icon: Calendar,    cor: "#9EC9A0", spine: "from-[#1a2a1a] to-[#0d180d]" },
-  pos_venda:  { icon: MessageCircle,cor: "#C9A060",spine: "from-[#2a1a1a] to-[#1a0d0d]" },
+const catMeta: Record<string, { icon: React.ElementType; accent: string; spineBase: string; spineLight: string }> = {
+  preco:       { icon: Tag,          accent: "#C9A060", spineBase: "#1a1208", spineLight: "#2e2010" },
+  medo:        { icon: Shield,       accent: "#9AAEC9", spineBase: "#0e1520", spineLight: "#18253a" },
+  confianca:   { icon: Handshake,    accent: "#C9A060", spineBase: "#1a1208", spineLight: "#2e2010" },
+  agendamento: { icon: Calendar,     accent: "#A0C9A0", spineBase: "#101a10", spineLight: "#1a2e1a" },
+  pos_venda:   { icon: MessageCircle,accent: "#C9A060", spineBase: "#1a1208", spineLight: "#2e2010" },
 };
 
 const ITEMS_PER_PAGE = 4;
+
+// Cylindrical spine gradient simulating leather + reflected light
+function spineGradient(base: string, light: string) {
+  return `linear-gradient(90deg,
+    #060402 0%,
+    ${base} 10%,
+    ${light} 28%,
+    #3a2c18 45%,
+    ${light} 60%,
+    ${base} 78%,
+    #060402 100%
+  )`;
+}
+
+function OrnamentLine({ color }: { color: string }) {
+  return (
+    <div className="flex items-center justify-center gap-1 w-full">
+      <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, transparent, ${color}60)` }} />
+      <svg width="8" height="8" viewBox="0 0 8 8">
+        <path d="M4 0 L8 4 L4 8 L0 4 Z" fill={color} opacity="0.7" />
+      </svg>
+      <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${color}60, transparent)` }} />
+    </div>
+  );
+}
 
 export default function ObjecoesPage() {
   const router = useRouter();
@@ -42,7 +67,7 @@ export default function ObjecoesPage() {
       setAberto(id);
       setPagina(0);
       setAbrindo(false);
-    }, 300);
+    }, 350);
   }
 
   function fecharLivro() {
@@ -70,17 +95,16 @@ export default function ObjecoesPage() {
             Conhecimento que transforma respostas em confiança.
           </p>
         </div>
-        {aberto && (
+        {aberto ? (
           <button
             type="button"
             onClick={fecharLivro}
-            className="inline-flex items-center gap-2 rounded-xl border border-navy-500 bg-navy-700 px-4 py-2 text-sm font-medium text-champagne-400 hover:bg-navy-600 transition-all"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#C9A060]/30 bg-[#C9A060]/10 px-4 py-2 text-sm font-medium text-[#C9A060] hover:bg-[#C9A060]/20 transition-all"
           >
             <ChevronLeft size={16} /> Voltar para estante
           </button>
-        )}
-        {!aberto && (
-          <span className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-gold-500/20 bg-gold-500/10 px-3 py-2 text-xs text-gold-400">
+        ) : (
+          <span className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-[#C9A060]/20 bg-[#C9A060]/10 px-3 py-2 text-xs text-[#C9A060]">
             🖱️ Passe o mouse para puxar o livro
           </span>
         )}
@@ -88,35 +112,39 @@ export default function ObjecoesPage() {
 
       {/* ── ESTANTE ── */}
       {!aberto && (
-        <div
-          className={cn(
-            "relative transition-all duration-300",
-            abrindo && "opacity-0 scale-95"
-          )}
-        >
-          {/* Prateleira */}
+        <div className={cn("transition-all duration-350", abrindo && "opacity-0 scale-95 pointer-events-none")}>
+          {/* Alcova / Nicho */}
           <div
-            className="relative rounded-2xl p-8 pb-4"
+            className="relative rounded-2xl overflow-hidden"
             style={{
-              background: "linear-gradient(180deg, #0a1220 0%, #060d18 100%)",
-              boxShadow: "inset 0 -4px 20px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.4)",
-              border: "1px solid rgba(201,160,96,0.1)",
+              background: "radial-gradient(ellipse at 50% 30%, #2a1f0e 0%, #150e06 40%, #0a0603 100%)",
+              boxShadow: "inset 0 0 80px rgba(0,0,0,0.8), inset 0 40px 60px rgba(0,0,0,0.5), 0 20px 60px rgba(0,0,0,0.5)",
+              border: "1px solid rgba(201,160,96,0.12)",
+              padding: "40px 32px 0 32px",
             }}
           >
-            {/* Parede de fundo da estante */}
+            {/* Luz de teto (candle glow) */}
             <div
-              className="absolute inset-2 rounded-xl pointer-events-none"
+              className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-40 pointer-events-none"
               style={{
-                background: "repeating-linear-gradient(90deg, rgba(201,160,96,0.02) 0px, transparent 1px, transparent 40px, rgba(201,160,96,0.02) 40px)",
+                background: "radial-gradient(ellipse at 50% 0%, rgba(201,160,96,0.12) 0%, transparent 70%)",
               }}
             />
 
-            {/* Livros */}
-            <div className="relative flex items-end justify-center gap-3 sm:gap-5 min-h-[260px]">
+            {/* Linhas de painel de madeira no fundo */}
+            <div
+              className="absolute inset-0 pointer-events-none opacity-20"
+              style={{
+                backgroundImage: "repeating-linear-gradient(90deg, rgba(201,160,96,0.06) 0px, transparent 1px, transparent 80px, rgba(201,160,96,0.06) 80px)",
+              }}
+            />
+
+            {/* ── LIVROS ── */}
+            <div className="relative flex items-end justify-center gap-1.5 sm:gap-2.5" style={{ minHeight: "300px" }}>
               {objecoes.map((cat, idx) => {
                 const meta = catMeta[cat.id] ?? catMeta.preco;
                 const Icon = meta.icon;
-                const isHovered = hovered === cat.id;
+                const isHov = hovered === cat.id;
 
                 return (
                   <button
@@ -125,109 +153,201 @@ export default function ObjecoesPage() {
                     onClick={() => abrirLivro(cat.id)}
                     onMouseEnter={() => setHovered(cat.id)}
                     onMouseLeave={() => setHovered(null)}
-                    className="relative flex-1 max-w-[180px] min-w-[100px] cursor-pointer focus:outline-none"
+                    className="relative flex-1 max-w-[160px] min-w-[80px] focus:outline-none"
                     style={{
-                      transform: isHovered ? "translateY(-28px) scale(1.04)" : "translateY(0) scale(1)",
-                      transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                      filter: isHovered ? `drop-shadow(0 20px 30px rgba(0,0,0,0.6)) drop-shadow(0 0 20px ${meta.cor}40)` : "drop-shadow(0 8px 16px rgba(0,0,0,0.4))",
+                      transform: isHov
+                        ? "translateY(-40px) scale(1.06) rotateX(2deg)"
+                        : "translateY(0) scale(1) rotateX(0deg)",
+                      transition: "transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                      filter: isHov
+                        ? `drop-shadow(0 30px 40px rgba(0,0,0,0.8)) drop-shadow(0 0 30px ${meta.accent}50)`
+                        : "drop-shadow(0 12px 24px rgba(0,0,0,0.7))",
+                      transformStyle: "preserve-3d",
+                      perspective: "600px",
                     }}
                   >
-                    {/* Sombra lateral do livro (espessura) */}
+                    {/* Lombada do livro (spine) - efeito cilíndrico */}
                     <div
-                      className="absolute -right-1.5 top-1 bottom-0 w-3 rounded-r-sm"
+                      className="relative w-full"
                       style={{
-                        background: `linear-gradient(180deg, ${meta.cor}30 0%, rgba(0,0,0,0.5) 100%)`,
-                        borderRadius: "0 4px 4px 0",
-                      }}
-                    />
-
-                    {/* Capa do livro */}
-                    <div
-                      className="relative w-full rounded-sm overflow-hidden"
-                      style={{
-                        height: "220px",
-                        background: `linear-gradient(160deg, #1a2535 0%, #0d1520 40%, #080f18 100%)`,
-                        border: `1px solid ${meta.cor}30`,
-                        borderRight: "none",
+                        height: "280px",
+                        background: spineGradient(meta.spineBase, meta.spineLight),
+                        borderRadius: "6px 3px 3px 6px",
+                        border: `1px solid ${meta.accent}20`,
+                        borderLeft: `2px solid ${meta.accent}10`,
+                        overflow: "hidden",
                       }}
                     >
-                      {/* Textura de couro */}
+                      {/* Reflexo superior (gloss no couro) */}
                       <div
-                        className="absolute inset-0 opacity-30"
+                        className="absolute top-0 left-0 right-0 h-16 pointer-events-none"
                         style={{
-                          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.01) 3px, rgba(255,255,255,0.01) 4px)",
+                          background: "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)",
                         }}
                       />
 
-                      {/* Borda decorativa dourada */}
+                      {/* Sombra borda esquerda (encadernação) */}
                       <div
-                        className="absolute inset-2 rounded-sm pointer-events-none"
-                        style={{ border: `1px solid ${meta.cor}25` }}
+                        className="absolute left-0 top-0 bottom-0 w-3 pointer-events-none"
+                        style={{
+                          background: "linear-gradient(90deg, rgba(0,0,0,0.5) 0%, transparent 100%)",
+                        }}
+                      />
+
+                      {/* Textura de couro — linhas horizontais sutis */}
+                      <div
+                        className="absolute inset-0 pointer-events-none opacity-15"
+                        style={{
+                          backgroundImage: "repeating-linear-gradient(180deg, transparent, transparent 4px, rgba(0,0,0,0.3) 4px, rgba(0,0,0,0.3) 5px)",
+                        }}
+                      />
+
+                      {/* Borda decorativa interna dupla */}
+                      <div
+                        className="absolute pointer-events-none"
+                        style={{
+                          inset: "8px 6px",
+                          border: `1px solid ${meta.accent}35`,
+                          borderRadius: "3px",
+                        }}
                       />
                       <div
-                        className="absolute inset-3 rounded-sm pointer-events-none"
-                        style={{ border: `0.5px solid ${meta.cor}15` }}
+                        className="absolute pointer-events-none"
+                        style={{
+                          inset: "12px 9px",
+                          border: `0.5px solid ${meta.accent}18`,
+                          borderRadius: "2px",
+                        }}
                       />
 
                       {/* Conteúdo do livro */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-between p-4 py-5">
+                      <div className="absolute inset-0 flex flex-col items-center justify-between py-5 px-3">
+
                         {/* Capítulo */}
                         <div className="text-center">
-                          <p className="text-[9px] uppercase tracking-[0.2em] font-semibold" style={{ color: meta.cor }}>
+                          <p
+                            className="text-[8px] uppercase tracking-[0.25em] font-bold"
+                            style={{ color: `${meta.accent}90` }}
+                          >
                             Capítulo
                           </p>
-                          <p className="font-serif text-2xl font-bold leading-none mt-0.5" style={{ color: meta.cor }}>
+                          <p
+                            className="font-serif text-3xl font-bold leading-none mt-1"
+                            style={{
+                              color: meta.accent,
+                              textShadow: `0 0 20px ${meta.accent}60, 0 2px 4px rgba(0,0,0,0.5)`,
+                            }}
+                          >
                             {String(idx + 1).padStart(2, "0")}
                           </p>
                         </div>
 
-                        {/* Divisor */}
-                        <div className="w-8 h-px" style={{ background: `linear-gradient(90deg, transparent, ${meta.cor}80, transparent)` }} />
+                        <OrnamentLine color={meta.accent} />
 
                         {/* Ícone */}
-                        <Icon size={28} style={{ color: meta.cor }} strokeWidth={1.5} />
+                        <div
+                          className="flex h-12 w-12 items-center justify-center rounded-full"
+                          style={{
+                            background: `radial-gradient(circle, ${meta.accent}20 0%, transparent 70%)`,
+                          }}
+                        >
+                          <Icon
+                            size={26}
+                            style={{
+                              color: meta.accent,
+                              filter: `drop-shadow(0 0 6px ${meta.accent}80)`,
+                            }}
+                            strokeWidth={1.2}
+                          />
+                        </div>
 
-                        {/* Divisor */}
-                        <div className="w-8 h-px" style={{ background: `linear-gradient(90deg, transparent, ${meta.cor}80, transparent)` }} />
+                        <OrnamentLine color={meta.accent} />
 
                         {/* Título */}
                         <div className="text-center">
-                          <p className="font-serif text-sm font-semibold leading-tight" style={{ color: meta.cor }}>
+                          <p
+                            className="font-serif text-sm font-bold leading-tight"
+                            style={{
+                              color: isHov ? meta.accent : `${meta.accent}CC`,
+                              textShadow: isHov ? `0 0 12px ${meta.accent}60` : "none",
+                              transition: "all 0.3s",
+                            }}
+                          >
                             {cat.titulo}
                           </p>
-                          <p className="text-[9px] mt-1" style={{ color: `${meta.cor}80` }}>
+                          <p className="text-[9px] mt-1.5 font-medium" style={{ color: `${meta.accent}60` }}>
                             {cat.itens.length} respostas
                           </p>
                         </div>
 
-                        {/* Logo pequena */}
-                        <div className="opacity-30">
-                          <svg width="16" height="20" viewBox="0 0 80 96" fill="none">
-                            <path d="M40 4 L76 40 L40 76 L4 40 Z" stroke={meta.cor} strokeWidth="4" strokeLinejoin="round" fill="none"/>
-                            <line x1="40" y1="32" x2="40" y2="76" stroke={meta.cor} strokeWidth="3" strokeLinecap="round"/>
-                            <circle cx="40" cy="29" r="5" fill={meta.cor}/>
+                        {/* Logo marca d'água */}
+                        <div style={{ opacity: 0.2 }}>
+                          <svg width="14" height="18" viewBox="0 0 80 96" fill="none">
+                            <path d="M40 4 L76 40 L40 76 L4 40 Z" stroke={meta.accent} strokeWidth="4" fill="none" />
+                            <line x1="40" y1="32" x2="40" y2="76" stroke={meta.accent} strokeWidth="3" strokeLinecap="round" />
+                            <circle cx="40" cy="29" r="5" fill={meta.accent} />
                           </svg>
                         </div>
                       </div>
+
+                      {/* Marcador de fita (bookmark) no topo quando hover */}
+                      {isHov && (
+                        <div
+                          className="absolute -top-1 left-1/2 -translate-x-1/2 w-4"
+                          style={{
+                            height: "24px",
+                            background: `linear-gradient(180deg, ${meta.accent} 0%, ${meta.accent}80 100%)`,
+                            clipPath: "polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%)",
+                          }}
+                        />
+                      )}
                     </div>
+
+                    {/* Lombada lateral (espessura do livro) */}
+                    <div
+                      className="absolute top-2 -right-1.5 bottom-0"
+                      style={{
+                        width: "6px",
+                        background: `linear-gradient(90deg, ${meta.accent}20 0%, rgba(0,0,0,0.6) 100%)`,
+                        borderRadius: "0 2px 2px 0",
+                      }}
+                    />
                   </button>
                 );
               })}
             </div>
 
-            {/* Tábua da prateleira */}
+            {/* Prateleira de madeira */}
             <div
-              className="relative mt-2 h-4 rounded-b-lg"
+              className="relative mt-0"
               style={{
-                background: "linear-gradient(180deg, #1a1008 0%, #0d0804 100%)",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.6)",
-                border: "1px solid rgba(201,160,96,0.15)",
+                height: "20px",
+                background: "linear-gradient(180deg, #3d2810 0%, #2a1c0a 40%, #1a1006 100%)",
+                boxShadow: "0 6px 20px rgba(0,0,0,0.8), inset 0 1px 0 rgba(201,160,96,0.15)",
+                borderTop: "1px solid rgba(201,160,96,0.2)",
+              }}
+            >
+              {/* Grão de madeira */}
+              <div
+                className="absolute inset-0 opacity-30"
+                style={{
+                  backgroundImage: "repeating-linear-gradient(90deg, transparent, transparent 8px, rgba(0,0,0,0.15) 8px, rgba(0,0,0,0.15) 9px)",
+                }}
+              />
+            </div>
+
+            {/* Sombra embaixo da estante */}
+            <div
+              className="h-3 rounded-b-2xl"
+              style={{
+                background: "linear-gradient(180deg, #100a04 0%, #0a0603 100%)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.9)",
               }}
             />
           </div>
 
-          {/* Citação na parte inferior */}
-          <p className="text-center text-xs text-navy-100 mt-4 italic">
+          {/* Citação */}
+          <p className="text-center text-xs text-navy-100 mt-5 italic" style={{ color: "rgba(201,160,96,0.5)" }}>
             &ldquo;Objeções não são barreiras, são convites para demonstrar valor com clareza.&rdquo;
           </p>
         </div>
@@ -235,117 +355,154 @@ export default function ObjecoesPage() {
 
       {/* ── LIVRO ABERTO ── */}
       {aberto && catAtual && (
-        <div
-          className={cn(
-            "transition-all duration-400",
-            abrindo ? "opacity-0 scale-95" : "opacity-100 scale-100"
-          )}
-        >
+        <div className={cn("transition-all duration-300", abrindo ? "opacity-0 scale-95" : "opacity-100 scale-100")}>
+
           {/* Cabeçalho do capítulo */}
-          <div className="flex items-center gap-3 mb-6">
-            {(() => {
-              const meta = catMeta[catAtual.id] ?? catMeta.preco;
-              const Icon = meta.icon;
-              return (
-                <>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: `${meta.cor}20`, border: `1px solid ${meta.cor}30` }}>
-                    <Icon size={20} style={{ color: meta.cor }} />
-                  </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-widest" style={{ color: catMeta[catAtual.id]?.cor ?? "#C9A060" }}>
-                      Capítulo {String(objecoes.findIndex(c => c.id === aberto) + 1).padStart(2, "0")}
-                    </p>
-                    <h2 className="font-serif text-2xl font-semibold text-champagne-300">{catAtual.titulo}</h2>
-                    <p className="text-xs text-navy-100">{catAtual.itens.length} respostas para transformar resistência em compromisso.</p>
-                  </div>
-                </>
-              );
-            })()}
-          </div>
+          {(() => {
+            const meta = catMeta[catAtual.id] ?? catMeta.preco;
+            const Icon = meta.icon;
+            const capNum = String(objecoes.findIndex(c => c.id === aberto) + 1).padStart(2, "0");
+            return (
+              <div className="flex items-center gap-3 mb-6">
+                <div
+                  className="flex h-11 w-11 items-center justify-center rounded-xl"
+                  style={{ background: `${meta.accent}18`, border: `1px solid ${meta.accent}30` }}
+                >
+                  <Icon size={22} style={{ color: meta.accent }} strokeWidth={1.4} />
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: meta.accent }}>
+                    Capítulo {capNum}
+                  </p>
+                  <h2 className="font-serif text-2xl font-semibold text-champagne-300">{catAtual.titulo}</h2>
+                  <p className="text-xs text-navy-100 mt-0.5">
+                    {catAtual.itens.length} respostas para transformar resistência em compromisso.
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Livro aberto */}
           <div
             className="relative rounded-2xl overflow-hidden"
             style={{
-              background: "linear-gradient(135deg, #12100e 0%, #1a1510 50%, #12100e 100%)",
-              border: "1px solid rgba(201,160,96,0.2)",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(201,160,96,0.1)",
+              background: "linear-gradient(160deg, #1a1208 0%, #120e06 50%, #1a1208 100%)",
+              border: "1px solid rgba(201,160,96,0.18)",
+              boxShadow: "0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(201,160,96,0.08)",
             }}
           >
+            {/* Canto dobrado — decoração topo-esquerdo e topo-direito */}
+            <div
+              className="absolute top-0 left-0 w-10 h-10 pointer-events-none"
+              style={{
+                background: "linear-gradient(135deg, rgba(201,160,96,0.12) 0%, transparent 60%)",
+                borderRight: "1px solid rgba(201,160,96,0.08)",
+                borderBottom: "1px solid rgba(201,160,96,0.08)",
+              }}
+            />
+            <div
+              className="absolute top-0 right-0 w-10 h-10 pointer-events-none"
+              style={{
+                background: "linear-gradient(225deg, rgba(201,160,96,0.12) 0%, transparent 60%)",
+                borderLeft: "1px solid rgba(201,160,96,0.08)",
+                borderBottom: "1px solid rgba(201,160,96,0.08)",
+              }}
+            />
+
             {/* Encadernação central */}
             <div
-              className="absolute left-1/2 top-0 bottom-0 w-6 -translate-x-1/2 z-10 pointer-events-none"
+              className="absolute left-1/2 top-0 bottom-0 z-10 pointer-events-none hidden md:block"
               style={{
-                background: "linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(201,160,96,0.08) 50%, rgba(0,0,0,0.4) 100%)",
-                boxShadow: "0 0 20px rgba(0,0,0,0.5)",
+                width: "28px",
+                transform: "translateX(-50%)",
+                background: "linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(201,160,96,0.06) 50%, rgba(0,0,0,0.6) 100%)",
+                boxShadow: "0 0 24px rgba(0,0,0,0.6)",
               }}
             />
 
             {/* Páginas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-              {[0, 1].map((pageCol) => {
-                const startIdx = pageCol * 2;
-                const colItems = itensPagina.slice(startIdx, startIdx + 2);
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              {[0, 1].map((col) => {
+                const colItems = itensPagina.slice(col * 2, col * 2 + 2);
                 return (
                   <div
-                    key={pageCol}
+                    key={col}
                     className="relative p-6 sm:p-8"
                     style={{
-                      background: pageCol === 0
-                        ? "linear-gradient(100deg, #f5f0e4 0%, #ede5d0 100%)"
-                        : "linear-gradient(80deg, #ede5d0 0%, #f5f0e4 100%)",
-                      minHeight: "400px",
+                      background: col === 0
+                        ? "linear-gradient(108deg, #f7f0e0 0%, #ede3cc 100%)"
+                        : "linear-gradient(72deg, #ede3cc 0%, #f7f0e0 100%)",
+                      minHeight: "420px",
                     }}
                   >
-                    {/* Textura de papel */}
+                    {/* Linhas de pauta */}
                     <div
-                      className="absolute inset-0 opacity-20 pointer-events-none"
+                      className="absolute inset-0 pointer-events-none opacity-25"
                       style={{
-                        backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(0,0,0,0.05) 28px, rgba(0,0,0,0.05) 29px)",
+                        backgroundImage: "repeating-linear-gradient(180deg, transparent, transparent 30px, rgba(180,140,60,0.12) 30px, rgba(180,140,60,0.12) 31px)",
                       }}
+                    />
+
+                    {/* Sombra borda encadernação */}
+                    <div
+                      className="absolute top-0 bottom-0 pointer-events-none"
+                      style={{
+                        [col === 0 ? "right" : "left"]: 0,
+                        width: "20px",
+                        background: col === 0
+                          ? "linear-gradient(90deg, transparent, rgba(0,0,0,0.08))"
+                          : "linear-gradient(90deg, rgba(0,0,0,0.08), transparent)",
+                      }}
+                    />
+
+                    {/* Ornamento de canto */}
+                    <div
+                      className="absolute pointer-events-none opacity-20"
+                      style={{ top: 12, left: 12, right: 12, bottom: 12, border: "1px solid rgba(180,120,40,0.4)", borderRadius: "2px" }}
                     />
 
                     <div className="relative space-y-4">
                       {colItems.map((item, i) => {
-                        const globalIdx = pageCol * 2 + i + pagina * ITEMS_PER_PAGE;
+                        const globalIdx = col * 2 + i + pagina * ITEMS_PER_PAGE;
                         return (
                           <div
                             key={i}
                             className="rounded-xl p-4"
                             style={{
-                              background: "rgba(255,255,255,0.6)",
+                              background: "rgba(255,252,242,0.7)",
                               border: "1px solid rgba(180,140,60,0.2)",
-                              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                              boxShadow: "0 2px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8)",
                             }}
                           >
-                            {/* Número da objeção */}
-                            <p className="text-[10px] uppercase tracking-widest font-semibold text-amber-700/60 mb-2">
+                            <p className="text-[9px] uppercase tracking-[0.22em] font-bold mb-2" style={{ color: "rgba(139,100,20,0.6)" }}>
                               Objeção {String(globalIdx + 1).padStart(2, "0")}
                             </p>
 
-                            {/* Gatilho */}
-                            <p className="font-serif text-base font-semibold text-stone-800 mb-2 leading-snug">
+                            {/* Linha decorativa */}
+                            <div className="h-px mb-2" style={{ background: "linear-gradient(90deg, rgba(180,130,40,0.3), transparent)" }} />
+
+                            <p className="font-serif text-base font-bold text-stone-800 mb-2 leading-snug">
                               &ldquo;{item.gatilho}&rdquo;
                             </p>
 
-                            {/* Divisor */}
-                            <div className="h-px bg-amber-800/10 mb-3" />
+                            <div className="h-px mb-3" style={{ background: "rgba(180,130,40,0.12)" }} />
 
-                            {/* Resposta */}
-                            <p className="text-sm leading-relaxed text-stone-700 mb-3">{item.resposta}</p>
+                            <p className="text-sm leading-relaxed text-stone-700 mb-4">{item.resposta}</p>
 
-                            {/* Ações */}
-                            <div className="flex items-center gap-2">
-                              <div style={{ filter: "invert(1)" }} className="opacity-80">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <div
+                                className="[&_button]:rounded-lg [&_button]:border [&_button]:border-stone-800/20 [&_button]:bg-stone-800 [&_button]:text-stone-100 [&_button]:text-xs [&_button]:px-3 [&_button]:py-1.5 [&_button]:font-medium [&_button]:flex [&_button]:items-center [&_button]:gap-1.5 [&_button]:transition-colors [&_button:hover]:bg-stone-700"
+                              >
                                 <CopyButton text={item.resposta} />
                               </div>
                               <button
                                 type="button"
                                 onClick={() => personalizar(catAtual.id, item.gatilho)}
-                                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all"
+                                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:scale-105"
                                 style={{
                                   background: "rgba(180,130,40,0.15)",
-                                  color: "#8B6914",
+                                  color: "#7a5c10",
                                   border: "1px solid rgba(180,130,40,0.3)",
                                 }}
                               >
@@ -361,17 +518,20 @@ export default function ObjecoesPage() {
               })}
             </div>
 
-            {/* Paginação inferior */}
+            {/* Paginação */}
             {totalPaginas > 1 && (
               <div
-                className="flex items-center justify-center gap-4 py-4"
-                style={{ background: "linear-gradient(180deg, #f0e8d0 0%, #e8ddc0 100%)" }}
+                className="flex items-center justify-center gap-4 py-4 relative z-10"
+                style={{
+                  background: "linear-gradient(180deg, #ede3cc 0%, #e0d4b8 100%)",
+                  borderTop: "1px solid rgba(180,130,40,0.15)",
+                }}
               >
                 <button
                   type="button"
                   onClick={() => setPagina((p) => Math.max(0, p - 1))}
                   disabled={pagina === 0}
-                  className="flex h-8 w-8 items-center justify-center rounded-full transition-all disabled:opacity-30"
+                  className="flex h-8 w-8 items-center justify-center rounded-full transition-all disabled:opacity-30 hover:scale-110"
                   style={{ background: "rgba(180,130,40,0.2)", color: "#8B6914" }}
                 >
                   <ChevronLeft size={16} />
@@ -385,7 +545,7 @@ export default function ObjecoesPage() {
                       onClick={() => setPagina(i)}
                       className="h-2 rounded-full transition-all"
                       style={{
-                        width: i === pagina ? "24px" : "8px",
+                        width: i === pagina ? "28px" : "8px",
                         background: i === pagina ? "#8B6914" : "rgba(139,105,20,0.3)",
                       }}
                     />
@@ -396,13 +556,13 @@ export default function ObjecoesPage() {
                   type="button"
                   onClick={() => setPagina((p) => Math.min(totalPaginas - 1, p + 1))}
                   disabled={pagina === totalPaginas - 1}
-                  className="flex h-8 w-8 items-center justify-center rounded-full transition-all disabled:opacity-30"
+                  className="flex h-8 w-8 items-center justify-center rounded-full transition-all disabled:opacity-30 hover:scale-110"
                   style={{ background: "rgba(180,130,40,0.2)", color: "#8B6914" }}
                 >
                   <ChevronRight size={16} />
                 </button>
 
-                <span className="text-xs" style={{ color: "#8B6914" }}>
+                <span className="text-xs font-medium" style={{ color: "#8B6914" }}>
                   Página {pagina + 1} de {totalPaginas}
                 </span>
               </div>
