@@ -3,6 +3,7 @@ import {
   getApps,
   initializeApp,
   type App,
+  type AppOptions,
   type ServiceAccount,
 } from "firebase-admin/app";
 import { getAuth, type DecodedIdToken } from "firebase-admin/auth";
@@ -45,19 +46,44 @@ function parseServiceAccount(): ServiceAccount | null {
   };
 }
 
+function getFirebaseAdminOptions(): AppOptions | null {
+  const serviceAccount = parseServiceAccount();
+  if (serviceAccount) {
+    return { credential: cert(serviceAccount) };
+  }
+
+  const projectId =
+    process.env.FIREBASE_PROJECT_ID ||
+    process.env.GOOGLE_CLOUD_PROJECT ||
+    process.env.GCLOUD_PROJECT ||
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+  if (projectId && (process.env.K_SERVICE || process.env.GOOGLE_CLOUD_PROJECT)) {
+    return { projectId };
+  }
+
+  return null;
+}
+
 export function isFirebaseAdminConfigured(): boolean {
-  return !!parseServiceAccount();
+  return !!getFirebaseAdminOptions();
 }
 
 export function getFirebaseAdminApp(): App | null {
   if (adminApp) return adminApp;
-  const serviceAccount = parseServiceAccount();
-  if (!serviceAccount) return null;
+  const options = getFirebaseAdminOptions();
+  if (!options) return null;
 
-  adminApp = getApps().length
-    ? getApps()[0]
-    : initializeApp({ credential: cert(serviceAccount) });
-  return adminApp;
+  try {
+    adminApp = getApps().length ? getApps()[0] : initializeApp(options);
+    return adminApp;
+  } catch (e) {
+    console.error(
+      "[firebase/admin] falha ao inicializar Admin SDK:",
+      e instanceof Error ? e.message : e
+    );
+    return null;
+  }
 }
 
 export function getFirebaseAdminDb() {

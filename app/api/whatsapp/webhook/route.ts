@@ -1,69 +1,168 @@
-import { NextResponse } from "next/server";
-import crypto from "crypto";
+import { NextResponse, after } from "next/server";
+import { getFirebaseAdminDb } from "@/lib/firebase/admin";
+import { gerarRespostas } from "@/lib/ai/provider";
+import { getWhatsAppProvider } from "@/lib/whatsapp";
+import type { InboundMessage } from "@/lib/whatsapp-types";
+import { resolverClinicaPorNumero } from "@/lib/numeros";
+import {
+  registrarMensagemRecebida,
+  registrarMensagemEnviada,
+  marcarPrecisaAtencao,
+  reservarProcessamento,
+  liberarProcessamento,
+} from "@/lib/conversas";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// GET = verificação do webhook. A Meta chama UMA vez quando você configura o webhook
-// no painel (WhatsApp -> Configuration -> Webhook). Tem que devolver o hub.challenge
-// se o verify_token bater com o WHATSAPP_VERIFY_TOKEN do env.
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const mode = url.searchParams.get("hub.mode");
-  const token = url.searchParams.get("hub.verify_token");
-  const challenge = url.searchParams.get("hub.challenge");
+// Status de billing que liberam a auto-resposta.
+const STATUS_ATIVOS = new Set(["active", "paid", "trialing"]);
 
-  if (mode === "subscribe" && token && token === process.env.WHATSAPP_VERIFY_TOKEN) {
-    return new NextResponse(challenge ?? "", { status: 200 });
+/** Processa fora do caminho HTTP para não atrasar o ACK ao provedor. */
+async function processarMensagem(msg: InboundMessage) {
+  if (!msg.text) return;
+
+  const db = getFirebaseAdminDb();
+  if (!db) {
+    console.warn("[whatsapp] Firestore Admin não configurado — ignorando.");
+    return;
   }
-  return new NextResponse("forbidden", { status: 403 });
+
+  // Idempotência: ignora reentregas do provedor (não duplica msg nem auto-resposta).
+  if (!(await reservarProcessamento(msg.providerMessageId))) {
+    console.log(`[whatsapp] mensagem ${msg.providerMessageId} já processada — ignorando retry.`);
+    return;
+  }
+
+  // Descobre a clínica pelo número que RECEBEU, via mapa canônico (único/verificado).
+  // Falha de roteamento devolve a reserva: um retry futuro ainda pode processar.
+  const clinicaId = await resolverClinicaPorNumero(msg.to);
+  if (!clinicaId) {
+    console.warn(`[whatsapp] nenhuma clínica conectada ao número ${msg.to}.`);
+    await liberarProcessamento(msg.providerMessageId);
+    return;
+  }
+  const clinicaSnap = await db.collection("clinicas").doc(clinicaId).get();
+  if (!clinicaSnap.exists) {
+    await liberarProcessamento(msg.providerMessageId);
+    return;
+  }
+  const clinica = clinicaSnap.data() as Record<string, any>;
+  const ativo = STATUS_ATIVOS.has(clinica.billing?.status);
+
+  // Sem plano ativo: guarda a mensagem (aparece no inbox), mas não auto-responde.
+  if (!ativo) {
+    await registrarMensagemRecebida({
+      clinicaId,
+      from: msg.from,
+      text: msg.text,
+      contactName: msg.contactName,
+      providerMessageId: msg.providerMessageId,
+    });
+    console.warn(
+      `[whatsapp] clínica ${clinicaId} sem plano ativo (status=${clinica.billing?.status}) — só armazenado.`
+    );
+    return;
+  }
+
+  let nlp: Awaited<ReturnType<typeof gerarRespostas>> | null = null;
+  try {
+    nlp = await gerarRespostas({
+      modo: "gerar",
+      objetivo: "responder à dúvida do cliente via WhatsApp de forma consultiva e empática",
+      nomeCliente: msg.contactName || "Cliente",
+      mensagemCliente: msg.text,
+      procedimento: "geral",
+      situacao: "pergunta_geral",
+      tom: clinica.tom_padrao || "acolhedor",
+      clinica: {
+        nome_clinica: clinica.nome_clinica || "LeadBellus",
+        formalidade: clinica.formalidade ?? 50,
+        como_chamar: clinica.como_chamar || "nenhum",
+        cta_preferido: clinica.cta_preferido || "agendar uma avaliação",
+      },
+    });
+  } catch (e) {
+    console.error("[whatsapp] falha ao gerar resposta:", e);
+  }
+
+  await registrarMensagemRecebida({
+    clinicaId,
+    from: msg.from,
+    text: msg.text,
+    contactName: msg.contactName,
+    providerMessageId: msg.providerMessageId,
+    intent: nlp?.intent ?? null,
+    sentiment: nlp?.sentiment ?? null,
+    score: nlp?.score ?? null,
+  });
+
+  if (!nlp) return;
+  const respostaFinal = nlp.respostas.consultiva;
+
+  const envio = await getWhatsAppProvider().sendText(msg.from, respostaFinal, {
+    channelApiKey: clinica.whatsapp_channel_key,
+  });
+  if (envio.ok) {
+    // Auto-resposta NÃO marca como lida — fica na triagem até um humano abrir.
+    await registrarMensagemEnviada(clinicaId, msg.from, respostaFinal, { marcarLida: false });
+  } else {
+    console.error(
+      `[whatsapp] falha ao enviar para ${msg.from}: status=${envio.status}`,
+      envio.data
+    );
+    await marcarPrecisaAtencao(clinicaId, msg.from);
+  }
+
+  await db.collection("historico").add({
+    user_id: clinicaId,
+    tipo: "gerador",
+    contexto: {
+      canal: "whatsapp",
+      de: msg.from,
+      mensagemCliente: msg.text,
+      entregue: envio.ok,
+    },
+    respostas: [respostaFinal],
+    favorito: false,
+    created_at: new Date().toISOString(),
+    intent: nlp.intent ?? null,
+    sentiment: nlp.sentiment ?? null,
+    score: nlp.score ?? null,
+  });
+
+  console.log(
+    `[whatsapp] resposta ${envio.ok ? "enviada" : "FALHOU"} para ${msg.from} (clínica ${clinicaId}).`
+  );
 }
 
-// POST = mensagens recebidas. A Meta envia os eventos (mensagens das clientes) aqui.
+// Z-API não usa handshake Meta; GET só confirma que o endpoint está vivo.
+export async function GET() {
+  return new NextResponse("ok", { status: 200 });
+}
+
 export async function POST(req: Request) {
   const raw = await req.text();
+  const provider = getWhatsAppProvider();
 
-  // Valida a assinatura do Meta (X-Hub-Signature-256) quando WHATSAPP_APP_SECRET existe.
-  const appSecret = process.env.WHATSAPP_APP_SECRET;
-  if (appSecret) {
-    const sig = req.headers.get("x-hub-signature-256") || "";
-    const expected =
-      "sha256=" + crypto.createHmac("sha256", appSecret).update(raw).digest("hex");
-    const valid =
-      sig.length === expected.length &&
-      crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
-    if (!valid) {
-      console.warn("[whatsapp] assinatura inválida no webhook");
-      return new NextResponse("invalid signature", { status: 403 });
-    }
+  const valido = await provider.validateWebhook(req, raw);
+  if (!valido) {
+    console.warn(`[whatsapp] webhook recusado (provider=${provider.name}).`);
+    return new NextResponse("invalid signature", { status: 403 });
   }
 
-  let body: any;
-  try {
-    body = JSON.parse(raw);
-  } catch {
-    return NextResponse.json({ ok: true });
+  const msg = provider.parseInbound(raw, req);
+  if (msg) {
+    after(() =>
+      processarMensagem(msg).catch(async (e) => {
+        console.error("[whatsapp] erro no processamento:", e);
+        // Crash após a reserva: devolve, senão o retry vira "duplicata" e a
+        // mensagem se perde (o provedor já recebeu 200).
+        await liberarProcessamento(msg.providerMessageId);
+      })
+    );
   }
 
-  try {
-    const value = body?.entry?.[0]?.changes?.[0]?.value;
-    const msg = value?.messages?.[0];
-    if (msg) {
-      const from: string = msg.from; // número da cliente (E.164 sem '+')
-      const text: string = msg.text?.body ?? `[${msg.type}]`;
-      console.log("[whatsapp] recebida de", from, ":", text);
-
-      // PRÓXIMO PASSO (atendente IA): gerar resposta no tom da clínica e responder:
-      //   import { gerarRespostas } from "@/lib/ai/provider";
-      //   import { sendWhatsAppText } from "@/lib/whatsapp";
-      //   const r = await gerarRespostas({ ...contextoDaClinica, mensagemCliente: text });
-      //   await sendWhatsAppText(from, r.respostas.consultiva);
-      // (precisa mapear qual clínica é dona deste número — multi-tenant.)
-    }
-  } catch (e) {
-    console.error("[whatsapp] erro no webhook:", e);
-  }
-
-  // Responder 200 rápido sempre — senão a Meta re-tenta e duplica.
-  return NextResponse.json({ ok: true });
+  // Provedores esperam 200 rápido.
+  return new NextResponse("", { status: 200 });
 }

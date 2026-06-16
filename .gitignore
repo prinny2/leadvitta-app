@@ -13,14 +13,27 @@ yarn-error.log*
 next-env.d.ts
 tsconfig.tsbuildinfo
 
+# Cobertura de testes (Vitest)
+/coverage
+
 # Artefatos de outras ferramentas de IA / clones aninhados (não são código do app)
 /conductor/
 /prinny2/
 /.codex/
 /status.md
+/ESTADO.md
 /relatorio_atividades.txt
-/LeadVitta_Dossie_Completo.pdf
+/LeadBellus_Dossie_Completo.pdf
 .claude/scheduled_tasks.lock
 /.codesight/
 /.snapshots/
 WhatsApp Image*
+/✦*.txt
+
+# Configs de editores/ferramentas de IA (por-dev, não são código do app)
+.cursor/
+.gemini/
+.vscode/
+.qodo/
+*.log
+/.codex-*

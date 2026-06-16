@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
+import {
+  applyClinicBilling,
+  saveBillingPending,
+  syncSubscriptionBilling,
+  type ClinicBilling,
+} from "@/lib/stripe/billing-sync";
 import { getStripe } from "@/lib/stripe/server";
 import { sendZapierEvent } from "@/lib/zapier";
 
@@ -21,32 +27,32 @@ async function markStripeEvent(event: Stripe.Event) {
   );
 }
 
-async function updateClinicBilling(
-  firebaseUid: string | undefined,
-  billing: Record<string, unknown>
-) {
-  const db = getFirebaseAdminDb();
-  if (!db || !firebaseUid) return;
-
-  await db.collection("clinicas").doc(firebaseUid).set(
-    {
-      billing: {
-        ...billing,
-        updated_at: new Date().toISOString(),
-      },
-    },
-    { merge: true }
-  );
+async function resolveCheckoutStatus(
+  session: Stripe.Checkout.Session
+): Promise<string> {
+  const subRef = session.subscription;
+  const subId =
+    typeof subRef === "string" ? subRef : subRef?.id;
+  if (subId) {
+    const sub = await getStripe().subscriptions.retrieve(subId);
+    return sub.status;
+  }
+  return session.payment_status || "paid";
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const firebaseUid =
     session.metadata?.firebase_uid || session.client_reference_id || undefined;
   const plan = session.metadata?.plan;
+  const email =
+    session.customer_details?.email ||
+    session.customer_email ||
+    session.metadata?.firebase_email ||
+    undefined;
 
-  await updateClinicBilling(firebaseUid, {
+  const billing: ClinicBilling = {
     plan,
-    status: session.payment_status,
+    status: await resolveCheckoutStatus(session),
     stripe_customer_id:
       typeof session.customer === "string" ? session.customer : session.customer?.id,
     stripe_checkout_session_id: session.id,
@@ -54,7 +60,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       typeof session.subscription === "string"
         ? session.subscription
         : session.subscription?.id,
-  });
+  };
+
+  if (firebaseUid) {
+    await applyClinicBilling(firebaseUid, billing);
+  } else if (email) {
+    await saveBillingPending(email, billing);
+  }
 
   await sendZapierEvent("stripe.checkout.completed", {
     plan,
@@ -72,22 +84,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleSubscriptionEvent(subscription: Stripe.Subscription) {
-  const firebaseUid = subscription.metadata?.firebase_uid || undefined;
-
-  await updateClinicBilling(firebaseUid, {
-    plan: subscription.metadata?.plan,
-    status: subscription.status,
-    stripe_customer_id:
-      typeof subscription.customer === "string"
-        ? subscription.customer
-        : subscription.customer.id,
-    stripe_subscription_id: subscription.id,
-    current_period_end: subscription.items.data[0]?.current_period_end
-      ? new Date(
-          subscription.items.data[0].current_period_end * 1000
-        ).toISOString()
-      : undefined,
-  });
+  const firebaseUid = subscription.metadata?.firebase_uid?.trim() || undefined;
+  await syncSubscriptionBilling(subscription, getStripe());
 
   await sendZapierEvent(`stripe.${subscription.object}.${subscription.status}`, {
     plan: subscription.metadata?.plan,
@@ -119,7 +117,7 @@ async function handleStripeEvent(event: Stripe.Event) {
 }
 
 export async function POST(request: Request) {
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
   if (!webhookSecret) {
     return NextResponse.json(
       { error: "STRIPE_WEBHOOK_SECRET não configurado." },

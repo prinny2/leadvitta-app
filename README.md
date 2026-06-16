@@ -4,7 +4,21 @@ Micro-SaaS para clínicas e profissionais de estética responderem melhor no
 WhatsApp: gera respostas estratégicas, quebra objeções, faz follow-up e conduz a
 cliente até o agendamento com guardrails de compliance.
 
-Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase + OpenAI/Anthropic + Stripe + Zapier + Vercel**.
+**Empresa (LeadBellus):** Vinicius Paes da Serra Freire (MEI)  
+**Fundador:** Vinicius Paes da Serra Freire  
+**Contato:** vpaes.freire02@gmail.com
+
+**Nota:** A Inova Simples (RESONANZA INOVA SIMPLES I S, CNPJ 67.046.121/0001-45) é exclusiva para o projeto ResonAnza (com José). O LeadBellus opera sob o MEI pessoal.
+
+Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore + OpenAI/Anthropic/Gemini + Stripe + Zapier + Cloud Run/Vercel (Híbrido)**.
+
+## Status (produção) — atualizado 2026-06-15
+
+- **LIVE:** `https://leadbellus.com.br` em arquitetura **híbrida** — Vercel serve o frontend, Cloud Run processa `/api/*` (proxy). Modo demonstração desligado (config Firebase real no bundle).
+- **Auth:** Firebase Auth (e-mail/senha + Google). **Billing:** Stripe LIVE com webhook configurado.
+- **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
+- **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID, número +55 91 8515-6690). Auto-resposta (webhook) em rollout.
+
 
 ## Rodar local
 
@@ -16,6 +30,15 @@ npm run dev
 Abra `http://localhost:3000`. Sem chaves, o app roda em **modo demonstração**:
 login dispensado, dados no `localStorage` e respostas mockadas.
 
+## Estratégia de autenticação (v1)
+
+- **Firebase Auth** é a autenticação oficial do produto no v1.
+- `/login` e `/signup` usam Firebase Auth com Email/Senha e Google opcional.
+- Rotas server-side autenticadas validam **Firebase ID token**.
+- Billing, Firestore e eventos autenticados do Zapier continuam vinculados à
+  identidade atual do Firebase.
+- **Auth0 não faz parte do fluxo atual**.
+
 ## Variáveis de ambiente
 
 Copie `.env.local.example` para `.env.local` e preencha conforme o ambiente.
@@ -25,16 +48,9 @@ Copie `.env.local.example` para `.env.local` e preencha conforme o ambiente.
 No Firebase Console:
 
 1. Crie um projeto e um Web App.
-2. Habilite **Authentication** com Email/Senha e, se quiser, Google.
-3. Habilite **Firestore Database**.
-4. Copie as variáveis `NEXT_PUBLIC_FIREBASE_*` do SDK setup.
-5. Para APIs server-side, crie uma service account e configure uma destas opções:
-   - `FIREBASE_SERVICE_ACCOUNT_JSON`
-   - `FIREBASE_SERVICE_ACCOUNT_JSON_BASE64`
-   - ou `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`.
-
-Sem Firebase Admin, login client-side ainda funciona, mas Stripe webhooks não
-conseguem atualizar Firestore e `/api/zapier/lead` rejeita envio autenticado.
+2. Habilite **Authentication** e **Firestore Database**.
+3. Copie as variáveis `NEXT_PUBLIC_FIREBASE_*`.
+4. Para APIs server-side, prefira a identidade do próprio serviço no Cloud Run (ADC).
 
 ### IA
 
@@ -43,68 +59,105 @@ Configure pelo menos uma chave:
 ```env
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
-AI_MODEL=gpt-4o-mini
+GEMINI_API_KEY=
+# Modelos opcionais
+OPENAI_MODEL=gpt-4o
+ANTHROPIC_MODEL=claude-haiku-4-5
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
-Sem chaves, o app mantém o modo demonstração com exemplos.
+O backend tenta os provedores na ordem: **OpenAI -> Anthropic -> Gemini**.
 
-### Stripe
+### Stripe (ADR-001)
 
-Crie produtos/preços no Stripe e configure:
+A configuração de webhooks deve seguir o **ADR-001**:
+
+- **URL:** `https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook` (Cloud Run direto).
+- **Modo:** Snapshot (Instantâneo).
+- **Eventos:** `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
 
 ```env
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
-STRIPE_CHECKOUT_MODE=payment
 STRIPE_PRICE_ID_START=
 STRIPE_PRICE_ID_PRO=
 STRIPE_PRICE_ID_PREMIUM=
 ```
 
-O checkout é iniciado em `POST /api/stripe/checkout`. O webhook público fica em:
+### WhatsApp (Multi-provedor)
 
-```text
-https://SEU-DOMINIO/api/stripe/webhook
+O app suporta múltiplos provedores. Defina `WHATSAPP_PROVIDER` como `twilio`, `dialog360` ou `zapi`.
+
+#### Z-API (Recomendado para mensagens ricas)
+```env
+WHATSAPP_PROVIDER=zapi
+ZAPI_INSTANCE_ID=
+ZAPI_TOKEN=
+ZAPI_CLIENT_TOKEN=
+ZAPI_SECURITY_TOKEN=
+```
+Para configurar os webhooks automaticamente na Z-API, rode:
+```bash
+node scripts/setup-zapi-webhook.mjs
 ```
 
-Eventos tratados:
+#### 360dialog
+```env
+WHATSAPP_PROVIDER=dialog360
+D360_API_KEY=
+D360_WEBHOOK_TOKEN=
+```
 
-- `checkout.session.completed`
-- `customer.subscription.created`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
-
-Quando houver Firebase Admin, o webhook grava eventos em `stripe_events` e atualiza
-`clinicas/{uid}.billing`. Também envia eventos ao Zapier quando configurado.
+#### Twilio
+```env
+WHATSAPP_PROVIDER=twilio
+TWILIO_ACCOUNT_SID=
+TWILIO_API_KEY_SID=
+TWILIO_API_KEY_SECRET=
+TWILIO_WHATSAPP_FROM=
+TWILIO_AUTH_TOKEN=
+```
 
 ### Zapier
-
-No Zapier, crie um Zap com **Webhooks by Zapier -> Catch Hook** e configure:
 
 ```env
 ZAPIER_WEBHOOK_URL=
 ZAPIER_SHARED_SECRET=
 ```
 
-O app envia eventos de signup, checkout iniciado e checkout concluído. O segredo
-opcional vai dentro do payload para filtros/validações no Zap.
+## Deploy (Arquitetura Híbrida)
 
-## Deploy na Vercel
+- **Vercel:** Serve o frontend e domínio principal (`leadbellus.com.br`).
+- **Cloud Run:** Processa todas as rotas `/api/*` via proxy, gerencia segredos e integrações pesadas.
 
-1. Importe o repositório na Vercel.
-2. Configure todas as env vars em **Project Settings -> Environment Variables**.
-3. Defina `NEXT_PUBLIC_SITE_URL=https://SEU-DOMINIO`.
-4. Rode um redeploy depois de mudar qualquer `NEXT_PUBLIC_*`, porque essas vars
-   entram no build.
-5. Cadastre o webhook do Stripe apontando para `/api/stripe/webhook`.
-6. No Firebase Auth, adicione o domínio Vercel/domínio próprio aos domínios autorizados.
+1. Configure `ENABLE_API_PROXY=true` e `API_PROXY_ORIGIN` na Vercel apontando para o Cloud Run.
+2. Refaça o build sempre que mudar qualquer `NEXT_PUBLIC_*`.
+3. Valide `GET /api/health` e `GET /api/config` após o deploy.
+
+## Testes
+
+Testes unitários com **Vitest** cobrem a lógica pura (sem rede): geração de
+prompts, guardrails de compliance, parsing de respostas da IA, segurança das
+APIs (rate limit, CORS, validação de payload), billing, ativação de billing via
+webhook do Stripe, flags de configuração e os catálogos de dados.
+
+```bash
+npm test            # roda toda a suíte uma vez
+npm run test:watch  # modo watch durante o desenvolvimento
+npm run test:coverage  # relatório de cobertura (texto + HTML em ./coverage)
+```
+
+Os testes ficam em `tests/`, espelhando a estrutura de `lib/`, `data/` e
+`app/api/`. Os SDKs externos (OpenAI/Anthropic/Stripe), o Firestore Admin e
+`fetch` são mockados — nenhum teste faz chamada de rede real nem precisa de
+chaves.
 
 ## Rotas principais
 
 - `/` marketing
-- `/login` e `/signup` Firebase Auth
-- `/dashboard`, `/gerador`, `/objecoes`, `/follow-up`, `/scripts`, `/historico`, `/configuracoes`
-- `/api/generate` e `/api/follow-up` IA
-- `/api/stripe/checkout` e `/api/stripe/webhook`
-- `/api/zapier/lead`
+- `/login`, `/dashboard`, `/gerador`, `/historico`, `/configuracoes`
+- `/api/generate` IA
+- `/api/stripe/webhook`
+- `/api/whatsapp/webhook`
 - `/api/health`
+- `/api/config` (Status de capacidades ativas)

@@ -1,0 +1,9 @@
+{
+  "name": "list_zapier_skills",
+  "description": "List your saved Zapier Skills with descriptions. ALWAYS call this FIRST when the user's request sounds like a known workflow — e.g. 'onboard me'. Do NOT assume you know the list; skills may have been added or updated since your last check. Skills are reusable markdown instructions that guide you through tasks using your connected apps. Use get_zapier_skill to load the full content of a skill before executing it. Use create_zapier_skill to save a new workflow.",
+  "inputSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {}
+  }
+}

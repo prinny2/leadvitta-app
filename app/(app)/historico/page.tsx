@@ -134,6 +134,19 @@ export default function HistoricoPage() {
                   <span className="rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-600">
                     {tipoLabel[item.tipo] ?? item.tipo}
                   </span>
+                  {item.intent && (
+                    <span className="rounded-full bg-lavender-100 px-2.5 py-0.5 text-xs font-bold text-lavender-700 capitalize">
+                      {item.intent.replace(/_/g, " ")}
+                    </span>
+                  )}
+                  {item.score !== undefined && (
+                    <span className={cn(
+                      "rounded-full px-2.5 py-0.5 text-xs font-bold",
+                      item.score > 70 ? "bg-green-100 text-green-700" : item.score > 40 ? "bg-amber-100 text-amber-700" : "bg-brand-100 text-brand-700"
+                    )}>
+                      Score: {item.score}%
+                    </span>
+                  )}
                   {resumo && <span className="text-xs text-muted">{resumo}</span>}
                   <span className="ml-auto text-xs text-muted">
                     {formatarData(item.created_at)}

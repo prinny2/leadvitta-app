@@ -1,6 +1,8 @@
-# LeadBellus — Deploy Vercel + Stripe
+> ⚠️ DESATUALIZADO — fonte da verdade: **ESTADO.md**. (Deploy é Cloud Run, NÃO Vercel.)
 
-Checklist operacional para colocar a cobrança recorrente no ar.
+# LeadVitta — Deploy Cloud Run + Stripe
+
+Checklist operacional para colocar a cobrança recorrente no ar no Google Cloud Run.
 
 ## 1. Status do código
 
@@ -17,11 +19,13 @@ Checklist operacional para colocar a cobrança recorrente no ar.
 | Pro | R$297/mês | `STRIPE_PRICE_ID_PRO` |
 | Premium | R$397/mês | `STRIPE_PRICE_ID_PREMIUM` |
 
-## 3. Variáveis obrigatórias na Vercel
+## 3. Variáveis obrigatórias no Cloud Run
 
-Configurar em:
+Configurar via:
 
-`Vercel -> Project -> Settings -> Environment Variables`
+`gcloud run services update NOME-DO-SERVICO --set-env-vars KEY=VALUE`
+
+ou usando o Secret Manager do GCP para dados sensíveis.
 
 ```env
 STRIPE_SECRET_KEY=sk_live_ou_sk_test
@@ -32,10 +36,10 @@ STRIPE_PRICE_ID_START=price_do_plano_start
 STRIPE_PRICE_ID_PRO=price_do_plano_pro
 STRIPE_PRICE_ID_PREMIUM=price_do_plano_premium
 
-NEXT_PUBLIC_SITE_URL=https://seu-dominio.vercel.app
+NEXT_PUBLIC_SITE_URL=https://seu-servico.run.app
 ```
 
-Depois de salvar as variáveis, fazer **Redeploy**.
+Depois de configurar as variáveis, fazer **Redeploy** via `gcloud builds submit --config cloudbuild.yaml`.
 
 ## 4. Webhook na Stripe
 
@@ -46,7 +50,7 @@ Criar endpoint em:
 URL:
 
 ```txt
-https://seu-dominio.vercel.app/api/stripe/webhook
+https://seu-servico.run.app/api/stripe/webhook
 ```
 
 Eventos mínimos:
@@ -60,7 +64,7 @@ invoice.payment_succeeded
 invoice.payment_failed
 ```
 
-Copiar o segredo do endpoint e colocar na Vercel como `STRIPE_WEBHOOK_SECRET`.
+Copiar o segredo do endpoint e configurar no Cloud Run como `STRIPE_WEBHOOK_SECRET`.
 
 ## 5. Teste de produção controlado
 
@@ -69,7 +73,7 @@ Copiar o segredo do endpoint e colocar na Vercel como `STRIPE_WEBHOOK_SECRET`.
 3. Ir para configurações/assinatura.
 4. Clicar em um plano.
 5. Confirmar que abre o Checkout da Stripe.
-6. Concluir uma compra controlada ou usar ambiente test.
+6. Concluir uma compra controlada ou usar ambiente de teste.
 7. Confirmar retorno para `/configuracoes?checkout=sucesso&session_id=...`.
 8. Verificar na Stripe se o webhook retornou `200`.
 9. Verificar no Firebase/Firestore se o billing da clínica foi atualizado.
@@ -78,7 +82,7 @@ Copiar o segredo do endpoint e colocar na Vercel como `STRIPE_WEBHOOK_SECRET`.
 
 | Sintoma | Causa provável |
 |---|---|
-| Checkout retorna 503 | Variável Stripe ausente na Vercel |
+| Checkout retorna 503 | Variável Stripe ausente no Cloud Run |
 | Checkout retorna 400 plano inválido | Botão enviando plano diferente de `start`, `pro`, `premium` |
 | Webhook retorna 400 | `STRIPE_WEBHOOK_SECRET` errado ou endpoint diferente |
 | Webhook retorna 404 | Deploy não subiu ou rota incorreta |
@@ -90,7 +94,7 @@ Depois que checkout e webhook estiverem `200`, parar de mexer em preço/código 
 
 Sequência recomendada:
 
-1. Vercel funcionando.
+1. Cloud Run funcionando.
 2. Checkout abrindo.
 3. Webhook Stripe `200`.
 4. Clínica piloto usando.

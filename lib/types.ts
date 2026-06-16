@@ -12,6 +12,8 @@ export type Clinica = {
   como_chamar: ComoChamar;
   /** CTA padrão da clínica (texto). */
   cta_preferido: string;
+  /** Chave do canal de WhatsApp (Z-API). Gravada só pelo servidor. */
+  whatsapp_channel_key?: string;
   /** Já concluiu o onboarding (DNA da Clínica). */
   onboarded: boolean;
 };
@@ -46,6 +48,9 @@ export type HistoricoItem = {
   respostas: string[];
   created_at: string;
   favorito?: boolean;
+  intent?: string;
+  sentiment?: string;
+  score?: number;
 };
 
 export type GerarInput = {
@@ -86,4 +91,40 @@ export type FollowUpInput = {
   tom: string;
   nomeCliente?: string;
   clinica?: Partial<Clinica>;
+};
+
+// ---------------- Inbox / Conversas (Fase 1) ----------------
+
+/** Prioridade do lead (derivada do score). */
+export type Prioridade = "quente" | "morno" | "frio";
+
+/** Uma mensagem dentro de uma conversa. */
+export type MensagemConversa = {
+  id: string;
+  /** "in" = a cliente mandou; "out" = a clínica respondeu. */
+  direcao: "in" | "out";
+  texto: string;
+  /** ISO. */
+  em: string;
+};
+
+/** Conversa = um cliente conversando com uma clínica (1 por número). */
+export type Conversa = {
+  id: string;
+  /** uid da clínica dona (isolamento multi-clínica). */
+  clinica_id: string;
+  cliente_numero: string;
+  cliente_nome?: string;
+  ultima_mensagem: string;
+  /** ISO. */
+  ultima_atividade: string;
+  prioridade: Prioridade;
+  score?: number;
+  intent?: string;
+  sentiment?: string;
+  /** Há mensagem da cliente que a clínica ainda não viu/respondeu. */
+  nao_lida: boolean;
+  arquivada?: boolean;
+  /** ISO. */
+  created_at: string;
 };

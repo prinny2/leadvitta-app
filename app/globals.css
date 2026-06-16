@@ -10,27 +10,73 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Gradiente suave de fundo (creme) */
 .bg-soft {
   background: linear-gradient(180deg, #fbf9f3 0%, #f5f0e4 100%);
 }
 
-/* Hero claro com brilhos verde + dourado */
 .bg-hero {
   background:
-    radial-gradient(1200px 500px at 12% -10%, rgba(14, 58, 48, 0.10), transparent 60%),
-    radial-gradient(1000px 520px at 100% 0%, rgba(189, 146, 57, 0.14), transparent 55%),
+    radial-gradient(1200px 500px at 12% -10%, rgba(14, 58, 48, 0.12), transparent 60%),
+    radial-gradient(1000px 520px at 100% 0%, rgba(205, 163, 71, 0.18), transparent 55%),
     #fbf9f3;
 }
 
-/* Banda escura da marca (verde-escuro + brilho dourado) */
 .bg-brand-dark {
   background:
-    radial-gradient(800px 420px at 82% 0%, rgba(205, 163, 71, 0.14), transparent 60%),
+    radial-gradient(800px 420px at 82% 0%, rgba(205, 163, 71, 0.16), transparent 60%),
     #0e3a30;
 }
 
-/* Scrollbar discreta dourada */
+.glass-card {
+  @apply border border-white/20 bg-white/40 backdrop-blur-xl;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #e5c47b 0%, #cda347 45%, #b8860b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* CTA principal — dourado que converte */
+.btn-cta {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gold-500 px-6 py-3 text-base font-semibold text-brand-900 shadow-cta transition-all;
+}
+.btn-cta:hover {
+  @apply bg-gold-400 scale-[1.02];
+}
+.btn-cta:active {
+  @apply scale-[0.98];
+}
+
+/* CTA secundário — contorno verde */
+.btn-cta-outline {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-brand-200 bg-white/80 px-6 py-3 text-base font-semibold text-brand-600 transition-all hover:border-brand-400 hover:bg-white;
+}
+
+/* Badge de gancho de dor */
+.badge-pain {
+  @apply inline-flex items-center gap-1.5 rounded-full bg-pain-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-pain-600;
+}
+
+/* Card de dor — visual rápido */
+.card-pain {
+  @apply rounded-2xl border border-pain-200 bg-pain-50/60 p-4 shadow-sm;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 6s ease-in-out infinite 3s;
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: #cda347 transparent;

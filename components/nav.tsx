@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
+  Inbox,
   Sparkles,
   MessagesSquare,
   Send,
@@ -20,6 +21,8 @@ import { Logo } from "@/components/logo";
 
 const links = [
   { href: "/dashboard", label: "Início", icon: Home },
+  // "Conversas" volta ao menu quando o WhatsApp da clínica estiver integrado
+  // (a rota /conversas continua existindo).
   { href: "/gerador", label: "Gerador", icon: Sparkles },
   { href: "/objecoes", label: "Objeções", icon: MessagesSquare },
   { href: "/follow-up", label: "Follow-up", icon: Send },
@@ -39,7 +42,7 @@ function useLogout() {
       } catch {
         /* ignora */
       }
-      router.push("/login");
+      router.push("/onboarding");
     } else {
       router.push("/");
     }

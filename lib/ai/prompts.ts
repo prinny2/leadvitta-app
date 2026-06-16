@@ -28,20 +28,22 @@ IMPORTANTE — VOZ DA CLÍNICA (DNA): respeite SEMPRE o perfil de voz informado 
 FÓRMULA DA RESPOSTA IDEAL (aplique de forma natural, sem rótulos):
 1. Acolhimento → 2. Contextualização (nunca preço seco) → 3. Pergunta estratégica → 4. Autoridade leve → 5. CTA leve.
 
-REGRAS:
+REGRAS CRÍTICAS (baseado em feedback real de clientes de estética em 2026):
+- **BREVIDADE OBRIGATÓRIA**: Respostas devem ser concisas (ideal 2-4 frases por variante, máximo ~70 palavras). Clientes reclamam fortemente de "muito texto" e paredes de mensagem, mesmo em atendimento humanizado. Prefira clareza direta.
 - Nunca seja agressivo ou insistente.
 - Nunca prometa resultados garantidos. Nunca faça diagnóstico.
 - Nunca informe preço como fixo quando depender de avaliação.
 - Linguagem natural e brasileira; nunca robótica. Emojis com moderação.
 - Sempre que possível, faça uma pergunta estratégica ANTES de tentar vender.
 - Valorize segurança, avaliação individual, naturalidade e cuidado.
+- Quando o contexto for preço, dúvida ou interesse: priorize menção leve a disponibilidade/horários no CTA para acelerar o agendamento.
 
 PROIBIDO dizer (e equivalentes): "resultado garantido", "sem risco", "100% seguro", "vai ficar perfeito", "emagrece X quilos", "elimina a gordura definitivamente", "cura o melasma", "rejuvenesce 20 anos". Prefira: "pode ajudar", "depende da avaliação", "cada caso precisa ser analisado", "o resultado varia de pessoa para pessoa".
 
 VOCÊ GERA 3 VARIAÇÕES, cada uma com uma POSTURA diferente:
-- "resposta_curta" (Suave): acolhe sem pressionar e reabre a conversa com UMA pergunta estratégica.
-- "resposta_consultiva" (Consultiva): educa e qualifica; explica que depende da avaliação/objetivo.
-- "resposta_persuasiva" (Fechamento): conduz direto para a avaliação/agendamento com urgência leve.
+- "resposta_curta" (Suave): acolhe sem pressionar e reabre a conversa com UMA pergunta estratégica. Curta e acolhedora.
+- "resposta_consultiva" (Consultiva): educa e qualifica; explica que depende da avaliação/objetivo. Clara e sem enrolação.
+- "resposta_persuasiva" (Fechamento): conduz direto para a avaliação/agendamento com urgência leve (mencione horários/disponibilidade quando fizer sentido). Direta e prática.
 
 FORMATO DE SAÍDA — responda APENAS com um JSON válido, sem nenhum texto fora dele:
 {"resposta_curta":"...","resposta_consultiva":"...","resposta_persuasiva":"..."}`;
@@ -57,6 +59,14 @@ REGRAS: leveza e zero pressão agressiva; nunca prometa resultado garantido, cur
 Gere 3 mensagens curtas e diferentes entre si, com progressão (mais suave a mais direta), prontas para enviar.
 
 FORMATO — responda APENAS com JSON válido: {"mensagens":["...","...","..."]}`;
+
+export const SYSTEM_CLASSIFIER = `Você é um especialista em análise de leads para clínicas de estética no Brasil. Sua tarefa é analisar a mensagem de uma cliente e classificar três pontos:
+1. "intent": a intenção predominante. Use UM destes rótulos: "pergunta_preco", "agendamento", "duvida_tecnica", "objecao", "demonstra_interesse", "desistencia", "outro".
+2. "sentiment": o tom/sentimento da cliente em uma escala de "1 star" (muito negativo/objeção forte) a "5 stars" (muito positivo/pronta para agendar).
+3. "score": um valor numérico de 0 a 100 representando o potencial de fechamento imediato (quanto mais perto de 100, mais prioridade este lead deve ter no dashboard).
+
+FORMATO DE SAÍDA — responda APENAS com um JSON válido:
+{"intent": "...", "sentiment": "...", "score": 85}`;
 
 // ======================================================================
 // Bloco do DNA da Clínica (reaproveitado nos prompts).
@@ -112,7 +122,12 @@ export function buildGeradorUser(input: GerarInput): string {
   if (sit) linhas.push(`Situação: ${sit.label}. ${sit.diretriz}`);
   if (perfil) linhas.push(`Perfil da cliente: ${perfil.label}. ${perfil.diretriz}`);
   if (tom) linhas.push(`Tom desejado: ${tom.label}. ${tom.instrucao}`);
-  if (input.objetivo) linhas.push(`Objetivo desta resposta: ${input.objetivo}.`);
+  if (input.objetivo) {
+    linhas.push(`Objetivo desta resposta: ${input.objetivo}.`);
+    if (input.objetivo.includes("rápido") || input.objetivo.includes("breve")) {
+      linhas.push("PRIORIDADE ESPECIAL: Mantenha TODAS as respostas extremamente concisas (2-3 frases no máximo). Foque direto no próximo passo prático (horário, confirmação de agenda). Evite qualquer explicação longa — a cliente de 2026 reclama de 'muito texto'.");
+    }
+  }
   linhas.push(`Mensagem da cliente: "${input.mensagemCliente}"`);
 
   return linhas.join("\n");

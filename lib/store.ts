@@ -16,8 +16,15 @@ import {
   orderBy,
   limit,
   updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
-import { clinicaVazia, type Clinica, type HistoricoItem } from "@/lib/types";
+import {
+  clinicaVazia,
+  type Clinica,
+  type HistoricoItem,
+  type Conversa,
+  type MensagemConversa,
+} from "@/lib/types";
 
 const LS_CLINICA = "re_clinica";
 const LS_HISTORICO = "re_historico";
@@ -51,15 +58,36 @@ export async function saveClinica(c: Clinica): Promise<void> {
   if (isFirebaseConfigured) {
     const user = getFirebaseAuth().currentUser;
     if (!user) throw new Error("Não autenticado");
+    // `whatsapp` e `whatsapp_channel_key` são só-servidor (conexão do número é
+    // pela API /api/clinica/whatsapp, com unicidade). O cliente não os grava.
+    const { whatsapp: _w, whatsapp_channel_key: _k, ...resto } = c;
+    void _w;
+    void _k;
     await setDoc(
       doc(getFirebaseDb(), "clinicas", user.uid),
-      { ...c, updated_at: new Date().toISOString() },
+      { ...resto, updated_at: new Date().toISOString() },
       { merge: true }
     );
     return;
   }
   if (typeof window === "undefined") return;
   window.localStorage.setItem(LS_CLINICA, JSON.stringify(c));
+}
+
+/**
+ * Guarda o token de Web Push (FCM) do dispositivo na clínica do usuário.
+ * Só funciona com Firebase; em modo demonstração é um no-op silencioso.
+ * As regras permitem este update (não toca em `billing`/`whatsapp`).
+ */
+export async function saveFcmToken(token: string): Promise<void> {
+  if (!isFirebaseConfigured) return;
+  const user = getFirebaseAuth().currentUser;
+  if (!user || !token) return;
+  await setDoc(
+    doc(getFirebaseDb(), "clinicas", user.uid),
+    { fcm_tokens: arrayUnion(token), updated_at: new Date().toISOString() },
+    { merge: true }
+  );
 }
 
 // ---------------- Histórico ----------------
@@ -82,7 +110,7 @@ export async function listHistorico(): Promise<HistoricoItem[]> {
 }
 
 export async function addHistorico(
-  item: Pick<HistoricoItem, "tipo" | "contexto" | "respostas">
+  item: Pick<HistoricoItem, "tipo" | "contexto" | "respostas" | "intent" | "sentiment" | "score">
 ): Promise<void> {
   if (isFirebaseConfigured) {
     const user = getFirebaseAuth().currentUser;
@@ -124,4 +152,65 @@ export async function toggleFavorito(
   const list = await listHistorico();
   const atualizado = list.map((i) => (i.id === id ? { ...i, favorito } : i));
   window.localStorage.setItem(LS_HISTORICO, JSON.stringify(atualizado));
+}
+
+// ---------------- Conversas (inbox) ----------------
+// Só funcionam com Firebase (as conversas vêm do WhatsApp via servidor).
+
+export async function listConversas(): Promise<Conversa[]> {
+  if (!isFirebaseConfigured) return [];
+  const user = getFirebaseAuth().currentUser;
+  if (!user) return [];
+  const q = query(
+    collection(getFirebaseDb(), "conversas"),
+    where("clinica_id", "==", user.uid),
+    orderBy("ultima_atividade", "desc"),
+    limit(100)
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Conversa));
+}
+
+export async function getConversa(id: string): Promise<Conversa | null> {
+  if (!isFirebaseConfigured) return null;
+  if (!getFirebaseAuth().currentUser) return null;
+  const snap = await getDoc(doc(getFirebaseDb(), "conversas", id));
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...snap.data() } as Conversa;
+}
+
+export async function getMensagens(conversaId: string): Promise<MensagemConversa[]> {
+  if (!isFirebaseConfigured) return [];
+  const user = getFirebaseAuth().currentUser;
+  if (!user) return [];
+  const q = query(
+    collection(getFirebaseDb(), "conversas", conversaId, "mensagens"),
+    orderBy("em", "asc"),
+    limit(500)
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const x = d.data() as Record<string, unknown>;
+    return {
+      id: d.id,
+      direcao: x.direcao as "in" | "out",
+      texto: (x.texto as string) ?? "",
+      em: (x.em as string) ?? "",
+    };
+  });
+}
+
+export async function marcarConversaLida(conversaId: string): Promise<void> {
+  if (!isFirebaseConfigured) return;
+  if (!getFirebaseAuth().currentUser) return;
+  await updateDoc(doc(getFirebaseDb(), "conversas", conversaId), { nao_lida: false });
+}
+
+export async function arquivarConversa(
+  conversaId: string,
+  arquivada: boolean
+): Promise<void> {
+  if (!isFirebaseConfigured) return;
+  if (!getFirebaseAuth().currentUser) return;
+  await updateDoc(doc(getFirebaseDb(), "conversas", conversaId), { arquivada });
 }

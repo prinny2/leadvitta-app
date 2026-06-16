@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import Stripe from "stripe";
 import {
   getBillingPlan,
@@ -27,29 +27,50 @@ function getBaseUrl(request: Request) {
 }
 
 export async function POST(request: Request) {
-  let body: CheckoutBody;
-  try {
-    body = (await request.json()) as CheckoutBody;
-  } catch {
-    return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
-  }
+  const originError = rejectCrossOriginRequest(request);
+  if (originError) return originError;
+
+  const rateLimitError = enforceRateLimit(request, {
+    bucket: "stripe-checkout",
+    limit: 10,
+    windowMs: 10 * 60_000,
+  });
+  if (rateLimitError) return rateLimitError;
+
+  const parsed = await readJsonBody<CheckoutBody>(request, 8_192);
+  if (parsed.error) return parsed.error;
+
+  const body = parsed.data ?? {};
 
   const plan = parseBillingPlan(body.plan);
   if (!plan) {
-    return NextResponse.json({ error: "Plano inválido." }, { status: 400 });
+    return jsonNoStore({ error: "Plano inválido." }, { status: 400 });
   }
 
   const planConfig = getBillingPlan(plan);
+  if (!planConfig.disponivel) {
+    return jsonNoStore(
+      { error: "Esse plano ainda não está disponível — entre na lista de espera." },
+      { status: 400 }
+    );
+  }
   if (!planConfig.priceId) {
-    return NextResponse.json(
-      { error: `STRIPE_PRICE_ID_${plan.toUpperCase()} não configurado.` },
+    console.error(
+      `[stripe.checkout] STRIPE_PRICE_ID_${plan.toUpperCase()} não configurado.`
+    );
+    return jsonNoStore(
+      {
+        error:
+          "Checkout indisponível para este plano no momento. Fale com o suporte.",
+      },
       { status: 503 }
     );
   }
 
   if (!isStripeConfigured) {
-    return NextResponse.json(
-      { error: "Stripe não está configurado neste ambiente." },
+    console.error("[stripe.checkout] Stripe não configurado neste ambiente.");
+    return jsonNoStore(
+      { error: "Checkout indisponível no momento. Fale com o suporte." },
       { status: 503 }
     );
   }
@@ -60,7 +81,7 @@ export async function POST(request: Request) {
     (typeof body.customerEmail === "string" ? body.customerEmail : undefined);
   const firebaseUid = decodedToken?.uid;
   const metadata = {
-    app: "leadvitta",
+    app: "leadbellus",
     plan,
     firebase_uid: firebaseUid ?? "",
     firebase_email: customerEmail ?? "",
@@ -68,11 +89,17 @@ export async function POST(request: Request) {
 
   const checkoutMode = getStripeCheckoutMode();
   const baseUrl = getBaseUrl(request);
+  const successPath = firebaseUid
+    ? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"
+    : "/onboarding?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}";
+  const cancelPath = firebaseUid
+    ? "/configuracoes?checkout=cancelado"
+    : "/onboarding?aba=planos&checkout=cancelado";
   const params: Stripe.Checkout.SessionCreateParams = {
     mode: checkoutMode,
     line_items: [{ price: planConfig.priceId, quantity: 1 }],
-    success_url: `${baseUrl}/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}/configuracoes?checkout=cancelado`,
+    success_url: `${baseUrl}${successPath}`,
+    cancel_url: `${baseUrl}${cancelPath}`,
     allow_promotion_codes: true,
     client_reference_id: firebaseUid,
     customer_email: customerEmail,
@@ -94,10 +121,10 @@ export async function POST(request: Request) {
       email: customerEmail,
     });
 
-    return NextResponse.json({ url: session.url });
+    return jsonNoStore({ url: session.url });
   } catch (err) {
     console.error("[stripe.checkout] erro ao criar sessão", err);
-    return NextResponse.json(
+    return jsonNoStore(
       { error: "Não foi possível iniciar o checkout." },
       { status: 500 }
     );
