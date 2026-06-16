@@ -8,7 +8,7 @@ import {
 import { isStripeConfigured, siteUrl } from "@/lib/config";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { getStripe } from "@/lib/stripe/server";
-import { sendZapierEvent } from "@/lib/zapier";
+import { sendOpsNotify } from "@/lib/ops-notify";
 
 export const runtime = "nodejs";
 
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
 
   try {
     const session = await getStripe().checkout.sessions.create(params);
-    await sendZapierEvent("checkout.started", {
+    await sendOpsNotify("checkout.started", {
       plan,
       stripe_session_id: session.id,
       firebase_uid: firebaseUid,
