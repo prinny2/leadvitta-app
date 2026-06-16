@@ -137,9 +137,15 @@ export default function ConversasPage() {
                 )}
               >
                 <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-lg">
-                  {prio.emoji}
+                  <span aria-hidden="true">{prio.emoji}</span>
                   {c.nao_lida && (
-                    <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-brand-500" />
+                    <>
+                      <span
+                        className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-brand-500"
+                        aria-hidden="true"
+                      />
+                      <span className="sr-only">Não lida</span>
+                    </>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
