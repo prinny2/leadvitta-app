@@ -193,7 +193,7 @@ export default function FollowUpPage() {
                     {/* Card */}
                     <div className={cn(
                       "flex-1 rounded-2xl border p-4",
-                      isGold ? "border-gold-200 bg-gradient-to-br from-white to-gold-50/40" : "border-navy-500 bg-navy-700"
+                      isGold ? "border-gold-500/40 bg-gradient-to-br from-navy-700 to-navy-800" : "border-navy-500 bg-navy-700"
                     )}>
                       <div className="mb-2 flex items-start justify-between gap-2">
                         <div>

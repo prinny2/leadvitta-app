@@ -56,7 +56,7 @@ const VARIANTES: {
     num: "02",
     titulo: "Consultiva",
     descricao: "Educa, qualifica e posiciona autoridade.",
-    cor: "border-gold-200 bg-gradient-to-br from-white to-gold-50/40",
+    cor: "border-gold-500/40 bg-gradient-to-br from-navy-700 to-navy-800",
     badge: "bg-gold-500 text-navy-900",
   },
   {

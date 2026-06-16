@@ -101,3 +101,9 @@ body {
   background: rgba(185, 28, 28, 0.2);
   color: #FCA5A5;
 }
+
+/* ── Card de dor (tiles "onde o dinheiro vaza") ── */
+.card-pain {
+  background: rgba(217, 79, 58, 0.08);
+  border: 1px solid rgba(217, 79, 58, 0.25);
+}

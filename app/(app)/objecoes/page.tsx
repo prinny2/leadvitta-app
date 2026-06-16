@@ -82,7 +82,7 @@ export default function ObjecoesPage() {
 
       {/* ── ESTANTE ── */}
       {!aberto && (
-        <div className={cn("transition-all duration-350", abrindo && "opacity-0 scale-95 pointer-events-none")}>
+        <div className={cn("transition-all duration-300", abrindo && "opacity-0 scale-95 pointer-events-none")}>
 
           {/* Alcova de madeira */}
           <div
