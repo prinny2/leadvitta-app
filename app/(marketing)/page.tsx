@@ -6,6 +6,7 @@ import { PlanCTA } from "@/components/plan-cta";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
+import { HeroDevices } from "@/components/hero-devices";
 
 const funilHref = "/signup";
 
@@ -220,157 +221,147 @@ export default function LandingPage() {
         style={{
           background: "#07101e",
           color: "#ffffff",
-          padding: "80px 24px 100px",
-          textAlign: "center",
+          padding: "72px 24px 80px",
           position: "relative",
           overflow: "hidden",
         }}
       >
         {/* Glow orbs */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-60px",
-            left: "-80px",
-            width: "400px",
-            height: "400px",
-            background: "radial-gradient(circle, rgba(201,160,96,0.12) 0%, transparent 70%)",
-            pointerEvents: "none",
+        <div style={{ position: "absolute", top: "-80px", left: "-100px", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(201,160,96,0.10) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "-60px", right: "-80px", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(201,160,96,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "30%", right: "10%", width: "300px", height: "300px", background: "radial-gradient(circle, rgba(96,160,201,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+        <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}>
+          {/* Two-column layout: text left, devices right */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "48px",
+            alignItems: "center",
           }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: "-60px",
-            right: "-80px",
-            width: "400px",
-            height: "400px",
-            background: "radial-gradient(circle, rgba(201,160,96,0.08) 0%, transparent 70%)",
-            pointerEvents: "none",
-          }}
-        />
-
-        <div style={{ maxWidth: "780px", margin: "0 auto", position: "relative" }}>
-          {/* Tag pill */}
-          <TagPill>
-            ↘ Clínicas de estética perdem em média R$8 mil/mês respondendo errado no WhatsApp
-          </TagPill>
-
-          {/* Headline */}
-          <h1
-            style={{
-              fontFamily: "var(--font-fraunces, Georgia, serif)",
-              fontSize: "clamp(48px, 8vw, 80px)",
-              fontWeight: 700,
-              lineHeight: 1.05,
-              margin: "0 0 28px",
-              letterSpacing: "-0.02em",
-            }}
+            className="hero-grid"
           >
-            Ela sumiu.
-            <br />
-            E não foi
-            <br />
-            <span style={{ color: "#C9A060" }}>pelo preço.</span>
-          </h1>
+            {/* Left — copy */}
+            <div>
+              <TagPill>
+                ↘ Clínicas perdem em média R$8 mil/mês respondendo errado no WhatsApp
+              </TagPill>
 
-          {/* Sub */}
-          <p
-            style={{
-              fontSize: "18px",
-              lineHeight: 1.7,
-              color: "rgba(255,255,255,0.75)",
-              maxWidth: "560px",
-              margin: "0 auto 40px",
-            }}
-          >
-            Foi a resposta que não criou valor nenhum. O LeadBellus te dá a
-            resposta certa — pronta pra copiar e colar — antes que a cliente
-            esfrie. No seu tom, sem parecer robô.
-          </p>
-
-          {/* CTAs */}
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "16px",
-              justifyContent: "center",
-              marginBottom: "24px",
-            }}
-          >
-            <Link
-              href={funilHref}
-              style={{
-                background: "#C9A060",
-                color: "#07101e",
-                borderRadius: "9999px",
-                padding: "16px 32px",
-                fontSize: "16px",
-                fontWeight: 700,
-                textDecoration: "none",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
-              Ver minha resposta em 1 min →
-            </Link>
-            <a
-              href="#demo"
-              style={{
-                border: "1.5px solid rgba(201,160,96,0.5)",
-                color: "#C9A060",
-                borderRadius: "9999px",
-                padding: "16px 32px",
-                fontSize: "16px",
-                fontWeight: 600,
-                textDecoration: "none",
-              }}
-            >
-              Ver exemplo real abaixo ↓
-            </a>
-          </div>
-
-          {/* Micro-copy */}
-          <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.45)", marginBottom: "48px" }}>
-            Sem cartão pra testar · Pronto no celular · Feito para clínicas de estética
-          </p>
-
-          {/* 4 mini feature cards */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-              gap: "12px",
-            }}
-          >
-            {[
-              { icon: "💬", label: "Respostas estratégicas" },
-              { icon: "🔄", label: "Follow-ups inteligentes" },
-              { icon: "🛡️", label: "Objeções respondidas" },
-              { icon: "📅", label: "Mais agendamentos" },
-            ].map((f) => (
-              <div
-                key={f.label}
+              <h1
                 style={{
-                  background: "#0f1b2f",
-                  border: "1px solid rgba(201,160,96,0.2)",
-                  borderRadius: "16px",
-                  padding: "16px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
+                  fontFamily: "var(--font-fraunces, Georgia, serif)",
+                  fontSize: "clamp(40px, 5vw, 68px)",
+                  fontWeight: 700,
+                  lineHeight: 1.05,
+                  margin: "0 0 24px",
+                  letterSpacing: "-0.02em",
                 }}
               >
-                <span style={{ fontSize: "20px" }}>{f.icon}</span>
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>
-                  {f.label}
-                </span>
+                Ela sumiu.
+                <br />
+                E não foi
+                <br />
+                <span style={{ color: "#C9A060" }}>pelo preço.</span>
+              </h1>
+
+              <p
+                style={{
+                  fontSize: "17px",
+                  lineHeight: 1.75,
+                  color: "rgba(255,255,255,0.72)",
+                  maxWidth: "480px",
+                  margin: "0 0 36px",
+                }}
+              >
+                Foi a resposta que não criou valor nenhum. O LeadBellus te dá a
+                resposta certa — pronta pra copiar e colar — antes que a cliente
+                esfrie. No seu tom, sem parecer robô.
+              </p>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", marginBottom: "20px" }}>
+                <Link
+                  href={funilHref}
+                  style={{
+                    background: "#C9A060",
+                    color: "#07101e",
+                    borderRadius: "9999px",
+                    padding: "15px 30px",
+                    fontSize: "15px",
+                    fontWeight: 700,
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  Ver minha resposta em 1 min →
+                </Link>
+                <a
+                  href="#demo"
+                  style={{
+                    border: "1.5px solid rgba(201,160,96,0.5)",
+                    color: "#C9A060",
+                    borderRadius: "9999px",
+                    padding: "15px 28px",
+                    fontSize: "15px",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                  }}
+                >
+                  Ver demo ↓
+                </a>
               </div>
-            ))}
+
+              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)", marginBottom: "40px" }}>
+                Sem cartão pra testar · Pronto no celular · Feito para clínicas de estética
+              </p>
+
+              {/* 4 mini feature pills */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                {[
+                  { icon: "💬", label: "Respostas estratégicas" },
+                  { icon: "🔄", label: "Follow-ups" },
+                  { icon: "🛡️", label: "Objeções" },
+                  { icon: "🧠", label: "Lead Intelligence" },
+                ].map((f) => (
+                  <div
+                    key={f.label}
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(201,160,96,0.15)",
+                      borderRadius: "9999px",
+                      padding: "7px 14px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <span style={{ fontSize: "14px" }}>{f.icon}</span>
+                    <span style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.75)" }}>
+                      {f.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right — animated device mockups */}
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", paddingTop: "32px" }}>
+              <HeroDevices />
+            </div>
           </div>
         </div>
+
+        <style>{`
+          @media (max-width: 768px) {
+            .hero-grid {
+              grid-template-columns: 1fr !important;
+              text-align: center;
+            }
+            .hero-grid > div:first-child > p { margin-left: auto; margin-right: auto; }
+            .hero-grid > div:first-child > div { justify-content: center; }
+          }
+        `}</style>
       </section>
 
       {/* ── DEMO ─────────────────────────────────────────────────────────────── */}
