@@ -15,11 +15,18 @@ function SignupInner() {
   const sessionId = params.get("session_id");
 
   // Guest checkout: o pagamento acontece antes da conta existir e o Stripe
-  // devolve aqui. Dispara o purchase (como /configuracoes faz pós-login).
+  // devolve aqui. Dispara o purchase (como /configuracoes faz pós-login),
+  // uma única vez por session_id — refresh/revisita da URL não reconta.
   useEffect(() => {
-    if (checkoutSucesso) {
-      trackEvent("purchase", { stripe_session_id: sessionId });
+    if (!checkoutSucesso) return;
+    const key = `lb_purchase_${sessionId ?? "sem_sessao"}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, "1");
+    } catch {
+      // localStorage indisponível: dispara mesmo assim
     }
+    trackEvent("purchase", { stripe_session_id: sessionId });
   }, [checkoutSucesso, sessionId]);
 
   return (
