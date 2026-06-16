@@ -24,10 +24,14 @@
     "node_modules",
     "prinny2",
     "**/* - Copia/**",
+    ".claude - Copia/**",
     ".codex/**",
     ".codesight/**",
     ".qodo/**",
     ".snapshots/**",
-    "conductor/**"
+    "conductor/**",
+    "vitest.config.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }

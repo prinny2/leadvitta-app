@@ -5,7 +5,6 @@ import {
   Sparkles,
   Wand2,
   Loader2,
-  Info,
   MessageSquareText,
   RefreshCw,
   Save,
@@ -17,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { CopyButton } from "@/components/copy-button";
 import { ResponseCard } from "@/components/response-card";
 import { AvisoIA } from "@/components/aviso-ia";
 import { LoadingRespostas } from "@/components/loading-respostas";
@@ -31,7 +29,7 @@ import { objetivoOptions, oQueMelhorarOptions } from "@/data/opcoes";
 import { addHistorico } from "@/lib/store";
 import { useClinica } from "@/lib/hooks/use-clinica";
 import { cn } from "@/lib/utils";
-import type { Clinica, RespostaTripla, Variante } from "@/lib/types";
+import type { RespostaTripla, Variante } from "@/lib/types";
 
 const procOptions = procedimentos.map((p) => ({ value: p.id, label: p.label }));
 const sitOptions = situacoes.map((s) => ({ value: s.id, label: s.label }));
@@ -48,6 +46,27 @@ const VARIANTES: {
   { key: "consultiva", titulo: "Resposta Consultiva", descricao: "Educa, qualifica e posiciona autoridade.", accent: "lavender" },
   { key: "persuasiva", titulo: "Resposta de Fechamento", descricao: "Conduz direto para a avaliação/agendamento.", accent: "brand" },
 ];
+
+const fieldClass =
+  "border-navy-500 bg-navy-800 text-champagne-300 placeholder:text-navy-100/60 focus:border-gold-500/50 focus:ring-gold-500/20";
+const labelClass = "text-champagne-400";
+
+async function readApiJson<T>(
+  response: Response
+): Promise<T> {
+  const text = await response.text();
+  if (!text) return {} as T;
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return {
+      error: response.ok
+        ? "O backend respondeu em um formato inesperado."
+        : "O backend retornou uma falha sem JSON válido.",
+    } as unknown as T;
+  }
+}
 
 export default function GeradorPage() {
   const { clinica } = useClinica();
@@ -141,9 +160,21 @@ export default function GeradorPage() {
           clinica: dnaPayload(),
         }),
       });
-      const data = await res.json();
+      const data = await readApiJson<{
+        respostas?: RespostaTripla;
+        mock?: boolean;
+        aviso?: string;
+        intent?: string;
+        sentiment?: string;
+        score?: number;
+        error?: string;
+      }>(res);
       if (!res.ok) {
         setErro(data.error || "Não foi possível gerar agora.");
+        return;
+      }
+      if (!data.respostas) {
+        setErro(data.error || "O backend não retornou as 3 respostas.");
         return;
       }
       setRespostas(data.respostas);
@@ -184,13 +215,15 @@ export default function GeradorPage() {
           clinica: dnaPayload(),
         }),
       });
-      const data = await res.json();
+      const data = await readApiJson<{ texto?: string; error?: string; aviso?: string }>(res);
       if (res.ok && data.texto) {
         setRespostas((prev) => (prev ? { ...prev, [variante]: data.texto } : prev));
         setSalvo(false);
+      } else if (data.error || data.aviso) {
+        setAviso(data.error || data.aviso || "");
       }
     } catch {
-      /* silencioso */
+      setAviso("Não consegui melhorar essa resposta agora. A versão atual foi mantida.");
     } finally {
       setRefinando(null);
     }
@@ -198,37 +231,44 @@ export default function GeradorPage() {
 
   async function salvar() {
     if (!respostas) return;
-    await addHistorico({
-      tipo: modo === "reescrever" ? "reescrever" : "gerador",
-      contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
-      respostas: [respostas.curta, respostas.consultiva, respostas.persuasiva],
-      intent: nlp?.intent,
-      sentiment: nlp?.sentiment,
-      score: nlp?.score,
-    });
-    setSalvo(true);
-    setTimeout(() => setSalvo(false), 2500);
+    setErro("");
+    try {
+      await addHistorico({
+        tipo: modo === "reescrever" ? "reescrever" : "gerador",
+        contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
+        respostas: [respostas.curta, respostas.consultiva, respostas.persuasiva],
+        intent: nlp?.intent,
+        sentiment: nlp?.sentiment,
+        score: nlp?.score,
+      });
+      setSalvo(true);
+      setTimeout(() => setSalvo(false), 2500);
+    } catch {
+      setErro("Não consegui salvar no histórico agora. As respostas continuam na tela para copiar.");
+    }
   }
 
   return (
-    <div>
-      <header className="mb-6">
-        <h1 className="font-serif text-3xl font-semibold text-ink">
+    <div className="space-y-6 animate-fade-in">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+        <h1 className="font-serif text-3xl font-semibold text-champagne-300">
           Gerador de Respostas
         </h1>
-        <p className="text-sm text-muted">
+        <p className="mt-1 text-sm text-navy-100">
           Cole a mensagem da cliente e receba 3 respostas estratégicas — já no
           tom da sua clínica.
         </p>
+        </div>
       </header>
 
-      <div className="mb-6 inline-flex rounded-xl bg-nude-100 p-1">
+      <div className="inline-flex rounded-xl bg-navy-700 p-1 shadow-sm">
         <button
           type="button"
           onClick={() => setModo("gerar")}
           className={cn(
-            "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-            modo === "gerar" ? "bg-white text-brand-600 shadow-sm" : "text-muted hover:text-ink"
+            "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all",
+            modo === "gerar" ? "bg-navy-800 text-gold-400 shadow-sm" : "text-navy-100 hover:text-champagne-300"
           )}
         >
           <Sparkles size={16} /> Gerar resposta
@@ -237,54 +277,57 @@ export default function GeradorPage() {
           type="button"
           onClick={() => setModo("reescrever")}
           className={cn(
-            "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-            modo === "reescrever" ? "bg-white text-brand-600 shadow-sm" : "text-muted hover:text-ink"
+            "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all",
+            modo === "reescrever" ? "bg-navy-800 text-gold-400 shadow-sm" : "text-navy-100 hover:text-champagne-300"
           )}
         >
-          <Wand2 size={16} /> Reescrever minha mensagem
+          <Wand2 size={16} /> Reescrever mensagem
         </button>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Formulário */}
-        <Card>
+        <Card className="border-navy-500 bg-navy-700">
           <CardBody className="space-y-4">
+            <p className="text-xs font-bold uppercase tracking-wider text-gold-400">
+              Contexto da conversa
+            </p>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="nome">Nome da cliente (opcional)</Label>
-                <Input id="nome" value={nomeCliente} onChange={(e) => setNomeCliente(e.target.value)} placeholder="Ex.: Ana" />
+                <Label htmlFor="nome" className={labelClass}>Nome da cliente (opcional)</Label>
+                <Input id="nome" value={nomeCliente} onChange={(e) => setNomeCliente(e.target.value)} placeholder="Ex.: Ana" className={fieldClass} />
               </div>
               <div>
-                <Label htmlFor="proc">Procedimento</Label>
-                <Select id="proc" value={procedimento} onChange={setProcedimento} options={procOptions} placeholder="Selecione..." />
+                <Label htmlFor="proc" className={labelClass}>Procedimento</Label>
+                <Select id="proc" value={procedimento} onChange={setProcedimento} options={procOptions} placeholder="Selecione..." className={fieldClass} />
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="sit">Situação</Label>
-                <Select id="sit" value={situacao} onChange={setSituacao} options={sitOptions} />
+                <Label htmlFor="sit" className={labelClass}>Situação</Label>
+                <Select id="sit" value={situacao} onChange={setSituacao} options={sitOptions} className={fieldClass} />
               </div>
               <div>
-                <Label htmlFor="perfil">Perfil da cliente (opcional)</Label>
-                <Select id="perfil" value={perfilCliente} onChange={setPerfilCliente} options={perfilOptions} placeholder="Não sei / tanto faz" />
+                <Label htmlFor="perfil" className={labelClass}>Perfil da cliente (opcional)</Label>
+                <Select id="perfil" value={perfilCliente} onChange={setPerfilCliente} options={perfilOptions} placeholder="Não sei / tanto faz" className={fieldClass} />
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="tom">Tom da resposta</Label>
-                <Select id="tom" value={tom} onChange={setTom} options={tomOptions} />
+                <Label htmlFor="tom" className={labelClass}>Tom da resposta</Label>
+                <Select id="tom" value={tom} onChange={setTom} options={tomOptions} className={fieldClass} />
               </div>
               <div>
-                <Label htmlFor="obj">Objetivo</Label>
-                <Select id="obj" value={objetivo} onChange={setObjetivo} options={objetivoOptions} />
+                <Label htmlFor="obj" className={labelClass}>Objetivo</Label>
+                <Select id="obj" value={objetivo} onChange={setObjetivo} options={objetivoOptions} className={fieldClass} />
               </div>
             </div>
 
             {modo === "reescrever" && (
               <div>
-                <Label>O que você quer melhorar? (opcional)</Label>
+                <Label className={labelClass}>O que você quer melhorar? (opcional)</Label>
                 <div className="flex flex-wrap gap-2">
                   {oQueMelhorarOptions.map((o) => (
                     <button
@@ -294,8 +337,8 @@ export default function GeradorPage() {
                       className={cn(
                         "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                         oQueMelhorar.includes(o.value)
-                          ? "border-brand-400 bg-brand-50 text-brand-600"
-                          : "border-brand-200 bg-white text-muted hover:bg-nude-100"
+                          ? "border-gold-500/40 bg-gold-500/10 text-gold-400"
+                          : "border-navy-500 bg-navy-800 text-navy-100 hover:bg-navy-600"
                       )}
                     >
                       {o.label}
@@ -306,7 +349,7 @@ export default function GeradorPage() {
             )}
 
             <div>
-              <Label htmlFor="msg">
+              <Label htmlFor="msg" className={labelClass}>
                 {modo === "reescrever" ? "Sua mensagem (vou deixar melhor)" : "Mensagem da cliente"}
               </Label>
               <Textarea
@@ -318,41 +361,50 @@ export default function GeradorPage() {
                     ? "Ex.: O botox é 900, quer marcar?"
                     : "Ex.: Oi, quanto tá o preenchimento labial?"
                 }
+                className={cn(fieldClass, "min-h-[100px]")}
               />
             </div>
 
-            {erro && <p className="text-sm text-red-600">{erro}</p>}
+            {erro && <p className="text-sm text-red-300">{erro}</p>}
 
-            <Button onClick={gerar} disabled={loading} size="lg" className="w-full">
+            <Button
+              onClick={gerar}
+              disabled={loading}
+              size="lg"
+              className="w-full bg-navy-800 text-gold-400 shadow-soft hover:-translate-y-0.5 hover:bg-navy-800 hover:shadow-cta"
+            >
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
-              {modo === "reescrever" ? "Melhorar mensagem" : "Gerar respostas"}
+              {modo === "reescrever" ? "Reescrever mensagem" : "Gerar 3 respostas"}
             </Button>
           </CardBody>
         </Card>
 
         {/* Resultados */}
         <div className="space-y-4">
-          <AvisoIA aviso={aviso} />
+          <AvisoIA
+            aviso={aviso}
+            className="border-gold-500/25 bg-gold-500/10 text-champagne-300"
+          />
 
-          {loading && <LoadingRespostas />}
+          {loading && <LoadingRespostas tone="dark" />}
 
           {!loading && nlp && (
-            <Card className="animate-fade-in border-brand-200 bg-gradient-to-br from-brand-50 to-lavender-50">
+            <Card className="animate-fade-in border-navy-500 bg-navy-700">
               <CardBody className="py-4">
-                <div className="mb-3 flex items-center gap-2 text-brand-700">
+                <div className="mb-3 flex items-center gap-2 text-gold-400">
                   <Sparkles size={16} />
                   <span className="text-xs font-bold uppercase tracking-wider">Lead Intelligence</span>
                 </div>
-                <LeadTermometro score={nlp.score} />
+                <LeadTermometro score={nlp.score} tone="dark" />
                 {(nlp.intent || nlp.sentiment) && (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {nlp.intent && (
-                      <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-ink capitalize shadow-sm">
+                      <span className="rounded-full bg-navy-800 px-2.5 py-1 text-xs font-medium text-champagne-300 capitalize shadow-sm">
                         Intenção: {nlp.intent.replace(/_/g, " ")}
                       </span>
                     )}
                     {nlp.sentiment && (
-                      <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-ink shadow-sm">
+                      <span className="rounded-full bg-navy-800 px-2.5 py-1 text-xs font-medium text-champagne-300 shadow-sm">
                         Sentimento: {nlp.sentiment}
                       </span>
                     )}
@@ -375,13 +427,14 @@ export default function GeradorPage() {
                     descricao={v.descricao}
                     texto={respostas[v.key]}
                     accent={v.accent}
+                    tone="dark"
                   />
                   <div className="absolute right-14 top-4">
                     <button
                       type="button"
                       onClick={() => melhorar(v.key)}
                       disabled={refinando !== null}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-white px-2.5 py-1.5 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-gold-500/25 bg-navy-800 px-2.5 py-1.5 text-xs font-medium text-gold-400 transition-colors hover:bg-gold-500/10 disabled:opacity-50"
                     >
                       {refinando === v.key ? (
                         <Loader2 size={14} className="animate-spin" />
@@ -394,7 +447,11 @@ export default function GeradorPage() {
                 </div>
               ))}
 
-              <Button onClick={salvar} variant="outline" className="w-full">
+              <Button
+                onClick={salvar}
+                variant="outline"
+                className="w-full border-navy-500 bg-navy-800 text-gold-400 hover:bg-gold-500/10"
+              >
                 {salvo ? <Check size={16} className="text-green-600" /> : <Save size={16} />}
                 {salvo ? "Salvo no histórico!" : "Salvar no histórico"}
               </Button>
@@ -404,11 +461,11 @@ export default function GeradorPage() {
           {!loading && !respostas && (
             <EmptyState
               icon={MessageSquareText}
+              tone="dark"
               mensagem={
                 <>
                   Preencha ao lado e clique em{" "}
-                  <strong>{modo === "reescrever" ? "Melhorar mensagem" : "Gerar respostas"}</strong>{" "}
-                  para ver 3 opções prontas aqui.
+                  <strong>{modo === "reescrever" ? "Reescrever mensagem" : "Gerar 3 respostas"}</strong>.
                 </>
               }
             />
