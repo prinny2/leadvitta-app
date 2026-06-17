@@ -32,6 +32,7 @@ import { HeroDevices } from "@/components/hero-devices";
 import { HeroShapes } from "@/components/hero-shapes";
 import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
+import { TestimonialsSection } from "@/components/testimonials-section";
 
 const funilHref = "/signup";
 
@@ -1207,133 +1208,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── DEPOIMENTOS ─────────────────────────────────────────────────────── */}
-      <section
-        id="depoimentos"
-        style={{ background: "#F5F0E6", padding: "96px 24px" }}
-      >
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "56px" }}>
-            <TagPill light>Quem já está usando</TagPill>
-            <h2
-              style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "clamp(28px, 4vw, 42px)",
-                fontWeight: 700,
-                color: "#0A1628",
-                margin: "0 0 12px",
-              }}
-            >
-              O que muda quando você começa a responder do jeito certo
-            </h2>
-            <p style={{ color: "#4a5568", fontSize: "16px" }}>
-              Resultados reais de profissionais reais. Clínicas como a sua.
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: "20px",
-            }}
-          >
-            {[
-              {
-                quote: "Eu sempre soube que perdia clientes no WhatsApp, mas achava que era falta de talento pra venda. Não era. Era falta de resposta certa. Na primeira semana com o LeadBellus fechei 3 avaliações de harmonização que antes teriam sumido. A função de follow-up me salvou — eu nunca teria mandado aquelas mensagens sozinha.",
-                name: "Camila Rocha",
-                role: "Harmonizadora Facial",
-                location: "São Paulo, SP",
-                specialty: "Harmonização Orofacial",
-                stars: 5,
-              },
-              {
-                quote: "Trabalho sozinha e respondia tudo manualmente entre procedimento. Era exaustivo. Hoje abro o LeadBellus, colo a mensagem, escolho a resposta e fecho o app. Em dois meses aumentei minha conversão de orçamento pra agendamento sem investir em nenhum anúncio novo. O retorno é ridículo de bom.",
-                name: "Dra. Patrícia Mendes",
-                role: "Biomédica Esteta",
-                location: "Belo Horizonte, MG",
-                specialty: "Bioestimuladores e Laser",
-                stars: 5,
-              },
-              {
-                quote: "Tenho uma recepcionista que ama o trabalho mas não sabia conduzir conversa de venda. Configurei o DNA da Clínica com ela e ensinei a usar os Scripts e a Biblioteca de Objeções. Em 3 semanas ela virou minha melhor pessoa de atendimento. Nunca imaginei que uma ferramenta ia me ajudar a delegar isso.",
-                name: "Fernanda Lopes",
-                role: "Gestora de Clínica Estética",
-                location: "Uberlândia, MG",
-                specialty: "Laser, Microagulhamento, Skincare",
-                stars: 5,
-              },
-            ].map((t) => (
-              <div
-                key={t.name}
-                style={{
-                  background: "#ffffff",
-                  border: "1.5px solid #E8E4DC",
-                  borderRadius: "20px",
-                  padding: "32px 28px",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
-                  position: "relative",
-                }}
-              >
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "20px",
-                    left: "24px",
-                    fontSize: "56px",
-                    color: "rgba(201,160,96,0.15)",
-                    fontFamily: "Georgia, serif",
-                    lineHeight: 1,
-                  }}
-                >
-                  "
-                </span>
-                {/* Stars */}
-                <div style={{ display: "flex", gap: "3px", marginBottom: "16px" }}>
-                  {Array.from({ length: t.stars }).map((_, i) => (
-                    <Star key={i} size={14} color="#C9A060" fill="#C9A060" />
-                  ))}
-                </div>
-                <p
-                  style={{
-                    fontSize: "15px",
-                    color: "#374151",
-                    lineHeight: 1.8,
-                    fontStyle: "italic",
-                    marginBottom: "24px",
-                  }}
-                >
-                  {t.quote}
-                </p>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div
-                    style={{
-                      width: "42px",
-                      height: "42px",
-                      borderRadius: "50%",
-                      background: "linear-gradient(135deg, #C9A060, #92610A)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "#ffffff",
-                      fontWeight: 700,
-                      fontSize: "16px",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <p style={{ fontSize: "14px", fontWeight: 700, color: "#0A1628", margin: 0 }}>{t.name}</p>
-                    <p style={{ fontSize: "12px", color: "#C9A060", fontWeight: 600, margin: 0 }}>{t.role}</p>
-                    <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>{t.location} · {t.specialty}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialsSection />
 
       {/* ── OFERTA / PREÇOS ──────────────────────────────────────────────────── */}
       <section
