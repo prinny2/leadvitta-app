@@ -18,24 +18,31 @@ _Última atualização: 2026-06-17_
 
 ## ⚠️ VERDADE DE NOME / DOMÍNIO (nunca mais errar)
 
-> [!danger] Nunca apontar nada para `leadvitta.com`
+> [!danger] As TRÊS "leadvitta" — não confundir (é a origem da confusão)
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  O PRODUTO SE CHAMA  ▸  LeadBellus                                │
-├─────────────────────────────────────────────────────────────────┤
-│  ✅ leadbellus.com.br        = O APP REAL (host canônico + www)   │
-│  ❌ leadvitta.com            = HostGator PARQUEADO. NÃO é o app.   │
-│                               DNS aponta pra lá → dá confusão,    │
-│                               isso é "normal", só não usar.       │
-│  ℹ️ projeto GCP / repo                                            │
-│     "leadvitta-app"          = só o NOME de criação. O produto    │
-│                               continua sendo LeadBellus.          │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│  O PRODUTO SE CHAMA  ▸  LeadBellus                                     │
+│  O CLIENTE VÊ        ▸  https://leadbellus.com.br   ✅                 │
+├──────────────────────────────────────────────────────────────────────┤
+│ 1) leadvitta.com          → domínio PARQUEADO na HostGator. ❌         │
+│                             NÃO é o app. NADA no código aponta pra ele.│
+│                             Só atrapalha se alguém digitar à mão.      │
+│ 2) leadvitta-app          → ID do projeto Google/Firebase E nome do   │
+│                             projeto Vercel. INTERNO, cliente NUNCA vê. │
+│                             Aparece em .firebaserc / cloudbuild /      │
+│                             scripts = CORRETO. ⛔ NÃO trocar (ID GCP   │
+│                             é imutável; trocar = projeto novo).        │
+│ 3) leadvitta-app.web.app  → URL feia de fallback do Firebase Hosting.  │
+│                             Funciona, mas o cliente entra pelo domínio │
+│                             bonito, não por essa.                      │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 Regra: `NEXT_PUBLIC_SITE_URL`, OAuth domains, webhooks Stripe/WhatsApp → tudo em
 `leadbellus.com.br`. **Nunca** apontar nada para `leadvitta.com`.
+"leadvitta" só sobra nos bastidores (nome de projeto + URL de fallback) — não vaza
+pro cliente, e renomear não vale o risco antes de lançar.
 
 ---
 
@@ -48,9 +55,31 @@ Regra: `NEXT_PUBLIC_SITE_URL`, OAuth domains, webhooks Stripe/WhatsApp → tudo 
 | `leadvitta-app` (ESTE repo) | frente Next.js (PR #34) | é onde esta sessão tem acesso |
 | `leadvitta-nlp` | microserviço NLP separado (FastAPI/Cloud Run) | **não** é a frente |
 
-⚠️ **Split-brain a resolver:** o plano antigo fala em **Vercel**, mas `CLAUDE.md`
-deste repo é explícito: **deploy oficial = Cloud Run, "No Vercel"**. Decidir UMA
-casa antes de configurar env vars, senão configura num lugar e o tráfego sai de outro.
+### 🏠 DECISÃO DE CASA (resolvido — fim do split-brain)
+
+```
+  CASA OFICIAL DA FRENTE  ▸  VERCEL
+  ├─ leadbellus.com.br + www JÁ servem produção REAL no Vercel (time vini1,
+  │  projeto leadvitta-app). Demo OFF, 22 env vars de produção setadas.
+  ├─ CI confirma: Vercel deploya este repo a cada push (READY no PR #53).
+  └─ Env vars (Stripe price IDs, STRIPE_CHECKOUT_MODE=subscription,
+     NEXT_PUBLIC_SITE_URL) → setar no painel do VERCEL, não no gcloud.
+
+  CLOUD RUN  ▸  fica para o backend `nucleo` (Python, já tem Dockerfile/$300).
+
+  ⚠️ DESLIGAR a 2ª produção: hoje há DUAS no ar (Vercel + Firebase Hosting
+     leadvitta-app.web.app). Manter Vercel, parar o Firebase Hosting pra
+     não ter tráfego saindo de dois lugares.
+```
+
+> [!warning] `CLAUDE.md` está DESATUALIZADO: diz "No Vercel / Cloud Run only".
+> A realidade live é Vercel para a frente. Atualizar o CLAUDE.md depois do lançamento.
+
+**Checklist de domínio (painel Vercel):**
+1. Vercel → Settings → Domains: `leadbellus.com.br` = **Primary** (e `www` → redirect pra ela).
+2. Garantir que `leadvitta.com` **não** está listado em Domains.
+3. HostGator: `leadvitta.com` fica parqueado quieto (ou 301 → leadbellus.com.br, opcional).
+4. Firebase Console → Hosting: desativar/parar o site `leadvitta-app.web.app` (a 2ª produção).
 
 ---
 
