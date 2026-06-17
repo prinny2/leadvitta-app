@@ -125,5 +125,8 @@ Depois de cada passo: `curl https://leadbellus.com.br/api/health` → `{"status"
 - ❌ Nunca dois agentes no mesmo arquivo ao mesmo tempo (é a origem do caos).
 
 ## 🎨 Preferência do dono (permanente)
-Arquitetura / sistemas / matemática **SEMPRE com diagrama de sistema** (estrutura,
-fluxo, relação) — não imagem decorativa. Liderar com o diagrama, não com texto.
+- Arquitetura / sistemas / matemática **SEMPRE com diagrama de sistema** (estrutura,
+  fluxo, relação) — não imagem decorativa. Liderar com o diagrama, não com texto.
+- **SEMPRE interativo** — tudo clicável/navegável (diagramas interativos, docs no
+  Obsidian clicáveis, previews abríveis). Nunca parede de texto.
+- **Conciso.** Quantidade ≠ qualidade. Pouco texto, direto.
