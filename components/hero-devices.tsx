@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 // ─── Design tokens (real app colours) ─────────────────────────────────────────
 const C = {
@@ -754,7 +755,12 @@ export function HeroDevices() {
     : ScreenObjecoes;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "14px", width: "100%" }}>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.9, delay: 1.0, ease: [0.25, 0.4, 0.25, 1] }}
+      style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "14px", width: "100%" }}
+    >
 
       {/* Screen selector tabs */}
       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "center" }}>
@@ -881,6 +887,6 @@ export function HeroDevices() {
 
       {/* Subtle glow line under devices */}
       <div style={{ width: "520px", maxWidth: "100%", height: "1px", background: "linear-gradient(90deg,transparent,rgba(201,160,96,0.18),transparent)", marginTop: "-8px" }}/>
-    </div>
+    </motion.div>
   );
 }
