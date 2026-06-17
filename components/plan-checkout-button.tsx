@@ -4,11 +4,12 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
-import type { BillingPlan } from "@/lib/billing";
+import type { BillingInterval, BillingPlan } from "@/lib/billing";
 import { trackEvent } from "@/components/Analytics";
 
 type PlanCheckoutButtonProps = {
   plan: BillingPlan;
+  interval?: BillingInterval;
   className?: string;
   children: React.ReactNode;
 };
@@ -16,6 +17,7 @@ type PlanCheckoutButtonProps = {
 /** Abre Stripe Checkout — sem exigir login; o Stripe coleta o e-mail. */
 export function PlanCheckoutButton({
   plan,
+  interval = "monthly",
   className,
   children,
 }: PlanCheckoutButtonProps) {
@@ -24,7 +26,7 @@ export function PlanCheckoutButton({
 
   async function handleClick() {
     setErro("");
-    trackEvent("select_plan", { plan });
+    trackEvent("select_plan", { plan, interval });
 
     if (!isFirebaseConfigured) {
       window.location.assign("/dashboard");
@@ -33,7 +35,7 @@ export function PlanCheckoutButton({
 
     setLoading(true);
     try {
-      trackEvent("initiate_checkout", { plan });
+      trackEvent("initiate_checkout", { plan, interval });
       const user = getFirebaseAuth().currentUser;
       const firebaseIdToken = user ? await user.getIdToken() : undefined;
 
@@ -42,6 +44,7 @@ export function PlanCheckoutButton({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           plan,
+          interval,
           firebaseIdToken,
           customerEmail: user?.email,
         }),

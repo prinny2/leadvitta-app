@@ -351,6 +351,7 @@ function PricingCard({
         <>
           <PlanCTA
             plan={plan.id}
+            interval={isAnnual ? "annual" : "monthly"}
             className="w-full block text-center font-bold text-sm rounded-xl py-3 px-5 mb-3 bg-[#C9A060] text-[#07101e] border-0"
           >
             {isAnnual ? plan.ctaAnnual : plan.ctaMonthly}

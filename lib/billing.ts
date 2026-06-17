@@ -2,6 +2,8 @@ export type BillingPlan = "start" | "pro" | "premium";
 
 export type CheckoutMode = "payment" | "subscription";
 
+export type BillingInterval = "monthly" | "annual";
+
 export type BillingPlanConfig = {
   id: BillingPlan;
   label: string;
@@ -22,7 +24,10 @@ export type BillingPlanConfig = {
    */
   disponivel: boolean;
   features: string[];
+  /** Price recorrente mensal (STRIPE_PRICE_ID_{PLAN}). */
   priceId?: string;
+  /** Price recorrente anual (STRIPE_PRICE_ID_{PLAN}_ANNUAL). */
+  priceIdAnnual?: string;
 };
 
 export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
@@ -44,6 +49,7 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
       "Botão copiar e colar direto no WhatsApp",
     ],
     priceId: process.env.STRIPE_PRICE_ID_START,
+    priceIdAnnual: process.env.STRIPE_PRICE_ID_START_ANNUAL,
   },
   pro: {
     id: "pro",
@@ -62,6 +68,7 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
       "O tom de voz da sua clínica em tudo",
     ],
     priceId: process.env.STRIPE_PRICE_ID_PRO,
+    priceIdAnnual: process.env.STRIPE_PRICE_ID_PRO_ANNUAL,
   },
   premium: {
     id: "premium",
@@ -81,6 +88,7 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
       "Suporte prioritário via WhatsApp",
     ],
     priceId: process.env.STRIPE_PRICE_ID_PREMIUM,
+    priceIdAnnual: process.env.STRIPE_PRICE_ID_PREMIUM_ANNUAL,
   },
 };
 
@@ -97,6 +105,19 @@ export function parseBillingPlan(value: unknown): BillingPlan | null {
 
 export function getBillingPlan(plan: BillingPlan): BillingPlanConfig {
   return billingPlans[plan];
+}
+
+/** Normaliza o intervalo de cobrança vindo do cliente (default: mensal). */
+export function parseBillingInterval(value: unknown): BillingInterval {
+  return value === "annual" ? "annual" : "monthly";
+}
+
+/** Resolve o price id correto para o intervalo escolhido. */
+export function resolveBillingPriceId(
+  config: BillingPlanConfig,
+  interval: BillingInterval
+): string | undefined {
+  return interval === "annual" ? config.priceIdAnnual : config.priceId;
 }
 
 export function getStripeCheckoutMode(): CheckoutMode {
