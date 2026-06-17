@@ -30,6 +30,7 @@ import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 import { HeroDevices } from "@/components/hero-devices";
 import { HeroShapes } from "@/components/hero-shapes";
+import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
 
 const funilHref = "/signup";
@@ -283,106 +284,8 @@ export default function LandingPage() {
             }}
             className="hero-grid"
           >
-            {/* Left — copy */}
-            <div>
-              <TagPill>✦ Feito para clínicas de estética brasileiras</TagPill>
-
-              <h1
-                style={{
-                  fontFamily: "var(--font-fraunces, Georgia, serif)",
-                  fontSize: "clamp(40px, 5vw, 68px)",
-                  fontWeight: 700,
-                  lineHeight: 1.05,
-                  margin: "0 0 24px",
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                Ela sumiu.
-                <br />
-                E não foi
-                <br />
-                <span style={{ color: "#C9A060" }}>pelo preço.</span>
-              </h1>
-
-              <p
-                style={{
-                  fontSize: "17px",
-                  lineHeight: 1.75,
-                  color: "rgba(255,255,255,0.72)",
-                  maxWidth: "480px",
-                  margin: "0 0 36px",
-                }}
-              >
-                Foi pela resposta errada. O LeadBellus analisa cada mensagem e
-                entrega a resposta certa — no seu tom, pra aquela cliente
-                específica, em 30 segundos. É só copiar e colar.
-              </p>
-
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", marginBottom: "20px" }}>
-                <Link
-                  href={funilHref}
-                  style={{
-                    background: "#C9A060",
-                    color: "#07101e",
-                    borderRadius: "9999px",
-                    padding: "15px 30px",
-                    fontSize: "15px",
-                    fontWeight: 700,
-                    textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                  }}
-                >
-                  Quero minha resposta certa agora →
-                </Link>
-                <a
-                  href="#simulador"
-                  style={{
-                    border: "1.5px solid rgba(201,160,96,0.5)",
-                    color: "#C9A060",
-                    borderRadius: "9999px",
-                    padding: "15px 28px",
-                    fontSize: "15px",
-                    fontWeight: 600,
-                    textDecoration: "none",
-                  }}
-                >
-                  Ver como funciona ↓
-                </a>
-              </div>
-
-              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)", marginBottom: "40px" }}>
-                7 dias grátis · Sem cartão · Você usa hoje mesmo
-              </p>
-
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {[
-                  { icon: "💬", label: "Respostas estratégicas" },
-                  { icon: "🔄", label: "Follow-ups" },
-                  { icon: "🛡️", label: "Objeções" },
-                  { icon: "🧠", label: "Lead Intelligence" },
-                ].map((f) => (
-                  <div
-                    key={f.label}
-                    style={{
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(201,160,96,0.15)",
-                      borderRadius: "9999px",
-                      padding: "7px 14px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <span style={{ fontSize: "14px" }}>{f.icon}</span>
-                    <span style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.75)" }}>
-                      {f.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Left — copy (animado) */}
+            <HeroTextContent />
 
             {/* Right — animated device mockups */}
             <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "48px" }}>
