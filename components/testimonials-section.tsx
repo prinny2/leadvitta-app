@@ -9,36 +9,42 @@ const testimonials = [
     name: "Camila Rocha",
     role: "Harmonizadora Facial · São Paulo, SP",
     initials: "CR",
+    image: "/testimonials/camila.jpg",
   },
   {
     text: "Minha maior dificuldade era fazer follow-up sem parecer insistente. Eu sabia que estava deixando oportunidades para trás, mas nunca encontrava a mensagem certa para retomar a conversa. A LeadBellus organizou esse processo e deixou o atendimento muito mais natural. Passei a recuperar clientes que antes simplesmente sumiam.",
     name: "Dra. Renata Oliveira",
     role: "Biomédica Esteta · Curitiba, PR",
     initials: "RO",
+    image: "/testimonials/renata.jpg",
   },
   {
     text: "Tenho uma equipe pequena e cada pessoa respondia de um jeito diferente. Isso deixava o atendimento confuso e dificultava acompanhar os leads. Depois que configuramos o DNA da Clínica e os scripts, a comunicação ficou muito mais padronizada, sem perder o nosso jeito de falar. Hoje minha recepção responde com mais confiança e eu consigo delegar sem medo.",
     name: "Mariana Castro",
     role: "Gestora de Clínica Estética · Recife, PE",
     initials: "MC",
+    image: "/testimonials/mariana.jpg",
   },
   {
     text: "Trabalho sozinha e respondia tudo manualmente entre procedimento. Era exaustivo. Hoje abro o LeadBellus, colo a mensagem, escolho a resposta e fecho o app. Em dois meses aumentei minha conversão de orçamento pra agendamento sem investir em nenhum anúncio novo. O retorno é ridículo de bom.",
     name: "Dra. Patrícia Mendes",
     role: "Biomédica Esteta · Belo Horizonte, MG",
     initials: "PM",
+    image: "/testimonials/patricia.jpg",
   },
   {
     text: "Eu recebia muitos pedidos de orçamento pelo Instagram, mas várias conversas morriam logo depois que eu informava o valor. Com a LeadBellus, comecei a conduzir melhor cada atendimento e parei de responder tudo de forma automática. Hoje consigo explicar valor, lidar com objeções e levar a cliente até o agendamento com muito mais segurança.",
     name: "Juliana Azevedo",
     role: "Esteticista e proprietária · Campinas, SP",
     initials: "JA",
+    image: "/testimonials/juliana.jpg",
   },
   {
     text: "Tenho uma recepcionista que ama o trabalho mas não sabia conduzir conversa de venda. Configurei o DNA da Clínica com ela e ensinei a usar os Scripts e a Biblioteca de Objeções. Em 3 semanas ela virou minha melhor pessoa de atendimento. Nunca imaginei que uma ferramenta ia me ajudar a delegar isso.",
     name: "Fernanda Lopes",
     role: "Gestora de Clínica Estética · Uberlândia, MG",
     initials: "FL",
+    image: "/testimonials/fernanda.jpg",
   },
 ];
 
