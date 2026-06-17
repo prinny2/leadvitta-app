@@ -29,6 +29,7 @@ import { WaitlistForm } from "@/components/waitlist-form";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 import { HeroDevices } from "@/components/hero-devices";
+import { HeroShapes } from "@/components/hero-shapes";
 import { PricingSection } from "@/components/pricing-section";
 
 const funilHref = "/signup";
@@ -270,6 +271,7 @@ export default function LandingPage() {
         <div style={{ position: "absolute", top: "-80px", left: "-100px", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(201,160,96,0.10) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: "-60px", right: "-80px", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(201,160,96,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", top: "30%", right: "10%", width: "300px", height: "300px", background: "radial-gradient(circle, rgba(96,160,201,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <HeroShapes />
 
         <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}>
           <div
