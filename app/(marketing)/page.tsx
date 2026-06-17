@@ -33,6 +33,7 @@ import { HeroShapes } from "@/components/hero-shapes";
 import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
+import { AboutSection } from "@/components/about-section";
 
 const funilHref = "/signup";
 
@@ -864,87 +865,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── QUEM SOMOS NÓS ──────────────────────────────────────────────────── */}
-      <section
-        id="sobre"
-        style={{ background: "#07101e", padding: "96px 24px" }}
-      >
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <TagPill>Por trás do LeadBellus</TagPill>
-            <h2
-              style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "clamp(26px, 3.5vw, 40px)",
-                fontWeight: 700,
-                color: "#ffffff",
-                margin: "0 0 20px",
-                lineHeight: 1.2,
-                maxWidth: "720px",
-                marginLeft: "auto",
-                marginRight: "auto",
-              }}
-            >
-              Não somos uma empresa de tecnologia. Somos quem passou meses estudando por que clínicas de estética perdem venda no WhatsApp.
-            </h2>
-          </div>
-
-          <div
-            style={{
-              background: "#0f1b2f",
-              border: "1px solid rgba(201,160,96,0.2)",
-              borderRadius: "24px",
-              padding: "48px 40px",
-            }}
-          >
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-              {[
-                `A gente não acordou um dia e decidiu fazer "mais uma ferramenta de IA pra negócios". A gente ficou obcecado com um problema específico: por que profissionais altamente qualificados — com anos de formação, equipamentos caros, resultados incríveis — perdem clientes pra clínicas medianas que só sabem cobrar mais barato?`,
-                "A resposta foi sempre a mesma: a conversa do WhatsApp.",
-                "O biomédico que fez seis especializações perde pra recepcionista de clínica concorrente que por acaso sabe conduzir bem a conversa. Não é justo. E é completamente resolvível.",
-                "Estudamos centenas de conversas reais de WhatsApp de clínicas de estética. Mapeamos os padrões psicológicos de cada tipo de cliente e de cada tipo de objeção. Construímos uma ferramenta que conhece botox, harmonização, preenchimento, bioestimulador, laser — não porque a gente colocou uma lista de palavras, mas porque entendemos a jornada emocional de compra de cada procedimento.",
-              ].map((p, i) => (
-                <p
-                  key={i}
-                  style={{
-                    fontSize: i === 1 ? "20px" : "15px",
-                    color: i === 1 ? "#C9A060" : "rgba(255,255,255,0.75)",
-                    lineHeight: 1.8,
-                    fontWeight: i === 1 ? 700 : 400,
-                    fontFamily: i === 1 ? "var(--font-fraunces, Georgia, serif)" : "inherit",
-                    margin: 0,
-                  }}
-                >
-                  {p}
-                </p>
-              ))}
-            </div>
-
-            <GoldDivider />
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
-              {[
-                { label: "Não somos empresa grande.", detail: "Somos pequenos, do nicho, e é por isso que funciona." },
-                { label: "Cada módulo foi validado.", detail: "Com profissionais reais, em clínicas reais." },
-                { label: "Se algo não faz sentido — fala.", detail: "A gente responde. A gente ajusta. A gente cresce junto." },
-              ].map((pt) => (
-                <div
-                  key={pt.label}
-                  style={{
-                    background: "rgba(201,160,96,0.06)",
-                    border: "1px solid rgba(201,160,96,0.15)",
-                    borderRadius: "14px",
-                    padding: "20px",
-                  }}
-                >
-                  <p style={{ fontSize: "14px", fontWeight: 700, color: "#C9A060", marginBottom: "6px" }}>{pt.label}</p>
-                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{pt.detail}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <AboutSection />
 
       {/* ── ANTES E DEPOIS ──────────────────────────────────────────────────── */}
       <section
