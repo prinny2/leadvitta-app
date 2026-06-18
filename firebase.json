@@ -10,7 +10,7 @@
       },
       {
         "source": "/**",
-        "destination": "https://www.leadbellus.com.br/:path",
+        "destination": "https://www.leadbellus.com.br/:splat",
         "type": 301
       }
     ]
