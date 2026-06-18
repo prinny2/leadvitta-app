@@ -144,6 +144,7 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 
 ---
 ### Log de Handoff
+- 2026-06-18 (Antigravity): Configuração e validação final de Stripe Webhook, WhatsApp (Z-API), GA4 e Landing de Campanha. Excluído webhook do Stripe antigo e criado o novo (we_1TjjKQRTJ7iCFKxkF2IlUBlF) apontando diretamente para o Cloud Run. Segredo rotacionado para whsec_bpn4FP73Ibc2CdZSuyeqUpvI0qklwnP0, atualizado no GCP Secret Manager e serviço do Cloud Run redeployado. Webhook do WhatsApp (Z-API) configurado e verificado (status 200). Adicionada variável NEXT_PUBLIC_GA4_ID (G-223KR63TS8) na Vercel e realizado deploy de produção. Criada a landing page de campanha em app/campanha/[slug]/page.tsx. Todos os builds de produção passando 100% e alterações enviadas para a main remota.
 - 2026-06-15 (Codex): Simulador local de WhatsApp alinhado com a validacao real dos providers. `npm run whatsapp:simulate` agora gera `X-Twilio-Signature` quando `TWILIO_AUTH_TOKEN` existe e envia `x-d360-token` quando `D360_WEBHOOK_TOKEN` existe; `README.md` e `CLAUDE.md` atualizados para refletir o fluxo e os flags corretos.
 - 2026-06-10 (Gemini): Unificação do Blackboard para o padrão `COORDINATION.md`.
 - 2026-06-09 (Codex): Implementado Visual Overhaul v1.4.
