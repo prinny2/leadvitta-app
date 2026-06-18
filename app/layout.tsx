@@ -25,6 +25,9 @@ export const metadata: Metadata = {
     "Aumente os agendamentos da sua clínica com inteligência de conversão. Transforme dúvidas do WhatsApp em vendas reais com respostas estratégicas e seguras.",
   authors: [{ name: "Vinicius Paes da Serra Freire", url: "https://leadbellus.com.br" }],
   publisher: "Vinicius Paes da Serra Freire (MEI)",
+  verification: {
+    google: "kvQ3hzLyDrC4JxQpwNrfeCPHrTTbjHCHYi0WZOlLpL0",
+  },
 };
 
 export default function RootLayout({
