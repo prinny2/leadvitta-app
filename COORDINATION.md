@@ -9,7 +9,7 @@
 - **IA:** OpenAI (GPT-4o-mini) + Fallback Anthropic (Haiku). OpenAI ativa; ANTHROPIC_API_KEY ainda vazia (adicionar para ativar fallback).
 - **X Market Pulse + adaptações LeadBellus (Grok 2026-06-14):** Análise de tendências reais em X (clientes reclamam "muito texto", demora faz sumir, odeiam robô burro mas também enrolação). **Implementado e pronto para deploy hoje:** brevidade obrigatória nos prompts (2-4 frases), novo objetivo "Agendamento rápido (respostas concisas)" no gerador, lógica condicional no prompt builder. Footer com entidade legal correta (MEI). Ver Mesa/blackboard/X_MARKET_PULSE.md para detalhes completos + recomendações.
 - **WhatsApp:** Twilio (sandbox +14155238886). Webhook: https://leadvitta-app.web.app/api/whatsapp/webhook — configurar no Twilio Console após deploy. (Meta Cloud API adiado — burocrático sem time dedicado; Twilio é o caminho rápido agora.)
-- **Billing:** Stripe LIVE ativo com Webhook `whsec` configurado (apontar para domínio Vercel).
+- **Billing:** Stripe LIVE ativo com Webhook `whsec` configurado (apontando diretamente para o Cloud Run e com o segredo rotacionado para conter o vazamento).
 - **Auth:** Firebase Auth (oficial). Branch `feat/auth0` está PARADA.
 - **Infra delegation (Grok + agentes — o que você consegue configurar AGORA):** 
   - Vercel: Token API limitado só pro projeto leadbellus (scope deployments + logs).
@@ -139,7 +139,7 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 - **DECISÃO (Vinícius):** definir produção canônica → Vercel (`leadbellus.com.br` já live) OU Cloud Run. Hoje as duas estão no ar.
 - **Para o Vercel funcionar 100% (manuais, só o Vinícius/console):**
   1. **Firebase Auth → Authorized domains:** garantir `leadbellus.com.br` e `www.leadbellus.com.br` na lista (Console Firebase → Authentication → Settings) senão o login Google falha.
-  2. **Stripe → Webhook endpoint:** apontar para `https://leadbellus.com.br/api/stripe/webhook` (o `STRIPE_WEBHOOK_SECRET` setado precisa corresponder a ESSE endpoint).
+  2. **Stripe → Webhook endpoint:** apontar diretamente para `https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook` (o `STRIPE_WEBHOOK_SECRET` setado no Secret Manager precisa corresponder a esse endpoint).
   3. **Twilio sandbox:** enviar `join <código>` para +14155238886 e setar o webhook do sandbox para `https://leadbellus.com.br/api/whatsapp/webhook`.
 
 ---

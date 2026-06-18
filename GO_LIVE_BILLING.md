@@ -17,8 +17,9 @@
 ## Dados fixos do projeto (já confirmados)
 | Item | Valor |
 |---|---|
-| Conta Stripe | `acct_1TeQMX6Qz7MOnODL` (display ainda **"LeadCare"** — renomear) |
-| Price IDs (LIVE, mensal) | Start `price_1TeqgV6Qz7MOnODLwa2ZFfTB` · Pro `price_1TeqgW6Qz7MOnODLcRx1XzGs` · Premium `price_1TeqgX6Qz7MOnODLYaqDreay` |
+| Conta Stripe | ✅ **DECISÃO 18/jun/2026: usar `acct_1TemHuRTJ7iCFKxk` ("LeadBellus")** — ativada (charges/payouts ON, banco Inter 7545, verificada, nome já "LeadBellus"). A `acct_1TeQMX...` ("LeadCare") fica **aposentada**. |
+| Price IDs (LIVE, conta LeadBellus) | Mensal: Start `price_1Tj5ihRTJ7iCFKxknWoEhpka` · Pro `price_1Tj5j8RTJ7iCFKxkiXFVTyx1` · Premium `price_1Tj5jNRTJ7iCFKxkNGRYD3It` · Anual: Start `price_1TjhRnRTJ7iCFKxk3Z1nbzIr` · Pro `price_1TjhS6RTJ7iCFKxkumFhplLQ` · Premium `price_1TjhS7RTJ7iCFKxk7P7efMJT` |
+| ~~Price IDs antigos (conta LeadCare, NÃO usar)~~ | ~~Start `price_1TeqgV6Qz7MOnODLwa2ZFfTB` · Pro `price_1TeqgW...` · Premium `price_1TeqgX...`~~ |
 | Modo checkout | `subscription` |
 | Deploy | **Cloud Run** (tem `cloudbuild.yaml` + `Dockerfile`; **não** é Vercel) |
 | Serviço / Região | `leadbellus` / `southamerica-east1` |

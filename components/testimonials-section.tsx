@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const testimonials = [
   {
@@ -92,7 +93,7 @@ function TestimonialCard({ text, name, role, initials, image }: {
       </p>
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         {image ? (
-          <img
+          <Image
             src={image}
             alt={name}
             width={40}
@@ -202,6 +203,7 @@ export function TestimonialsSection() {
 
         {/* Columns */}
         <div
+          className="testimonials-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
@@ -217,6 +219,17 @@ export function TestimonialsSection() {
           <TestimonialsColumn items={col3} duration={14} />
         </div>
       </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .testimonials-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .testimonials-grid > div:nth-child(2),
+          .testimonials-grid > div:nth-child(3) {
+            display: none !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

@@ -290,7 +290,7 @@ export default function LandingPage() {
             <HeroTextContent />
 
             {/* Right — animated device mockups */}
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "48px" }}>
+            <div className="hero-devices-container" style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "48px" }}>
               <HeroDevices />
             </div>
           </div>
@@ -304,6 +304,7 @@ export default function LandingPage() {
             }
             .hero-grid > div:first-child > p { margin-left: auto; margin-right: auto; }
             .hero-grid > div:first-child > div { justify-content: center; }
+            .hero-devices-container { display: none !important; }
           }
         `}</style>
       </section>
@@ -1584,6 +1585,53 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Espaço pra barra fixa não cobrir o rodapé (só mobile) */}
+      <div className="md:hidden" style={{ height: "76px" }} />
+
+      {/* Barra de venda fixa — só mobile */}
+      <div
+        className="md:hidden"
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 60,
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          background: "rgba(7,16,30,0.97)",
+          backdropFilter: "blur(12px)",
+          borderTop: "1px solid rgba(201,160,96,0.28)",
+          padding: "10px 16px calc(10px + env(safe-area-inset-bottom))",
+        }}
+      >
+        <div style={{ lineHeight: 1.2 }}>
+          <p style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>
+            R$97<span style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>/mês</span>
+          </p>
+          <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>
+            7 dias grátis · sem cartão
+          </p>
+        </div>
+        <Link
+          href={funilHref}
+          style={{
+            marginLeft: "auto",
+            background: "#C9A060",
+            color: "#07101e",
+            fontWeight: 700,
+            fontSize: "15px",
+            borderRadius: "12px",
+            padding: "13px 22px",
+            textDecoration: "none",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Testar grátis →
+        </Link>
+      </div>
     </div>
   );
 }
