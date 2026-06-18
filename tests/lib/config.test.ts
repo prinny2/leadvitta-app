@@ -134,4 +134,17 @@ describe("lib/config", () => {
     const cfg2 = await loadConfig();
     expect(cfg2.isZApiConfigured).toBe(false);
   });
+
+  it("isOpsNotifyConfigured exige Z-API + número de alerta", async () => {
+    vi.stubEnv("ZAPI_INSTANCE_ID", "inst");
+    vi.stubEnv("ZAPI_TOKEN", "tok");
+    vi.stubEnv("OPS_WHATSAPP_NUMBER", "55 (91) 98888-7777");
+    const cfg = await loadConfig();
+    expect(cfg.isOpsNotifyConfigured).toBe(true);
+    expect(cfg.opsNotifyPhone).toBe("5591988887777");
+
+    vi.stubEnv("OPS_WHATSAPP_NUMBER", "");
+    const cfg2 = await loadConfig();
+    expect(cfg2.isOpsNotifyConfigured).toBe(false);
+  });
 });

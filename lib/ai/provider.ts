@@ -214,7 +214,95 @@ export type GerarResultado = {
   score?: number;
 };
 
-/** 
+// ----- Validação da classificação (NLP) -----
+// O LLM pode devolver score fora de 0-100, string, ou intent/sentiment fora do
+// vocabulário. Esses valores vão pro Firestore e pro ranking do inbox, então
+// precisam ser saneados antes de persistir (senão corrompem a triagem de leads).
+const INTENTS_VALIDOS = new Set([
+  "pergunta_preco",
+  "agendamento",
+  "duvida_tecnica",
+  "objecao",
+  "demonstra_interesse",
+  "desistencia",
+  "outro",
+]);
+
+function clampScore(v: unknown): number | undefined {
+  if (v === null || v === undefined || v === "") return undefined;
+  const n = typeof v === "number" ? v : Number(v);
+  if (!Number.isFinite(n)) return undefined;
+  return Math.min(100, Math.max(0, Math.round(n)));
+}
+
+function validarIntent(v: unknown): string | undefined {
+  if (typeof v !== "string") return undefined;
+  const s = v.trim().toLowerCase();
+  return INTENTS_VALIDOS.has(s) ? s : undefined;
+}
+
+function validarSentiment(v: unknown): string | undefined {
+  if (typeof v !== "string") return undefined;
+  const m = v.trim().match(/^([1-5])\s*stars?$/i);
+  return m ? `${m[1]} stars` : undefined;
+}
+
+/**
+ * Garante que NENHUMA das 3 respostas viole a denylist: se alguma violar, pede
+ * UMA reescrita, RE-VALIDA o resultado e — como última linha de defesa — troca
+ * qualquer campo que ainda viole (ou venha vazio) pelo texto seguro do mock
+ * (compliant por construção). Nunca devolve texto proibido para a cliente.
+ */
+async function garantirCompliance(
+  respostas: RespostaTripla,
+  user: string,
+  input: GerarInput
+): Promise<RespostaTripla> {
+  const algumViola = (r: RespostaTripla) =>
+    violaCompliance(r.curta) ||
+    violaCompliance(r.consultiva) ||
+    violaCompliance(r.persuasiva);
+
+  if (!algumViola(respostas)) return respostas;
+
+  try {
+    const revisaoRaw = await callAI(
+      SYSTEM_GERADOR,
+      user +
+        "\n\nATENÇÃO: a resposta anterior usou termos proibidos (promessa de resultado, cura, ausência de risco ou preço fixo). Reescreva as 3 respostas evitando QUALQUER promessa desse tipo. Responda só com o JSON."
+    );
+    const rev = parseJson<GeradorJson>(revisaoRaw);
+    if (rev) {
+      // Só adota a reescrita nos campos que ORIGINALMENTE violavam — um campo que
+      // já passava não pode ser sobrescrito (e depois virar mock) por causa de uma
+      // reescrita ruim de OUTRO campo.
+      respostas = {
+        curta: violaCompliance(respostas.curta)
+          ? rev.resposta_curta?.trim() || respostas.curta
+          : respostas.curta,
+        consultiva: violaCompliance(respostas.consultiva)
+          ? rev.resposta_consultiva?.trim() || respostas.consultiva
+          : respostas.consultiva,
+        persuasiva: violaCompliance(respostas.persuasiva)
+          ? rev.resposta_persuasiva?.trim() || respostas.persuasiva
+          : respostas.persuasiva,
+      };
+    }
+  } catch (err) {
+    console.warn("[gerarRespostas] reescrita de compliance falhou:", err);
+  }
+
+  const seguro = mockGerador(input);
+  const safe = (t: string, v: keyof RespostaTripla) =>
+    t && !violaCompliance(t) ? t : seguro[v];
+  return {
+    curta: safe(respostas.curta, "curta"),
+    consultiva: safe(respostas.consultiva, "consultiva"),
+    persuasiva: safe(respostas.persuasiva, "persuasiva"),
+  };
+}
+
+/**
  * Classifica a mensagem do lead (NLP).
  */
 export async function classificarMensagem(
@@ -227,9 +315,9 @@ export async function classificarMensagem(
     const parsed = parseJson<GeradorJson>(raw);
     if (!parsed) return {};
     return {
-      intent: parsed.intent,
-      sentiment: parsed.sentiment,
-      score: parsed.score,
+      intent: validarIntent(parsed.intent),
+      sentiment: validarSentiment(parsed.sentiment),
+      score: clampScore(parsed.score),
     };
   } catch (err) {
     console.error("[classificarMensagem] erro:", err);
@@ -272,30 +360,15 @@ export async function gerarRespostas(
       };
     }
 
-    let respostas: RespostaTripla = {
-      curta: parsed.resposta_curta?.trim() ?? "",
-      consultiva: parsed.resposta_consultiva?.trim() ?? "",
-      persuasiva: parsed.resposta_persuasiva?.trim() ?? "",
-    };
-
-    const violou = [respostas.curta, respostas.consultiva, respostas.persuasiva].some(
-      violaCompliance
+    const respostas = await garantirCompliance(
+      {
+        curta: parsed.resposta_curta?.trim() ?? "",
+        consultiva: parsed.resposta_consultiva?.trim() ?? "",
+        persuasiva: parsed.resposta_persuasiva?.trim() ?? "",
+      },
+      user,
+      input
     );
-    if (violou) {
-      const revisaoRaw = await callAI(
-        SYSTEM_GERADOR,
-        user +
-          "\n\nATENÇÃO: a resposta anterior usou termos proibidos (promessa de resultado, cura, ausência de risco ou preço fixo). Reescreva as 3 respostas evitando QUALQUER promessa desse tipo. Responda só com o JSON."
-      );
-      const rev = parseJson<GeradorJson>(revisaoRaw);
-      if (rev) {
-        respostas = {
-          curta: rev.resposta_curta?.trim() || respostas.curta,
-          consultiva: rev.resposta_consultiva?.trim() || respostas.consultiva,
-          persuasiva: rev.resposta_persuasiva?.trim() || respostas.persuasiva,
-        };
-      }
-    }
 
     return { respostas, mock: false, ...nlp };
   } catch (err) {
@@ -363,13 +436,40 @@ export async function gerarFollowUp(
       parsed = parseJson<{ mensagens?: string[] }>(raw);
     }
 
-    const mensagens = (parsed?.mensagens ?? [])
+    let mensagens = (parsed?.mensagens ?? [])
       .map((m) => String(m).trim())
       .filter(Boolean);
 
     if (mensagens.length === 0) {
       return { mensagens: mockFollowup(input), mock: false };
     }
+
+    // Compliance: o follow-up também não pode prometer resultado/cura/preço fixo.
+    if (mensagens.some(violaCompliance)) {
+      // Preserva as mensagens que já passam — uma reescrita curta não pode
+      // descartar mensagens compliant que vieram na primeira geração.
+      const compliantOriginais = mensagens.filter((m) => !violaCompliance(m));
+      let reescritas: string[] = [];
+      try {
+        const revRaw = await callAI(
+          SYSTEM_FOLLOWUP,
+          user +
+            "\n\nATENÇÃO: a resposta anterior usou termos proibidos. Reescreva as 3 mensagens sem QUALQUER promessa de resultado, cura, ausência de risco ou preço fixo. Responda só com o JSON."
+        );
+        reescritas = (parseJson<{ mensagens?: string[] }>(revRaw)?.mensagens ?? [])
+          .map((m) => String(m).trim())
+          .filter((m) => m && !violaCompliance(m));
+      } catch (err) {
+        console.warn("[gerarFollowUp] reescrita de compliance falhou:", err);
+      }
+      // Reescritas compliant primeiro, completadas pelas originais que já passavam
+      // (sem duplicar). Se nada sobrar compliant, usa o mock seguro.
+      mensagens = Array.from(new Set([...reescritas, ...compliantOriginais]));
+      if (mensagens.length === 0) {
+        mensagens = mockFollowup(input);
+      }
+    }
+
     return { mensagens, mock: false };
   } catch (err) {
     console.error("[gerarFollowUp] erro na IA:", err);

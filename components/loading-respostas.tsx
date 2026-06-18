@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 const ETAPAS = [
   "Lendo a mensagem da cliente…",
@@ -16,35 +17,81 @@ const ETAPAS = [
  * uma barra de progresso, em vez de um spinner mudo. Dá a sensação de que
  * tem inteligência trabalhando por trás.
  */
-export function LoadingRespostas({ etapas = ETAPAS }: { etapas?: string[] }) {
+export function LoadingRespostas({
+  etapas = ETAPAS,
+  tone = "light",
+}: {
+  etapas?: string[];
+  tone?: "light" | "dark";
+}) {
+  const dark = tone === "dark";
   const [i, setI] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => {
-      setI((prev) => (prev < etapas.length - 1 ? prev + 1 : prev));
-    }, 1100);
-    return () => clearInterval(t);
-  }, [etapas.length]);
+  const etapasAtivas = etapas.length > 0 ? etapas : ETAPAS;
+  const etapasSignature = etapasAtivas.join("\u0000");
+  const etapasForRun = useMemo(() => etapasAtivas, [etapasSignature]);
 
-  const pct = Math.round(((i + 1) / etapas.length) * 100);
+  useEffect(() => {
+    setI(0);
+    if (etapasForRun.length <= 1) return;
+
+    const t = setInterval(() => {
+      setI((prev) => {
+        const next = prev < etapasForRun.length - 1 ? prev + 1 : prev;
+        if (next >= etapasForRun.length - 1) {
+          clearInterval(t);
+        }
+        return next;
+      });
+    }, 1100);
+
+    return () => clearInterval(t);
+  }, [etapasForRun]);
+
+  const pct = Math.round(((i + 1) / etapasForRun.length) * 100);
 
   return (
-    <Card className="animate-fade-in border-brand-200">
+    <Card
+      className={cn(
+        "animate-fade-in",
+        dark ? "border-white/10 bg-brand-dark" : "border-brand-200"
+      )}
+    >
       <CardBody className="py-8">
-        <div className="mb-4 flex items-center gap-2.5 text-brand-700">
-          <Sparkles size={18} className="animate-pulse" />
-          <span className="text-sm font-semibold transition-opacity">{etapas[i]}</span>
+        <div
+          className={cn(
+            "mb-4 flex items-center gap-2.5",
+            dark ? "text-nude-200" : "text-brand-700"
+          )}
+          role="status"
+          aria-live="polite"
+        >
+          <Sparkles size={18} className="animate-pulse" aria-hidden="true" />
+          <span className="text-sm font-semibold transition-opacity">{etapasForRun[i]}</span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-nude-200">
+        <div
+          className={cn(
+            "h-1.5 w-full overflow-hidden rounded-full",
+            dark ? "bg-white/15" : "bg-nude-200"
+          )}
+          role="progressbar"
+          aria-label="Progresso da geração"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={pct}
+        >
           <div
             className="h-full rounded-full bg-gradient-to-r from-brand-400 to-gold-500 transition-[width] duration-700 ease-out"
             style={{ width: `${pct}%` }}
           />
         </div>
-        <div className="mt-5 space-y-2.5">
+        <div className="mt-5 space-y-2.5" aria-hidden="true">
           {[0, 1, 2].map((n) => (
             <div
               key={n}
-              className="h-12 animate-pulse rounded-xl bg-nude-100"
+              className={cn(
+                "h-12 animate-pulse rounded-xl",
+                dark ? "bg-white/10" : "bg-nude-100"
+              )}
               style={{ animationDelay: `${n * 150}ms` }}
             />
           ))}

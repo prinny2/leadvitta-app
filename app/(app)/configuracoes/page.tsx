@@ -194,6 +194,18 @@ export default function ConfiguracoesPage() {
     );
   }
 
+  // Completude do "DNA" — sinaliza o quanto a IA tem pra trabalhar com a cara
+  // da clínica. Usa só dados que já existem; nenhum campo novo.
+  const dnaCampos = [
+    c.nome_clinica.trim(),
+    c.cidade.trim(),
+    c.whatsapp.trim(),
+    c.procedimentos.length > 0 ? "x" : "",
+  ];
+  const dnaPct = Math.round(
+    (dnaCampos.filter(Boolean).length / dnaCampos.length) * 100
+  );
+
   return (
     <div className="max-w-2xl space-y-6 animate-fade-in">
 
@@ -232,9 +244,32 @@ export default function ConfiguracoesPage() {
           </div>
 
           {/* Divisor DNA */}
-          <div className="flex items-center gap-3 border-y border-navy-500 bg-navy-800 px-5 py-3 sm:px-6">
-            <Dna size={16} className="text-gold-500" />
-            <p className="text-xs font-semibold uppercase tracking-wider text-gold-400">DNA da Clínica</p>
+          <div className="border-y border-navy-500 bg-navy-800 px-5 py-3 sm:px-6">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-3">
+                <Dna size={16} className="text-gold-500" />
+                <p className="text-xs font-semibold uppercase tracking-wider text-gold-400">DNA da Clínica</p>
+              </div>
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold",
+                  dnaPct === 100
+                    ? "bg-green-500/15 text-green-400"
+                    : "bg-gold-500/15 text-gold-400"
+                )}
+              >
+                DNA {dnaPct}% completo
+              </span>
+            </div>
+            <p className="mt-2 text-sm text-navy-100">
+              Quanto mais completo, mais a IA responde com a sua cara.
+            </p>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-navy-700">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-gold-500 to-gold-300 transition-[width] duration-500"
+                style={{ width: `${dnaPct}%` }}
+              />
+            </div>
           </div>
 
           <div className="space-y-5 p-5 sm:p-6">
@@ -288,7 +323,14 @@ export default function ConfiguracoesPage() {
 
             {/* Procedimentos */}
             <div>
-              <Label>Procedimentos que você oferece</Label>
+              <Label>
+                Procedimentos que você oferece
+                {c.procedimentos.length > 0 && (
+                  <span className="ml-1 font-normal text-navy-100">
+                    ({c.procedimentos.length} selecionado{c.procedimentos.length > 1 ? "s" : ""})
+                  </span>
+                )}
+              </Label>
               <div className="mt-1.5 flex flex-wrap gap-2">
                 {procedimentos.map((p) => {
                   const ativo = c.procedimentos.includes(p.label);

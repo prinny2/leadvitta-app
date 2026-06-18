@@ -1,5 +1,8 @@
 import type { Config } from "tailwindcss";
 
+// Paleta navy + gold da identidade LeadBellus (PR #34 / eager-goldberg).
+// lib/design-system/tokens.ts). Para mudar a paleta, sombras, tipografia ou
+// movimento, edite os tokens — não este arquivo.
 export default {
   content: [
     "./app/**/*.{ts,tsx}",

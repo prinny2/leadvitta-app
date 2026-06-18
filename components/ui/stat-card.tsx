@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +25,7 @@ export function StatCard({
 }: {
   icon: LucideIcon;
   label: string;
-  value: React.ReactNode;
+  value: ReactNode;
   hint?: string;
   tone?: Tone;
   className?: string;
@@ -38,7 +39,7 @@ export function StatCard({
       )}
     >
       <div className={cn("mb-3 flex h-9 w-9 items-center justify-center rounded-xl", t.chip)}>
-        <Icon size={18} />
+        <Icon size={18} aria-hidden="true" />
       </div>
       <div className={cn("font-serif text-3xl font-semibold leading-none tabular-nums", t.value)}>
         {value}
