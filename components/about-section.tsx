@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { motion, useScroll, useTransform, useInView, useSpring, type Variants } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 const services = [
   {
@@ -180,7 +181,7 @@ export function AboutSection() {
         </motion.p>
 
         {/* 3-column grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px 1fr", gap: "32px", alignItems: "center" }}>
+        <div className="about-grid" style={{ display: "grid", gap: "32px", alignItems: "center" }}>
           {/* Left column */}
           <div style={{ display: "flex", flexDirection: "column", gap: "48px" }}>
             {services.filter((s) => s.position === "left").map((s, i) => (
@@ -198,9 +199,11 @@ export function AboutSection() {
                 transition={{ duration: 0.8, delay: 0.3 }}
                 whileHover={{ scale: 1.03, transition: { duration: 0.3 } }}
               >
-                <img
+                <Image
                   src="/app-mockup.png"
                   alt="LeadBellus app dashboard"
+                  width={320}
+                  height={620}
                   style={{ width: "100%", height: "auto", display: "block" }}
                 />
                 <motion.div
@@ -272,7 +275,7 @@ export function AboutSection() {
         {/* Stats */}
         <motion.div
           ref={statsRef}
-          style={{ marginTop: "80px", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "24px" }}
+          style={{ marginTop: "80px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "24px" }}
           initial="hidden"
           animate={isStatsInView ? "visible" : "hidden"}
           variants={containerVariants}
@@ -323,6 +326,17 @@ export function AboutSection() {
           </motion.div>
         </motion.div>
       </motion.div>
+      <style>{`
+        .about-grid {
+          grid-template-columns: 1fr 320px 1fr;
+        }
+        @media (max-width: 991px) {
+          .about-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

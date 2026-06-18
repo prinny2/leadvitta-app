@@ -8,6 +8,7 @@ import { Check } from "lucide-react";
 import { PlanCTA } from "@/components/plan-cta";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { billingPlanList } from "@/lib/billing";
+import Link from "next/link";
 
 // ─── Dados dos planos ──────────────────────────────────────────────────────────
 const PLANS = [
@@ -49,7 +50,8 @@ const PLANS = [
     features: [
       "Tudo do Start",
       "Lead Intelligence — score de conversão + perfil psicológico + estratégia exata por lead",
-      "Chatbot WhatsApp Business — atende, qualifica e conduz a lead automaticamente",
+      "Integração oficial com o WhatsApp (Z-API) — conecta no seu número, sem app extra",
+      "Chatbot no WhatsApp — atende, qualifica e conduz a lead automaticamente, 24h por dia",
     ],
     ctaMonthly: "Começar com o Pro — 7 dias grátis →",
     ctaAnnual: "Garantir Pro Anual →",
@@ -83,10 +85,12 @@ function PricingCard({
   plan,
   isAnnual,
   disponivel,
+  ctaHref,
 }: {
   plan: (typeof PLANS)[number];
   isAnnual: boolean;
   disponivel: boolean;
+  ctaHref?: string;
 }) {
   const isPremium = plan.id === "premium";
   const isPro = plan.id === "pro";
@@ -349,13 +353,23 @@ function PricingCard({
       {/* CTA */}
       {disponivel ? (
         <>
-          <PlanCTA
-            plan={plan.id}
-            interval={isAnnual ? "annual" : "monthly"}
-            className="w-full block text-center font-bold text-sm rounded-xl py-3 px-5 mb-3 bg-[#C9A060] text-[#07101e] border-0"
-          >
-            {isAnnual ? plan.ctaAnnual : plan.ctaMonthly}
-          </PlanCTA>
+          {ctaHref ? (
+            <Link
+              href={ctaHref}
+              className="w-full block text-center font-bold text-sm rounded-xl py-3 px-5 mb-3 bg-[#C9A060] text-[#07101e] border-0 font-sans"
+              style={{ textDecoration: "none" }}
+            >
+              {isAnnual ? plan.ctaAnnual : plan.ctaMonthly}
+            </Link>
+          ) : (
+            <PlanCTA
+              plan={plan.id}
+              interval={isAnnual ? "annual" : "monthly"}
+              className="w-full block text-center font-bold text-sm rounded-xl py-3 px-5 mb-3 bg-[#C9A060] text-[#07101e] border-0"
+            >
+              {isAnnual ? plan.ctaAnnual : plan.ctaMonthly}
+            </PlanCTA>
+          )}
           <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", textAlign: "center" }}>
             {isPremium && !isAnnual
               ? "Preço de lançamento garantido · Cancele quando quiser"
@@ -380,7 +394,7 @@ function PricingCard({
 }
 
 // ─── Componente principal ──────────────────────────────────────────────────────
-export function PricingSection() {
+export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
   const [isAnnual, setIsAnnual] = useState(false);
   const switchRef = useRef<HTMLButtonElement>(null);
 
@@ -497,7 +511,7 @@ export function PricingSection() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(300px, 100%), 1fr))",
           gap: "20px",
           alignItems: "start",
           marginBottom: "40px",
@@ -511,6 +525,7 @@ export function PricingSection() {
               plan={plan}
               isAnnual={isAnnual}
               disponivel={billingEntry?.disponivel ?? false}
+              ctaHref={ctaHref}
             />
           );
         })}
@@ -522,10 +537,11 @@ export function PricingSection() {
           background: "#0f1b2f",
           border: "1px solid rgba(201,160,96,0.2)",
           borderRadius: "20px",
-          overflow: "hidden",
+          overflowX: "auto",
+          WebkitOverflowScrolling: "touch",
         }}
       >
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table style={{ width: "100%", minWidth: "520px", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid rgba(201,160,96,0.2)" }}>
               <th style={{ padding: "16px 20px", textAlign: "left", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>PLANO</th>
