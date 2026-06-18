@@ -35,9 +35,16 @@ const nextConfig = {
   async redirects() {
     return LEGACY_PUBLIC_HOSTS.flatMap((host) => [
       {
-        source: "/:path*",
+        source: "/",
         has: [{ type: "host", value: host }],
-        destination: `${CANONICAL_SITE}/:path*`,
+        destination: `${CANONICAL_SITE}/`,
+        permanent: true,
+      },
+      {
+        // Páginas públicas sim — /api/* não (webhooks seguem no Cloud Run).
+        source: "/:path((?!api/).*)",
+        has: [{ type: "host", value: host }],
+        destination: `${CANONICAL_SITE}/:path`,
         permanent: true,
       },
     ]);
