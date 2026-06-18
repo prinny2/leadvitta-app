@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Home, Sparkles, MessagesSquare, Send, ListChecks, History, Settings, LogOut, Brain,
+  Home, Sparkles, MessagesSquare, Send, ListChecks, History, Settings, LogOut, Brain, Users,
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
@@ -15,6 +15,7 @@ const links = [
   { href: "/dashboard",          label: "Início",             icon: Home,          pro: false },
   { href: "/gerador",            label: "Gerador",            icon: Sparkles,      pro: false },
   { href: "/lead-intelligence",  label: "Lead Intelligence",  icon: Brain,         pro: true  },
+  { href: "/equipe",             label: "Equipe",             icon: Users,         pro: false },
   { href: "/objecoes",           label: "Objeções",           icon: MessagesSquare,pro: false },
   { href: "/follow-up",          label: "Follow-up",          icon: Send,          pro: false },
   { href: "/scripts",            label: "Scripts",            icon: ListChecks,    pro: false },
@@ -130,7 +131,7 @@ export function MobileNav() {
           <span className="font-serif text-sm font-semibold text-champagne-300">
             Lead<span className="text-gold-500">Bellus</span>
           </span>
-        </Link>
+      </Link>
         <ThemeToggle />
       </div>
       <nav className="flex gap-1 overflow-x-auto px-3 pb-2">
