@@ -17,6 +17,7 @@ import {
   orderBy,
   limit,
   updateDoc,
+  deleteDoc,
   arrayUnion,
 } from "firebase/firestore";
 import {
@@ -25,10 +26,13 @@ import {
   type HistoricoItem,
   type Conversa,
   type MensagemConversa,
+  type Worker,
+  workerVazio,
 } from "@/lib/types";
 
 const LS_CLINICA = "re_clinica";
 const LS_HISTORICO = "re_historico";
+const LS_WORKERS = "re_workers";
 
 // ---------------- Clínica (configurações / DNA) ----------------
 export async function getClinica(): Promise<Clinica> {
@@ -124,6 +128,79 @@ export async function saveFcmToken(token: string): Promise<void> {
     { fcm_tokens: arrayUnion(token), updated_at: new Date().toISOString() },
     { merge: true }
   );
+}
+
+// ---------------- Workers / Equipe ----------------
+
+export async function listWorkers(): Promise<Worker[]> {
+  if (isFirebaseConfigured) {
+    const user = getFirebaseAuth().currentUser;
+    if (!user) return [];
+    const q = query(
+      collection(getFirebaseDb(), "clinicas", user.uid, "workers"),
+      orderBy("created_at", "desc"),
+      limit(100)
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Worker));
+  }
+  if (typeof window === "undefined") return [];
+  const raw = window.localStorage.getItem(LS_WORKERS);
+  return raw ? (JSON.parse(raw) as Worker[]) : [];
+}
+
+export async function addWorker(input: Omit<Worker, "id" | "created_at">): Promise<Worker> {
+  const now = new Date().toISOString();
+  const novoBase = { ...input, created_at: now, ativo: input.ativo ?? true };
+
+  if (isFirebaseConfigured) {
+    const user = getFirebaseAuth().currentUser;
+    if (!user) throw new Error("Não autenticado");
+    const ref = await addDoc(collection(getFirebaseDb(), "clinicas", user.uid, "workers"), novoBase);
+    return { id: ref.id, ...novoBase } as Worker;
+  }
+
+  if (typeof window === "undefined") throw new Error("Sem window");
+  const list = await listWorkers();
+  const novo: Worker = {
+    id:
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : String(Date.now()),
+    ...novoBase,
+  };
+  const atualizado = [novo, ...list];
+  window.localStorage.setItem(LS_WORKERS, JSON.stringify(atualizado));
+  return novo;
+}
+
+export async function updateWorker(id: string, patch: Partial<Omit<Worker, "id">>): Promise<void> {
+  if (isFirebaseConfigured) {
+    const user = getFirebaseAuth().currentUser;
+    if (!user) return;
+    await updateDoc(doc(getFirebaseDb(), "clinicas", user.uid, "workers", id), {
+      ...patch,
+      updated_at: new Date().toISOString(),
+    });
+    return;
+  }
+  if (typeof window === "undefined") return;
+  const list = await listWorkers();
+  const atualizado = list.map((w) => (w.id === id ? { ...w, ...patch } : w));
+  window.localStorage.setItem(LS_WORKERS, JSON.stringify(atualizado));
+}
+
+export async function deleteWorker(id: string): Promise<void> {
+  if (isFirebaseConfigured) {
+    const user = getFirebaseAuth().currentUser;
+    if (!user) return;
+    await deleteDoc(doc(getFirebaseDb(), "clinicas", user.uid, "workers", id));
+    return;
+  }
+  if (typeof window === "undefined") return;
+  const list = await listWorkers();
+  const atualizado = list.filter((w) => w.id !== id);
+  window.localStorage.setItem(LS_WORKERS, JSON.stringify(atualizado));
 }
 
 // ---------------- Histórico ----------------
