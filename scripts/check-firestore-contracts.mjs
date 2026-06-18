@@ -222,7 +222,7 @@ const requiredRouteContracts = [
       ["verifyFirebaseIdToken(body.firebaseIdToken)", "verifies Firebase ID token before checkout"],
       ["client_reference_id: firebaseUid", "links Stripe checkout to Firebase uid"],
       ['? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"', "returns authenticated checkouts to settings"],
-      [': "/onboarding?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"', "returns public checkouts to onboarding"],
+      [': "/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"', "returns public checkouts to signup"],
     ],
   },
   {

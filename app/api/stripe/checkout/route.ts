@@ -1,5 +1,6 @@
 import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import Stripe from "stripe";
+import type { BillingInterval } from "@/lib/billing";
 import {
   getBillingPlan,
   getStripeCheckoutMode,
@@ -14,6 +15,7 @@ export const runtime = "nodejs";
 
 type CheckoutBody = {
   plan?: unknown;
+  interval?: unknown;
   firebaseIdToken?: string;
   customerEmail?: string;
 };
@@ -54,9 +56,14 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
-  if (!planConfig.priceId) {
+  const interval: BillingInterval =
+    body.interval === "annual" ? "annual" : "monthly";
+  const priceId =
+    interval === "annual" ? planConfig.priceIdAnnual : planConfig.priceId;
+  if (!priceId) {
+    const envSuffix = interval === "annual" ? "_ANNUAL" : "";
     console.error(
-      `[stripe.checkout] STRIPE_PRICE_ID_${plan.toUpperCase()} não configurado.`
+      `[stripe.checkout] STRIPE_PRICE_ID_${plan.toUpperCase()}${envSuffix} não configurado.`
     );
     return jsonNoStore(
       {
@@ -83,6 +90,7 @@ export async function POST(request: Request) {
   const metadata = {
     app: "leadbellus",
     plan,
+    billing_interval: interval,
     firebase_uid: firebaseUid ?? "",
     firebase_email: customerEmail ?? "",
   };
@@ -91,13 +99,13 @@ export async function POST(request: Request) {
   const baseUrl = getBaseUrl(request);
   const successPath = firebaseUid
     ? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"
-    : "/onboarding?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}";
+    : "/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}";
   const cancelPath = firebaseUid
     ? "/configuracoes?checkout=cancelado"
-    : "/onboarding?aba=planos&checkout=cancelado";
+    : "/#demo";
   const params: Stripe.Checkout.SessionCreateParams = {
     mode: checkoutMode,
-    line_items: [{ price: planConfig.priceId, quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${baseUrl}${successPath}`,
     cancel_url: `${baseUrl}${cancelPath}`,
     allow_promotion_codes: true,

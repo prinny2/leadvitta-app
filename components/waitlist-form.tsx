@@ -63,7 +63,8 @@ export function WaitlistForm({ plan, className }: WaitlistFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl border border-brand-300 px-3 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50 disabled:opacity-60"
+          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl px-4 text-sm font-bold transition-opacity disabled:opacity-60"
+          style={{ background: "#C9A060", color: "#07101e" }}
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : null}
           Avise-me

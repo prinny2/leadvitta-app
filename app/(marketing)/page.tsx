@@ -2,526 +2,1585 @@ import Link from "next/link";
 import { Suspense } from "react";
 import {
   Check,
-  X,
-  Sparkles,
   ArrowRight,
-  MessageSquareText,
+  Sparkles,
   ShieldCheck,
-  Flower2,
-  TrendingDown,
+  Target,
+  Brain,
+  MessageSquare,
+  RefreshCw,
+  FileText,
+  Dna,
+  Archive,
+  Bot,
+  CalendarCheck,
+  Bell,
+  Heart,
+  Building2,
+  User,
+  Users,
+  TrendingUp,
+  Layers,
+  Star,
 } from "lucide-react";
-import { isFirebaseConfigured } from "@/lib/config";
 import { billingPlanList } from "@/lib/billing";
-import { Logo } from "@/components/logo";
 import { PlanCTA } from "@/components/plan-cta";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
-import { cn } from "@/lib/utils";
+import { HeroDevices } from "@/components/hero-devices";
+import { HeroShapes } from "@/components/hero-shapes";
+import { HeroTextContent } from "@/components/hero-text-content";
+import { PricingSection } from "@/components/pricing-section";
+import { TestimonialsSection } from "@/components/testimonials-section";
+import { AboutSection } from "@/components/about-section";
 
-// Funil de captação (sem login). Visitante deslogado experimenta antes de criar conta.
-const funilHref = "/onboarding";
+const funilHref = "/signup";
 
-const dores = [
-  "respostas para quem pergunta preço",
-  "respostas para quem achou caro",
-  "mensagens para a cliente que sumiu",
-  "scripts para conduzir até a avaliação",
-  "follow-ups prontos pra trazer de volta",
-  "respostas por procedimento",
-];
+// ─── Logo SVG inline ───────────────────────────────────────────────────────────
+function LogoMark({ size = 32 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 80 96"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M40 6 C26 14, 10 32, 10 54 C10 70, 22 82, 40 90"
+        stroke="#C9A060"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <path
+        d="M40 6 C54 14, 70 32, 70 54 C70 70, 58 82, 40 90"
+        stroke="#C9A060"
+        strokeWidth="4"
+        fill="none"
+        strokeLinecap="round"
+      />
+      <line
+        x1="40" y1="32" x2="40" y2="86"
+        stroke="#C9A060"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <circle cx="40" cy="27" r="5.5" fill="#C9A060" />
+    </svg>
+  );
+}
 
-const heroHooks = [
-  {
-    emoji: "📜",
-    title: "\"Muito texto\" estressa a cliente",
-    desc: "Textões robóticos afastam quem quer praticidade. O cliente premium lê e foge.",
-    tone: "pain" as const,
-  },
-  {
-    emoji: "⏱️",
-    title: "A demora faz ela sumir",
-    desc: "Demorou uma eternidade? Nesse tempo ela já agendou na concorrente.",
-    tone: "pain" as const,
-  },
-  {
-    emoji: "📱",
-    title: "Respostas que não fecham",
-    desc: "A conversa esfria sem um puxão firme para o agendamento.",
-    tone: "muted" as const,
-  },
-];
+// ─── Section tag pill ──────────────────────────────────────────────────────────
+function TagPill({ children, light }: { children: React.ReactNode; light?: boolean }) {
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+        border: `1px solid ${light ? "rgba(201,160,96,0.5)" : "#C9A060"}`,
+        color: light ? "#92610A" : "#C9A060",
+        background: light ? "rgba(201,160,96,0.1)" : "transparent",
+        borderRadius: "9999px",
+        padding: "4px 14px",
+        fontSize: "11px",
+        fontWeight: 700,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        marginBottom: "20px",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
-const vazamentos = [
-  {
-    stat: "R$ 500–2.000",
-    title: "Preço sem contexto",
-    desc: "Só número na mensagem. A cliente vai pra quem explica melhor — ou pra quem é mais barata.",
-  },
-  {
-    stat: "3 em 5",
-    title: "Conversa sem CTA",
-    desc: "A conversa esfria porque ninguém conduz pro horário. Venda morre no WhatsApp.",
-  },
-  {
-    stat: "Toda semana",
-    title: "Cliente que some",
-    desc: "Orçou, não fechou, desapareceu. Sem follow-up certo, esse dinheiro não volta.",
-  },
-];
+// ─── Gold divider ──────────────────────────────────────────────────────────────
+function GoldDivider() {
+  return (
+    <div
+      style={{
+        height: "1px",
+        background: "linear-gradient(90deg, transparent, #C9A060, transparent)",
+        margin: "32px 0",
+        width: "100%",
+      }}
+    />
+  );
+}
 
+// ─── Check bullet ─────────────────────────────────────────────────────────────
+function CheckBullet({ children, color = "#C9A060" }: { children: React.ReactNode; color?: string }) {
+  return (
+    <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+      <span
+        style={{
+          width: "20px",
+          height: "20px",
+          borderRadius: "50%",
+          background: `${color}22`,
+          border: `1px solid ${color}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          marginTop: "2px",
+        }}
+      >
+        <Check size={11} color={color} />
+      </span>
+      <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.82)", lineHeight: 1.65 }}>
+        {children}
+      </span>
+    </div>
+  );
+}
+
+// ─── Nav ───────────────────────────────────────────────────────────────────────
+function Navbar() {
+  return (
+    <nav
+      style={{
+        position: "sticky",
+        top: 0,
+        zIndex: 50,
+        background: "rgba(7,16,30,0.92)",
+        backdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(201,160,96,0.15)",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1152px",
+          margin: "0 auto",
+          padding: "0 24px",
+          height: "64px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "24px",
+        }}
+      >
+        <Link
+          href="/"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            textDecoration: "none",
+            flexShrink: 0,
+          }}
+        >
+          <LogoMark size={28} />
+          <span
+            style={{
+              fontFamily: "var(--font-fraunces, Georgia, serif)",
+              fontSize: "18px",
+              fontWeight: 600,
+              color: "#ffffff",
+              letterSpacing: "-0.01em",
+            }}
+          >
+            LeadBellus
+          </span>
+        </Link>
+
+        <div className="hidden md:flex" style={{ gap: "32px", alignItems: "center" }}>
+          {[
+            { label: "Funções", href: "#funcoes" },
+            { label: "Como funciona", href: "#simulador" },
+            { label: "Preços", href: "#precos" },
+          ].map((l) => (
+            <a
+              key={l.label}
+              href={l.href}
+              style={{ color: "rgba(255,255,255,0.65)", fontSize: "14px", textDecoration: "none" }}
+              className="hover:text-[#C9A060] transition-colors"
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <Link
+            href="/login"
+            style={{ color: "rgba(255,255,255,0.65)", fontSize: "14px", textDecoration: "none" }}
+            className="hidden md:block"
+          >
+            Entrar
+          </Link>
+          <Link
+            href={funilHref}
+            style={{
+              background: "#C9A060",
+              color: "#07101e",
+              borderRadius: "9999px",
+              padding: "8px 20px",
+              fontSize: "14px",
+              fontWeight: 700,
+              textDecoration: "none",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Começar grátis
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// ─── Launch banner ─────────────────────────────────────────────────────────────
+function LaunchBanner() {
+  return (
+    <div
+      style={{
+        background: "linear-gradient(90deg, #92610A, #C9A060, #92610A)",
+        color: "#07101e",
+        textAlign: "center",
+        padding: "10px 24px",
+        fontSize: "13px",
+        fontWeight: 700,
+        letterSpacing: "0.02em",
+      }}
+    >
+      ✦ Lançamento: garanta seu preço de fundadora — ele fica congelado enquanto você for assinante.
+    </div>
+  );
+}
+
+// ─── PAGE ──────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
-    <div className="bg-nude-50">
-      {/* Top nav */}
-      <header className="relative overflow-hidden bg-hero">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-12 top-10 h-48 w-48 rounded-full bg-brand-200/40 blur-3xl animate-float" />
-          <div className="absolute -right-12 top-20 h-56 w-56 rounded-full bg-gold-200/50 blur-3xl animate-float-delayed" />
-        </div>
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
-          <Logo href="/" textClass="text-lg text-ink" />
-          <Link href={funilHref} className="btn-cta px-4 py-2 text-sm">
-            Teste grátis e agende mais
-          </Link>
-        </nav>
+    <div style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)" }}>
+      <Navbar />
+      <LaunchBanner />
 
-        {/* Hero */}
-        <section className="mx-auto max-w-5xl px-4 pb-12 pt-10 text-center sm:pt-16">
-          <span className="badge-pain animate-float border border-pain-200 bg-white/80">
-            <TrendingDown size={14} /> Clínicas perdem até R$8 mil/mês no WhatsApp
-          </span>
-          <h1 className="mt-6 font-serif text-4xl font-semibold leading-tight text-ink sm:text-6xl">
-            Ela perguntou o preço.{" "}
-            <span className="text-gold-gradient">Você respondeu errado.</span>{" "}
-            Ela sumiu.
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted">
-            Resposta curta, no tom da sua clínica, que cria valor e puxa pra
-            avaliação — sem parede de texto e sem improviso.
-          </p>
-          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link href={funilHref} className="btn-cta min-w-[260px] px-8 py-4">
-              Ver minha resposta em 1 min <ArrowRight size={18} />
-            </Link>
-            <Link href="#demo" className="btn-cta-outline min-w-[220px] px-8 py-4">
-              Comparar antes e depois
-            </Link>
-          </div>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted">
-            <span>Sem cartão pra testar</span>
-            <span>Pronto no celular</span>
-            <span>Feito para clínicas de estética</span>
-          </div>
-          <div className="mt-10 grid gap-3 text-left sm:grid-cols-3">
-            {heroHooks.map((hook) => (
-              <div
-                key={hook.title}
-                className={cn(
-                  "rounded-2xl border p-4 shadow-sm backdrop-blur",
-                  hook.tone === "pain"
-                    ? "border-pain-200 bg-pain-50/80"
-                    : "border-brand-100 bg-white/80"
-                )}
-              >
-                <div className="text-2xl">{hook.emoji}</div>
-                <p
-                  className={cn(
-                    "mt-3 text-sm font-bold",
-                    hook.tone === "pain" ? "text-pain-600" : "text-ink"
-                  )}
-                >
-                  {hook.title}
-                </p>
-                <p className="mt-1 text-sm leading-relaxed text-muted">{hook.desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+      {/* ── HERO ─────────────────────────────────────────────────────────────── */}
+      <section
+        id="hero"
+        style={{
+          background: "#07101e",
+          color: "#ffffff",
+          padding: "72px 24px 80px",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div style={{ position: "absolute", top: "-80px", left: "-100px", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(201,160,96,0.10) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", bottom: "-60px", right: "-80px", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(201,160,96,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "30%", right: "10%", width: "300px", height: "300px", background: "radial-gradient(circle, rgba(96,160,201,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <HeroShapes />
 
-        {/* Lançamento — sem logos fictícios até ter depoimentos reais */}
-        <div className="mx-auto max-w-5xl px-4 pb-16 text-center">
-          <p className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/70 px-4 py-2 text-sm font-medium text-muted">
-            <Flower2 size={16} className="text-brand-500" />
-            Entre no lançamento e padronize suas respostas antes da próxima cliente sumir
-          </p>
-        </div>
-      </header>
+        <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "420px 1fr",
+              gap: "40px",
+              alignItems: "flex-start",
+            }}
+            className="hero-grid"
+          >
+            {/* Left — copy (animado) */}
+            <HeroTextContent />
 
-      {/* Demo */}
-      <section id="demo" className="mx-auto max-w-6xl px-4 py-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="font-serif text-3xl font-semibold text-ink">
-            Veja a diferença em 30 segundos
-          </h2>
-          <p className="mt-3 text-muted">
-            Coloque o nome e o tom da sua clínica e veja a resposta mudar — sem login.
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {[
-              { id: "preco", label: "Perguntou preço" },
-              { id: "achou_caro", label: "Achou caro" },
-              { id: "sumiu", label: "Sumiu" },
-              { id: "medo", label: "Medo do procedimento" },
-            ].map((d) => (
-              <Link
-                key={d.id}
-                href={`/?demo=${d.id}#demo`}
-                className="rounded-full border border-brand-200 bg-white px-3 py-1.5 text-xs font-semibold text-ink hover:bg-brand-50"
-              >
-                {d.label}
-              </Link>
-            ))}
+            {/* Right — animated device mockups */}
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "48px" }}>
+              <HeroDevices />
+            </div>
           </div>
         </div>
-        <div className="mt-10">
-          <Suspense fallback={<LoadingRespostas etapas={["Carregando a demo…"]} />}>
-            <LandingWhatsAppDemo />
-          </Suspense>
-        </div>
+
+        <style>{`
+          @media (max-width: 768px) {
+            .hero-grid {
+              grid-template-columns: 1fr !important;
+              text-align: center;
+            }
+            .hero-grid > div:first-child > p { margin-left: auto; margin-right: auto; }
+            .hero-grid > div:first-child > div { justify-content: center; }
+          }
+        `}</style>
       </section>
 
-      {/* Dor */}
-      <section className="mx-auto max-w-5xl px-4 py-16">
-        <div className="mx-auto mb-4 badge-pain">
-          <TrendingDown size={14} /> Onde o dinheiro vaza
-        </div>
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="font-serif text-3xl font-semibold text-ink">
-            Ela queria agendar. A conversa morreu no meio do caminho.
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-muted">
-            Na estética, a venda se perde quando a resposta não cria valor, não acolhe
-            e não conduz. Cada conversa travada pode ser um procedimento a menos na sua agenda.
-          </p>
-        </div>
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {vazamentos.map((item) => (
-            <div
-              key={item.title}
-              className="card-pain rounded-3xl p-6"
+      {/* ── PROBLEMA E SOLUÇÃO ───────────────────────────────────────────────── */}
+      <section
+        id="problema"
+        style={{ background: "#F5F0E6", padding: "96px 24px" }}
+      >
+        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <TagPill light>Onde o dinheiro vaza sem você perceber</TagPill>
+            <h2
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "clamp(28px, 4vw, 46px)",
+                fontWeight: 700,
+                color: "#0A1628",
+                lineHeight: 1.15,
+                margin: "0 0 24px",
+                maxWidth: "700px",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
             >
-              <p className="font-serif text-2xl font-bold text-pain-500">{item.stat}</p>
-              <h3 className="mt-2 text-lg font-semibold text-ink">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Antes / Depois */}
-      <section className="mx-auto max-w-5xl px-4 pb-16">
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-3xl border border-pain-200 bg-pain-50/70 p-8 shadow-sm">
-            <div className="badge-pain mb-4">
-              <X size={14} /> Resposta qualquer
-            </div>
-            <p className="font-serif text-xl italic text-pain-600">“Botox é R$900.”</p>
-            <p className="mt-4 text-sm leading-relaxed text-pain-600/80">
-              Resposta seca, focada só no preço. A cliente sente que é só mais um
-              número, compara com o concorrente mais barato e some. Venda perdida.
-            </p>
-          </div>
-          <div className="relative overflow-hidden rounded-3xl border-2 border-gold-300 bg-gradient-to-br from-white to-gold-50 p-8 shadow-cta">
-            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gold-200/40 blur-2xl" />
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-gold-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-700">
-              <Check size={14} /> A resposta que agenda
-            </div>
-            <p className="text-lg font-medium leading-relaxed text-ink">
-              “Oi, Ana! O investimento pode variar conforme os pontos avaliados e
-              o objetivo do tratamento. Você busca suavizar linhas da testa, pés
-              de galinha ou prevenir marcas? Assim consigo te orientar melhor e
-              ver o melhor caminho para você.”
-            </p>
-            <p className="mt-4 text-sm font-semibold text-gold-700">
-              Resultado: acolhe, cria valor e puxa pra avaliação.
-            </p>
-          </div>
-        </div>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          {[
-            "Cria valor antes do preço",
-            "Fala no tom da sua clínica",
-            "Conduz para avaliação",
-          ].map((item) => (
-            <span
-              key={item}
-              className="rounded-full border border-gold-200 bg-gold-50 px-4 py-2 text-xs font-semibold text-gold-700"
+              A cliente perguntou o preço. Você respondeu. Ela sumiu.
+            </h2>
+            <p
+              style={{
+                color: "#4a5568",
+                fontSize: "16px",
+                lineHeight: 1.8,
+                maxWidth: "640px",
+                margin: "0 auto 24px",
+              }}
             >
-              {item}
-            </span>
-          ))}
-        </div>
-      </section>
+              Não foi porque era cara demais. Foi porque a resposta não conduziu.
+              Não acolheu. Não gerou autoridade. Não criou o próximo passo.
+            </p>
+            <p
+              style={{
+                color: "#4a5568",
+                fontSize: "16px",
+                lineHeight: 1.8,
+                maxWidth: "640px",
+                margin: "0 auto 24px",
+              }}
+            >
+              Na estética, a maioria das vendas não se perde por falta de
+              interesse — se perde nos primeiros três minutos de conversa no
+              WhatsApp. Quando a mensagem é seca, quando o preço aparece cedo
+              demais, quando a cliente não sente que você é diferente da clínica
+              do lado.
+            </p>
+            <p
+              style={{
+                color: "#92610A",
+                fontSize: "16px",
+                fontWeight: 600,
+                lineHeight: 1.8,
+                maxWidth: "640px",
+                margin: "0 auto",
+              }}
+            >
+              E o pior: você já sabe disso. Já ficou olhando pro WhatsApp
+              pensando "essa eu devia ter conseguido".
+            </p>
+          </div>
 
-      {/* Lead Intelligence — killer feature */}
-      <section className="mx-auto max-w-5xl px-4 pb-16">
-        <div className="relative overflow-hidden rounded-3xl bg-brand-dark p-8 text-white shadow-soft sm:p-12">
-          <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-lavender-400/10 blur-3xl" />
-          <div className="relative grid items-center gap-8 md:grid-cols-2">
-            <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-lavender-400/30 bg-lavender-400/20 px-3 py-1 text-xs font-bold text-lavender-300">
-                <Sparkles size={14} /> EXCLUSIVO · LEAD INTELLIGENCE
-              </span>
-              <h2 className="mt-4 font-serif text-3xl font-semibold text-nude-50">
-                Filtro de ROI: O fim do tempo perdido com curiosos
-              </h2>
-              <p className="mt-4 text-sm leading-relaxed text-nude-200">
-                Nossa inteligência separa quem quer agendar hoje de quem só está pesquisando preço. 
-                O LeadBellus prioriza os agendamentos no seu WhatsApp e pode até fechar o horário 
-                sozinho enquanto você atende.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-300 border border-brand-500/30">
-                  Agendamento Autônomo (Zero Toque)
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-lavender-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-lavender-300 border border-lavender-500/30">
-                  Priorização de Faturamento
-                </span>
-              </div>
-            </div>
-            <div className="space-y-3">
+          {/* Checklist de dor */}
+          <div
+            style={{
+              background: "#ffffff",
+              border: "1.5px solid #E8E4DC",
+              borderRadius: "24px",
+              padding: "40px 36px",
+              marginBottom: "48px",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "18px",
+                fontWeight: 700,
+                color: "#0A1628",
+                marginBottom: "24px",
+              }}
+            >
+              Você já se reconheceu aqui?
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               {[
-                { emoji: "🔥", t: "Quente", d: "“Posso pagar no cartão? Tem horário amanhã?” — quer fechar agora", cls: "border-red-300/30" },
-                { emoji: "🌤️", t: "Morna", d: "“Vou pensar e te falo…” — precisa de um empurrãozinho", cls: "border-amber-300/30" },
-                { emoji: "❄️", t: "Fria", d: "Sumiu depois do orçamento — hora do follow-up certo", cls: "border-sky-300/30" },
-              ].map((x) => (
-                <div
-                  key={x.t}
-                  className={`flex items-start gap-3 rounded-2xl border bg-white/5 px-4 py-3 ${x.cls}`}
-                >
-                  <span className="text-xl">{x.emoji}</span>
-                  <div>
-                    <p className="text-sm font-bold text-nude-50">{x.t}</p>
-                    <p className="text-xs leading-relaxed text-nude-200">{x.d}</p>
-                  </div>
+                "Deu o preço do botox e a cliente sumiu sem responder",
+                `Ouviu "vou pensar" e nunca mais teve retorno`,
+                `A cliente disse "na outra é mais barato" e você não soube o que responder`,
+                "Fez orçamento há 3 dias e não fez follow-up porque não sabe o que falar",
+                `Ficou com aquela sensação: "ela ia fechar — eu errei na resposta"`,
+                "Tem 15 conversas abertas e não sabe qual delas está quente pra fechar",
+              ].map((item) => (
+                <div key={item} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                  <span
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      borderRadius: "50%",
+                      background: "#fee2e2",
+                      border: "1px solid #fca5a5",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      marginTop: "2px",
+                      fontSize: "10px",
+                      color: "#b91c1c",
+                      fontWeight: 800,
+                    }}
+                  >
+                    ✗
+                  </span>
+                  <span style={{ fontSize: "15px", color: "#374151", lineHeight: 1.65 }}>{item}</span>
                 </div>
               ))}
             </div>
           </div>
+
+          {/* Solução */}
+          <div
+            style={{
+              background: "#0A1628",
+              borderRadius: "24px",
+              padding: "40px 36px",
+              color: "#ffffff",
+              textAlign: "center",
+            }}
+          >
+            <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.6)", lineHeight: 1.8, marginBottom: "16px" }}>
+              Se você marcou dois ou mais — o problema não é você. É que você
+              nunca teve a ferramenta certa.
+            </p>
+            <p style={{ fontSize: "15px", color: "rgba(255,255,255,0.8)", lineHeight: 1.8, marginBottom: "24px" }}>
+              Cada conversa que some sem agendar pode valer de{" "}
+              <strong style={{ color: "#C9A060" }}>R$800 a R$3.000</strong>.
+              Não porque você é ruim no atendimento — mas porque responder bem
+              no WhatsApp, com condução psicológica e estratégia, é uma habilidade
+              de vendas. E ninguém te ensinou isso.
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "20px",
+                fontWeight: 700,
+                color: "#C9A060",
+              }}
+            >
+              O LeadBellus foi construído exatamente pra isso.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Solução */}
-      <section className="bg-soft py-16">
-        <div className="mx-auto max-w-5xl px-4">
-          <div className="text-center">
-            <h2 className="font-serif text-3xl font-semibold text-ink">
-              O que você passa a responder sem travar
+      {/* ── PRA QUEM É INDICADO ──────────────────────────────────────────────── */}
+      <section
+        id="indicado"
+        style={{ background: "#07101e", padding: "96px 24px" }}
+      >
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <TagPill>Antes de continuar</TagPill>
+            <h2
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "clamp(28px, 4vw, 44px)",
+                fontWeight: 700,
+                color: "#ffffff",
+                margin: "0 0 16px",
+                lineHeight: 1.2,
+              }}
+            >
+              Se você cuida de clientes —{" "}
+              <span style={{ color: "#C9A060" }}>o LeadBellus cuida do seu atendimento</span>
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-muted">
-              Menos improviso, menos texto frio, mais conversa que anda para frente:
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "580px", margin: "0 auto" }}>
+              Não importa se você atende sozinho, tem uma equipe ou gerencia uma
+              clínica completa. Se o WhatsApp é onde as suas vendas acontecem,
+              é aqui que você vai parar de perder dinheiro.
             </p>
           </div>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {dores.map((d) => (
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "16px",
+              marginBottom: "48px",
+            }}
+          >
+            {[
+              {
+                icon: <Building2 size={22} color="#C9A060" strokeWidth={1.5} />,
+                emoji: "🏥",
+                title: "Você tem ou gerencia uma clínica de estética",
+                body: "Botox, harmonização, preenchimento, laser, bioestimulador, microagulhamento — qualquer clínica onde a venda começa numa conversa de WhatsApp antes de virar agendamento.",
+              },
+              {
+                icon: <User size={22} color="#C9A060" strokeWidth={1.5} />,
+                emoji: "💼",
+                title: "Você é autônomo e atende no seu próprio espaço",
+                body: "Profissional solo que faz tudo: o procedimento, o atendimento e a venda. Cada conversa de WhatsApp é uma oportunidade que não pode escapar.",
+              },
+              {
+                icon: <Users size={22} color="#C9A060" strokeWidth={1.5} />,
+                emoji: "👥",
+                title: "Você tem recepcionista ou está pensando em contratar",
+                body: "Treinar alguém pra conduzir conversa de venda leva meses. Com o LeadBellus, seu atendimento já nasce padronizado e estratégico — sem depender da habilidade de cada pessoa.",
+              },
+              {
+                icon: <TrendingUp size={22} color="#C9A060" strokeWidth={1.5} />,
+                emoji: "📈",
+                title: "Você quer mais agendamentos sem aumentar anúncios",
+                body: "O problema não é a captação. É a conversão. Você já tem as leads chegando — elas só estão vazando na conversa.",
+              },
+              {
+                icon: <Layers size={22} color="#C9A060" strokeWidth={1.5} />,
+                emoji: "🔄",
+                title: "Você quer escalar sem depender de você em tudo",
+                body: "Hoje cada resposta importante precisa passar pela sua aprovação. Com o LeadBellus — especialmente no Premium — o sistema atende, qualifica, agenda e acompanha.",
+              },
+            ].map((card) => (
               <div
-                key={d}
-                className="flex items-center gap-3 rounded-2xl border border-brand-100 bg-white p-4 shadow-card"
+                key={card.title}
+                style={{
+                  background: "#0f1b2f",
+                  border: "1px solid rgba(201,160,96,0.15)",
+                  borderRadius: "20px",
+                  padding: "28px 24px",
+                  transition: "border-color 0.2s",
+                }}
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-500">
-                  <Check size={16} />
-                </span>
-                <span className="text-sm text-ink">{d}</span>
+                <div
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "12px",
+                    background: "rgba(201,160,96,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: "16px",
+                    fontSize: "20px",
+                  }}
+                >
+                  {card.emoji}
+                </div>
+                <h3
+                  style={{
+                    fontFamily: "var(--font-fraunces, Georgia, serif)",
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    margin: "0 0 10px",
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {card.title}
+                </h3>
+                <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.6)", lineHeight: 1.7 }}>
+                  {card.body}
+                </p>
               </div>
+            ))}
+          </div>
+
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)", marginBottom: "24px" }}>
+              Seja biomédico, médico, fisioterapeuta, esteticista ou gestor de clínica — se o seu negócio de estética vive de agendamentos, esse sistema foi construído pra você.
+            </p>
+            <Link
+              href={funilHref}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "#C9A060",
+                color: "#07101e",
+                borderRadius: "9999px",
+                padding: "14px 32px",
+                fontSize: "15px",
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              Quero testar grátis por 7 dias →
+            </Link>
+            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
+              Sem cartão · Acesso imediato · Pronto em 2 minutos
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── BENEFÍCIOS / FUNÇÕES ─────────────────────────────────────────────── */}
+      <section
+        id="funcoes"
+        style={{ background: "#F5F0E6", padding: "96px 24px" }}
+      >
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "64px" }}>
+            <TagPill light>As funções do LeadBellus</TagPill>
+            <h2
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "clamp(28px, 4vw, 44px)",
+                fontWeight: 700,
+                color: "#0A1628",
+                margin: "0 0 16px",
+                lineHeight: 1.2,
+              }}
+            >
+              Cada situação que você enfrenta no WhatsApp —{" "}
+              <em>resolvida</em>
+            </h2>
+            <p style={{ color: "#4a5568", fontSize: "16px", maxWidth: "600px", margin: "0 auto" }}>
+              Não é um ChatGPT genérico. O LeadBellus foi treinado nas situações
+              reais da jornada de compra de uma cliente de estética brasileira.
+            </p>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {[
+              {
+                num: "01",
+                emoji: "🎯",
+                icon: <Target size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "Gerador de Respostas",
+                subtitle: "A resposta certa, no seu tom, em 30 segundos",
+                body: "Cola a mensagem que a cliente mandou → seleciona a situação → escolhe o procedimento → clica em Gerar. Você recebe 3 versões: Suave, Consultiva e Fechamento. Lê, escolhe, copia e manda. Trinta segundos. Venda conduzida.",
+                impact: "Você para de ficar olhando pra tela pensando no que escrever. A resposta sai no seu tom — porque você configurou isso uma vez, e o sistema nunca esquece.",
+                plans: "START · PRO · PREMIUM",
+                dark: false,
+              },
+              {
+                num: "02",
+                emoji: "🧠",
+                icon: <Brain size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "Lead Intelligence",
+                subtitle: "Saiba na hora quem está quase fechando — sem ler tudo",
+                body: "Cola a conversa da cliente → o Lead Intelligence analisa e devolve: ① Score de conversão — a porcentagem de chance de fechamento. ② Perfil psicológico — o que ela quer, o que a trava. ③ Estratégia exata — como abordá-la pra maximizar o agendamento.",
+                impact: "Você tem 18 conversas abertas. Com o Lead Intelligence, sabe em 3 minutos quais são as 3 prontas pra fechar — e o que dizer pra cada uma.",
+                plans: "PRO · PREMIUM",
+                dark: true,
+              },
+              {
+                num: "03",
+                emoji: "💬",
+                icon: <MessageSquare size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "Biblioteca de Objeções",
+                subtitle: `Nunca mais trava quando a cliente diz "está caro"`,
+                body: `"Está caro." "Vou pensar." "Na outra clínica é mais barato." "Tenho medo de ficar artificial." Cada objeção tem uma resposta estratégica que acolhe, educa e conduz. Você clica na situação, a resposta aparece adaptada ao seu tom, e você copia. Em menos de 15 segundos.`,
+                impact: "Toda objeção tem uma resposta certa. Agora você sempre vai ter ela na ponta dos dedos — sem pensar, sem hesitar, sem perder a venda.",
+                plans: "START · PRO · PREMIUM",
+                dark: false,
+              },
+              {
+                num: "04",
+                emoji: "🔄",
+                icon: <RefreshCw size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "Follow-up Inteligente",
+                subtitle: "Reativa a cliente que sumiu — sem parecer desesperado",
+                body: "Seleciona quanto tempo faz que ela sumiu: 2h / 1 dia / 3 dias / 1 semana / 15 dias ou mais. Gera 3 mensagens com progressão psicológica: suave → direta com gatilho de valor → última tentativa com fechamento.",
+                impact: `Você para de ter leads paradas na caixa. Clientes que iam embora pra nunca mais voltar começam a responder "oi, ainda tem vaga?" — porque a mensagem certa chegou na hora certa.`,
+                plans: "START · PRO · PREMIUM",
+                dark: true,
+              },
+              {
+                num: "05",
+                emoji: "📋",
+                icon: <FileText size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "Scripts de Atendimento Completo",
+                subtitle: `Do primeiro "oi" ao agendamento — sem improvisar`,
+                body: "Fluxo completo de 4–5 mensagens com indicação de quando mandar cada uma. Fluxos disponíveis: cliente perguntou preço pela primeira vez · disse que está caro · nova do Instagram · reativação de cliente antiga · pós-procedimento.",
+                impact: "Você vai de 0 a agendamento com a mesma lead que antes ficava só olhando. Sem improvisar em cada etapa.",
+                plans: "START · PRO · PREMIUM",
+                dark: false,
+              },
+              {
+                num: "06",
+                emoji: "🧬",
+                icon: <Dna size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "DNA da Clínica",
+                subtitle: "Toda resposta parece você — não uma máquina",
+                body: "Configure uma vez (5 minutos): como você chama as clientes, nível de formalidade, seu CTA preferido, procedimentos que você oferece, seu diferencial. Depois disso, toda resposta gerada sai com esses parâmetros gravados.",
+                impact: "As clientes não percebem que foi uma ferramenta. Percebem que você responde bem. É como ter uma versão sua que nunca está cansada, nunca trava, nunca responde seco.",
+                plans: "START · PRO · PREMIUM",
+                dark: true,
+              },
+              {
+                num: "07",
+                emoji: "🗂️",
+                icon: <Archive size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "Histórico e Favoritos",
+                subtitle: "Suas melhores respostas, organizadas e prontas pra usar de novo",
+                body: "Tudo que você gerar fica salvo automaticamente com data, módulo usado, situação e procedimento. Você pode favoritar as respostas que mais funcionaram e filtrar por tipo quando precisar.",
+                impact: "Com o tempo, você constrói uma biblioteca pessoal das suas melhores respostas. Não começa do zero toda vez.",
+                plans: "START · PRO · PREMIUM",
+                dark: false,
+              },
+              {
+                num: "08",
+                emoji: "📲",
+                icon: <Bot size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "Chatbot WhatsApp Business",
+                subtitle: "Sua clínica atendendo — mesmo quando você está em procedimento",
+                body: "O LeadBellus se conecta diretamente ao seu WhatsApp Business. Quando uma lead nova entra, o chatbot assume: responde, apresenta a clínica, quebra objeções, faz follow-up. No Pro, o bot prepara o terreno e você confirma o fechamento. No Premium, o ciclo é 100% autônomo.",
+                impact: "São 23h. Uma pessoa viu seu post e mandou mensagem. Sem o chatbot: ela esfria. Com o chatbot: você acorda com um lead quente esperando só pela sua confirmação.",
+                plans: "PRO (semi-autônomo) · PREMIUM (totalmente autônomo)",
+                dark: true,
+              },
+              {
+                num: "09",
+                emoji: "📅",
+                icon: <CalendarCheck size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "Agendamento Autônomo",
+                subtitle: "O bot fecha a consulta. Você aparece só pra atender.",
+                body: "Você configura seus dias, horários e tempo por procedimento. O chatbot apresenta os próximos horários disponíveis, a cliente escolhe e o agendamento é confirmado automaticamente — sem intermediário humano.",
+                impact: "A sua agenda se preenche enquanto você está em procedimento, dormindo ou no fim de semana.",
+                plans: "PREMIUM",
+                dark: false,
+              },
+              {
+                num: "10",
+                emoji: "⏰",
+                icon: <Bell size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "Lembrete + Orientações Pré-consulta",
+                subtitle: "Zero falta. Cliente preparada. Consulta que acontece.",
+                body: "24 horas antes de cada consulta: ① Lembrete personalizado com horário e endereço. ② Orientações pré-procedimento personalizadas por tipo. ③ Pedido de confirmação com resposta em um toque. Se cancelar — você recebe alerta com tempo hábil.",
+                impact: "Taxa de no-show cai. A cliente chega preparada. O resultado é melhor — o que gera mais indicação.",
+                plans: "PRO · PREMIUM",
+                dark: true,
+              },
+              {
+                num: "11",
+                emoji: "💚",
+                icon: <Heart size={18} color="#C9A060" strokeWidth={1.5} />,
+                title: "Gestão Pós-consulta",
+                subtitle: "O procedimento acabou. O relacionamento começa agora.",
+                body: "No intervalo que você definir (2, 5 ou 7 dias após o procedimento), o sistema envia: pergunta sobre a recuperação → orientação específica do pós → abre porta pra tirar dúvidas → planta a semente do próximo agendamento.",
+                impact: "A cliente sente que você se importa com o resultado — não só com o pagamento. Isso gera confiança, indicação e recorrência.",
+                plans: "PRO · PREMIUM",
+                dark: false,
+              },
+            ].map((fn) => (
+              <div
+                key={fn.num}
+                style={{
+                  background: fn.dark ? "#0A1628" : "#ffffff",
+                  border: `1px solid ${fn.dark ? "rgba(201,160,96,0.15)" : "#E8E4DC"}`,
+                  borderRadius: "20px",
+                  padding: "32px 28px",
+                  display: "grid",
+                  gridTemplateColumns: "auto 1fr auto",
+                  gap: "24px",
+                  alignItems: "flex-start",
+                  boxShadow: fn.dark ? "none" : "0 2px 12px rgba(0,0,0,0.05)",
+                }}
+                className="fn-card"
+              >
+                {/* Number + emoji */}
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", minWidth: "48px" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-fraunces, Georgia, serif)",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: "#C9A060",
+                      letterSpacing: "0.1em",
+                    }}
+                  >
+                    {fn.num}
+                  </span>
+                  <div
+                    style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "12px",
+                      background: "rgba(201,160,96,0.12)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "22px",
+                    }}
+                  >
+                    {fn.emoji}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div>
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-fraunces, Georgia, serif)",
+                      fontSize: "20px",
+                      fontWeight: 700,
+                      color: fn.dark ? "#ffffff" : "#0A1628",
+                      margin: "0 0 4px",
+                    }}
+                  >
+                    {fn.title}
+                  </h3>
+                  <p style={{ fontSize: "13px", color: "#C9A060", fontWeight: 600, marginBottom: "12px" }}>
+                    {fn.subtitle}
+                  </p>
+                  <p style={{ fontSize: "14px", color: fn.dark ? "rgba(255,255,255,0.65)" : "#4a5568", lineHeight: 1.75, marginBottom: "12px" }}>
+                    {fn.body}
+                  </p>
+                  <div
+                    style={{
+                      background: fn.dark ? "rgba(201,160,96,0.08)" : "rgba(201,160,96,0.08)",
+                      border: "1px solid rgba(201,160,96,0.2)",
+                      borderRadius: "10px",
+                      padding: "10px 14px",
+                    }}
+                  >
+                    <p style={{ fontSize: "13px", color: fn.dark ? "rgba(255,255,255,0.8)" : "#374151", lineHeight: 1.65, margin: 0 }}>
+                      <strong style={{ color: "#C9A060" }}>O que muda na prática: </strong>
+                      {fn.impact}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Plan badge */}
+                <div style={{ flexShrink: 0 }}>
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      padding: "5px 12px",
+                      borderRadius: "9999px",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      background: "rgba(201,160,96,0.12)",
+                      color: "#C9A060",
+                      letterSpacing: "0.04em",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {fn.plans}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <style>{`
+            @media (max-width: 640px) {
+              .fn-card { grid-template-columns: auto 1fr !important; }
+              .fn-card > div:last-child { grid-column: 1 / -1; }
+            }
+          `}</style>
+        </div>
+      </section>
+
+      <AboutSection />
+
+      {/* ── ANTES E DEPOIS ──────────────────────────────────────────────────── */}
+      <section
+        id="antes-depois"
+        style={{ background: "#F5F0E6", padding: "96px 24px" }}
+      >
+        <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <TagPill light>Ver pra crer</TagPill>
+            <h2
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "clamp(28px, 4vw, 44px)",
+                fontWeight: 700,
+                color: "#0A1628",
+                margin: "0 0 16px",
+                lineHeight: 1.2,
+              }}
+            >
+              A diferença entre a resposta que perde e a resposta que agenda
+            </h2>
+            <p style={{ color: "#4a5568", fontSize: "16px", maxWidth: "520px", margin: "0 auto" }}>
+              Não é sobre ser mais inteligente. É sobre ter a resposta certa já pronta pra usar.
+            </p>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+            {/* SITUAÇÃO 01 */}
+            <div>
+              <p
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  color: "#92610A",
+                  letterSpacing: "0.08em",
+                  marginBottom: "16px",
+                  textTransform: "uppercase",
+                }}
+              >
+                Situação 01 — Cliente pergunta o preço do botox
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+                <div
+                  style={{
+                    background: "#fff0f0",
+                    border: "1.5px solid #fca5a5",
+                    borderRadius: "20px",
+                    padding: "28px",
+                  }}
+                >
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#fee2e2", color: "#b91c1c", borderRadius: "9999px", padding: "4px 12px", fontSize: "11px", fontWeight: 700, marginBottom: "16px" }}>
+                    ✕ Resposta comum
+                  </div>
+                  <div style={{ background: "#ffffff", border: "1px solid #fca5a5", borderRadius: "12px", padding: "14px 18px", fontSize: "15px", color: "#374151", fontStyle: "italic", marginBottom: "14px" }}>
+                    "Botox é R$900."
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.65 }}>
+                    Resposta seca, focada só no preço. A cliente sente que é um número, não uma pessoa. Compara com a concorrente mais barata e some.
+                  </p>
+                </div>
+                <div
+                  style={{
+                    background: "#0f1b2f",
+                    border: "2px solid #C9A060",
+                    borderRadius: "20px",
+                    padding: "28px",
+                  }}
+                >
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(201,160,96,0.15)", color: "#C9A060", borderRadius: "9999px", padding: "4px 12px", fontSize: "11px", fontWeight: 700, marginBottom: "16px" }}>
+                    ✓ Resposta com LeadBellus
+                  </div>
+                  <div style={{ background: "rgba(201,160,96,0.07)", border: "1px solid rgba(201,160,96,0.25)", borderRadius: "12px", padding: "14px 18px", fontSize: "14px", color: "rgba(255,255,255,0.9)", lineHeight: 1.7, marginBottom: "14px" }}>
+                    "Oi, Ana! O investimento pode variar conforme os pontos avaliados e o objetivo do tratamento. Você busca suavizar as linhas da testa, pés de galinha ou prefere um resultado mais preventivo? Assim consigo te orientar melhor sobre o melhor caminho pra você. 💚"
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#C9A060", fontWeight: 600 }}>
+                    Acolhe, demonstra expertise, desvia do preço e conduz pra avaliação.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* SITUAÇÃO 02 */}
+            <div>
+              <p
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  color: "#92610A",
+                  letterSpacing: "0.08em",
+                  marginBottom: "16px",
+                  textTransform: "uppercase",
+                }}
+              >
+                Situação 02 — Cliente diz "na outra clínica é mais barato"
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+                <div
+                  style={{
+                    background: "#fff0f0",
+                    border: "1.5px solid #fca5a5",
+                    borderRadius: "20px",
+                    padding: "28px",
+                  }}
+                >
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#fee2e2", color: "#b91c1c", borderRadius: "9999px", padding: "4px 12px", fontSize: "11px", fontWeight: 700, marginBottom: "16px" }}>
+                    ✕ Resposta comum
+                  </div>
+                  <div style={{ background: "#ffffff", border: "1px solid #fca5a5", borderRadius: "12px", padding: "14px 18px", fontSize: "15px", color: "#374151", fontStyle: "italic", marginBottom: "14px" }}>
+                    "Ah entendo, mas meu trabalho é diferente…"
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#6b7280", lineHeight: 1.65 }}>
+                    Modo defensivo, resposta genérica, não convence. A cliente já foi embora mentalmente.
+                  </p>
+                </div>
+                <div
+                  style={{
+                    background: "#0f1b2f",
+                    border: "2px solid #C9A060",
+                    borderRadius: "20px",
+                    padding: "28px",
+                  }}
+                >
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(201,160,96,0.15)", color: "#C9A060", borderRadius: "9999px", padding: "4px 12px", fontSize: "11px", fontWeight: 700, marginBottom: "16px" }}>
+                    ✓ Resposta com LeadBellus
+                  </div>
+                  <div style={{ background: "rgba(201,160,96,0.07)", border: "1px solid rgba(201,160,96,0.25)", borderRadius: "12px", padding: "14px 18px", fontSize: "14px", color: "rgba(255,255,255,0.9)", lineHeight: 1.7, marginBottom: "14px" }}>
+                    "Entendo, e faz todo sentido querer comparar! Preço mais baixo pode significar produto diluído, aplicador sem especialização ou sem garantia de retoque. No meu atendimento você tem [seu diferencial] + acompanhamento completo. Às vezes a diferença de R$200 evita uma correção de R$2.000 depois. Posso te mostrar o que está incluso?"
+                  </div>
+                  <p style={{ fontSize: "13px", color: "#C9A060", fontWeight: 600 }}>
+                    Educa sem atacar a concorrente. Posiciona o valor real. A cliente vê o preço como investimento.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: "40px" }}>
+            <Link
+              href={funilHref}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "#0A1628",
+                color: "#C9A060",
+                borderRadius: "9999px",
+                padding: "14px 32px",
+                fontSize: "15px",
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              Ver como fica na minha clínica →
+            </Link>
+            <p style={{ fontSize: "12px", color: "#92610A", marginTop: "10px" }}>
+              Teste grátis no simulador abaixo — sem login, sem cartão
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SIMULADOR INTERATIVO ─────────────────────────────────────────────── */}
+      <section id="simulador" style={{ background: "#07101e", padding: "96px 24px" }}>
+        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "48px" }}>
+            <TagPill>✦ Experimente agora</TagPill>
+            <h2
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "clamp(28px, 4vw, 42px)",
+                fontWeight: 700,
+                color: "#ffffff",
+                margin: "0 0 16px",
+                lineHeight: 1.2,
+              }}
+            >
+              Veja como ficaria{" "}
+              <span style={{ color: "#C9A060" }}>uma resposta da sua clínica</span>{" "}
+              — agora
+            </h2>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "15px", maxWidth: "520px", margin: "0 auto 20px" }}>
+              Coloque o nome da sua clínica, escolha o tom e uma situação. A
+              resposta já sai personalizada pra você. Sem criar conta. Sem
+              cartão. Em 30 segundos.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px",
+                justifyContent: "center",
+              }}
+            >
+              {[
+                { id: "preco", label: "Perguntou preço" },
+                { id: "achou_caro", label: "Achou caro" },
+                { id: "sumiu", label: "Sumiu" },
+                { id: "medo", label: "Medo do procedimento" },
+              ].map((d) => (
+                <Link
+                  key={d.id}
+                  href={`/?demo=${d.id}#simulador`}
+                  style={{
+                    border: "1px solid rgba(201,160,96,0.4)",
+                    color: "#C9A060",
+                    borderRadius: "9999px",
+                    padding: "6px 16px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    background: "rgba(201,160,96,0.07)",
+                  }}
+                >
+                  {d.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <Suspense fallback={<LoadingRespostas etapas={["Carregando a demo…"]} />}>
+            <LandingWhatsAppDemo />
+          </Suspense>
+
+          <div
+            style={{
+              background: "#0f1b2f",
+              border: "1px solid rgba(201,160,96,0.2)",
+              borderRadius: "16px",
+              padding: "24px 28px",
+              marginTop: "32px",
+              textAlign: "center",
+            }}
+          >
+            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", lineHeight: 1.75, marginBottom: "20px" }}>
+              Essa foi <strong style={{ color: "#ffffff" }}>uma</strong> resposta.
+              O LeadBellus faz isso com cada mensagem que chega no seu WhatsApp
+              — com DNA da Clínica completo configurado, histórico de cliente e
+              Lead Intelligence te dizendo o quanto ela está pronta pra fechar.
+            </p>
+            <Link
+              href={funilHref}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: "#C9A060",
+                color: "#07101e",
+                borderRadius: "9999px",
+                padding: "14px 32px",
+                fontSize: "15px",
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              Quero o sistema completo — 7 dias grátis →
+            </Link>
+            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
+              Sem cartão · Acesso imediato · Você configura em 5 minutos
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <TestimonialsSection />
+
+      {/* ── OFERTA / PREÇOS ──────────────────────────────────────────────────── */}
+      <section
+        id="precos"
+        style={{ background: "#07101e", padding: "96px 24px" }}
+      >
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "40px" }}>
+            <TagPill>Escolha o seu plano</TagPill>
+            <h2
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "clamp(28px, 4vw, 44px)",
+                fontWeight: 700,
+                color: "#ffffff",
+                margin: "0 0 16px",
+                lineHeight: 1.2,
+              }}
+            >
+              Uma cliente recuperada já paga o mês inteiro
+            </h2>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>
+              Você cobra R$1.500 numa harmonização. Se o LeadBellus te ajuda a
+              fechar 1 cliente a mais por mês — você está pagando R$97 pra
+              faturar R$1.500. São 15x de retorno no pior cenário.
+            </p>
+          </div>
+
+          <PricingSection />
+        </div>
+      </section>
+
+      {/* ── GARANTIA ─────────────────────────────────────────────────────────── */}
+      <section
+        id="garantia"
+        style={{ background: "#F5F0E6", padding: "96px 24px" }}
+      >
+        <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center" }}>
+          <TagPill light>Risco zero — literalmente</TagPill>
+          <div
+            style={{
+              background: "#ffffff",
+              border: "2px solid #E8E4DC",
+              borderRadius: "24px",
+              padding: "56px 40px",
+              boxShadow: "0 8px 40px rgba(0,0,0,0.08)",
+            }}
+          >
+            <ShieldCheck size={56} color="#C9A060" style={{ margin: "0 auto 24px", display: "block" }} />
+            <h2
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "32px",
+                fontWeight: 700,
+                color: "#0A1628",
+                margin: "0 0 20px",
+                lineHeight: 1.2,
+              }}
+            >
+              Teste 7 dias. Se não gostar, não paga nada.
+            </h2>
+            <p style={{ fontSize: "16px", color: "#4a5568", lineHeight: 1.8, marginBottom: "32px" }}>
+              Você não vai precisar colocar cartão de crédito pra começar. Você
+              testa por 7 dias sem custo. Se depois do trial você decidir assinar
+              e em 30 dias sentir que o LeadBellus não fez diferença real —
+              devolvemos 100% do que você pagou.
+            </p>
+            <p
+              style={{
+                fontSize: "16px",
+                fontWeight: 700,
+                color: "#0A1628",
+                fontStyle: "italic",
+                marginBottom: "32px",
+              }}
+            >
+              Sem questionamento. Sem formulário. Sem explicação necessária.
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+                textAlign: "left",
+                marginBottom: "36px",
+              }}
+            >
+              {[
+                "7 dias grátis sem cartão",
+                "30 dias com dinheiro de volta após assinar",
+                "Cancele em 1 clique — sem ligar pra ninguém",
+              ].map((item) => (
+                <div key={item} style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                  <span style={{ fontSize: "16px" }}>🔒</span>
+                  <span style={{ fontSize: "15px", color: "#374151", fontWeight: 600 }}>{item}</span>
+                </div>
+              ))}
+            </div>
+
+            <p style={{ fontSize: "14px", color: "#6b7280", lineHeight: 1.7 }}>
+              O único risco aqui é continuar perdendo cliente no WhatsApp
+              enquanto existe uma ferramenta que resolve isso por menos do que
+              um único procedimento por mês.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
+      <section
+        id="faq"
+        style={{ background: "#07101e", padding: "96px 24px" }}
+      >
+        <div style={{ maxWidth: "700px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <TagPill>Dúvidas frequentes</TagPill>
+            <h2
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "clamp(24px, 3.5vw, 38px)",
+                fontWeight: 700,
+                color: "#ffffff",
+                margin: 0,
+              }}
+            >
+              Perguntas que a gente sabe que você tem
+            </h2>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            {[
+              {
+                q: "As respostas vão soar robóticas?",
+                a: "Não — esse é exatamente o ponto. O DNA da Clínica aprende o seu tom, como você chama as clientes e o seu CTA preferido. O resultado parece você escrevendo num dia muito bom. As clientes não percebem que foi uma ferramenta — percebem que você responde bem.",
+              },
+              {
+                q: "Qual é a diferença real entre os três planos?",
+                a: "O Start te dá o arsenal completo de resposta manual — você nunca mais fica em branco. O Pro adiciona inteligência de diagnóstico (Lead Intelligence) e um chatbot que qualifica leads e prepara o terreno, mas você ainda confirma o agendamento. O Premium fecha o ciclo: o agendamento acontece sozinho, sem você precisar entrar na conversa.",
+              },
+              {
+                q: "O chatbot do Pro realmente substitui uma recepcionista?",
+                a: "Em grande parte, sim. Ele atende, responde dúvidas, quebra objeções e conduz a lead até o momento de fechar — o único passo que ainda é seu é a confirmação final do agendamento. No Premium, até esse último passo é automatizado.",
+              },
+              {
+                q: "O agendamento autônomo do Premium já funciona?",
+                a: "O núcleo do sistema (todas as funções de geração de resposta, Lead Intelligence, chatbot semi-autônomo, lembretes e pós-consulta) funciona hoje. O agendamento 100% autônomo está em desenvolvimento e será lançado em breve. Quem assinar o Premium agora entra no preço de lançamento e recebe acesso assim que sair.",
+              },
+              {
+                q: "Funciona pra qualquer procedimento estético?",
+                a: "Sim. O LeadBellus foi construído especificamente pro mercado estético brasileiro. Conhece botox, harmonização facial, preenchimento, bioestimulador, laser, microagulhamento, limpeza de pele, drenagem linfática e muito mais. Não é um ChatGPT genérico — é especializado no seu nicho.",
+              },
+              {
+                q: "Preciso de muito tempo pra configurar?",
+                a: "O setup inicial (DNA da Clínica) leva menos de 5 minutos. Depois disso você já está usando. A maioria das pessoas gera a primeira resposta em menos de 2 minutos após o cadastro.",
+              },
+              {
+                q: "Qual a diferença do LeadBellus pra usar o ChatGPT direto?",
+                a: `O ChatGPT não conhece a jornada psicológica da cliente de estética no Brasil. Não sabe que "vou pensar" é objeção de preço disfarçada. Não sabe quando usar autoridade ao invés de acolhimento. Não tem DNA da Clínica, não tem histórico, não tem Lead Intelligence, não tem chatbot integrado ao WhatsApp.`,
+              },
+              {
+                q: "Se eu não gostar, como cancelo?",
+                a: "Pelo próprio painel, em um clique. Sem ligar pra ninguém, sem formulário, sem prazo de aviso. Cancela hoje, não cobra mais amanhã.",
+              },
+            ].map((item) => (
+              <details
+                key={item.q}
+                style={{
+                  background: "#0f1b2f",
+                  border: "1px solid rgba(201,160,96,0.15)",
+                  borderRadius: "14px",
+                  overflow: "hidden",
+                }}
+              >
+                <summary
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: "16px",
+                    padding: "18px 22px",
+                    cursor: "pointer",
+                    listStyle: "none",
+                    fontWeight: 600,
+                    fontSize: "15px",
+                    color: "rgba(255,255,255,0.9)",
+                  }}
+                >
+                  {item.q}
+                  <span style={{ color: "#C9A060", flexShrink: 0, fontSize: "20px" }}>+</span>
+                </summary>
+                <p
+                  style={{
+                    padding: "0 22px 18px",
+                    fontSize: "14px",
+                    color: "rgba(255,255,255,0.6)",
+                    lineHeight: 1.75,
+                    margin: 0,
+                  }}
+                >
+                  {item.a}
+                </p>
+              </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Oferta */}
-      <section className="mx-auto max-w-5xl px-4 py-16">
-        <div className="text-center">
-          <h2 className="font-serif text-3xl font-semibold text-ink">
-            Uma cliente recuperada já paga o mês inteiro
+      {/* ── CTA FINAL ────────────────────────────────────────────────────────── */}
+      <section
+        id="cta-final"
+        style={{
+          background: "#07101e",
+          padding: "80px 24px 100px",
+          borderTop: "1px solid rgba(201,160,96,0.15)",
+          textAlign: "center",
+        }}
+      >
+        <div style={{ maxWidth: "700px", margin: "0 auto" }}>
+          <TagPill>Última parada</TagPill>
+          <h2
+            style={{
+              fontFamily: "var(--font-fraunces, Georgia, serif)",
+              fontSize: "clamp(28px, 4vw, 48px)",
+              fontWeight: 700,
+              color: "#ffffff",
+              margin: "0 0 24px",
+              lineHeight: 1.15,
+            }}
+          >
+            Você vai continuar respondendo do mesmo jeito?
           </h2>
-          <p className="mt-3 text-muted">
-            Se uma única cliente que ia sumir fechar um procedimento, o plano já se
-            pagou — e sobra.
+          <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "16px", lineHeight: 1.8, marginBottom: "20px" }}>
+            Toda semana que passa são mais clientes que perguntaram o preço e
+            nunca mais responderam. Mais follow-ups que não foram feitos. Mais
+            objeções respondidas errado.
           </p>
-        </div>
+          <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "16px", lineHeight: 1.8, marginBottom: "32px" }}>
+            Isso não é falta de talento. É falta da ferramenta certa.
+          </p>
 
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {billingPlanList.map((plano) => (
-            <div
-              key={plano.id}
-              className={
-                plano.destaque
-                  ? "group relative rounded-3xl border-2 border-brand-300 bg-gradient-to-br from-white to-brand-50 p-7 shadow-soft transition-transform hover:scale-[1.03]"
-                  : "relative rounded-3xl border border-brand-100 bg-white p-7 transition-transform hover:scale-[1.02]"
-              }
-            >
-              {plano.selo && (
-                <span
-                  className={
-                    plano.destaque
-                      ? "absolute -top-3 right-5 rounded-full bg-gold-500 px-3 py-1 text-xs font-semibold text-brand-900"
-                      : "absolute -top-3 right-5 rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-700"
-                  }
-                >
-                  {plano.selo}
-                </span>
-              )}
-              <p className="text-sm font-medium text-muted">Plano {plano.label}</p>
-              <p
-                className={
-                  plano.destaque
-                    ? "mt-1 font-serif text-4xl font-semibold text-gold-gradient"
-                    : "mt-1 font-serif text-4xl font-semibold text-ink"
-                }
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: "12px",
+              marginBottom: "40px",
+              textAlign: "left",
+            }}
+          >
+            {[
+              "Nunca mais fique em branco no WhatsApp",
+              "Nunca mais perca uma lead por não saber o que falar",
+              "Nunca mais sinta que deixou dinheiro na mesa",
+            ].map((item) => (
+              <div
+                key={item}
+                style={{
+                  background: "rgba(201,160,96,0.06)",
+                  border: "1px solid rgba(201,160,96,0.2)",
+                  borderRadius: "12px",
+                  padding: "16px",
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "flex-start",
+                }}
               >
-                {plano.priceLabel}
-                <span className="text-lg font-normal text-muted">{plano.periodLabel}</span>
-              </p>
-              <p className="mt-1 text-sm text-muted">{plano.tagline}</p>
-              {plano.disponivel ? (
-                <div className="mt-4 rounded-2xl border border-brand-200 bg-white/80 px-4 py-3 text-xs leading-relaxed text-muted">
-                  <p className="flex items-center gap-2 font-semibold text-brand-700">
-                    <ShieldCheck size={14} /> Garantia de 7 dias
-                  </p>
-                  <p className="mt-1">
-                    Teste sem risco: se não sentir diferença nas respostas, peça
-                    cancelamento e receba 100% de volta.
-                  </p>
-                </div>
-              ) : null}
-              <ul className="mt-5 space-y-2 text-sm text-ink">
-                {plano.features.map((f) => (
-                  <li
-                    key={f}
-                    className={
-                      plano.disponivel
-                        ? "flex items-start gap-2"
-                        : "flex items-start gap-2 opacity-70"
-                    }
-                  >
-                    <Check size={16} className="mt-0.5 shrink-0 text-brand-500" /> {f}
-                  </li>
-                ))}
-              </ul>
-              {plano.disponivel ? (
-                <PlanCTA
-                  plan={plano.id}
-                  className={
-                    plano.destaque
-                      ? "btn-cta mt-6 w-full px-4 py-2.5 text-sm disabled:opacity-60"
-                      : "btn-cta-outline mt-6 w-full px-4 py-2.5 text-sm disabled:opacity-60"
-                  }
-                >
-                  {plano.destaque ? `Quero o ${plano.label}` : `Entrar na fila do ${plano.label}`}
-                  {plano.destaque && <ArrowRight size={16} />}
-                </PlanCTA>
-              ) : (
-                <WaitlistForm plan={plano.id} className="mt-6" />
-              )}
-            </div>
-          ))}
-        </div>
-        <p className="mt-5 text-center text-xs text-muted">
-          Planos mensais, cancela quando quiser. Acesso contínuo a todas as
-          atualizações e novas respostas.
-        </p>
-      </section>
+                <span style={{ color: "#C9A060", fontSize: "16px", flexShrink: 0, marginTop: "1px" }}>✦</span>
+                <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.8)", lineHeight: 1.6 }}>{item}</span>
+              </div>
+            ))}
+          </div>
 
-      {/* Garantia */}
-      <section className="mx-auto max-w-3xl px-4 pb-16">
-        <div className="rounded-3xl border-2 border-brand-200 bg-white p-8 text-center shadow-soft">
-          <ShieldCheck size={32} className="mx-auto text-brand-500" />
-          <h2 className="mt-3 font-serif text-2xl font-semibold text-ink">
-            Garantia de 7 dias, sem letra miúda
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted">
-            Teste o LeadBellus por 7 dias. Se você não sentir que está
-            respondendo melhor e perdendo menos cliente, é só pedir o
-            cancelamento — devolvemos 100% do valor, sem perguntas.
+          <p
+            style={{
+              fontFamily: "var(--font-fraunces, Georgia, serif)",
+              fontSize: "18px",
+              color: "#C9A060",
+              marginBottom: "32px",
+              fontWeight: 600,
+            }}
+          >
+            Uma única cliente recuperada paga o mês inteiro.<br />
+            O risco de testar é zero.
           </p>
-        </div>
-      </section>
 
-      {/* FAQ */}
-      <section className="mx-auto max-w-3xl px-4 pb-16">
-        <h2 className="text-center font-serif text-3xl font-semibold text-ink">
-          Perguntas frequentes
-        </h2>
-        <div className="mt-8 space-y-3">
-          {[
-            {
-              q: "Preciso instalar alguma coisa no meu WhatsApp?",
-              a: "Não. Você usa o LeadBellus pelo navegador (celular ou computador): cola a mensagem da cliente, recebe a resposta pronta no seu tom e copia de volta pro WhatsApp. Em 30 segundos está respondendo melhor.",
-            },
-            {
-              q: "As respostas vão parecer robóticas?",
-              a: "Não — esse é o ponto. Você configura o DNA da sua clínica (seu jeito de falar, como chama as clientes, seus procedimentos) e toda resposta sai no SEU tom. É como ter alguém que escreve exatamente como você, só que na hora.",
-            },
-            {
-              q: "Funciona pra qualquer procedimento?",
-              a: "Sim. Botox, preenchimento, harmonização, limpeza de pele, depilação a laser, pós-operatório e dezenas de outros — as respostas levam em conta o procedimento que a cliente perguntou.",
-            },
-            {
-              q: "E se a cliente fizer uma pergunta difícil, tipo 'dói?' ou 'tem desconto?'",
-              a: "É exatamente pra isso que existe a Biblioteca de Objeções: as perguntas que travam a venda ('tá caro', 'vou pensar', 'dói?', 'tem desconto?') já têm resposta pronta, testada e no seu tom.",
-            },
-            {
-              q: "Posso cancelar quando quiser?",
-              a: "Sim. O plano é mensal, sem fidelidade, e o cancelamento é direto pelo painel. E nos primeiros 7 dias você tem garantia total: devolvemos 100% se não gostar.",
-            },
-            {
-              q: "As respostas prometem resultado dos procedimentos?",
-              a: "Nunca. As respostas são pensadas para a estética: não prometem resultado garantido, não fazem diagnóstico e sempre valorizam a avaliação individual — mais profissionalismo e segurança pra você.",
-            },
-          ].map((item) => (
-            <details
-              key={item.q}
-              className="group rounded-2xl border border-brand-100 bg-white px-5 py-4 shadow-card"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-medium text-ink">
-                {item.q}
-                <span className="shrink-0 text-brand-400 transition-transform group-open:rotate-45">+</span>
-              </summary>
-              <p className="mt-3 text-sm leading-relaxed text-muted">{item.a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA final */}
-      <section className="bg-brand-dark py-20 text-center">
-        <div className="mx-auto max-w-2xl px-4">
-          <MessageSquareText size={32} className="mx-auto text-lavender-400" />
-          <h2 className="mt-4 font-serif text-3xl font-semibold text-nude-50">
-            Sua próxima conversa pode virar agenda
-          </h2>
-          <p className="mt-2 text-sm text-nude-200">
-            Teste no seu ritmo, no celular, e veja como a conversa muda quando a
-            resposta já nasce com valor, acolhimento e CTA.
-          </p>
-          <Link href={funilHref} className="btn-cta mt-6 px-8 py-4">
-            Teste grátis agora e agende mais em minutos <ArrowRight size={18} />
+          <Link
+            href={funilHref}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "10px",
+              background: "#C9A060",
+              color: "#07101e",
+              borderRadius: "16px",
+              padding: "20px 48px",
+              fontSize: "17px",
+              fontWeight: 800,
+              textDecoration: "none",
+            }}
+          >
+            Quero minha clínica respondendo melhor agora
+            <ArrowRight size={20} />
           </Link>
+          <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", marginTop: "14px" }}>
+            7 dias grátis · Sem cartão · Acesso imediato · Você usa hoje mesmo
+          </p>
         </div>
       </section>
 
-      <footer className="border-t border-brand-100 py-12 text-center text-xs text-muted">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="grid gap-8 md:grid-cols-3 md:text-left">
-            <div className="space-y-3">
-              <Logo href="/" textClass="text-lg text-ink" />
-              <p className="text-balance">
-                Conversão para clínicas de estética — responda melhor e agende mais
-                pelo WhatsApp.
+      {/* ── FOOTER ───────────────────────────────────────────────────────────── */}
+      <footer
+        style={{
+          background: "#050d17",
+          borderTop: "1px solid rgba(201,160,96,0.12)",
+          padding: "56px 24px 32px",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1100px",
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: "40px",
+            marginBottom: "40px",
+          }}
+        >
+          {/* Brand */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+              <LogoMark size={28} />
+              <span
+                style={{
+                  fontFamily: "var(--font-fraunces, Georgia, serif)",
+                  fontSize: "18px",
+                  fontWeight: 600,
+                  color: "#ffffff",
+                }}
+              >
+                LeadBellus
+              </span>
+            </div>
+            <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", lineHeight: 1.7, maxWidth: "220px", marginBottom: "16px" }}>
+              A resposta certa. No seu tom. Em segundos.
+            </p>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <a
+                href="https://instagram.com/leadbellus"
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "8px",
+                  background: "rgba(255,255,255,0.06)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "rgba(255,255,255,0.5)",
+                  fontSize: "14px",
+                  textDecoration: "none",
+                }}
+              >
+                📷
+              </a>
+            </div>
+          </div>
+
+          {/* Links */}
+          <div>
+            <p style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: "16px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              Produto
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {[
+                { label: "Funções", href: "#funcoes" },
+                { label: "Preços", href: "#precos" },
+                { label: "FAQ", href: "#faq" },
+              ].map((l) => (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", textDecoration: "none" }}
+                >
+                  {l.label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <p style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: "16px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              Legal
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {[
+                { label: "Termos de Uso", href: "/termos" },
+                { label: "Privacidade", href: "/privacidade" },
+                { label: "Política de Reembolso", href: "/reembolso" },
+              ].map((l) => (
+                <Link
+                  key={l.label}
+                  href={l.href}
+                  style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", textDecoration: "none" }}
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <p style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: "16px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              Contato
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <a
+                href="mailto:contato@leadbellus.com.br"
+                style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", textDecoration: "none" }}
+              >
+                📧 contato@leadbellus.com.br
+              </a>
+              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", margin: 0 }}>
+                💬 Suporte pelo chat no app
               </p>
             </div>
-            <div className="space-y-3">
-              <h4 className="text-sm font-bold text-ink">Contato</h4>
-              <p>Av. Rômulo Maiorana, 1695, Marco<br />Belém - PA, 66093-674</p>
-              <p>WhatsApp: <a href="https://wa.me/559185156690" target="_blank" rel="noopener noreferrer" className="hover:text-brand-500 transition-colors">+55 91 8515-6690</a></p>
-              <p className="text-[10px]"><a href="mailto:contato@leadbellus.com.br" className="hover:text-brand-500 transition-colors">contato@leadbellus.com.br</a></p>
-            </div>
-            <div className="space-y-3">
-              <h4 className="text-sm font-bold text-ink">Horário</h4>
-              <p>Respostas prontas 24h, todo dia</p>
-              <p>© 2026 LeadBellus · Vinícius Paes da Serra Freire (MEI)</p>
-            </div>
+          </div>
+        </div>
+
+        <GoldDivider />
+
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)", margin: 0 }}>
+            © 2026 LeadBellus · ResonAnza Inova Simples I S · Vinicius Paes da Serra Freire (MEI)
+          </p>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: "8px",
+              padding: "6px 12px",
+            }}
+          >
+            <ShieldCheck size={14} color="rgba(255,255,255,0.4)" />
+            <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)" }}>
+              Pagamento seguro via Stripe · Dados protegidos
+            </span>
           </div>
         </div>
       </footer>

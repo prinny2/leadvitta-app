@@ -37,6 +37,7 @@ WhatsApp Image*
 .qodo/
 *.log
 /.codex-*
+.claude/worktrees/
 
 # Dumps de tooling / logs de terminal / artefatos de trabalho (não são código)
 /mcps/

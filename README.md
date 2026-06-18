@@ -1,4 +1,4 @@
-claude/claude-md-docs-yydjie# LeadBellus
+# LeadBellus
 
 Micro-SaaS para clínicas e profissionais de estética responderem melhor no
 WhatsApp: gera respostas estratégicas, quebra objeções, faz follow-up e conduz a

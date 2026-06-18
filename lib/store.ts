@@ -4,6 +4,7 @@
 
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth, getFirebaseDb } from "@/lib/firebase/client";
+import { onAuthStateChanged, type User } from "firebase/auth";
 import {
   doc,
   getDoc,
@@ -72,6 +73,41 @@ export async function saveClinica(c: Clinica): Promise<void> {
   }
   if (typeof window === "undefined") return;
   window.localStorage.setItem(LS_CLINICA, JSON.stringify(c));
+}
+
+/**
+ * Lê o plano de assinatura do usuário do Firestore (o campo `billing` é
+ * gravado só pelo webhook do Stripe via Admin SDK). Em modo demonstração
+ * — ou quando `billing` ainda não foi escrito — devolve `"start"`.
+ */
+// Espera o Firebase restaurar a sessão antes de ler (no mount, currentUser
+// costuma estar null por um instante). Resolve na hora se já houver usuário.
+function waitForAuthUser(): Promise<User | null> {
+  const auth = getFirebaseAuth();
+  if (auth.currentUser) return Promise.resolve(auth.currentUser);
+  return new Promise((resolve) => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      unsub();
+      resolve(u);
+    });
+  });
+}
+
+export async function getBillingPlan(): Promise<"start" | "pro" | "premium"> {
+  if (isFirebaseConfigured) {
+    try {
+      const user = await waitForAuthUser();
+      if (!user) return "start";
+      const snap = await getDoc(doc(getFirebaseDb(), "clinicas", user.uid));
+      if (!snap.exists()) return "start";
+      const plan = snap.data()?.billing?.plan;
+      if (plan === "pro" || plan === "premium") return plan;
+    } catch {
+      // Permissão/rede/offline: degrada para "start" em vez de quebrar a UI.
+      return "start";
+    }
+  }
+  return "start";
 }
 
 /**

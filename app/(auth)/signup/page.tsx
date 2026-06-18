@@ -1,46 +1,60 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { parseBillingPlan } from "@/lib/billing";
 import { VisualAuthPanel } from "@/components/visual-auth-panel";
 import { Card, CardBody } from "@/components/ui/card";
+import { trackEvent } from "@/components/Analytics";
 
 function SignupInner() {
   const params = useSearchParams();
   const plan = parseBillingPlan(params.get("plan"));
-  const checkoutAfter = params.get("next") === "checkout";
-  const [clinicName, setClinicName] = useState("");
+  const rawNext = params.get("next");
+  const checkoutAfter = rawNext === "checkout";
+  // Deep-link do middleware (?next=/rota): só caminhos internos, senão /dashboard.
+  const nextPath =
+    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//")
+      ? rawNext
+      : "/dashboard";
+  const checkoutSucesso = params.get("checkout") === "sucesso";
+  const sessionId = params.get("session_id");
 
+  // Guest checkout: o pagamento acontece antes da conta existir e o Stripe
+  // devolve aqui. Dispara o purchase (como /configuracoes faz pós-login),
+  // uma única vez por session_id — refresh/revisita da URL não reconta.
   useEffect(() => {
+    if (!checkoutSucesso) return;
+    const key = `lb_purchase_${sessionId ?? "sem_sessao"}`;
     try {
-      const raw = window.localStorage.getItem("lb_dna_draft");
-      if (!raw) return;
-      const draft = JSON.parse(raw) as { nome_clinica?: string };
-      if (draft.nome_clinica) setClinicName(draft.nome_clinica);
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, "1");
     } catch {
-      /* ignora */
+      // localStorage indisponível: dispara mesmo assim
     }
-  }, []);
+    trackEvent("purchase", { stripe_session_id: sessionId });
+  }, [checkoutSucesso, sessionId]);
 
   return (
-    <Card className="w-full max-w-3xl">
-      <CardBody className="space-y-6 p-6 sm:p-8">
-        <Link
-          href="/onboarding"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink"
-        >
-          <ArrowLeft size={16} />
-          Voltar
-        </Link>
+    <Card className="w-full max-w-md">
+      <CardBody className="p-6 sm:p-8">
+        {checkoutSucesso && (
+          <div className="mb-5 rounded-2xl border border-gold-500/30 bg-gold-500/10 px-4 py-3">
+            <p className="text-sm font-semibold text-gold-300">
+              Pagamento confirmado! 🎉
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-champagne-300">
+              Crie sua conta com o <strong>mesmo e-mail</strong> usado no
+              pagamento para liberar o acesso.
+            </p>
+          </div>
+        )}
         <VisualAuthPanel
           mode="signup"
           plan={plan ?? undefined}
           checkoutAfter={checkoutAfter}
-          clinicName={clinicName}
-          next="/gerador"
+          next={nextPath}
+          compact
         />
       </CardBody>
     </Card>

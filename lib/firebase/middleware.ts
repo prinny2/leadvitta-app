@@ -1,12 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isFirebaseConfigured } from "@/lib/config";
 
-// "/onboarding" é PÚBLICO de propósito: é o funil de captação de clínicas
-// (sem login) — não entra aqui.
 const ROTAS_PROTEGIDAS = [
   "/dashboard",
   "/conversas",
   "/gerador",
+  "/lead-intelligence",
   "/objecoes",
   "/follow-up",
   "/scripts",
@@ -26,7 +25,7 @@ export function updateSession(request: NextRequest) {
   const autenticado = !!request.cookies.get("firebase_auth");
   if (!autenticado) {
     const url = request.nextUrl.clone();
-    url.pathname = "/onboarding";
+    url.pathname = "/login";
     url.search = "";
     url.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(url);

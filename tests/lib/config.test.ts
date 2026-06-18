@@ -124,6 +124,17 @@ describe("lib/config", () => {
     expect(isStripeConfigured).toBe(false);
   });
 
+  it("isZApiConfigured segue ZAPI_INSTANCE_ID + ZAPI_TOKEN", async () => {
+    vi.stubEnv("ZAPI_INSTANCE_ID", "inst_1");
+    vi.stubEnv("ZAPI_TOKEN", "tok_1");
+    const cfg = await loadConfig();
+    expect(cfg.isZApiConfigured).toBe(true);
+
+    vi.stubEnv("ZAPI_TOKEN", "");
+    const cfg2 = await loadConfig();
+    expect(cfg2.isZApiConfigured).toBe(false);
+  });
+
   it("isOpsNotifyConfigured exige Z-API + número de alerta", async () => {
     vi.stubEnv("ZAPI_INSTANCE_ID", "inst");
     vi.stubEnv("ZAPI_TOKEN", "tok");

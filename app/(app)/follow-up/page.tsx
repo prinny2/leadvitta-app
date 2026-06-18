@@ -1,27 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Send, Loader2, Info, Clock } from "lucide-react";
-import { Card, CardBody } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Send, Loader2, Clock, MessageCircle, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { ResponseCard } from "@/components/response-card";
+import { CopyButton } from "@/components/copy-button";
 import { AvisoIA } from "@/components/aviso-ia";
 import { LoadingRespostas } from "@/components/loading-respostas";
-import { EmptyState } from "@/components/empty-state";
 import { followups } from "@/data/followups";
 import { procedimentos } from "@/data/procedimentos";
 import { tons } from "@/data/tons";
 import { followupContextoOptions } from "@/data/opcoes";
 import { addHistorico } from "@/lib/store";
 import { useClinica } from "@/lib/hooks/use-clinica";
+import { cn } from "@/lib/utils";
 
 const fupOptions = followups.map((f) => ({ value: f.id, label: f.label }));
 const procOptions = procedimentos.map((p) => ({ value: p.id, label: p.label }));
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
+
+const MSG_LABELS = [
+  { titulo: "Abertura", descricao: "Reativa sem pressionar", icon: "01" },
+  { titulo: "Meio", descricao: "Reforça valor ou urgência", icon: "02" },
+  { titulo: "Fechamento", descricao: "Convida diretamente", icon: "03" },
+];
 
 export default function FollowUpPage() {
   const { clinica } = useClinica();
@@ -51,12 +55,7 @@ export default function FollowUpPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          gatilho,
-          contexto,
-          detalhe,
-          procedimento,
-          tom,
-          nomeCliente,
+          gatilho, contexto, detalhe, procedimento, tom, nomeCliente,
           clinica: clinica
             ? {
                 nome_clinica: clinica.nome_clinica,
@@ -69,16 +68,10 @@ export default function FollowUpPage() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        setErro(data.error || "Não foi possível gerar agora.");
-        return;
-      }
+      if (!res.ok) { setErro(data.error || "Não foi possível gerar agora."); return; }
       setMensagens(data.mensagens);
       if (data.mock) {
-        setAviso(
-          data.aviso ||
-            "Modo demonstração — mostrando um exemplo. As mensagens reais entram quando a clínica está ativa."
-        );
+        setAviso(data.aviso || "Modo demonstração — mostrando um exemplo. As mensagens reais entram quando a clínica está ativa.");
       } else if (data.aviso) {
         setAviso(data.aviso);
       }
@@ -95,21 +88,30 @@ export default function FollowUpPage() {
   }
 
   return (
-    <div>
-      <header className="mb-6">
-        <h1 className="font-serif text-3xl font-semibold text-ink">
-          Follow-up
-        </h1>
-        <p className="text-sm text-muted">
-          Follow-up é o retorno pra cliente que sumiu depois de perguntar ou
-          agendar. É onde a maioria das vendas se perde — a gente te dá a
-          mensagem certa pra reativar sem parecer chata.
-        </p>
-      </header>
+    <div className="space-y-6 animate-fade-in">
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardBody className="space-y-4">
+      {/* Header */}
+      <div>
+        <h1 className="font-serif text-3xl font-semibold text-champagne-300">
+          Follow-up Inteligente
+        </h1>
+        <p className="text-sm text-navy-100 mt-1">
+          Reative quem sumiu depois de perguntar ou agendar — sem parecer insistente.
+          São 3 mensagens escalonadas no ritmo certo.
+        </p>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+
+        {/* Formulário */}
+        <div className="rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
+          <div className="border-b border-brand-50 px-5 py-4 sm:px-6">
+            <p className="text-xs font-semibold uppercase tracking-wider text-navy-100">
+              Contexto da cliente
+            </p>
+          </div>
+
+          <div className="space-y-4 p-5 sm:p-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="gat">Sumiu há quanto tempo?</Label>
@@ -117,19 +119,14 @@ export default function FollowUpPage() {
               </div>
               <div>
                 <Label htmlFor="ctx">O que aconteceu antes?</Label>
-                <Select
-                  id="ctx"
-                  value={contexto}
-                  onChange={setContexto}
-                  options={followupContextoOptions}
-                />
+                <Select id="ctx" value={contexto} onChange={setContexto} options={followupContextoOptions} />
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="nome">Nome da cliente (opcional)</Label>
-                <Input id="nome" value={nomeCliente} onChange={(e) => setNomeCliente(e.target.value)} placeholder="Ex.: Ana" />
+                <Label htmlFor="nome">Nome da cliente</Label>
+                <Input id="nome" value={nomeCliente} onChange={(e) => setNomeCliente(e.target.value)} placeholder="Ex.: Ana (opcional)" />
               </div>
               <div>
                 <Label htmlFor="proc">Procedimento de interesse</Label>
@@ -143,27 +140,35 @@ export default function FollowUpPage() {
             </div>
 
             <div>
-              <Label htmlFor="det">Detalhe adicional (opcional)</Label>
+              <Label htmlFor="det">Detalhe adicional</Label>
               <Textarea
                 id="det"
                 value={detalhe}
                 onChange={(e) => setDetalhe(e.target.value)}
                 placeholder="Ex.: ela pediu orçamento de preenchimento e disse que ia ver com o marido."
+                className="min-h-[80px]"
               />
             </div>
 
-            {erro && <p className="text-sm text-red-600">{erro}</p>}
+            {erro && (
+              <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">{erro}</p>
+            )}
 
-            <Button onClick={gerar} disabled={loading} size="lg" className="w-full">
+            <button
+              type="button"
+              onClick={gerar}
+              disabled={loading}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-navy-800 px-4 py-3 text-sm font-bold text-gold-400 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-cta disabled:opacity-60 disabled:translate-y-0"
+            >
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-              Gerar follow-ups
-            </Button>
-          </CardBody>
-        </Card>
+              Gerar sequência de follow-up
+            </button>
+          </div>
+        </div>
 
+        {/* Resultados */}
         <div className="space-y-4">
           <AvisoIA aviso={aviso} />
-
           {loading && (
             <LoadingRespostas
               etapas={[
@@ -175,33 +180,59 @@ export default function FollowUpPage() {
             />
           )}
 
-          {!loading &&
-            mensagens &&
-            mensagens.map((m, i) => (
-              <div
-                key={i}
-                className="animate-fade-in"
-                style={{ animationDelay: `${i * 120}ms` }}
-              >
-                <ResponseCard
-                  titulo={`Mensagem ${i + 1}`}
-                  descricao={i === 0 ? "Mais suave" : i === mensagens.length - 1 ? "Mais direta" : "Intermediária"}
-                  texto={m}
-                  accent={i % 2 === 1 ? "lavender" : "brand"}
-                />
-              </div>
-            ))}
+          {!loading && mensagens && (
+            <div className="space-y-3">
+              {/* Timeline visual */}
+              {mensagens.map((m, i) => {
+                const meta = MSG_LABELS[i] ?? { titulo: `Mensagem ${i + 1}`, descricao: "", icon: String(i + 1).padStart(2, "0") };
+                const isGold = i === 1;
+                return (
+                  <div key={i} className="relative flex gap-3">
+                    {/* Linha conectora */}
+                    {i < mensagens.length - 1 && (
+                      <div className="absolute left-[18px] top-10 h-[calc(100%+12px)] w-px bg-brand-100" />
+                    )}
+                    {/* Ícone */}
+                    <div className={cn(
+                      "relative z-10 mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[11px] font-bold shadow-sm",
+                      isGold ? "bg-gold-500 text-navy-900" : "bg-navy-800 text-white"
+                    )}>
+                      {meta.icon}
+                    </div>
+                    {/* Card */}
+                    <div className={cn(
+                      "flex-1 rounded-2xl border p-4",
+                      isGold ? "border-gold-500/40 bg-gradient-to-br from-navy-700 to-navy-800" : "border-navy-500 bg-navy-700"
+                    )}>
+                      <div className="mb-2 flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-sm font-semibold text-champagne-300">{meta.titulo}</p>
+                          <p className="text-xs text-navy-100">{meta.descricao}</p>
+                        </div>
+                        <CopyButton text={m} />
+                      </div>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-champagne-300">{m}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {!loading && !mensagens && (
-            <EmptyState
-              icon={Clock}
-              mensagem={
-                <>
-                  Escolha o tempo e o contexto e gere 3 mensagens prontas para
-                  reativar a conversa.
-                </>
-              }
-            />
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-navy-500 bg-navy-700 py-14 text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-500/10">
+                <Clock size={22} className="text-gold-500" />
+              </div>
+              <p className="text-sm font-medium text-champagne-300 mb-1">Sequência aparece aqui</p>
+              <p className="text-xs text-navy-100 max-w-[220px] leading-relaxed">
+                Escolha o tempo e o contexto ao lado para gerar 3 mensagens escalonadas.
+              </p>
+              <div className="mt-4 flex items-center gap-1 text-xs text-navy-100">
+                <ChevronRight size={14} className="text-gold-500" />
+                Abertura · Meio · Fechamento
+              </div>
+            </div>
           )}
         </div>
       </div>

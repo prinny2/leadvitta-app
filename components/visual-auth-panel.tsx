@@ -182,6 +182,17 @@ export function VisualAuthPanel({
 
   const isSignup = mode === "signup";
 
+  // Preserva o funil (plano + retomar checkout) e o deep-link do middleware
+  // (?next=/rota) ao alternar entre /signup e /login.
+  const switchQuery = (() => {
+    const sp = new URLSearchParams();
+    if (plan) sp.set("plan", plan);
+    if (checkoutAfter) sp.set("next", "checkout");
+    else if (next && next !== "/dashboard") sp.set("next", next);
+    const s = sp.toString();
+    return s ? `?${s}` : "";
+  })();
+
   return (
     <div className={compact ? "space-y-4" : "grid gap-6 md:grid-cols-2"}>
       {!compact && (
@@ -267,21 +278,14 @@ export function VisualAuthPanel({
           {isSignup ? (
             <>
               Já tem conta?{" "}
-              <Link
-                href={
-                  plan
-                    ? `/onboarding?entrar=1&plan=${plan}`
-                    : "/onboarding?entrar=1"
-                }
-                className="font-medium text-brand-600"
-              >
+              <Link href={`/login${switchQuery}`} className="font-medium text-gold-400 hover:text-gold-300">
                 Entrar
               </Link>
             </>
           ) : (
             <>
               Primeira vez?{" "}
-              <Link href="/onboarding" className="font-medium text-brand-600">
+              <Link href={`/signup${switchQuery}`} className="font-medium text-gold-400 hover:text-gold-300">
                 Testar grátis
               </Link>
             </>
