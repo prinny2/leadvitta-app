@@ -10,6 +10,17 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname;
   const pathname = request.nextUrl.pathname;
 
+  // Intercepta requisições POST de teste do GCP no path "/"
+  if (request.method === "POST" && pathname === "/") {
+    try {
+      const body = await request.json();
+      const name = body.name || "Developer";
+      return NextResponse.json({ message: `Hello ${name}!` });
+    } catch {
+      return NextResponse.json({ message: "Hello Developer!" });
+    }
+  }
+
   if (
     isLegacyPublicHost(hostname) &&
     !shouldKeepLegacyApiRoute(pathname)
