@@ -5,17 +5,8 @@
     "redirects": [
       {
         "source": "**",
-        "destination": "https://www.leadbellus.com.br/:path*",
+        "destination": "https://www.leadbellus.com.br/:path",
         "type": 301
-      }
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "run": {
-          "serviceId": "leadbellus",
-          "region": "southamerica-east1"
-        }
       }
     ]
   },
