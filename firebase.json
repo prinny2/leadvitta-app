@@ -4,7 +4,12 @@
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "redirects": [
       {
-        "source": "**",
+        "source": "/",
+        "destination": "https://www.leadbellus.com.br/",
+        "type": 301
+      },
+      {
+        "source": "/**",
         "destination": "https://www.leadbellus.com.br/:path",
         "type": 301
       }
