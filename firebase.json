@@ -2,6 +2,13 @@
   "hosting": {
     "public": "public",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "redirects": [
+      {
+        "source": "**",
+        "destination": "https://www.leadbellus.com.br/:path*",
+        "type": 301
+      }
+    ],
     "rewrites": [
       {
         "source": "**",

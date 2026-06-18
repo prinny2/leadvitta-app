@@ -1,7 +1,27 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import {
+  buildCanonicalRedirectUrl,
+  isLegacyPublicHost,
+  shouldKeepLegacyApiRoute,
+} from "@/lib/canonical-host";
 import { updateSession } from "@/lib/firebase/middleware";
 
 export async function middleware(request: NextRequest) {
+  const hostname = request.nextUrl.hostname;
+  const pathname = request.nextUrl.pathname;
+
+  if (
+    isLegacyPublicHost(hostname) &&
+    !shouldKeepLegacyApiRoute(pathname)
+  ) {
+    const target = buildCanonicalRedirectUrl(
+      request.nextUrl,
+      pathname,
+      request.nextUrl.search
+    );
+    return NextResponse.redirect(target, 308);
+  }
+
   return await updateSession(request);
 }
 
