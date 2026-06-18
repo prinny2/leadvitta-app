@@ -30,6 +30,25 @@ export const clinicaVazia: Clinica = {
   onboarded: false,
 };
 
+// ---------------- Workers / Equipe (profissionais da clínica) ----------------
+
+export type Worker = {
+  id: string;
+  nome: string;
+  /** Especialidades/procedimentos que este profissional realiza (pode filtrar depois) */
+  especialidades?: string[];
+  telefone?: string;
+  /** Se false, fica inativo (oculto em seleções futuras) */
+  ativo: boolean;
+  created_at?: string;
+};
+
+export const workerVazio: Omit<Worker, "id"> = {
+  nome: "",
+  especialidades: [],
+  ativo: true,
+};
+
 /** As três variantes geradas (chaves técnicas; exibidas como Suave/Consultiva/Fechamento). */
 export type RespostaTripla = {
   curta: string;
