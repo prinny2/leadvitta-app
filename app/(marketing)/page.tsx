@@ -41,6 +41,7 @@ import { PainPointSection } from "@/components/pain-point-section";
 import { IndicadoCards, IndicadoHeader } from "@/components/indicado-cards";
 import { SimuladorFadeUp, SimuladorUnderline, SimuladorScenarioBtn } from "@/components/simulador-ui";
 import { RiskFreeSection } from "@/components/risk-free-section";
+import { FaqSection } from "@/components/faq-section";
 import { FinalCTASection } from "@/components/final-cta-section";
 import { FooterSection } from "@/components/footer-section";
 
@@ -504,103 +505,7 @@ export default function LandingPage() {
       <RiskFreeSection funilHref={funilHref} />
 
       {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
-      <section
-        id="faq"
-        style={{ background: "#07101e", padding: "96px 24px" }}
-      >
-        <div style={{ maxWidth: "700px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "56px" }}>
-            <TagPill>Dúvidas frequentes</TagPill>
-            <h2
-              style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "clamp(24px, 3.5vw, 38px)",
-                fontWeight: 700,
-                color: "#ffffff",
-                margin: 0,
-              }}
-            >
-              Perguntas que a gente sabe que você tem
-            </h2>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {[
-              {
-                q: "As respostas vão soar robóticas?",
-                a: "Não — esse é exatamente o ponto. O DNA da Clínica aprende o seu tom, como você chama as clientes e o seu CTA preferido. O resultado parece você escrevendo num dia muito bom. As clientes não percebem que foi uma ferramenta — percebem que você responde bem.",
-              },
-              {
-                q: "Qual é a diferença real entre os três planos?",
-                a: "O Start te dá o arsenal completo de resposta manual — você nunca mais fica em branco. O Pro adiciona inteligência de diagnóstico (Lead Intelligence) e um chatbot que qualifica leads e prepara o terreno, mas você ainda confirma o agendamento. O Premium fecha o ciclo: o agendamento acontece sozinho, sem você precisar entrar na conversa.",
-              },
-              {
-                q: "O chatbot do Pro realmente substitui uma recepcionista?",
-                a: "Em grande parte, sim. Ele atende, responde dúvidas, quebra objeções e conduz a lead até o momento de fechar — o único passo que ainda é seu é a confirmação final do agendamento. No Premium, até esse último passo é automatizado.",
-              },
-              {
-                q: "O agendamento autônomo do Premium já funciona?",
-                a: "O núcleo do sistema (todas as funções de geração de resposta, Lead Intelligence, chatbot semi-autônomo, lembretes e pós-consulta) funciona hoje. O agendamento 100% autônomo está em desenvolvimento e será lançado em breve. Quem assinar o Premium agora entra no preço de lançamento e recebe acesso assim que sair.",
-              },
-              {
-                q: "Funciona pra qualquer procedimento estético?",
-                a: "Sim. O LeadBellus foi construído especificamente pro mercado estético brasileiro. Conhece botox, harmonização facial, preenchimento, bioestimulador, laser, microagulhamento, limpeza de pele, drenagem linfática e muito mais. Não é um ChatGPT genérico — é especializado no seu nicho.",
-              },
-              {
-                q: "Preciso de muito tempo pra configurar?",
-                a: "O setup inicial (DNA da Clínica) leva menos de 5 minutos. Depois disso você já está usando. A maioria das pessoas gera a primeira resposta em menos de 2 minutos após o cadastro.",
-              },
-              {
-                q: "Qual a diferença do LeadBellus pra usar o ChatGPT direto?",
-                a: `O ChatGPT não conhece a jornada psicológica da cliente de estética no Brasil. Não sabe que "vou pensar" é objeção de preço disfarçada. Não sabe quando usar autoridade ao invés de acolhimento. Não tem DNA da Clínica, não tem histórico, não tem Lead Intelligence, não tem chatbot integrado ao WhatsApp.`,
-              },
-              {
-                q: "Se eu não gostar, como cancelo?",
-                a: "Pelo próprio painel, em um clique. Sem ligar pra ninguém, sem formulário, sem prazo de aviso. Cancela hoje, não cobra mais amanhã.",
-              },
-            ].map((item) => (
-              <details
-                key={item.q}
-                style={{
-                  background: "#0f1b2f",
-                  border: "1px solid rgba(201,160,96,0.15)",
-                  borderRadius: "14px",
-                  overflow: "hidden",
-                }}
-              >
-                <summary
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: "16px",
-                    padding: "18px 22px",
-                    cursor: "pointer",
-                    listStyle: "none",
-                    fontWeight: 600,
-                    fontSize: "15px",
-                    color: "rgba(255,255,255,0.9)",
-                  }}
-                >
-                  {item.q}
-                  <span style={{ color: "#C9A060", flexShrink: 0, fontSize: "20px" }}>+</span>
-                </summary>
-                <p
-                  style={{
-                    padding: "0 22px 18px",
-                    fontSize: "14px",
-                    color: "rgba(255,255,255,0.6)",
-                    lineHeight: 1.75,
-                    margin: 0,
-                  }}
-                >
-                  {item.a}
-                </p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FaqSection />
 
       {/* ── CTA FINAL ────────────────────────────────────────────────────────── */}
       <FinalCTASection funilHref={funilHref} />
