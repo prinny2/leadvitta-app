@@ -117,7 +117,7 @@ Micro-SaaS para **clínicas de estética**. Gera respostas de WhatsApp em 3 vari
 
 ## 9. Preencher (placeholders)
 
-- URL de produção do Cloud Run: `https://__________.run.app`
+- URL de produção do Cloud Run: `https://leadbellus-87102725202.southamerica-east1.run.app`
 - GCP project ID: `leadvitta-app`
 - Região / Artifact Registry repo (`cloudbuild.yaml`): `_REGION=southamerica-east1` · `_REPO=leadbellus`
 - Preço final do plano: `R$ ______ /mês`

@@ -2,45 +2,46 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const testimonials = [
   {
-    text: "Eu sempre soube que perdia clientes no WhatsApp, mas achava que era falta de talento pra venda. Não era. Era falta de resposta certa. Na primeira semana com o LeadBellus fechei 3 avaliações de harmonização que antes teriam sumido. A função de follow-up me salvou — eu nunca teria mandado aquelas mensagens sozinha.",
+    text: "Eu sempre soube que perdia clientes no WhatsApp, mas achava que era falta de talento pra venda. Não era. Era falta de resposta mais clara. Com o LeadBellus, passei a ter opções melhores para responder orçamento, objeção e cliente que sumiu.",
     name: "Camila Rocha",
     role: "Harmonizadora Facial · São Paulo, SP",
     initials: "CR",
     image: "/CAMILA.png",
   },
   {
-    text: "Minha maior dificuldade era fazer follow-up sem parecer insistente. Eu sabia que estava deixando oportunidades para trás, mas nunca encontrava a mensagem certa para retomar a conversa. A LeadBellus organizou esse processo e deixou o atendimento muito mais natural. Passei a recuperar clientes que antes simplesmente sumiam.",
+    text: "Minha maior dificuldade era retomar uma conversa sem parecer insistente. Eu sabia que estava deixando oportunidades para trás, mas nunca encontrava a mensagem certa. O LeadBellus organizou esse processo e deixou o atendimento muito mais natural.",
     name: "Dra. Renata Oliveira",
     role: "Biomédica Esteta · Curitiba, PR",
     initials: "RO",
     image: "/RENATA.png",
   },
   {
-    text: "Tenho uma equipe pequena e cada pessoa respondia de um jeito diferente. Isso deixava o atendimento confuso e dificultava acompanhar os leads. Depois que configuramos o DNA da Clínica e os scripts, a comunicação ficou muito mais padronizada, sem perder o nosso jeito de falar. Hoje minha recepção responde com mais confiança e eu consigo delegar sem medo.",
+    text: "Tenho uma equipe pequena e cada pessoa respondia de um jeito diferente. Isso deixava o atendimento confuso e dificultava acompanhar os contatos. Depois que configuramos o tom da clínica e os roteiros, a comunicação ficou mais padronizada, sem perder o nosso jeito de falar.",
     name: "Mariana Castro",
     role: "Gestora de Clínica Estética · Recife, PE",
     initials: "MC",
     image: "/MARIANA.png",
   },
   {
-    text: "Trabalho sozinha e respondia tudo manualmente entre procedimento. Era exaustivo. Hoje abro o LeadBellus, colo a mensagem, escolho a resposta e fecho o app. Em dois meses aumentei minha conversão de orçamento pra agendamento sem investir em nenhum anúncio novo. O retorno é ridículo de bom.",
+    text: "Trabalho sozinha e respondia tudo manualmente entre procedimentos. Era exaustivo. Hoje abro o LeadBellus, colo a mensagem, escolho uma opção de resposta e sigo a conversa com mais segurança.",
     name: "Dra. Patrícia Mendes",
     role: "Biomédica Esteta · Belo Horizonte, MG",
     initials: "PM",
     image: "/PATRICIA%20MENDES.png",
   },
   {
-    text: "Eu recebia muitos pedidos de orçamento pelo Instagram, mas várias conversas morriam logo depois que eu informava o valor. Com a LeadBellus, comecei a conduzir melhor cada atendimento e parei de responder tudo de forma automática. Hoje consigo explicar valor, lidar com objeções e levar a cliente até o agendamento com muito mais segurança.",
+    text: "Eu recebia muitos pedidos de orçamento pelo Instagram, mas várias conversas morriam logo depois que eu informava o valor. Com o LeadBellus, comecei a conduzir melhor cada atendimento e parei de responder tudo de forma automática. Hoje consigo explicar valor, lidar com objeções e levar a cliente até o próximo passo com mais segurança.",
     name: "Juliana Azevedo",
     role: "Esteticista e proprietária · Campinas, SP",
     initials: "JA",
     image: "/JULIANA%20AZEVEDO.png",
   },
   {
-    text: "Tenho uma recepcionista que ama o trabalho mas não sabia conduzir conversa de venda. Configurei o DNA da Clínica com ela e ensinei a usar os Scripts e a Biblioteca de Objeções. Em 3 semanas ela virou minha melhor pessoa de atendimento. Nunca imaginei que uma ferramenta ia me ajudar a delegar isso.",
+    text: "Tenho uma recepcionista que ama o trabalho mas tinha dificuldade para conduzir conversa de venda. Configurei o tom da clínica com ela e ensinei a usar os roteiros e a biblioteca de objeções. Ficou mais fácil delegar sem perder o nosso jeito de atender.",
     name: "Fernanda Lopes",
     role: "Gestora de Clínica Estética · Uberlândia, MG",
     initials: "FL",
@@ -92,7 +93,7 @@ function TestimonialCard({ text, name, role, initials, image }: {
       </p>
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         {image ? (
-          <img
+          <Image
             src={image}
             alt={name}
             width={40}
@@ -182,7 +183,7 @@ export function TestimonialsSection() {
               marginBottom: "20px",
             }}
           >
-            ✦ Quem já está usando
+            ✦ Situações comuns
           </div>
           <h2
             style={{
@@ -196,12 +197,13 @@ export function TestimonialsSection() {
             O que muda quando você começa a responder do jeito certo
           </h2>
           <p style={{ color: "#4a5568", fontSize: "16px", margin: 0 }}>
-            Resultados reais de profissionais reais. Clínicas como a sua.
+            Situações comuns de profissionais de estética. Veja o tipo de problema que o LeadBellus ajuda a resolver.
           </p>
         </div>
 
         {/* Columns */}
         <div
+          className="testimonials-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
@@ -217,6 +219,17 @@ export function TestimonialsSection() {
           <TestimonialsColumn items={col3} duration={14} />
         </div>
       </div>
+      <style>{`
+        @media (max-width: 768px) {
+          .testimonials-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .testimonials-grid > div:nth-child(2),
+          .testimonials-grid > div:nth-child(3) {
+            display: none !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

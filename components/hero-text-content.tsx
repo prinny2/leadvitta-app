@@ -18,7 +18,23 @@ const fadeUpVariants: Variants = {
   }),
 };
 
-export function HeroTextContent() {
+interface HeroTextContentProps {
+  headline?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  bullets?: string[];
+  ctaHref?: string;
+  ctaText?: string;
+  hideSimuladorLink?: boolean;
+}
+
+export function HeroTextContent({
+  headline,
+  subtitle,
+  bullets,
+  ctaHref = "/signup",
+  ctaText = "Quero gerar minha resposta agora →",
+  hideSimuladorLink = false,
+}: HeroTextContentProps = {}) {
   return (
     <div>
       {/* Tag pill */}
@@ -59,11 +75,15 @@ export function HeroTextContent() {
           color: "#ffffff",
         }}
       >
-        Ela sumiu.
-        <br />
-        E não foi
-        <br />
-        <span style={{ color: "#C9A060" }}>pelo preço.</span>
+        {headline || (
+          <>
+            Ela sumiu.
+            <br />
+            E não foi
+            <br />
+            <span style={{ color: "#C9A060" }}>pelo preço.</span>
+          </>
+        )}
       </motion.h1>
 
       {/* Subtítulo */}
@@ -79,10 +99,48 @@ export function HeroTextContent() {
           margin: "0 0 36px",
         }}
       >
-        Foi pela resposta errada. O LeadBellus analisa cada mensagem e
-        entrega a resposta certa — no seu tom, pra aquela cliente
-        específica, em 30 segundos. É só copiar e colar.
+        {subtitle || "Foi por uma resposta que não conduziu. O LeadBellus transforma a mensagem da cliente em 3 opções de resposta no seu tom, para você escolher, copiar e mandar."}
       </motion.p>
+
+      {/* Bullets customizados se fornecidos */}
+      {bullets && (
+        <motion.div
+          variants={fadeUpVariants} custom={2.5}
+          initial="hidden"
+          animate="visible"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "14px",
+            marginBottom: "36px",
+            maxWidth: "480px",
+          }}
+        >
+          {bullets.map((bullet, idx) => (
+            <div key={idx} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+              <span
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  borderRadius: "50%",
+                  background: "rgba(201,160,96,0.15)",
+                  border: "1px solid #C9A060",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  marginTop: "2px",
+                }}
+              >
+                <span style={{ color: "#C9A060", fontSize: "11px", fontWeight: "bold" }}>✓</span>
+              </span>
+              <span style={{ fontSize: "15px", color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>
+                {bullet}
+              </span>
+            </div>
+          ))}
+        </motion.div>
+      )}
 
       {/* Botões CTA */}
       <motion.div
@@ -92,7 +150,7 @@ export function HeroTextContent() {
         style={{ display: "flex", flexWrap: "wrap", gap: "14px", marginBottom: "20px" }}
       >
         <Link
-          href={funilHref}
+          href={ctaHref}
           style={{
             background: "#C9A060",
             color: "#07101e",
@@ -106,22 +164,24 @@ export function HeroTextContent() {
             gap: "8px",
           }}
         >
-          Quero minha resposta certa agora →
+          {ctaText}
         </Link>
-        <a
-          href="#simulador"
-          style={{
-            border: "1.5px solid rgba(201,160,96,0.5)",
-            color: "#C9A060",
-            borderRadius: "9999px",
-            padding: "15px 28px",
-            fontSize: "15px",
-            fontWeight: 600,
-            textDecoration: "none",
-          }}
-        >
-          Ver como funciona ↓
-        </a>
+        {!hideSimuladorLink && (
+          <a
+            href="#simulador"
+            style={{
+              border: "1.5px solid rgba(201,160,96,0.5)",
+              color: "#C9A060",
+              borderRadius: "9999px",
+              padding: "15px 28px",
+              fontSize: "15px",
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            Ver como funciona ↓
+          </a>
+        )}
       </motion.div>
 
       {/* Micro-copy */}
@@ -143,9 +203,9 @@ export function HeroTextContent() {
       >
         {[
           { icon: "💬", label: "Respostas estratégicas" },
-          { icon: "🔄", label: "Follow-ups" },
+          { icon: "🔄", label: "Retomadas" },
           { icon: "🛡️", label: "Objeções" },
-          { icon: "🧠", label: "Lead Intelligence" },
+          { icon: "🧠", label: "Prioridade da conversa" },
         ].map((f) => (
           <div
             key={f.label}

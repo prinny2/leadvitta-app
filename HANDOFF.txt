@@ -1,0 +1,81 @@
+================================================================================
+          RELATÓRIO DE DEPLOY E HANDOFF - LEADBELLUS (18/JUN/2026)
+================================================================================
+
+Este documento descreve tudo o que foi feito na sessão atual para configurar,
+proteger e lançar a integração do Stripe, WhatsApp (Z-API), Google Analytics 4
+e a nova Landing Page de Campanha.
+
+--------------------------------------------------------------------------------
+1. WEBHOOK DO STRIPE (MUDANÇA DE DESTINO E CONTENÇÃO DE VAZAMENTO)
+--------------------------------------------------------------------------------
+- O webhook antigo (we_1TigJNRTJ7iCFKxkcLTu8FH1) que apontava para o domínio da
+  Vercel (sofria redirecionamento 307 no Apex e quebrava as requisições) foi
+  EXCLUÍDO.
+- Foi criado um novo webhook oficial (we_1TjjKQRTJ7iCFKxkF2IlUBlF) apontando
+  DIRETAMENTE para o Cloud Run:
+  https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook
+- O webhook foi configurado para enviar os 4 eventos essenciais de faturamento:
+  * checkout.session.completed
+  * customer.subscription.created
+  * customer.subscription.updated
+  * customer.subscription.deleted
+- O webhook está utilizando a versão de API v1 (Dahlia) da Stripe, o que garante
+  o envio de payloads completos (Snapshot), atendendo ao esperado pelo backend.
+- O segredo da assinatura foi rotacionado para corrigir o vazamento:
+  * Novo segredo ativo: whsec_bpn4FP73Ibc2CdZSuyeqUpvI0qklwnP0
+- O segredo 'stripe-webhook-secret' no GCP Secret Manager do projeto
+  'leadvitta-app' foi atualizado (Criada versão [3]).
+- O serviço do Cloud Run 'leadbellus' foi atualizado e uma nova revisão foi
+  disparada. Ela já está servindo 100% do tráfego com o segredo novo montado.
+- Teste de Integridade: Um POST manual de teste sem assinatura retornou 400 Bad
+  Request ("Header stripe-signature ausente"), provando que o endpoint está no ar
+  e a segurança está funcionando.
+
+--------------------------------------------------------------------------------
+2. INTEGRACAO WHATSAPP (Z-API WEBHOOK)
+--------------------------------------------------------------------------------
+- Foi executada a automação para configurar a instância oficial do WhatsApp
+  (Z-API) com o token de segurança em produção.
+- O webhook de mensagens recebidas (ReceivedMessage) foi gravado com sucesso no
+  painel Z-API apontando para:
+  https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook?token=91214c9c056841afbcf1c073d1efa8c1
+- Teste de Simulação: O script de simulação rodou com o token de segurança
+  correto e retornou "status = 200" da nossa API, confirmando que a rota
+  Z-API está totalmente operacional no Cloud Run.
+
+--------------------------------------------------------------------------------
+3. GOOGLE ANALYTICS 4 (GA4) & META PIXEL
+--------------------------------------------------------------------------------
+- O Meta Pixel está plenamente ativo no cliente com o ID '917448661312985'.
+- Foi adicionada a variável de ambiente 'NEXT_PUBLIC_GA4_ID' com o valor
+  'G-223KR63TS8' no projeto Vercel 'vini1/leadvitta-app'.
+- Foi executado o deploy de produção na Vercel ('npx vercel --prod'), que compilou
+  e promoveu a nova build em 16 segundos.
+- O código em 'components/Analytics.tsx' já está ativo em produção, carregando
+  a tag gtag.js do Google e rastreando visitas/conversões no domínio oficial:
+  https://www.leadbellus.com.br
+
+--------------------------------------------------------------------------------
+4. LANDING PAGE DE CAMPANHA
+--------------------------------------------------------------------------------
+- Criada a nova rota de campanha 'app/campanha/[slug]/page.tsx'.
+- A página utiliza os componentes nativos 'HeroTextContent' e 'PricingSection'
+  que foram atualizados para aceitar dados customizados sem alterar a LP principal.
+- Copy do Hero configurada com alta conversão para o público de estética:
+  * Headline: "Clientes de estética não somem pelo preço. Somem pela resposta errada no WhatsApp."
+  * 3 Bullets focados nos resultados do produto.
+  * CTA único direcionando para "/signup?plan=start" para otimização de conversão.
+- As alterações de código foram testadas pelo build, commitadas e enviadas para o
+  repositório remoto ('main').
+
+--------------------------------------------------------------------------------
+5. VERIFICACAO DE FIRESTORE / FIREBASE
+--------------------------------------------------------------------------------
+- O script de validação de Firebase ('npm run firebase:verify') passou 100%.
+- Verificado via API do Identity Toolkit que os domínios 'leadbellus.com.br' e
+  'www.leadbellus.com.br' já constam na lista de domínios autorizados para o Auth.
+
+================================================================================
+STATUS FINAL DO PROJETO: PRONTO PARA LANÇAR (LIVE)
+================================================================================

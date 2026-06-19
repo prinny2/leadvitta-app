@@ -9,7 +9,7 @@
 - **IA:** OpenAI (GPT-4o-mini) + Fallback Anthropic (Haiku). OpenAI ativa; ANTHROPIC_API_KEY ainda vazia (adicionar para ativar fallback).
 - **X Market Pulse + adaptações LeadBellus (Grok 2026-06-14):** Análise de tendências reais em X (clientes reclamam "muito texto", demora faz sumir, odeiam robô burro mas também enrolação). **Implementado e pronto para deploy hoje:** brevidade obrigatória nos prompts (2-4 frases), novo objetivo "Agendamento rápido (respostas concisas)" no gerador, lógica condicional no prompt builder. Footer com entidade legal correta (MEI). Ver Mesa/blackboard/X_MARKET_PULSE.md para detalhes completos + recomendações.
 - **WhatsApp:** Twilio (sandbox +14155238886). Webhook: https://leadvitta-app.web.app/api/whatsapp/webhook — configurar no Twilio Console após deploy. (Meta Cloud API adiado — burocrático sem time dedicado; Twilio é o caminho rápido agora.)
-- **Billing:** Stripe LIVE ativo com Webhook `whsec` configurado (apontar para domínio Vercel).
+- **Billing:** Stripe LIVE ativo com Webhook `whsec` configurado (apontando diretamente para o Cloud Run e com o segredo rotacionado para conter o vazamento).
 - **Auth:** Firebase Auth (oficial). Branch `feat/auth0` está PARADA.
 - **Infra delegation (Grok + agentes — o que você consegue configurar AGORA):** 
   - Vercel: Token API limitado só pro projeto leadbellus (scope deployments + logs).
@@ -139,11 +139,12 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 - **DECISÃO (Vinícius):** definir produção canônica → Vercel (`leadbellus.com.br` já live) OU Cloud Run. Hoje as duas estão no ar.
 - **Para o Vercel funcionar 100% (manuais, só o Vinícius/console):**
   1. **Firebase Auth → Authorized domains:** garantir `leadbellus.com.br` e `www.leadbellus.com.br` na lista (Console Firebase → Authentication → Settings) senão o login Google falha.
-  2. **Stripe → Webhook endpoint:** apontar para `https://leadbellus.com.br/api/stripe/webhook` (o `STRIPE_WEBHOOK_SECRET` setado precisa corresponder a ESSE endpoint).
+  2. **Stripe → Webhook endpoint:** apontar diretamente para `https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook` (o `STRIPE_WEBHOOK_SECRET` setado no Secret Manager precisa corresponder a esse endpoint).
   3. **Twilio sandbox:** enviar `join <código>` para +14155238886 e setar o webhook do sandbox para `https://leadbellus.com.br/api/whatsapp/webhook`.
 
 ---
 ### Log de Handoff
+- 2026-06-18 (Antigravity): Configuração e validação final de Stripe Webhook, WhatsApp (Z-API), GA4 e Landing de Campanha. Excluído webhook do Stripe antigo e criado o novo (we_1TjjKQRTJ7iCFKxkF2IlUBlF) apontando diretamente para o Cloud Run. Segredo rotacionado para whsec_bpn4FP73Ibc2CdZSuyeqUpvI0qklwnP0, atualizado no GCP Secret Manager e serviço do Cloud Run redeployado. Webhook do WhatsApp (Z-API) configurado e verificado (status 200). Adicionada variável NEXT_PUBLIC_GA4_ID (G-223KR63TS8) na Vercel e realizado deploy de produção. Criada a landing page de campanha em app/campanha/[slug]/page.tsx. Todos os builds de produção passando 100% e alterações enviadas para a main remota.
 - 2026-06-15 (Codex): Simulador local de WhatsApp alinhado com a validacao real dos providers. `npm run whatsapp:simulate` agora gera `X-Twilio-Signature` quando `TWILIO_AUTH_TOKEN` existe e envia `x-d360-token` quando `D360_WEBHOOK_TOKEN` existe; `README.md` e `CLAUDE.md` atualizados para refletir o fluxo e os flags corretos.
 - 2026-06-10 (Gemini): Unificação do Blackboard para o padrão `COORDINATION.md`.
 - 2026-06-09 (Codex): Implementado Visual Overhaul v1.4.

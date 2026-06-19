@@ -1,19 +1,31 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 
-const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
-const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
+// ID do Meta Pixel também é público (aparece no HTML). O default evita deploy
+// sem Pixel quando a env pública não foi assada no build da Vercel.
+const META_PIXEL_ID =
+  process.env.NEXT_PUBLIC_META_PIXEL_ID || "917448661312985";
+// ID de medição GA4 é PÚBLICO (aparece no HTML de qualquer site). O default garante
+// que o analytics carregue mesmo sem a env var na Vercel; se a env existir, ela vence.
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "G-223KR63TS8";
 
 function AnalyticsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const didHandleInitialRender = useRef(false);
 
   // PageView a cada mudança de rota (App Router não recarrega a página)
   useEffect(() => {
     if (!pathname) return;
+    const isInitialRender = !didHandleInitialRender.current;
+    didHandleInitialRender.current = true;
+
+    // O pageview inicial e disparado no script base, quando o gtag/fbq ja existe.
+    if (isInitialRender) return;
+
     const url =
       pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
 
@@ -43,6 +55,9 @@ export default function Analytics() {
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
+              gtag('config', '${GA4_ID}', {
+                page_path: window.location.pathname + window.location.search
+              });
             `}
           </Script>
         </>
@@ -62,6 +77,7 @@ export default function Analytics() {
               s.parentNode.insertBefore(t,s)}(window, document,'script',
               'https://connect.facebook.net/en_US/fbevents.js');
               fbq('init', '${META_PIXEL_ID}');
+              fbq('track', 'PageView');
             `}
           </Script>
           <noscript>

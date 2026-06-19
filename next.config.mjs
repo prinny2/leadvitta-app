@@ -16,12 +16,39 @@ if (enableApiProxy && /(^https?:\/\/)?(www\.)?leadbellus\.com\.br/i.test(apiProx
   );
 }
 
+/** Hosts legados que devem mandar tráfego público para o domínio canônico (Vercel). */
+const LEGACY_PUBLIC_HOSTS = [
+  "leadbellus-3zi7un52ua-rj.a.run.app",
+  "leadbellus-87102725202.southamerica-east1.run.app",
+  "leadvitta-app.web.app",
+  "leadvitta-app.firebaseapp.com",
+];
+
+const CANONICAL_SITE = "https://www.leadbellus.com.br";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: __dirname,
   allowedDevOrigins: ["127.0.0.1"],
   eslint: { ignoreDuringBuilds: true },
+  async redirects() {
+    return LEGACY_PUBLIC_HOSTS.flatMap((host) => [
+      {
+        source: "/",
+        has: [{ type: "host", value: host }],
+        destination: `${CANONICAL_SITE}/`,
+        permanent: true,
+      },
+      {
+        // Páginas públicas sim — /api/* não (webhooks seguem no Cloud Run).
+        source: "/:path((?!api/).*)",
+        has: [{ type: "host", value: host }],
+        destination: `${CANONICAL_SITE}/:path`,
+        permanent: true,
+      },
+    ]);
+  },
   async rewrites() {
     if (!enableApiProxy) return [];
 

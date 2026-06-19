@@ -61,9 +61,13 @@ encaminhado byte-a-byte) que dispara em `beforeFiles`, **antes** dos handlers em
 
 ## 2. Conta Stripe e preços (LIVE)
 
-- Conta LIVE correta: **`acct_1TeQMX6Qz7MOnODL`** ("LeadCare"). **Não** use a conta vazia
-  `acct_1TemHu...` (sem produtos/preços — é a que o Stripe MCP costuma conectar).
-- Price IDs LIVE: `price_1Teqg...` (família). Price IDs e acct IDs **não são segredos**.
+- ✅ **DECISÃO 18/jun/2026 — conta de produção = `acct_1TemHuRTJ7iCFKxk` ("LeadBellus")**.
+  Ela está **ativada** (charges/payouts ON, banco Inter 7545, identidade verificada, nome de negócio
+  já "LeadBellus", descritivo de fatura "LEADBELLUS") e tem os produtos Start/Pro/Premium em LIVE,
+  com preços **mensais e anuais**. A antiga `acct_1TeQMX...` ("LeadCare") está **aposentada** — não usar.
+  Atenção: o Stripe MCP conecta na `acct_1TemHu`, então dá pra gerir essa conta via API (criar preços etc.).
+- Price IDs LIVE (conta LeadBellus): mensal `price_1Tj5ih...`(start) / `price_1Tj5j8...`(pro) / `price_1Tj5jN...`(premium);
+  anual `price_1TjhRn...`(start) / `price_1TjhS6...`(pro) / `price_1TjhS7...`(premium). Price IDs e acct IDs **não são segredos**.
 - Modo: **`subscription`** (`STRIPE_CHECKOUT_MODE=subscription`); usado em `checkout/route.ts`.
 - Hoje **só o Start é vendável**; Pro/Premium ficam "Em breve" (deixe os Price IDs vazios).
 
