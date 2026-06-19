@@ -297,18 +297,18 @@ export function LandingWhatsAppDemo() {
                 placeholder="Ex.: Ana"
               />
             </div>
-            <div className="flex items-end gap-2">
+            <div className="flex items-end">
               <Button
                 type="button"
                 variant="outline"
-                className="w-full"
+                className="w-full rounded-r-none border-r-0"
                 onClick={aplicarExemplo}
               >
                 <Wand2 size={16} /> Usar exemplo
               </Button>
               <Button
                 type="button"
-                className="w-full"
+                className="w-full rounded-l-none"
                 onClick={gerar}
                 disabled={loading}
               >
