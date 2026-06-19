@@ -2,25 +2,16 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ShieldCheck, Flower2 } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
-function LogoMark({ size = 28 }: { size?: number }) {
+function LogoMark({ size = 34 }: { size?: number }) {
   return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: size + 10,
-        height: size + 10,
-        borderRadius: "10px",
-        background: "rgba(10, 25, 47, 0.9)",
-        border: "1px solid rgba(201,160,96,0.25)",
-        flexShrink: 0,
-      }}
-    >
-      <Flower2 size={size} strokeWidth={1.6} color="#C9A060" />
-    </span>
+    <svg width={size} height={size} viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40 6 C26 14, 10 32, 10 54 C10 70, 22 82, 40 90" stroke="#C9A060" strokeWidth="3" strokeLinecap="round" fill="none"/>
+      <path d="M40 6 C54 14, 70 32, 70 54 C70 70, 58 82, 40 90" stroke="#C9A060" strokeWidth="3" strokeLinecap="round" fill="none"/>
+      <line x1="40" y1="32" x2="40" y2="86" stroke="#C9A060" strokeWidth="2.5" strokeLinecap="round"/>
+      <circle cx="40" cy="27" r="5.5" fill="#C9A060"/>
+    </svg>
   );
 }
 
@@ -119,7 +110,7 @@ export function FooterSection() {
           transition={{ duration: 0.55, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-            <LogoMark size={18} />
+            <LogoMark size={34} />
             <Wordmark />
           </div>
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", lineHeight: 1.7, maxWidth: "220px", marginBottom: "16px" }}>
