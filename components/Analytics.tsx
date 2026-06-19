@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 
@@ -12,10 +12,17 @@ const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "G-223KR63TS8";
 function AnalyticsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const didHandleInitialRender = useRef(false);
 
   // PageView a cada mudança de rota (App Router não recarrega a página)
   useEffect(() => {
     if (!pathname) return;
+    const isInitialRender = !didHandleInitialRender.current;
+    didHandleInitialRender.current = true;
+
+    // O pageview inicial e disparado no script base, quando o gtag/fbq ja existe.
+    if (isInitialRender) return;
+
     const url =
       pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
 
@@ -45,6 +52,9 @@ export default function Analytics() {
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
+              gtag('config', '${GA4_ID}', {
+                page_path: window.location.pathname + window.location.search
+              });
             `}
           </Script>
         </>
@@ -64,6 +74,7 @@ export default function Analytics() {
               s.parentNode.insertBefore(t,s)}(window, document,'script',
               'https://connect.facebook.net/en_US/fbevents.js');
               fbq('init', '${META_PIXEL_ID}');
+              fbq('track', 'PageView');
             `}
           </Script>
           <noscript>
