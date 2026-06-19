@@ -4,7 +4,7 @@ import { motion, type Variants } from "framer-motion";
 import Link from "next/link";
 import {
   MessageSquare, Brain, ShieldCheck, RefreshCw, FileText, Dna,
-  Bookmark, Bot, CalendarCheck, Bell, Heart, BarChart2,
+  Bookmark, Bot, CalendarCheck, Bell, Heart,
   Zap, Target, Star, TrendingUp, Shield,
 } from "lucide-react";
 
@@ -88,13 +88,6 @@ const CARDS = [
     description: "Acompanhe o pós, peça feedbacks e mantenha o relacionamento ativo com suas clientes.",
     highlight: "Mais fidelização e indicações.",
     icon: <Heart size={24} strokeWidth={1.5} />,
-  },
-  {
-    number: "12",
-    title: "Relatórios e Performance",
-    description: "Acompanhe métricas, conversões e resultados para tomar decisões baseadas em dados.",
-    highlight: "Gestão inteligente, crescimento real.",
-    icon: <BarChart2 size={24} strokeWidth={1.5} />,
   },
 ];
 
