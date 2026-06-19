@@ -40,6 +40,7 @@ import { HeroHighlight, Highlight } from "@/components/hero-highlight-leadbellus
 import { PainPointSection } from "@/components/pain-point-section";
 import { IndicadoCards, IndicadoHeader } from "@/components/indicado-cards";
 import { SimuladorFadeUp, SimuladorUnderline, SimuladorScenarioBtn } from "@/components/simulador-ui";
+import { RiskFreeSection } from "@/components/risk-free-section";
 
 const funilHref = "/signup";
 
@@ -498,82 +499,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── GARANTIA ─────────────────────────────────────────────────────────── */}
-      <section
-        id="garantia"
-        style={{ background: "#F5F0E6", padding: "96px 24px" }}
-      >
-        <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center" }}>
-          <TagPill light>Risco zero — literalmente</TagPill>
-          <div
-            style={{
-              background: "#ffffff",
-              border: "2px solid #E8E4DC",
-              borderRadius: "24px",
-              padding: "56px 40px",
-              boxShadow: "0 8px 40px rgba(0,0,0,0.08)",
-            }}
-          >
-            <ShieldCheck size={56} color="#C9A060" style={{ margin: "0 auto 24px", display: "block" }} />
-            <h2
-              style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "32px",
-                fontWeight: 700,
-                color: "#0A1628",
-                margin: "0 0 20px",
-                lineHeight: 1.2,
-              }}
-            >
-              Teste 7 dias. Se não gostar, não paga nada.
-            </h2>
-            <p style={{ fontSize: "16px", color: "#4a5568", lineHeight: 1.8, marginBottom: "32px" }}>
-              Você não vai precisar colocar cartão de crédito pra começar. Você
-              testa por 7 dias sem custo. Se depois do trial você decidir assinar
-              e em 30 dias sentir que o LeadBellus não fez diferença real —
-              devolvemos 100% do que você pagou.
-            </p>
-            <p
-              style={{
-                fontSize: "16px",
-                fontWeight: 700,
-                color: "#0A1628",
-                fontStyle: "italic",
-                marginBottom: "32px",
-              }}
-            >
-              Sem questionamento. Sem formulário. Sem explicação necessária.
-            </p>
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "12px",
-                textAlign: "left",
-                marginBottom: "36px",
-              }}
-            >
-              {[
-                "7 dias grátis sem cartão",
-                "30 dias com dinheiro de volta após assinar",
-                "Cancele em 1 clique — sem ligar pra ninguém",
-              ].map((item) => (
-                <div key={item} style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                  <span style={{ fontSize: "16px" }}>🔒</span>
-                  <span style={{ fontSize: "15px", color: "#374151", fontWeight: 600 }}>{item}</span>
-                </div>
-              ))}
-            </div>
-
-            <p style={{ fontSize: "14px", color: "#6b7280", lineHeight: 1.7 }}>
-              O único risco aqui é continuar perdendo cliente no WhatsApp
-              enquanto existe uma ferramenta que resolve isso por menos do que
-              um único procedimento por mês.
-            </p>
-          </div>
-        </div>
-      </section>
+      <RiskFreeSection funilHref={funilHref} />
 
       {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
       <section
