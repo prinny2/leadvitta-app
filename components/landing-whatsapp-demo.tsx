@@ -287,42 +287,41 @@ export function LandingWhatsAppDemo() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <Label htmlFor="demo_nome_cliente">Nome da cliente</Label>
-              <Input
-                id="demo_nome_cliente"
-                value={nomeCliente}
-                onChange={(e) => setNomeCliente(e.target.value)}
-                placeholder="Ex.: Ana"
-              />
-            </div>
-            <div className="flex items-end">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full rounded-r-none border-r-0"
-                onClick={aplicarExemplo}
-              >
-                <Wand2 size={16} /> Usar exemplo
-              </Button>
-              <Button
-                type="button"
-                className="w-full rounded-l-none"
-                onClick={gerar}
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 size={16} className="animate-spin flex-shrink-0" /> Gerando…
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Sparkles size={16} className="flex-shrink-0" /> Gerar
-                  </span>
-                )}
-              </Button>
-            </div>
+          <div>
+            <Label htmlFor="demo_nome_cliente">Nome da cliente</Label>
+            <Input
+              id="demo_nome_cliente"
+              value={nomeCliente}
+              onChange={(e) => setNomeCliente(e.target.value)}
+              placeholder="Ex.: Ana"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={aplicarExemplo}
+            >
+              <Wand2 size={16} /> Usar exemplo
+            </Button>
+            <Button
+              type="button"
+              className="flex-1"
+              onClick={gerar}
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 size={16} className="animate-spin flex-shrink-0" /> Gerando…
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <Sparkles size={16} className="flex-shrink-0" /> Gerar
+                </span>
+              )}
+            </Button>
           </div>
 
           <div>
