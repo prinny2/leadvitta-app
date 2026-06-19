@@ -313,13 +313,13 @@ export function LandingWhatsAppDemo() {
                 disabled={loading}
               >
                 {loading ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" /> Gerando…
-                  </>
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 size={16} className="animate-spin flex-shrink-0" /> Gerando…
+                  </span>
                 ) : (
-                  <>
-                    <Sparkles size={16} /> Gerar
-                  </>
+                  <span className="flex items-center justify-center gap-2">
+                    <Sparkles size={16} className="flex-shrink-0" /> Gerar
+                  </span>
                 )}
               </Button>
             </div>
