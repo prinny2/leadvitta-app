@@ -4,7 +4,10 @@ import { useEffect, useRef, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 
-const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+// ID do Meta Pixel também é público (aparece no HTML). O default evita deploy
+// sem Pixel quando a env pública não foi assada no build da Vercel.
+const META_PIXEL_ID =
+  process.env.NEXT_PUBLIC_META_PIXEL_ID || "917448661312985";
 // ID de medição GA4 é PÚBLICO (aparece no HTML de qualquer site). O default garante
 // que o analytics carregue mesmo sem a env var na Vercel; se a env existir, ela vence.
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "G-223KR63TS8";
