@@ -35,6 +35,7 @@ import { PricingSection } from "@/components/pricing-section";
 import { TestimonialsSection } from "@/components/testimonials-section";
 import { AboutSection } from "@/components/about-section";
 import { CompareResponsesSection } from "@/components/compare-responses-section";
+import { HeroHighlight, Highlight } from "@/components/hero-highlight-leadbellus";
 
 const funilHref = "/signup";
 
@@ -471,8 +472,9 @@ export default function LandingPage() {
         id="indicado"
         style={{ background: "#07101e", padding: "96px 24px" }}
       >
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+        <HeroHighlight containerClassName="min-h-0 py-0 mb-14">
+        <div style={{ maxWidth: "1100px", margin: "0 auto", width: "100%" }}>
+          <div style={{ textAlign: "center" }}>
             <TagPill>Antes de continuar</TagPill>
             <h2
               style={{
@@ -485,7 +487,9 @@ export default function LandingPage() {
               }}
             >
               Se você cuida de clientes —{" "}
-              <span style={{ color: "#C9A060" }}>o LeadBellus cuida do seu atendimento</span>
+              <Highlight>
+                <span style={{ color: "#C9A060" }}>o LeadBellus cuida do seu atendimento</span>
+              </Highlight>
             </h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "580px", margin: "0 auto" }}>
               Não importa se você atende sozinho, tem uma equipe ou gerencia uma
@@ -493,6 +497,9 @@ export default function LandingPage() {
               é aqui que você vai parar de perder dinheiro.
             </p>
           </div>
+        </div>
+        </HeroHighlight>
+        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
 
           <div
             style={{
