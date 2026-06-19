@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useAnimation, AnimatePresence } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -164,7 +164,8 @@ function BadResponseCard({
   return (
     <motion.div
       initial={{ opacity: 0, x: -32 }}
-      animate={{ opacity: 1, x: 0 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -3, boxShadow: "0 12px 40px rgba(220,38,38,0.10)" }}
       style={{
@@ -258,7 +259,8 @@ function GoodResponseCard({
   return (
     <motion.div
       initial={{ opacity: 0, x: 32 }}
-      animate={{ opacity: 1, x: 0 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
@@ -602,7 +604,8 @@ function ConnectorLines() {
         strokeWidth="1"
         filter="url(#glow)"
         initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 1 }}
+        whileInView={{ pathLength: 1, opacity: 1 }}
+        viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
       />
       {/* Center → right top */}
@@ -613,7 +616,8 @@ function ConnectorLines() {
         strokeWidth="1"
         filter="url(#glow)"
         initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 1 }}
+        whileInView={{ pathLength: 1, opacity: 1 }}
+        viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 1, delay: 1.0, ease: "easeOut" }}
       />
       {/* Left bottom → center */}
@@ -624,7 +628,8 @@ function ConnectorLines() {
         strokeWidth="1"
         filter="url(#glow)"
         initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 1 }}
+        whileInView={{ pathLength: 1, opacity: 1 }}
+        viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 1, delay: 1.2, ease: "easeOut" }}
       />
       {/* Center → right bottom */}
@@ -635,7 +640,8 @@ function ConnectorLines() {
         strokeWidth="1"
         filter="url(#glow)"
         initial={{ pathLength: 0, opacity: 0 }}
-        animate={{ pathLength: 1, opacity: 1 }}
+        whileInView={{ pathLength: 1, opacity: 1 }}
+        viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 1, delay: 1.4, ease: "easeOut" }}
       />
     </svg>
@@ -648,12 +654,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
   const [activeIndex, setActiveIndex] = useState(0);
   const scenario = SCENARIOS[activeIndex];
 
-  const sectionRef = useRef<HTMLElement>(null);
-  const inView = useInView(sectionRef, { once: true, margin: "-80px" });
-
   return (
     <section
-      ref={sectionRef}
       id="antes-depois"
       style={{ background: "#F7F3EB", padding: "100px 24px", overflow: "hidden" }}
     >
@@ -663,7 +665,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
         <div style={{ textAlign: "center", marginBottom: "52px" }}>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             style={{
               display: "inline-flex",
@@ -686,7 +689,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
 
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             style={{
               fontFamily: "var(--font-fraunces, Georgia, serif)",
@@ -703,7 +707,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
               <span style={{ color: "#C9A060" }}>agenda</span>
               <motion.svg
                 initial={{ opacity: 0 }}
-                animate={inView ? { opacity: 1 } : {}}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
                 transition={{ delay: 0.7 }}
                 viewBox="0 0 120 12"
                 style={{ position: "absolute", bottom: "-6px", left: 0, width: "100%", overflow: "visible" }}
@@ -716,7 +721,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   initial={{ pathLength: 0 }}
-                  animate={inView ? { pathLength: 1 } : {}}
+                  whileInView={{ pathLength: 1 }}
+                  viewport={{ once: true, amount: 0.3 }}
                   transition={{ duration: 0.8, delay: 0.8, ease: "easeOut" }}
                 />
               </motion.svg>
@@ -725,7 +731,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
 
           <motion.p
             initial={{ opacity: 0, y: 16 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             style={{ color: "#6b7280", fontSize: "15px", maxWidth: "480px", margin: "0 auto", lineHeight: 1.7 }}
           >
@@ -736,7 +743,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
         {/* ── Scenario Tabs ── */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.5, delay: 0.3 }}
           style={{
             display: "flex",
@@ -772,7 +780,7 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
         <div style={{ position: "relative" }}>
           {/* Connector lines — desktop only */}
           <div className="connector-lines-wrapper" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
-            {inView && <ConnectorLines />}
+            <ConnectorLines />
           </div>
 
           <div style={{
@@ -803,7 +811,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
             {/* Center — phone */}
             <motion.div
               initial={{ opacity: 0, y: 32, scale: 0.95 }}
-              animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
               style={{ width: "260px", flexShrink: 0 }}
               className="phone-center"
@@ -877,8 +886,9 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
         {/* ── Benefits strip ── */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           style={{
             marginTop: "56px",
             background: "#ffffff",
