@@ -3,9 +3,9 @@
 Guidance for AI assistants (and humans) working in this repository.
 
 > **Authoritative rulebook:** if an `AGENTS.md` is present, it wins on agent
-> roles/deployment/safety where the two overlap. ⚠️ Note: `AGENTS.md` and
-> `ESTADO.md` are **referenced but not committed in this checkout** — treat this
-> CLAUDE.md as the de-facto guide unless those files actually exist. The live
+> roles/deployment/safety where the two overlap. ⚠️ Note: `ESTADO.md` is
+> **referenced but not committed in this checkout**; `AGENTS.md` IS present and
+> authoritative. The live
 > workspace project-state file lives at `C:\Users\vpaes\status.md`.
 
 ## ⚠️ This app is LIVE and billing in production
@@ -44,9 +44,10 @@ env vars are set.
 
 - **Next.js 15 (App Router)** + **React 19** + **TypeScript (strict)** +
   **TailwindCSS 3.4**.
-- **AI:** OpenAI (`gpt-4o-mini` default) with **Anthropic Claude fallback**
-  (`claude-haiku-4-5`). All calls are server-side with timeout/retry; Anthropic
-  uses ephemeral prompt caching.
+- **AI:** 3-tier server-side chain **OpenAI → Anthropic → Gemini** (`lib/ai/provider.ts`).
+  OpenAI (`gpt-4o-mini` default), Anthropic Claude fallback (`claude-haiku-4-5`, ephemeral
+  prompt caching), then Gemini (`@google/genai`, `gemini-2.5-flash` default). All with
+  timeout/retry. Gemini activates when `GEMINI_API_KEY`/`GOOGLE_API_KEY` is set.
 - **Auth + data:** Firebase Auth (email/password + Google) and Cloud Firestore;
   Firebase Admin SDK for server-side webhook writes.
 - **Billing:** Stripe (subscription mode), reconciled into Firestore via webhook.
@@ -119,9 +120,11 @@ Dockerfile, cloudbuild.yaml  # Cloud Run build/deploy
 
 ## Dev commands
 
-There is **no `lint` or `test` script** — do not invent validation commands
-beyond build + health check (per AGENTS.md). Available scripts: `dev`, `build`,
-`start`.
+**Validation: there IS a Vitest suite** (`tests/`, ~17 files) plus verification
+scripts. There is no `lint` script. Scripts: `dev`, `build`, `start`, `test`
+(`vitest run`), `test:watch`, `test:coverage`, `firebase:check`,
+`firebase:emulator:check`, `firebase:verify`, `whatsapp:simulate`.
+Run `npm test` before declaring a change done.
 
 ```bash
 npm install
@@ -177,7 +180,8 @@ via the proxy).
 Copy `.env.local.example` → `.env.local`; it is the source of truth for names.
 Groups: **Firebase** (`NEXT_PUBLIC_FIREBASE_*` + Admin `FIREBASE_SERVICE_ACCOUNT_JSON`
 or `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY`),
-**AI** (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `AI_MODEL`),
+**AI** (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` or `GOOGLE_API_KEY`,
+`AI_MODEL`, `GEMINI_MODEL`),
 **Stripe** (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CHECKOUT_MODE`,
 `STRIPE_PRICE_ID_{START,PRO,PREMIUM}`),
 **WhatsApp** (`WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_VERIFY_TOKEN`,
@@ -208,8 +212,5 @@ plus `NEXT_PUBLIC_SITE_URL`.
   verification like the Stripe checkout route.
 - New observable/UI content goes in `data/` (PT-BR); AI guardrails (compliance
   denylist) live in `lib/ai/prompts.ts`.
-
-## Git workflow for this task
-
-Develop on branch `claude/claude-md-docs-yydjie`, commit with clear messages,
-push with `git push -u origin claude/claude-md-docs-yydjie`, and open a draft PR.
+- Each task runs on its **own branch** off the deploy branch; commit with clear
+  messages and open a PR — never push straight to the branch that deploys.
