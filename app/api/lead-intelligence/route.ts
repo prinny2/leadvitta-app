@@ -1,5 +1,10 @@
 import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
-import { isOpenAIConfigured, isAnthropicConfigured } from "@/lib/config";
+import {
+  geminiModel,
+  isAnthropicConfigured,
+  isGeminiConfigured,
+  isOpenAIConfigured,
+} from "@/lib/config";
 
 export const runtime = "nodejs";
 
@@ -108,6 +113,23 @@ function isValidAnalysis(value: unknown): value is LeadIntelligenceResult {
   );
 }
 
+function parseAnalysis(text: string): LeadIntelligenceResult | null {
+  try {
+    const parsed = JSON.parse(text);
+    return isValidAnalysis(parsed) ? parsed : null;
+  } catch {
+    const match = text.match(/\{[\s\S]+\}/);
+    if (!match) return null;
+
+    try {
+      const parsed = JSON.parse(match[0]);
+      return isValidAnalysis(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+}
+
 async function aiAnalysis(msg: string): Promise<LeadIntelligenceResult> {
   const systemPrompt = `Você é um especialista em vendas para clínicas de estética brasileiras.
 Analise a mensagem de um potencial cliente e retorne JSON com esta estrutura exata:
@@ -131,31 +153,71 @@ Responda APENAS com o JSON, sem explicações.`;
 
   const userMsg = `Mensagem do lead: "${msg}"`;
 
-  if (isOpenAIConfigured) {
-    const { default: OpenAI } = await import("openai");
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const res = await client.chat.completions.create({
-      model: process.env.AI_MODEL || "gpt-4o-mini",
-      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userMsg }],
-      response_format: { type: "json_object" },
-      max_tokens: 400,
-    });
-    const parsed = JSON.parse(res.choices[0].message.content ?? "{}");
-    return isValidAnalysis(parsed) ? parsed : mockAnalysis(msg);
-  }
+  const tryOpenAI = async () => {
+    if (!isOpenAIConfigured) return null;
 
-  if (isAnthropicConfigured) {
-    const Anthropic = (await import("@anthropic-ai/sdk")).default;
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const res = await client.messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 400,
-      messages: [{ role: "user", content: `${systemPrompt}\n\n${userMsg}` }],
-    });
-    const text = res.content[0].type === "text" ? res.content[0].text : "{}";
-    const match = text.match(/\{[\s\S]+\}/);
-    const parsed = JSON.parse(match?.[0] ?? "{}");
-    return isValidAnalysis(parsed) ? parsed : mockAnalysis(msg);
+    try {
+      const { default: OpenAI } = await import("openai");
+      const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const res = await client.chat.completions.create({
+        model: process.env.AI_MODEL || "gpt-4o-mini",
+        messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userMsg }],
+        response_format: { type: "json_object" },
+        max_tokens: 400,
+      });
+      return parseAnalysis(res.choices[0].message.content ?? "{}");
+    } catch (err: any) {
+      console.warn("[lead-intelligence] OpenAI falhou:", err?.message || err);
+      return null;
+    }
+  };
+
+  const tryAnthropic = async () => {
+    if (!isAnthropicConfigured) return null;
+
+    try {
+      const Anthropic = (await import("@anthropic-ai/sdk")).default;
+      const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const res = await client.messages.create({
+        model: "claude-haiku-4-5",
+        max_tokens: 400,
+        messages: [{ role: "user", content: `${systemPrompt}\n\n${userMsg}` }],
+      });
+      const text = res.content[0].type === "text" ? res.content[0].text : "{}";
+      return parseAnalysis(text);
+    } catch (err: any) {
+      console.warn("[lead-intelligence] Anthropic falhou:", err?.message || err);
+      return null;
+    }
+  };
+
+  const tryGemini = async () => {
+    if (!isGeminiConfigured) return null;
+
+    try {
+      const { GoogleGenAI } = await import("@google/genai");
+      const client = new GoogleGenAI({
+        apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
+      });
+      const res = await client.models.generateContent({
+        model: geminiModel,
+        contents: userMsg,
+        config: {
+          systemInstruction: systemPrompt,
+          responseMimeType: "application/json",
+          maxOutputTokens: 400,
+        },
+      });
+      return parseAnalysis(res.text?.trim() ?? "{}");
+    } catch (err: any) {
+      console.warn("[lead-intelligence] Gemini falhou:", err?.message || err);
+      return null;
+    }
+  };
+
+  for (const provider of [tryOpenAI, tryAnthropic, tryGemini]) {
+    const parsed = await provider();
+    if (parsed) return parsed;
   }
 
   return mockAnalysis(msg);
@@ -176,7 +238,7 @@ export async function POST(req: Request) {
   if (mensagem.length < 5) return jsonNoStore({ error: "Mensagem muito curta." }, { status: 400 });
 
   try {
-    const result = isOpenAIConfigured || isAnthropicConfigured
+    const result = isOpenAIConfigured || isAnthropicConfigured || isGeminiConfigured
       ? await aiAnalysis(mensagem)
       : mockAnalysis(mensagem);
     return jsonNoStore(result);
