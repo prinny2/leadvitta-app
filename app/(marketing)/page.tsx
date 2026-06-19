@@ -36,7 +36,7 @@ import { TestimonialsSection } from "@/components/testimonials-section";
 import { AboutSection } from "@/components/about-section";
 import { CompareResponsesSection } from "@/components/compare-responses-section";
 import { HeroHighlight, Highlight } from "@/components/hero-highlight-leadbellus";
-import { IndicadoCards } from "@/components/indicado-cards";
+import { IndicadoCards, IndicadoHeader } from "@/components/indicado-cards";
 
 const funilHref = "/signup";
 
@@ -475,7 +475,7 @@ export default function LandingPage() {
       >
         <HeroHighlight containerClassName="min-h-0 py-0 mb-14">
         <div style={{ maxWidth: "1100px", margin: "0 auto", width: "100%" }}>
-          <div style={{ textAlign: "center" }}>
+          <IndicadoHeader>
             <TagPill>Antes de continuar</TagPill>
             <h2
               style={{
@@ -497,7 +497,7 @@ export default function LandingPage() {
               clínica completa. Se o WhatsApp é onde as suas vendas acontecem,
               é aqui que você vai parar de perder dinheiro.
             </p>
-          </div>
+          </IndicadoHeader>
         </div>
         </HeroHighlight>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
