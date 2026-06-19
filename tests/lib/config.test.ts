@@ -24,11 +24,12 @@ describe("lib/config", () => {
     expect(isFirebaseConfigured).toBe(true);
   });
 
-  it("isFirebaseConfigured é false sem projectId", async () => {
+  it("usa o Firebase real por fallback quando env pública está ausente", async () => {
     vi.stubEnv("NEXT_PUBLIC_FIREBASE_API_KEY", "abc");
     vi.stubEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID", "");
-    const { isFirebaseConfigured } = await loadConfig();
-    expect(isFirebaseConfigured).toBe(false);
+    const { firebaseConfig, isFirebaseConfigured } = await loadConfig();
+    expect(firebaseConfig.projectId).toBe("leadvitta-app");
+    expect(isFirebaseConfigured).toBe(true);
   });
 
   it("isAnthropicConfigured / isOpenAIConfigured seguem as chaves", async () => {

@@ -1,13 +1,25 @@
 // Detecta o que está configurado para alternar entre "modo real" e
 // "modo demonstração" (sem nenhuma chave o app ainda roda).
 
+// Config do Firebase web é PÚBLICA por design (vai no bundle do cliente). Os defaults
+// garantem que o login real funcione mesmo sem as env vars na Vercel; se a env existir, ela vence.
 export const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey:
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
+    "AIzaSyBMlo174XZFQUdvPE1JBJJLt4R6DUk2hls",
+  authDomain:
+    process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
+    "leadvitta-app.firebaseapp.com",
+  projectId:
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "leadvitta-app",
+  storageBucket:
+    process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
+    "leadvitta-app.firebasestorage.app",
+  messagingSenderId:
+    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "87102725202",
+  appId:
+    process.env.NEXT_PUBLIC_FIREBASE_APP_ID ||
+    "1:87102725202:web:e48089af9c157b31b5d38b",
 };
 
 /** True quando há projeto Firebase configurado (login + banco). */
