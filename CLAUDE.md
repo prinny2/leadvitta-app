@@ -10,11 +10,16 @@ Guidance for AI assistants (and humans) working in this repository.
 
 ## ⚠️ This app is LIVE and billing in production
 
-> **Production host = Vercel** (as of 2026-06-19). The live site
-> `https://www.leadbellus.com.br` is served by Vercel (project `vini1/leadvitta-app`,
-> `Server: Vercel`). Cloud Run still exists but only handles redirects + legacy
-> webhooks. The "Cloud Run only / No Vercel" wording further down is **superseded** —
-> kept for historical context.
+> **Architecture = HYBRID (Vercel frontend + Cloud Run API).** The live site
+> `https://www.leadbellus.com.br` is served by **Vercel** (project `vini1/leadvitta-app`),
+> which builds the Next.js frontend and bakes `NEXT_PUBLIC_*`. But **every `/api/*` route
+> is proxied server-side to Cloud Run** (`next.config.mjs` turns the proxy ON whenever
+> `VERCEL=1`, which is always true on Vercel), so Stripe checkout/webhook, WhatsApp webhook
+> and `/api/config` **execute on Cloud Run — never on Vercel**. **Runtime secrets
+> (`STRIPE_*`, `FIREBASE_*`, `OPENAI`/`ANTHROPIC`, `ZAPI_*`) must live on Cloud Run** — a
+> Stripe/Firebase secret set only on Vercel is **inert** (customer pays, account never
+> activates). Both layers are production; **neither is legacy**. Authoritative deploy/secret
+> map: **`DEPLOY_STRIPE_VERCEL.md`**.
 
 LeadBellus is LIVE and **charges real customers via Stripe**. Treat every change
 as a production change. Do not assume "it's done" without live verification
@@ -46,11 +51,11 @@ env vars are set.
   Firebase Admin SDK for server-side webhook writes.
 - **Billing:** Stripe (subscription mode), reconciled into Firestore via webhook.
 - **Integrations:** WhatsApp Cloud API (Meta) and Zapier.
-- **Deploy:** **Production runs on Vercel** (`vini1/leadvitta-app`); env vars are
-  baked at build time there. The Cloud Run path — Docker (Node 20,
-  `output: "standalone"`) → Cloud Build → Cloud Run (region `southamerica-east1`,
-  service `leadbellus`) — is **legacy** (redirects + old webhooks only); the
-  Dockerfile/`cloudbuild.yaml` are kept for it.
+- **Deploy (hybrid):** **Vercel** (`vini1/leadvitta-app`) builds & serves the frontend
+  and bakes `NEXT_PUBLIC_*` at build time. **All `/api/*` is proxied to Cloud Run** —
+  Docker (Node 20, `output: "standalone"`) → Cloud Build → Cloud Run (region
+  `southamerica-east1`, service `leadbellus`) — which runs the **live API** and holds the
+  **runtime secrets**. Both are production; neither is legacy. See `DEPLOY_STRIPE_VERCEL.md`.
 - **Analytics gotcha:** `components/Analytics.tsx` hardcodes a GA4 fallback
   `G-223KR63TS8` (`NEXT_PUBLIC_GA4_ID || "G-223KR63TS8"`), so the tag loads even
   without the env var. To point analytics elsewhere you must change that fallback
@@ -137,23 +142,25 @@ Container parity with Cloud Run (serves on `:8080` via `node server.js`):
 docker build -t leadbellus . && docker run --rm -p 8080:8080 leadbellus
 ```
 
-## Deploy
+## Deploy (hybrid — see `DEPLOY_STRIPE_VERCEL.md` for the full map)
 
-**Production = Vercel** (project `vini1/leadvitta-app`). Pushing to the deploy
-branch builds & deploys on Vercel; `NEXT_PUBLIC_*` are **build-time**, so changing
-them needs a new Vercel build. After deploy, validate `GET /api/health` on the
-live host.
-
-**Legacy Cloud Run path** (redirects + old webhooks only):
+**Frontend → Vercel** (project `vini1/leadvitta-app`). Merging to `main` builds &
+deploys on Vercel; `NEXT_PUBLIC_*` are **build-time**, so changing them needs a new
+Vercel build. **API → Cloud Run**: all `/api/*` is proxied there, so it holds the
+**runtime secrets** (`STRIPE_*`, `FIREBASE_*`, `ZAPI_*`, AI keys) — set them on Cloud
+Run, **not Vercel**:
 
 ```bash
-gcloud builds submit --config cloudbuild.yaml
-gcloud run services update <SERVICE> --region <REGION> --set-env-vars NEXT_PUBLIC_SITE_URL=https://<HOST>
-gcloud run services update <SERVICE> --region <REGION> --set-secrets ANTHROPIC_API_KEY=anthropic-api-key:latest
+gcloud run services update leadbellus --region southamerica-east1 \
+  --update-env-vars STRIPE_CHECKOUT_MODE=subscription,STRIPE_PRICE_ID_START=price_… \
+  --set-secrets STRIPE_SECRET_KEY=stripe-secret-key:latest,STRIPE_WEBHOOK_SECRET=stripe-webhook-secret:latest
+gcloud run services describe leadbellus --region southamerica-east1   # validate
 ```
 
-Public webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`) must point at the
-**active production host** (Vercel).
+Public webhooks run on Cloud Run: register the Stripe/WhatsApp endpoints **directly on
+the `…run.app` URL** (skips the Vercel proxy and the apex-307 trap). Validate the live
+stack with `curl -L https://www.leadbellus.com.br/api/config` (answered by Cloud Run
+via the proxy).
 
 ## Domains & DNS
 
@@ -185,11 +192,13 @@ plus `NEXT_PUBLIC_SITE_URL`.
 
 - **Never commit secrets** (not in code, chat, or `cloudbuild.yaml`). Local
   secrets live outside the repo; production secrets live in Secret Manager.
-- **Deploy host = Vercel** (current production, as of 2026-06-19). This rule
-  historically said "Cloud Run only / No Vercel" after a Vercel domain
-  split-brain; production has since moved (back) to Vercel. If you change the
-  production host, do it deliberately and update this file + `status.md`
-  together. **No Auth0** — `feat/auth0` is intentionally parked; Firebase
+- **Deploy = hybrid: Vercel (frontend) + Cloud Run (API).** All `/api/*` is proxied to
+  Cloud Run, so **runtime secrets go on Cloud Run, never Vercel** (a Stripe secret set
+  only on Vercel is inert). Earlier docs claimed "Cloud Run only / No Vercel" **or**
+  "Vercel only / Cloud Run is legacy" — **both are wrong**; it's both hosts, split by
+  layer. Authoritative map: `DEPLOY_STRIPE_VERCEL.md`. If you change hosting, do it
+  deliberately and update this file + `status.md` together. **No Auth0** — `feat/auth0`
+  is intentionally parked; Firebase
   Auth is the official v1 auth. Don't add `AUTH0_*`, Auth0 deps, or new
   `/auth/*` routes without a dedicated migration.
 - Each agent works on its **own branch**; never commit directly to the branch
