@@ -5,9 +5,9 @@ import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
-// ID de medição GA4 é PÚBLICO (aparece no HTML de qualquer site).
-// Configure NEXT_PUBLIC_GA4_ID no ambiente de build com o valor que começa com "G-".
-const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
+// ID de medição GA4 é PÚBLICO (aparece no HTML de qualquer site). O default garante
+// que o analytics carregue mesmo sem a env var na Vercel; se a env existir, ela vence.
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "G-223KR63TS8";
 
 function AnalyticsContent() {
   const pathname = usePathname();
