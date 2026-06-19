@@ -2,18 +2,41 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Flower2 } from "lucide-react";
 
-function LogoMark({ size = 32 }: { size?: number }) {
+function LogoMark({ size = 28 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="8" fill="#C9A060" fillOpacity="0.12" />
-      <path
-        d="M16 6 C10 6 7 10 7 14 C7 18 10 20 16 26 C22 20 25 18 25 14 C25 10 22 6 16 6Z"
-        fill="#C9A060"
-        fillOpacity="0.8"
-      />
-    </svg>
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: size + 10,
+        height: size + 10,
+        borderRadius: "10px",
+        background: "rgba(10, 25, 47, 0.9)",
+        border: "1px solid rgba(201,160,96,0.25)",
+        flexShrink: 0,
+      }}
+    >
+      <Flower2 size={size} strokeWidth={1.6} color="#C9A060" />
+    </span>
+  );
+}
+
+function Wordmark() {
+  return (
+    <span
+      style={{
+        fontFamily: "var(--font-fraunces, Georgia, serif)",
+        fontSize: "18px",
+        fontWeight: 600,
+        letterSpacing: "-0.01em",
+      }}
+    >
+      <span style={{ color: "#ffffff" }}>Lead</span>
+      <span style={{ color: "#C9A060" }}>Bellus</span>
+    </span>
   );
 }
 
@@ -96,17 +119,8 @@ export function FooterSection() {
           transition={{ duration: 0.55, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-            <LogoMark size={28} />
-            <span
-              style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "18px",
-                fontWeight: 600,
-                color: "#ffffff",
-              }}
-            >
-              LeadBellus
-            </span>
+            <LogoMark size={18} />
+            <Wordmark />
           </div>
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", lineHeight: 1.7, maxWidth: "220px", marginBottom: "16px" }}>
             A resposta certa. No seu tom. Em segundos.
