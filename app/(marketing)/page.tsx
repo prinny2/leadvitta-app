@@ -36,6 +36,7 @@ import { TestimonialsSection } from "@/components/testimonials-section";
 import { AboutSection } from "@/components/about-section";
 import { CompareResponsesSection } from "@/components/compare-responses-section";
 import { HeroHighlight, Highlight } from "@/components/hero-highlight-leadbellus";
+import { IndicadoCards } from "@/components/indicado-cards";
 
 const funilHref = "/signup";
 
@@ -500,116 +501,7 @@ export default function LandingPage() {
         </div>
         </HeroHighlight>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "16px",
-              marginBottom: "48px",
-            }}
-          >
-            {[
-              {
-                icon: <Building2 size={22} color="#C9A060" strokeWidth={1.5} />,
-                emoji: "🏥",
-                title: "Você tem ou gerencia uma clínica de estética",
-                body: "Botox, harmonização, preenchimento, laser, bioestimulador, microagulhamento — qualquer clínica onde a venda começa numa conversa de WhatsApp antes de virar agendamento.",
-              },
-              {
-                icon: <User size={22} color="#C9A060" strokeWidth={1.5} />,
-                emoji: "💼",
-                title: "Você é autônomo e atende no seu próprio espaço",
-                body: "Profissional solo que faz tudo: o procedimento, o atendimento e a venda. Cada conversa de WhatsApp é uma oportunidade que não pode escapar.",
-              },
-              {
-                icon: <Users size={22} color="#C9A060" strokeWidth={1.5} />,
-                emoji: "👥",
-                title: "Você tem recepcionista ou está pensando em contratar",
-                body: "Treinar alguém pra conduzir conversa de venda leva meses. Com o LeadBellus, seu atendimento já nasce padronizado e estratégico — sem depender da habilidade de cada pessoa.",
-              },
-              {
-                icon: <TrendingUp size={22} color="#C9A060" strokeWidth={1.5} />,
-                emoji: "📈",
-                title: "Você quer mais agendamentos sem aumentar anúncios",
-                body: "O problema não é a captação. É a conversão. Você já tem as leads chegando — elas só estão vazando na conversa.",
-              },
-              {
-                icon: <Layers size={22} color="#C9A060" strokeWidth={1.5} />,
-                emoji: "🔄",
-                title: "Você quer escalar sem depender de você em tudo",
-                body: "Hoje cada resposta importante precisa passar pela sua aprovação. Com o LeadBellus — especialmente no Premium — o sistema atende, qualifica, agenda e acompanha.",
-              },
-            ].map((card) => (
-              <div
-                key={card.title}
-                style={{
-                  background: "#0f1b2f",
-                  border: "1px solid rgba(201,160,96,0.15)",
-                  borderRadius: "20px",
-                  padding: "28px 24px",
-                  transition: "border-color 0.2s",
-                }}
-              >
-                <div
-                  style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "12px",
-                    background: "rgba(201,160,96,0.1)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: "16px",
-                    fontSize: "20px",
-                  }}
-                >
-                  {card.emoji}
-                </div>
-                <h3
-                  style={{
-                    fontFamily: "var(--font-fraunces, Georgia, serif)",
-                    fontSize: "16px",
-                    fontWeight: 700,
-                    color: "#ffffff",
-                    margin: "0 0 10px",
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {card.title}
-                </h3>
-                <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.6)", lineHeight: 1.7 }}>
-                  {card.body}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)", marginBottom: "24px" }}>
-              Seja biomédico, médico, fisioterapeuta, esteticista ou gestor de clínica — se o seu negócio de estética vive de agendamentos, esse sistema foi construído pra você.
-            </p>
-            <Link
-              href={funilHref}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                background: "#C9A060",
-                color: "#07101e",
-                borderRadius: "9999px",
-                padding: "14px 32px",
-                fontSize: "15px",
-                fontWeight: 700,
-                textDecoration: "none",
-              }}
-            >
-              Quero testar grátis por 7 dias →
-            </Link>
-            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
-              Sem cartão · Acesso imediato · Pronto em 2 minutos
-            </p>
-          </div>
+          <IndicadoCards funilHref={funilHref} />
         </div>
       </section>
 
