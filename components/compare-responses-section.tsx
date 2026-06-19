@@ -10,56 +10,69 @@ const SCENARIOS = [
   {
     id: "preco",
     label: "Perguntou preço",
-    bad: {
+    bad1: {
       message: '"Botox é R$900."',
-      explanation:
-        "Resposta seca, focada só no preço. A cliente sente que é um número, não uma pessoa. Compara com a concorrente mais barata e some.",
+      explanation: "Resposta seca, focada só no preço. A cliente sente que é um número, não uma pessoa. Compara com a concorrente mais barata e some.",
     },
-    good: {
-      message:
-        '"Oi, Ana! O investimento pode variar conforme os pontos avaliados e o objetivo do tratamento. Você busca suavizar as linhas da testa, pés de galinha ou prefere um resultado mais preventivo? Assim consigo te orientar melhor sobre o melhor caminho pra você. 💚"',
-      explanation:
-        "Acolhe, demonstra expertise, desvia do preço e conduz pra avaliação.",
+    bad2: {
+      message: '"O valor varia, manda mensagem na semana que vem pra eu ver."',
+      explanation: "Adia sem dar nenhuma informação. A cliente interpreta como desinteresse e já está pesquisando outra clínica.",
+    },
+    good1: {
+      message: '"Oi, Ana! O investimento pode variar conforme os pontos avaliados e o objetivo do tratamento. Você busca suavizar as linhas da testa, pés de galinha ou prefere um resultado mais preventivo? Assim consigo te orientar melhor sobre o melhor caminho pra você. 💚"',
+      explanation: "Acolhe, demonstra expertise, desvia do preço e conduz pra avaliação.",
+    },
+    good2: {
+      message: '"Oi! O valor do botox depende de quantas áreas vamos tratar juntas. Me conta: você quer um resultado mais natural ou mais expressivo? Com isso já consigo te dar uma estimativa real e montar o melhor protocolo pra você. 😊"',
+      explanation: "Personaliza sem revelar preço cedo. Cria diálogo e posiciona a profissional como especialista.",
     },
     score: 85,
     perfil: "Analítico · Cautelosa · Detalhista",
     perfilSub: "Busca segurança, provas e clareza.",
-    estrategia:
-      "Reforce autoridade, apresente resultados e conduza para o próximo passo.",
+    estrategia: "Reforce autoridade, apresente resultados e conduza para o próximo passo.",
   },
   {
     id: "caro",
     label: "Achou caro",
-    bad: {
+    bad1: {
       message: '"Ah entendo, mas meu trabalho é diferente..."',
-      explanation:
-        "Modo defensivo, resposta genérica, não convence. A cliente já foi embora mentalmente.",
+      explanation: "Modo defensivo, resposta genérica, não convence. A cliente já foi embora mentalmente.",
     },
-    good: {
-      message:
-        '"Entendo, e faz todo sentido querer comparar! Preço mais baixo pode significar produto diluído, aplicador sem especialização ou sem garantia de retoque. No meu atendimento você tem [seu diferencial] e acompanhamento completo. Às vezes a diferença de R$200 evita uma correção de R$2.000 depois. Posso te mostrar o que está incluso?"',
-      explanation:
-        "Educa sem atacar a concorrente. Posiciona o valor real. A cliente vê o preço como investimento.",
+    bad2: {
+      message: '"É esse o valor mesmo, infelizmente não tem como diminuir."',
+      explanation: "Fecha a negociação sem oferecer contexto. A cliente sente que foi descartada e vai buscar quem justifique melhor.",
+    },
+    good1: {
+      message: '"Entendo, e faz todo sentido querer comparar! Preço mais baixo pode significar produto diluído, aplicador sem especialização ou sem garantia de retoque. No meu atendimento você tem [seu diferencial] e acompanhamento completo. Às vezes a diferença de R$200 evita uma correção de R$2.000 depois. Posso te mostrar o que está incluso?"',
+      explanation: "Educa sem atacar a concorrente. Posiciona o valor real. A cliente vê o preço como investimento.",
+    },
+    good2: {
+      message: '"Faz sentido! Quero te mostrar o que está dentro desse investimento: [lista rápida de diferenciais]. Além disso, ofereço retoque incluso e acompanhamento pós-procedimento. Quer que eu te mande um comparativo rápido do que está incluso?"',
+      explanation: "Transforma o preço em percepção de valor. A cliente entende o que está comprando, não só o número.",
     },
     score: 72,
     perfil: "Econômica · Comparativa · Racional",
     perfilSub: "Precisa entender o custo-benefício antes de decidir.",
-    estrategia:
-      "Posicione valor, use âncoras de preço e mostre o risco do mais barato.",
+    estrategia: "Posicione valor, use âncoras de preço e mostre o risco do mais barato.",
   },
   {
     id: "pensar",
     label: "Vou pensar",
-    bad: {
+    bad1: {
       message: '"Ok, qualquer coisa me chama!"',
-      explanation:
-        'A resposta "ok" encerra a conversa. A cliente pensa, esquece e nunca volta. Venda perdida por omissão.',
+      explanation: 'A resposta "ok" encerra a conversa. A cliente pensa, esquece e nunca volta. Venda perdida por omissão.',
     },
-    good: {
-      message:
-        '"Claro, faz sentido! Só uma coisa: a agenda costuma fechar rápido e não quero que você perca a janela ideal. O que te impede de decidir agora? Às vezes consigo resolver uma dúvida que faz tudo ficar mais claro. 😊"',
-      explanation:
-        "Mantém o diálogo aberto, identifica a objeção real e cria senso de urgência sem pressionar.",
+    bad2: {
+      message: '"Tudo bem! Quando decidir é só falar comigo 😊"',
+      explanation: "Educada, mas passiva. Joga toda a responsabilidade pra cliente e não cria nenhum motivo pra ela agir agora.",
+    },
+    good1: {
+      message: '"Claro, faz sentido! Só uma coisa: a agenda costuma fechar rápido e não quero que você perca a janela ideal. O que te impede de decidir agora? Às vezes consigo resolver uma dúvida que faz tudo ficar mais claro. 😊"',
+      explanation: "Mantém o diálogo aberto, identifica a objeção real e cria senso de urgência sem pressionar.",
+    },
+    good2: {
+      message: '"Claro! Só pra te ajudar a pensar: o que ainda ficou em aberto pra você? Se for dúvida sobre o procedimento, resultado ou valor — me fala que a gente resolve isso agora juntas. Não quero que você fique com dúvida. 💛"',
+      explanation: "Acolhe a indecisão e convida a cliente a revelar a objeção real. Gera confiança ao invés de pressão.",
     },
     score: 61,
     perfil: "Indecisa · Reflexiva · Cautelosa",
@@ -69,42 +82,50 @@ const SCENARIOS = [
   {
     id: "sumiu",
     label: "Sumiu",
-    bad: {
+    bad1: {
       message: '"Oi, tudo bem? Ainda tem interesse?"',
-      explanation:
-        'Follow-up genérico que parece cobrado. A cliente sente pressão, ignora ou responde "já resolvi".',
+      explanation: 'Follow-up genérico que parece cobrado. A cliente sente pressão, ignora ou responde "já resolvi".',
     },
-    good: {
-      message:
-        '"Oi! Passando pra deixar uma coisa que pode te ajudar a decidir: [resultado real de uma cliente com o mesmo perfil]. Quando quiser retomar, é só falar — sem compromisso. 🌿"',
-      explanation:
-        "Retoma o contato com valor real, sem cobrar resposta. Reativa o interesse de forma natural.",
+    bad2: {
+      message: '"Oi! Só passando pra saber se você ainda quer marcar 😊"',
+      explanation: "Parece um lembrete de cobrador. A cliente que sumiu não precisa de pressão — precisa de um motivo pra voltar.",
+    },
+    good1: {
+      message: '"Oi! Passando pra deixar uma coisa que pode te ajudar a decidir: [resultado real de uma cliente com o mesmo perfil]. Quando quiser retomar, é só falar — sem compromisso. 🌿"',
+      explanation: "Retoma o contato com valor real, sem cobrar resposta. Reativa o interesse de forma natural.",
+    },
+    good2: {
+      message: '"Oi! Sei que a vida corrida às vezes empurra as decisões pra depois. Só vim te lembrar que [procedimento] tem resultado cumulativo — quanto antes você começa, mais cedo você vê a diferença. Qualquer coisa, tô aqui! 💚"',
+      explanation: "Cria contexto de urgência com cuidado genuíno. Não pressiona, mas planta a semente de agir logo.",
     },
     score: 55,
     perfil: "Dispersa · Ocupada · Indecisa",
     perfilSub: "Precisa de um motivo relevante para voltar à conversa.",
-    estrategia:
-      "Reengaje com prova social ou conteúdo de valor, sem pedir resposta direta.",
+    estrategia: "Reengaje com prova social ou conteúdo de valor, sem pedir resposta direta.",
   },
   {
     id: "desconto",
     label: "Tem desconto?",
-    bad: {
+    bad1: {
       message: '"Não faço desconto, mas posso parcelar."',
-      explanation:
-        "Nega e fecha a conversa. A cliente sente que tentou e não conseguiu — vai embora sem agendamento.",
+      explanation: "Nega e fecha a conversa. A cliente sente que tentou e não conseguiu — vai embora sem agendamento.",
     },
-    good: {
-      message:
-        '"Desconto no procedimento não faço, porque isso impactaria a qualidade que eu entrego. Mas o que posso fazer é montar um protocolo personalizado que entrega mais resultado com o mesmo investimento. Posso te mostrar como isso funciona?"',
-      explanation:
-        "Reposiciona a conversa do preço para o valor. A cliente entende que não é teimosia — é padrão de qualidade.",
+    bad2: {
+      message: '"Não trabalho com desconto, meu preço já é justo."',
+      explanation: "Soa defensivo e arrogante. A cliente não se sente ouvida e vai buscar quem trate a dúvida com mais cuidado.",
+    },
+    good1: {
+      message: '"Desconto no procedimento não faço, porque isso impactaria a qualidade que eu entrego. Mas o que posso fazer é montar um protocolo personalizado que entrega mais resultado com o mesmo investimento. Posso te mostrar como isso funciona?"',
+      explanation: "Reposiciona a conversa do preço para o valor. A cliente entende que não é teimosia — é padrão de qualidade.",
+    },
+    good2: {
+      message: '"Não trabalho com desconto porque não abro mão da qualidade do material que uso. Mas posso te ajudar a montar um pacote que caiba no seu orçamento e ainda entregue o resultado que você quer. Quer que eu monte uma sugestão pra você?"',
+      explanation: "Mantém o posicionamento premium mas oferece flexibilidade real. A cliente sente que você está do lado dela.",
     },
     score: 68,
     perfil: "Orientada a preço · Direta · Objetiva",
     perfilSub: "Quer sentir que fez um bom negócio.",
-    estrategia:
-      "Defenda o preço com posicionamento de valor, nunca com negativa seca.",
+    estrategia: "Defenda o preço com posicionamento de valor, nunca com negativa seca.",
   },
 ];
 
@@ -802,8 +823,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
                   transition={{ duration: 0.25 }}
                   style={{ display: "flex", flexDirection: "column", gap: "20px" }}
                 >
-                  <BadResponseCard message={scenario.bad.message} explanation={scenario.bad.explanation} delay={0} />
-                  <BadResponseCard message={scenario.bad.message} explanation={scenario.bad.explanation} delay={0.1} />
+                  <BadResponseCard message={scenario.bad1.message} explanation={scenario.bad1.explanation} delay={0} />
+                  <BadResponseCard message={scenario.bad2.message} explanation={scenario.bad2.explanation} delay={0.1} />
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -875,8 +896,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
                   transition={{ duration: 0.25 }}
                   style={{ display: "flex", flexDirection: "column", gap: "20px" }}
                 >
-                  <GoodResponseCard message={scenario.good.message} explanation={scenario.good.explanation} delay={0} />
-                  <GoodResponseCard message={scenario.good.message} explanation={scenario.good.explanation} delay={0.1} />
+                  <GoodResponseCard message={scenario.good1.message} explanation={scenario.good1.explanation} delay={0} />
+                  <GoodResponseCard message={scenario.good2.message} explanation={scenario.good2.explanation} delay={0.1} />
                 </motion.div>
               </AnimatePresence>
             </div>
