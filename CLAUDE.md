@@ -2,17 +2,23 @@
 
 Guidance for AI assistants (and humans) working in this repository.
 
-> **`AGENTS.md` is the authoritative rulebook** for agent roles, deployment, and
-> safety constraints. This file summarizes the codebase; where the two overlap,
-> AGENTS.md wins. The live project-state file is **`ESTADO.md`** (kept locally,
-> outside git).
+> **Authoritative rulebook:** if an `AGENTS.md` is present, it wins on agent
+> roles/deployment/safety where the two overlap. ⚠️ Note: `AGENTS.md` and
+> `ESTADO.md` are **referenced but not committed in this checkout** — treat this
+> CLAUDE.md as the de-facto guide unless those files actually exist. The live
+> workspace project-state file lives at `C:\Users\vpaes\status.md`.
 
 ## ⚠️ This app is LIVE and billing in production
 
-LeadBellus runs on **Google Cloud Run** and **charges real customers via
-Stripe**. Treat every change as a production change. Do not assume "it's done"
-without live verification (curl the route, check the Stripe dashboard, check
-Firestore).
+> **Production host = Vercel** (as of 2026-06-19). The live site
+> `https://www.leadbellus.com.br` is served by Vercel (project `vini1/leadvitta-app`,
+> `Server: Vercel`). Cloud Run still exists but only handles redirects + legacy
+> webhooks. The "Cloud Run only / No Vercel" wording further down is **superseded** —
+> kept for historical context.
+
+LeadBellus is LIVE and **charges real customers via Stripe**. Treat every change
+as a production change. Do not assume "it's done" without live verification
+(curl the route, check the Stripe dashboard, check Firestore).
 
 ## What this app is
 
@@ -24,7 +30,10 @@ results, no fixed pricing, no medical diagnoses). It also generates objection
 rebuttals, follow-ups, and sales scripts, and logs every response with
 intent/sentiment/score.
 
-Business model: monthly subscriptions (Start R$197 / Pro R$297 / Premium R$397).
+Business model: monthly subscriptions — **Start R$97 / Pro R$197 / Premium R$347**
+(source of truth: `lib/billing.ts`). Only **Start** is currently sellable
+(`disponivel: true`); Pro/Premium show "Em breve" until their `STRIPE_PRICE_ID_*`
+env vars are set.
 
 ## Tech stack
 
@@ -37,9 +46,15 @@ Business model: monthly subscriptions (Start R$197 / Pro R$297 / Premium R$397).
   Firebase Admin SDK for server-side webhook writes.
 - **Billing:** Stripe (subscription mode), reconciled into Firestore via webhook.
 - **Integrations:** WhatsApp Cloud API (Meta) and Zapier.
-- **Deploy:** Docker (Node 20, `output: "standalone"`) → Cloud Build → Cloud Run
-  (region `southamerica-east1`, service `leadbellus`). Firebase Hosting rewrites
-  all traffic to the Cloud Run service.
+- **Deploy:** **Production runs on Vercel** (`vini1/leadvitta-app`); env vars are
+  baked at build time there. The Cloud Run path — Docker (Node 20,
+  `output: "standalone"`) → Cloud Build → Cloud Run (region `southamerica-east1`,
+  service `leadbellus`) — is **legacy** (redirects + old webhooks only); the
+  Dockerfile/`cloudbuild.yaml` are kept for it.
+- **Analytics gotcha:** `components/Analytics.tsx` hardcodes a GA4 fallback
+  `G-223KR63TS8` (`NEXT_PUBLIC_GA4_ID || "G-223KR63TS8"`), so the tag loads even
+  without the env var. To point analytics elsewhere you must change that fallback
+  or set `NEXT_PUBLIC_GA4_ID`.
 
 > **Use Node 20** to match the Dockerfile. If the VM ships Node 22:
 > `export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 20`.
@@ -122,9 +137,14 @@ Container parity with Cloud Run (serves on `:8080` via `node server.js`):
 docker build -t leadbellus . && docker run --rm -p 8080:8080 leadbellus
 ```
 
-## Deploy (Claude only — see AGENTS.md)
+## Deploy
 
-Only the Claude agent runs `gcloud`. Build & deploy:
+**Production = Vercel** (project `vini1/leadvitta-app`). Pushing to the deploy
+branch builds & deploys on Vercel; `NEXT_PUBLIC_*` are **build-time**, so changing
+them needs a new Vercel build. After deploy, validate `GET /api/health` on the
+live host.
+
+**Legacy Cloud Run path** (redirects + old webhooks only):
 
 ```bash
 gcloud builds submit --config cloudbuild.yaml
@@ -132,14 +152,14 @@ gcloud run services update <SERVICE> --region <REGION> --set-env-vars NEXT_PUBLI
 gcloud run services update <SERVICE> --region <REGION> --set-secrets ANTHROPIC_API_KEY=anthropic-api-key:latest
 ```
 
-After every deploy, validate `GET /api/health`. Public webhooks live at
-`/api/stripe/webhook` and `/api/whatsapp/webhook` on the Cloud Run URL.
+Public webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`) must point at the
+**active production host** (Vercel).
 
 ## Domains & DNS
 
-- The canonical public host is **`leadbellus.com.br`** (+ `www`). Point
-  `NEXT_PUBLIC_SITE_URL`, OAuth authorized domains, and Stripe/WhatsApp webhooks
-  at it (or at the active Cloud Run / production URL).
+- The canonical public host is **`leadbellus.com.br`** (+ `www`), served by
+  **Vercel**. Point `NEXT_PUBLIC_SITE_URL`, OAuth authorized domains, and
+  Stripe/WhatsApp webhooks at it (or at the active Vercel production URL).
 - ⛔ **Never use `leadvitta.com`.** Despite the repo/GCP project being named
   `leadvitta-app`, the domain `leadvitta.com` is **not** this app — it resolves
   to a parked HostGator placeholder page. Do not point DNS, `NEXT_PUBLIC_SITE_URL`,
@@ -165,8 +185,11 @@ plus `NEXT_PUBLIC_SITE_URL`.
 
 - **Never commit secrets** (not in code, chat, or `cloudbuild.yaml`). Local
   secrets live outside the repo; production secrets live in Secret Manager.
-- **No Vercel** — official deploy is Cloud Run only (Vercel caused domain
-  split-brain). **No Auth0** — `feat/auth0` is intentionally parked; Firebase
+- **Deploy host = Vercel** (current production, as of 2026-06-19). This rule
+  historically said "Cloud Run only / No Vercel" after a Vercel domain
+  split-brain; production has since moved (back) to Vercel. If you change the
+  production host, do it deliberately and update this file + `status.md`
+  together. **No Auth0** — `feat/auth0` is intentionally parked; Firebase
   Auth is the official v1 auth. Don't add `AUTH0_*`, Auth0 deps, or new
   `/auth/*` routes without a dedicated migration.
 - Each agent works on its **own branch**; never commit directly to the branch
