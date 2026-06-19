@@ -50,7 +50,7 @@ const PLANS = [
     features: [
       "Tudo do Start",
       "Lead Intelligence — score de conversão + perfil psicológico + estratégia exata por lead",
-      "Integração com o WhatsApp via Z-API — conecta no seu número, sem app extra",
+      "Conecta no seu WhatsApp — atende direto no seu número, sem instalar outro app",
       "Chatbot no WhatsApp — atende e qualifica a lead automaticamente, 24h por dia, e te entrega pronta pra fechar",
     ],
     ctaMonthly: "Começar com o Pro — 7 dias grátis →",
