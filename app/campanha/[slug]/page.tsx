@@ -176,12 +176,12 @@ export default function CampaignPage({ params }: Props) {
     </>
   );
 
-  const campaignSubtitle = "O LeadBellus analisa as mensagens do seu WhatsApp e gera a resposta ideal no tom da sua clínica para reverter objeções e fechar avaliações na hora. É só copiar e colar.";
+  const campaignSubtitle = "O LeadBellus transforma mensagens do WhatsApp em opções de resposta no tom da sua clínica para lidar melhor com objeções e conduzir a conversa. É só escolher, copiar e mandar.";
 
   const campaignBullets = [
     "Chega de 'vou ver e aviso': Tenha respostas prontas no WhatsApp para quebrar a objeção de preço com naturalidade.",
-    "Reative quem sumiu: Abordagens elegantes no timing ideal para recuperar contatos que visualizaram e não responderam.",
-    "No tom da sua clínica: Respostas humanas e adaptadas ao seu DNA de atendimento em poucos segundos.",
+    "Retome quem sumiu: mensagens prontas para voltar à conversa sem parecer insistente.",
+    "No tom da sua clínica: respostas adaptadas ao seu jeito de atender, prontas para revisar, copiar e mandar.",
   ];
 
   return (
@@ -258,10 +258,10 @@ export default function CampaignPage({ params }: Props) {
                 lineHeight: 1.2,
               }}
             >
-              Uma única cliente recuperada já paga o ano inteiro
+              Uma conversa recuperada pode pagar o investimento
             </h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>
-              Você cobra R$1.500 numa harmonização ou protocolo. Se o LeadBellus te ajuda a fechar 1 cliente a mais por mês — você está investindo R$97 para faturar R$1.500. Retorno garantido.
+              Se uma conversa que antes esfriaria virar agendamento, o Start já pode fazer sentido financeiro. O LeadBellus ajuda na resposta, mas não garante faturamento.
             </p>
           </div>
 

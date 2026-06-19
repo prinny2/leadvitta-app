@@ -23,10 +23,10 @@ function MiniSidebar({ activeIdx = 0 }: { activeIdx?: number }) {
   const items = [
     { label: "Início" },
     { label: "Gerador" },
-    { label: "Lead Intelligence", pro: true },
+    { label: "Prioridade da conversa", pro: true },
     { label: "Objeções" },
-    { label: "Follow-up" },
-    { label: "Scripts" },
+    { label: "Retomadas" },
+    { label: "Roteiros" },
     { label: "Histórico" },
     { label: "Configurações" },
   ];
@@ -98,10 +98,10 @@ function ScreenDashboard() {
   const ys = weekVals.map(v => H - 4 - (v / maxV) * (H - 10));
   const linePts = xs.map((x, i) => `${x},${ys[i]}`).join(" ");
   const areaPath = `M ${xs[0]},${H} ${xs.map((x, i) => `L ${x},${ys[i]}`).join(" ")} L ${xs[6]},${H} Z`;
-  const leads = [
-    { name: "Quentes", v: 3,  color: C.orange, pct: 14 },
-    { name: "Mornos",  v: 7,  color: C.gold,   pct: 32 },
-    { name: "Frias",   v: 12, color: C.muted,  pct: 54 },
+  const conversationStatuses = [
+    { name: "Prontas", v: 3,  color: C.orange, pct: 14 },
+    { name: "Em conversa", v: 7, color: C.gold, pct: 32 },
+    { name: "Distantes", v: 12, color: C.muted, pct: 54 },
   ];
   const DIAS = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
 
@@ -126,9 +126,9 @@ function ScreenDashboard() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "5px" }}>
           {[
             { label: "Respostas hoje", value: "12", sub: "+3 vs ontem",    icon: "⚡", gold: false },
-            { label: "Score médio",    value: "74%", sub: "esta semana",   icon: "📈", gold: true  },
-            { label: "Leads quentes",  value: "3",   sub: "responda agora",icon: "🔥", gold: false },
-            { label: "Follow-ups",     value: "8",   sub: "esta semana",   icon: "↗",  gold: false },
+            { label: "Prioridade média", value: "74%", sub: "esta semana",   icon: "📈", gold: true  },
+            { label: "Clientes prontas", value: "3",   sub: "responda agora",icon: "🔥", gold: false },
+            { label: "Retomadas",        value: "8",   sub: "esta semana",   icon: "↗",  gold: false },
           ].map((k) => (
             <div key={k.label} style={{
               background: C.card, borderRadius: "6px", padding: "6px 5px",
@@ -145,7 +145,7 @@ function ScreenDashboard() {
           ))}
         </div>
 
-        {/* Lead Intelligence featured banner */}
+        {/* Prioridade featured banner */}
         <div style={{
           background: `linear-gradient(135deg, ${C.card} 0%, ${C.cardAlt} 60%, #0d1a2e 100%)`,
           border: "1px solid rgba(201,160,96,0.3)",
@@ -168,12 +168,12 @@ function ScreenDashboard() {
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "4px", marginBottom: "1px" }}>
-              <span style={{ fontSize: "6px", fontWeight: 700, color: "#FFF", fontFamily: "Georgia,serif" }}>Lead Intelligence</span>
+              <span style={{ fontSize: "6px", fontWeight: 700, color: "#FFF", fontFamily: "Georgia,serif" }}>Prioridade da conversa</span>
               <span style={{ fontSize: "3.5px", background: "rgba(201,160,96,0.2)", border: "1px solid rgba(201,160,96,0.35)", color: C.gold, borderRadius: "9999px", padding: "0 3px", lineHeight: "7px" }}>PRO</span>
             </div>
-            <div style={{ fontSize: "4px", color: "#8aacc8" }}>Score de conversão, perfil psicológico e estratégia para fechar o lead</div>
+            <div style={{ fontSize: "4px", color: "#8aacc8" }}>Sinais de interesse e sugestão de resposta</div>
             <div style={{ fontSize: "4px", color: C.gold, marginTop: "2px", display: "flex", alignItems: "center", gap: "2px" }}>
-              <span>🎯</span> Analisar um lead agora →
+              <span>🎯</span> Analisar uma conversa agora →
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@ function ScreenDashboard() {
           {/* Donut */}
           <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "6px", padding: "7px", display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: "4px", color: C.muted, textTransform: "uppercase", marginBottom: "1px" }}>Temperatura</div>
-            <div style={{ fontSize: "6px", fontWeight: 600, color: C.champ, fontFamily: "Georgia,serif", marginBottom: "5px" }}>Seus leads</div>
+            <div style={{ fontSize: "6px", fontWeight: 600, color: C.champ, fontFamily: "Georgia,serif", marginBottom: "5px" }}>Suas conversas</div>
             <svg width="100%" height="50" viewBox="0 0 60 60" style={{ display: "block" }}>
               <circle cx="30" cy="30" r="22" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8"/>
               <circle cx="30" cy="30" r="22" fill="none" stroke="#F97316" strokeWidth="8"
@@ -224,7 +224,7 @@ function ScreenDashboard() {
               <text x="30" y="33" textAnchor="middle" fill="#FFF" fontSize="9" fontWeight="700" fontFamily="serif">22</text>
             </svg>
             <div style={{ display: "flex", flexDirection: "column", gap: "2.5px", marginTop: "4px" }}>
-              {leads.map(l => (
+              {conversationStatuses.map(l => (
                 <div key={l.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
                     <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: l.color, flexShrink: 0 }}/>
@@ -302,11 +302,11 @@ function ScreenGerador() {
   );
 }
 
-// ─── SCREEN: Lead Intelligence ────────────────────────────────────────────────
+// ─── SCREEN: Prioridade ───────────────────────────────────────────────────────
 function ScreenLeadIntelligence() {
   const R = 44, circ = 2 * Math.PI * R;
-  const score = 78;
-  const offset = circ * (1 - score / 100);
+  const priorityScore = 78;
+  const offset = circ * (1 - priorityScore / 100);
   const tc = C.orange;
   const axes = [
     { label: "Urgência",      v: 85 },
@@ -322,8 +322,8 @@ function ScreenLeadIntelligence() {
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: "4.5px", color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>Análise de lead</div>
-            <div style={{ fontSize: "10px", fontWeight: 700, color: C.champ, fontFamily: "Georgia,serif" }}>Lead Intelligence</div>
+            <div style={{ fontSize: "4.5px", color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>Análise de conversa</div>
+            <div style={{ fontSize: "10px", fontWeight: 700, color: C.champ, fontFamily: "Georgia,serif" }}>Prioridade da conversa</div>
           </div>
           <span style={{ fontSize: "3.5px", background: "rgba(201,160,96,0.15)", border: "1px solid rgba(201,160,96,0.3)", color: C.gold, borderRadius: "9999px", padding: "2px 5px" }}>PRO</span>
         </div>
@@ -333,10 +333,10 @@ function ScreenLeadIntelligence() {
             &ldquo;Oi! Quero marcar uma avaliação, quando vocês têm horário disponível?&rdquo;
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <div style={{ background: C.gold, borderRadius: "4px", padding: "3px 9px", fontSize: "4.5px", fontWeight: 700, color: C.bg }}>🧠 Analisar lead</div>
+            <div style={{ background: C.gold, borderRadius: "4px", padding: "3px 9px", fontSize: "4.5px", fontWeight: 700, color: C.bg }}>🧠 Analisar conversa</div>
           </div>
         </div>
-        {/* Score + axes */}
+        {/* Prioridade + axes */}
         <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "10px", alignItems: "start" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
             <svg width="88" height="88" viewBox="0 0 100 100">
@@ -344,10 +344,10 @@ function ScreenLeadIntelligence() {
               <circle cx="50" cy="50" r={R} fill="none" stroke={tc} strokeWidth="8" strokeLinecap="round"
                 strokeDasharray={circ} strokeDashoffset={offset} transform="rotate(-90 50 50)"
                 style={{ filter: `drop-shadow(0 0 5px ${tc}90)` }}/>
-              <text x="50" y="45" textAnchor="middle" fill="#FFF" fontSize="24" fontWeight="800" fontFamily="serif">{score}</text>
-              <text x="50" y="59" textAnchor="middle" fill={tc} fontSize="9" fontWeight="600">SCORE</text>
+              <text x="50" y="45" textAnchor="middle" fill="#FFF" fontSize="24" fontWeight="800" fontFamily="serif">{priorityScore}</text>
+              <text x="50" y="59" textAnchor="middle" fill={tc} fontSize="9" fontWeight="600">PRIOR.</text>
             </svg>
-            <div style={{ background: `${tc}18`, border: `1px solid ${tc}45`, borderRadius: "9999px", padding: "2px 8px", fontSize: "5px", fontWeight: 700, color: tc }}>🔥 Lead Quente</div>
+            <div style={{ background: `${tc}18`, border: `1px solid ${tc}45`, borderRadius: "9999px", padding: "2px 8px", fontSize: "5px", fontWeight: 700, color: tc }}>🔥 Alta prioridade</div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "4px", paddingTop: "4px" }}>
             {axes.map(a => (
@@ -364,7 +364,7 @@ function ScreenLeadIntelligence() {
         {/* Insight cards */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "5px" }}>
           {[
-            { icon: "👤", title: "Perfil",    text: "Lead quente — já decidiu, está escolhendo quando e onde fazer." },
+            { icon: "👤", title: "Perfil",    text: "Cliente com alto interesse — quer decidir quando e onde fazer." },
             { icon: "💡", title: "Abordagem", text: "Responda rápido. Ofereça 2 horários e confirme em seguida." },
             { icon: "🎯", title: "Gatilho",   text: "'Tenho horário amanhã às 14h ou quinta às 10h.' Crie urgência." },
           ].map(c => (
@@ -576,9 +576,9 @@ function PhoneContent({ screenIdx }: { screenIdx: number }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px" }}>
         {[
           { l: "Respostas", v: "12", c: "#FFF" },
-          { l: "Score",     v: "74%", c: C.gold },
-          { l: "Quentes",   v: "3",  c: C.orange },
-          { l: "Follow-up", v: "8",  c: C.blue },
+          { l: "Prioridade", v: "74%", c: C.gold },
+          { l: "Prontas",    v: "3",  c: C.orange },
+          { l: "Retomadas",  v: "8",  c: C.blue },
         ].map(k => (
           <div key={k.l} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "5px", padding: "5px" }}>
             <div style={{ fontSize: "4px", color: C.muted }}>{k.l}</div>
@@ -597,8 +597,8 @@ function PhoneContent({ screenIdx }: { screenIdx: number }) {
       <div style={{ background: `linear-gradient(135deg,${C.card},${C.cardAlt})`, border: "1px solid rgba(201,160,96,0.3)", borderRadius: "5px", padding: "5px 6px", display: "flex", alignItems: "center", gap: "5px" }}>
         <span style={{ fontSize: "11px" }}>🧠</span>
         <div>
-          <div style={{ fontSize: "5.5px", fontWeight: 700, color: "#FFF" }}>Lead Intelligence</div>
-          <div style={{ fontSize: "4px", color: "#8aacc8" }}>Score e perfil do lead →</div>
+          <div style={{ fontSize: "5.5px", fontWeight: 700, color: "#FFF" }}>Prioridade da conversa</div>
+          <div style={{ fontSize: "4px", color: "#8aacc8" }}>Sinais de interesse →</div>
         </div>
       </div>
     </div>,
@@ -621,10 +621,10 @@ function PhoneContent({ screenIdx }: { screenIdx: number }) {
       ))}
     </div>,
 
-    // Lead Intelligence mobile
+    // Prioridade mobile
     <div key="li" style={{ padding: "7px", display: "flex", flexDirection: "column", gap: "5px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-        <span style={{ fontSize: "7px", fontWeight: 700, color: C.champ, fontFamily: "Georgia,serif", flex: 1 }}>Lead Intel.</span>
+        <span style={{ fontSize: "7px", fontWeight: 700, color: C.champ, fontFamily: "Georgia,serif", flex: 1 }}>Prioridade</span>
         <span style={{ fontSize: "4px", background: "rgba(201,160,96,0.15)", color: C.gold, borderRadius: "9999px", padding: "1px 4px", border: "1px solid rgba(201,160,96,0.3)" }}>PRO</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
@@ -635,11 +635,11 @@ function PhoneContent({ screenIdx }: { screenIdx: number }) {
               strokeDasharray={`${0.78*2*Math.PI*44} ${2*Math.PI*44}`} strokeDashoffset="0"
               transform="rotate(-90 50 50)" style={{ filter: `drop-shadow(0 0 4px ${C.orange}80)` }}/>
             <text x="50" y="44" textAnchor="middle" fill="#FFF" fontSize="22" fontWeight="800" fontFamily="serif">78</text>
-            <text x="50" y="60" textAnchor="middle" fill={C.orange} fontSize="9" fontWeight="600">SCORE</text>
+            <text x="50" y="60" textAnchor="middle" fill={C.orange} fontSize="9" fontWeight="600">PRIOR.</text>
           </svg>
         </div>
         <div>
-          <div style={{ fontSize: "5.5px", fontWeight: 700, color: C.orange, marginBottom: "3px" }}>🔥 Lead Quente</div>
+          <div style={{ fontSize: "5.5px", fontWeight: 700, color: C.orange, marginBottom: "3px" }}>🔥 Alta prioridade</div>
           <div style={{ fontSize: "4px", color: "#8aacc8", lineHeight: 1.6 }}>Alta intenção de compra. Responda rápido.</div>
         </div>
       </div>
@@ -700,7 +700,7 @@ function PhoneContent({ screenIdx }: { screenIdx: number }) {
 const SCREENS = [
   { id: "dashboard",    label: "Dashboard" },
   { id: "gerador",      label: "Gerador" },
-  { id: "intelligence", label: "Lead Intel" },
+  { id: "intelligence", label: "Prioridade" },
   { id: "objecoes",     label: "Objeções" },
 ];
 

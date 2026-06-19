@@ -30,23 +30,23 @@ const services = [
   },
   {
     icon: <Smartphone className="w-6 h-6" />,
-    title: "Mobile first, de verdade",
+    title: "Pensado para usar no celular",
     description:
       "Feito pra quem atende pelo celular entre um procedimento e outro. Interface limpa, resposta em 3 toques, sem curva de aprendizado.",
     position: "left",
   },
   {
     icon: <FlaskConical className="w-6 h-6" />,
-    title: "Validado com clínicas reais",
+    title: "Criado para situações reais de atendimento",
     description:
-      "Cada módulo foi desenvolvido a partir de centenas de conversas reais de WhatsApp. Não é teoria — é o que funciona na prática do nicho.",
+      "Cada parte foi pensada para situações comuns de WhatsApp em clínicas de estética: preço, medo, comparação, sumiço e agendamento.",
     position: "left",
   },
   {
     icon: <Brain className="w-6 h-6" />,
-    title: "Psicologia de venda aplicada",
+    title: "Resposta com clareza e próximo passo",
     description:
-      "Não geramos texto. Geramos condução. Cada resposta foi treinada na jornada emocional da cliente de estética — da curiosidade ao agendamento.",
+      "A ideia não é só escrever bonito. É ajudar a acolher, explicar valor e sugerir um próximo passo sem prometer resultado.",
     position: "right",
   },
   {
@@ -60,16 +60,16 @@ const services = [
     icon: <ShieldOff className="w-6 h-6" />,
     title: "Zero jargão de tecnologia",
     description:
-      "Você não precisa entender de IA pra usar o LeadBellus. Se você sabe usar o WhatsApp, você já sabe usar o sistema.",
+      "Você não precisa entender de tecnologia pra usar o LeadBellus. Se você sabe usar o WhatsApp, você já sabe usar o sistema.",
     position: "right",
   },
 ];
 
 const stats = [
-  { icon: <Award className="w-6 h-6" />, value: 500, label: "Conversas estudadas", suffix: "+" },
-  { icon: <Map className="w-6 h-6" />, value: 50, label: "Objeções mapeadas", suffix: "+" },
-  { icon: <LayoutGrid className="w-6 h-6" />, value: 11, label: "Módulos no sistema", suffix: "" },
-  { icon: <ThumbsUp className="w-6 h-6" />, value: 97, label: "Taxa de satisfação", suffix: "%" },
+  { icon: <Award className="w-6 h-6" />, value: 16, label: "Situações no gerador", suffix: "" },
+  { icon: <Map className="w-6 h-6" />, value: 26, label: "Objeções prontas", suffix: "" },
+  { icon: <LayoutGrid className="w-6 h-6" />, value: 6, label: "Ferramentas no Start", suffix: "" },
+  { icon: <ThumbsUp className="w-6 h-6" />, value: 8, label: "Tons de voz", suffix: "" },
 ];
 
 const containerVariants = {

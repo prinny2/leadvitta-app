@@ -401,9 +401,9 @@ export default function LandingPage() {
                 "Deu o preço do botox e a cliente sumiu sem responder",
                 `Ouviu "vou pensar" e nunca mais teve retorno`,
                 `A cliente disse "na outra é mais barato" e você não soube o que responder`,
-                "Fez orçamento há 3 dias e não fez follow-up porque não sabe o que falar",
+                "Fez orçamento há 3 dias e não retomou a conversa porque não sabe o que falar",
                 `Ficou com aquela sensação: "ela ia fechar — eu errei na resposta"`,
-                "Tem 15 conversas abertas e não sabe qual delas está quente pra fechar",
+                "Tem várias conversas abertas e não sabe qual merece atenção primeiro",
               ].map((item) => (
                 <div key={item} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
                   <span
@@ -449,7 +449,7 @@ export default function LandingPage() {
               Cada conversa que some sem agendar pode valer de{" "}
               <strong style={{ color: "#C9A060" }}>R$800 a R$3.000</strong>.
               Não porque você é ruim no atendimento — mas porque responder bem
-              no WhatsApp, com condução psicológica e estratégia, é uma habilidade
+              no WhatsApp, com clareza, acolhimento e próximo passo, é uma habilidade
               de vendas. E ninguém te ensinou isso.
             </p>
             <p
@@ -485,12 +485,12 @@ export default function LandingPage() {
               }}
             >
               Se você cuida de clientes —{" "}
-              <span style={{ color: "#C9A060" }}>o LeadBellus cuida do seu atendimento</span>
+              <span style={{ color: "#C9A060" }}>o LeadBellus ajuda você a responder melhor no WhatsApp</span>
             </h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "580px", margin: "0 auto" }}>
               Não importa se você atende sozinho, tem uma equipe ou gerencia uma
               clínica completa. Se o WhatsApp é onde as suas vendas acontecem,
-              é aqui que você vai parar de perder dinheiro.
+              é aqui que você reduz o risco de perder oportunidades por falta de resposta.
             </p>
           </div>
 
@@ -525,13 +525,13 @@ export default function LandingPage() {
                 icon: <TrendingUp size={22} color="#C9A060" strokeWidth={1.5} />,
                 emoji: "📈",
                 title: "Você quer mais agendamentos sem aumentar anúncios",
-                body: "O problema não é a captação. É a conversão. Você já tem as leads chegando — elas só estão vazando na conversa.",
+                body: "O problema não é a captação. É a conversão. Você já tem contatos chegando — eles só estão vazando na conversa.",
               },
               {
                 icon: <Layers size={22} color="#C9A060" strokeWidth={1.5} />,
                 emoji: "🔄",
                 title: "Você quer escalar sem depender de você em tudo",
-                body: "Hoje cada resposta importante precisa passar pela sua aprovação. Com o LeadBellus — especialmente no Premium — o sistema atende, qualifica, agenda e acompanha.",
+                body: "Hoje cada resposta importante precisa passar pela sua aprovação. Com o Start, você ganha respostas prontas para delegar com mais segurança. As automações dos próximos planos ainda estão em desenvolvimento.",
               },
             ].map((card) => (
               <div
@@ -625,11 +625,11 @@ export default function LandingPage() {
               }}
             >
               Cada situação que você enfrenta no WhatsApp —{" "}
-              <em>resolvida</em>
+              <em>com um caminho mais claro</em>
             </h2>
             <p style={{ color: "#4a5568", fontSize: "16px", maxWidth: "600px", margin: "0 auto" }}>
-              Não é um ChatGPT genérico. O LeadBellus foi treinado nas situações
-              reais da jornada de compra de uma cliente de estética brasileira.
+              O LeadBellus já vem organizado para situações reais da jornada de
+              compra de uma cliente de estética brasileira.
             </p>
           </div>
 
@@ -640,9 +640,9 @@ export default function LandingPage() {
                 emoji: "🎯",
                 icon: <Target size={18} color="#C9A060" strokeWidth={1.5} />,
                 title: "Gerador de Respostas",
-                subtitle: "A resposta certa, no seu tom, em 30 segundos",
-                body: "Cola a mensagem que a cliente mandou → seleciona a situação → escolhe o procedimento → clica em Gerar. Você recebe 3 versões: Suave, Consultiva e Fechamento. Lê, escolhe, copia e manda. Trinta segundos. Venda conduzida.",
-                impact: "Você para de ficar olhando pra tela pensando no que escrever. A resposta sai no seu tom — porque você configurou isso uma vez, e o sistema nunca esquece.",
+                subtitle: "3 opções de resposta, no seu tom",
+                body: "Cola a mensagem que a cliente mandou → seleciona a situação → escolhe o procedimento → clica em Gerar. Você recebe 3 versões: Suave, Consultiva e Fechamento. Lê, ajusta se quiser, copia e manda.",
+                impact: "Você para de ficar olhando pra tela pensando no que escrever. A resposta segue o tom que você configurou para a sua clínica.",
                 plans: "START · PRO · PREMIUM",
                 dark: false,
               },
@@ -650,10 +650,10 @@ export default function LandingPage() {
                 num: "02",
                 emoji: "🧠",
                 icon: <Brain size={18} color="#C9A060" strokeWidth={1.5} />,
-                title: "Lead Intelligence",
-                subtitle: "Saiba na hora quem está quase fechando — sem ler tudo",
-                body: "Cola a conversa da cliente → o Lead Intelligence analisa e devolve: ① Score de conversão — a porcentagem de chance de fechamento. ② Perfil psicológico — o que ela quer, o que a trava. ③ Estratégia exata — como abordá-la pra maximizar o agendamento.",
-                impact: "Você tem 18 conversas abertas. Com o Lead Intelligence, sabe em 3 minutos quais são as 3 prontas pra fechar — e o que dizer pra cada uma.",
+                title: "Análise da conversa (em breve)",
+                subtitle: "Em breve: veja quais conversas merecem atenção",
+                body: "Em breve, você poderá colar a conversa da cliente para receber sinais de interesse, pontos de atenção e uma sugestão de abordagem para responder melhor.",
+                impact: "A ideia é ajudar você a olhar para várias conversas e decidir por onde começar, sem transformar isso em promessa de fechamento.",
                 plans: "PRO · PREMIUM",
                 dark: true,
               },
@@ -662,9 +662,9 @@ export default function LandingPage() {
                 emoji: "💬",
                 icon: <MessageSquare size={18} color="#C9A060" strokeWidth={1.5} />,
                 title: "Biblioteca de Objeções",
-                subtitle: `Nunca mais trava quando a cliente diz "está caro"`,
-                body: `"Está caro." "Vou pensar." "Na outra clínica é mais barato." "Tenho medo de ficar artificial." Cada objeção tem uma resposta estratégica que acolhe, educa e conduz. Você clica na situação, a resposta aparece adaptada ao seu tom, e você copia. Em menos de 15 segundos.`,
-                impact: "Toda objeção tem uma resposta certa. Agora você sempre vai ter ela na ponta dos dedos — sem pensar, sem hesitar, sem perder a venda.",
+                subtitle: `Tenha uma opção quando a cliente diz "está caro"`,
+                body: `"Está caro." "Vou pensar." "Na outra clínica é mais barato." "Tenho medo de ficar artificial." As objeções comuns têm respostas prontas para acolher, explicar e sugerir um próximo passo. Você clica na situação, lê e copia.`,
+                impact: "Você ganha um ponto de partida melhor para responder sem travar.",
                 plans: "START · PRO · PREMIUM",
                 dark: false,
               },
@@ -672,10 +672,10 @@ export default function LandingPage() {
                 num: "04",
                 emoji: "🔄",
                 icon: <RefreshCw size={18} color="#C9A060" strokeWidth={1.5} />,
-                title: "Follow-up Inteligente",
+                title: "Mensagens de retomada",
                 subtitle: "Reativa a cliente que sumiu — sem parecer desesperado",
-                body: "Seleciona quanto tempo faz que ela sumiu: 2h / 1 dia / 3 dias / 1 semana / 15 dias ou mais. Gera 3 mensagens com progressão psicológica: suave → direta com gatilho de valor → última tentativa com fechamento.",
-                impact: `Você para de ter leads paradas na caixa. Clientes que iam embora pra nunca mais voltar começam a responder "oi, ainda tem vaga?" — porque a mensagem certa chegou na hora certa.`,
+                body: "Seleciona quanto tempo faz que ela sumiu: 2h / 1 dia / 3 dias / 1 semana / 15 dias ou mais. Gera 3 mensagens em etapas: suave, mais direta e última tentativa.",
+                impact: "Você ganha um jeito mais natural de voltar à conversa sem parecer insistente.",
                 plans: "START · PRO · PREMIUM",
                 dark: true,
               },
@@ -683,10 +683,10 @@ export default function LandingPage() {
                 num: "05",
                 emoji: "📋",
                 icon: <FileText size={18} color="#C9A060" strokeWidth={1.5} />,
-                title: "Scripts de Atendimento Completo",
-                subtitle: `Do primeiro "oi" ao agendamento — sem improvisar`,
+                title: "Roteiros de atendimento",
+                subtitle: `Do primeiro "oi" ao próximo passo — sem improvisar`,
                 body: "Fluxo completo de 4–5 mensagens com indicação de quando mandar cada uma. Fluxos disponíveis: cliente perguntou preço pela primeira vez · disse que está caro · nova do Instagram · reativação de cliente antiga · pós-procedimento.",
-                impact: "Você vai de 0 a agendamento com a mesma lead que antes ficava só olhando. Sem improvisar em cada etapa.",
+                impact: "Você conduz a conversa com mais segurança, sem improvisar em cada etapa.",
                 plans: "START · PRO · PREMIUM",
                 dark: false,
               },
@@ -694,10 +694,10 @@ export default function LandingPage() {
                 num: "06",
                 emoji: "🧬",
                 icon: <Dna size={18} color="#C9A060" strokeWidth={1.5} />,
-                title: "DNA da Clínica",
+                title: "Tom da sua clínica",
                 subtitle: "Toda resposta parece você — não uma máquina",
-                body: "Configure uma vez (5 minutos): como você chama as clientes, nível de formalidade, seu CTA preferido, procedimentos que você oferece, seu diferencial. Depois disso, toda resposta gerada sai com esses parâmetros gravados.",
-                impact: "As clientes não percebem que foi uma ferramenta. Percebem que você responde bem. É como ter uma versão sua que nunca está cansada, nunca trava, nunca responde seco.",
+                body: "Configure como você chama as clientes, nível de formalidade, próximo passo preferido, procedimentos que oferece e seu diferencial. Depois disso, as respostas usam essas informações.",
+                impact: "Você ganha uma base mais próxima do seu jeito de atender, sem começar do zero toda vez.",
                 plans: "START · PRO · PREMIUM",
                 dark: true,
               },
@@ -716,22 +716,22 @@ export default function LandingPage() {
                 num: "08",
                 emoji: "📲",
                 icon: <Bot size={18} color="#C9A060" strokeWidth={1.5} />,
-                title: "Chatbot WhatsApp Business",
-                subtitle: "Sua clínica atendendo — mesmo quando você está em procedimento",
-                body: "O LeadBellus se conecta diretamente ao seu WhatsApp Business. Quando uma lead nova entra, o chatbot assume: responde, apresenta a clínica, quebra objeções, faz follow-up. No Pro, o bot prepara o terreno e você confirma o fechamento. No Premium, o ciclo é 100% autônomo.",
-                impact: "São 23h. Uma pessoa viu seu post e mandou mensagem. Sem o chatbot: ela esfria. Com o chatbot: você acorda com um lead quente esperando só pela sua confirmação.",
-                plans: "PRO (semi-autônomo) · PREMIUM (totalmente autônomo)",
+                title: "Apoio automático no WhatsApp",
+                subtitle: "Em desenvolvimento para os próximos planos",
+                body: "A integração com WhatsApp está em desenvolvimento para apoiar respostas e organização de conversas. No lançamento, o Start funciona como ferramenta manual: você gera, escolhe, copia e envia.",
+                impact: "A promessa honesta hoje é reduzir o improviso. A automação completa ainda não está disponível.",
+                plans: "PRO · PREMIUM (em breve)",
                 dark: true,
               },
               {
                 num: "09",
                 emoji: "📅",
                 icon: <CalendarCheck size={18} color="#C9A060" strokeWidth={1.5} />,
-                title: "Agendamento Autônomo",
-                subtitle: "O bot fecha a consulta. Você aparece só pra atender.",
-                body: "Você configura seus dias, horários e tempo por procedimento. O chatbot apresenta os próximos horários disponíveis, a cliente escolhe e o agendamento é confirmado automaticamente — sem intermediário humano.",
-                impact: "A sua agenda se preenche enquanto você está em procedimento, dormindo ou no fim de semana.",
-                plans: "PREMIUM",
+                title: "Agendamento pelo WhatsApp",
+                subtitle: "Em desenvolvimento para o Premium",
+                body: "A proposta é ajudar a apresentar horários e organizar pedidos de agendamento pelo WhatsApp. Esse recurso ainda não está disponível no lançamento.",
+                impact: "Por enquanto, o Start ajuda você a escrever melhor o convite para avaliação ou agendamento.",
+                plans: "PREMIUM (em breve)",
                 dark: false,
               },
               {
@@ -739,10 +739,10 @@ export default function LandingPage() {
                 emoji: "⏰",
                 icon: <Bell size={18} color="#C9A060" strokeWidth={1.5} />,
                 title: "Lembrete + Orientações Pré-consulta",
-                subtitle: "Zero falta. Cliente preparada. Consulta que acontece.",
-                body: "24 horas antes de cada consulta: ① Lembrete personalizado com horário e endereço. ② Orientações pré-procedimento personalizadas por tipo. ③ Pedido de confirmação com resposta em um toque. Se cancelar — você recebe alerta com tempo hábil.",
-                impact: "Taxa de no-show cai. A cliente chega preparada. O resultado é melhor — o que gera mais indicação.",
-                plans: "PRO · PREMIUM",
+                subtitle: "Em desenvolvimento para os próximos planos",
+                body: "A ideia é apoiar lembretes e orientações antes da consulta. Esse recurso ainda não está disponível no lançamento.",
+                impact: "Hoje, o Start ajuda você a escrever mensagens melhores; lembretes automáticos ficam para os próximos planos.",
+                plans: "PRO · PREMIUM (em breve)",
                 dark: true,
               },
               {
@@ -751,9 +751,9 @@ export default function LandingPage() {
                 icon: <Heart size={18} color="#C9A060" strokeWidth={1.5} />,
                 title: "Gestão Pós-consulta",
                 subtitle: "O procedimento acabou. O relacionamento começa agora.",
-                body: "No intervalo que você definir (2, 5 ou 7 dias após o procedimento), o sistema envia: pergunta sobre a recuperação → orientação específica do pós → abre porta pra tirar dúvidas → planta a semente do próximo agendamento.",
-                impact: "A cliente sente que você se importa com o resultado — não só com o pagamento. Isso gera confiança, indicação e recorrência.",
-                plans: "PRO · PREMIUM",
+                body: "A proposta é apoiar mensagens de pós-consulta em momentos definidos. Esse recurso ainda não está disponível no lançamento.",
+                impact: "Hoje, você pode usar o Start para criar mensagens manuais de cuidado e retomada.",
+                plans: "PRO · PREMIUM (em breve)",
                 dark: false,
               },
             ].map((fn) => (
@@ -886,10 +886,10 @@ export default function LandingPage() {
                 lineHeight: 1.2,
               }}
             >
-              A diferença entre a resposta que perde e a resposta que agenda
+              A diferença entre uma resposta fria e uma resposta que conduz
             </h2>
             <p style={{ color: "#4a5568", fontSize: "16px", maxWidth: "520px", margin: "0 auto" }}>
-              Não é sobre ser mais inteligente. É sobre ter a resposta certa já pronta pra usar.
+              Não é sobre ser mais inteligente. É sobre ter uma resposta melhor como ponto de partida.
             </p>
           </div>
 
@@ -1103,8 +1103,8 @@ export default function LandingPage() {
             <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", lineHeight: 1.75, marginBottom: "20px" }}>
               Essa foi <strong style={{ color: "#ffffff" }}>uma</strong> resposta.
               O LeadBellus faz isso com cada mensagem que chega no seu WhatsApp
-              — com DNA da Clínica completo configurado, histórico de cliente e
-              Lead Intelligence te dizendo o quanto ela está pronta pra fechar.
+              — com o tom da sua clínica configurado, histórico de respostas e
+              sinais para entender quais conversas merecem atenção primeiro.
             </p>
             <Link
               href={funilHref}
@@ -1150,12 +1150,12 @@ export default function LandingPage() {
                 lineHeight: 1.2,
               }}
             >
-              Uma cliente recuperada já paga o mês inteiro
+              Uma conversa recuperada pode pagar o mês inteiro
             </h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>
-              Você cobra R$1.500 numa harmonização. Se o LeadBellus te ajuda a
-              fechar 1 cliente a mais por mês — você está pagando R$97 pra
-              faturar R$1.500. São 15x de retorno no pior cenário.
+              Se uma conversa que estava esfriando virar agendamento, o Start já
+              pode se pagar. O LeadBellus ajuda a melhorar respostas, mas não
+              garante faturamento.
             </p>
           </div>
 
@@ -1265,31 +1265,31 @@ export default function LandingPage() {
             {[
               {
                 q: "As respostas vão soar robóticas?",
-                a: "Não — esse é exatamente o ponto. O DNA da Clínica aprende o seu tom, como você chama as clientes e o seu CTA preferido. O resultado parece você escrevendo num dia muito bom. As clientes não percebem que foi uma ferramenta — percebem que você responde bem.",
+                a: "Não — esse é exatamente o ponto. Você configura o tom da sua clínica, como chama as clientes e qual próximo passo costuma sugerir. As respostas ficam mais próximas do seu jeito de atender.",
               },
               {
                 q: "Qual é a diferença real entre os três planos?",
-                a: "O Start te dá o arsenal completo de resposta manual — você nunca mais fica em branco. O Pro adiciona inteligência de diagnóstico (Lead Intelligence) e um chatbot que qualifica leads e prepara o terreno, mas você ainda confirma o agendamento. O Premium fecha o ciclo: o agendamento acontece sozinho, sem você precisar entrar na conversa.",
+                a: "O Start é o plano disponível no lançamento: respostas, objeções, mensagens de retomada, roteiros, histórico e tom da clínica. Pro e Premium aparecem como próximos passos, mas ainda ficam em breve.",
               },
               {
-                q: "O chatbot do Pro realmente substitui uma recepcionista?",
-                a: "Em grande parte, sim. Ele atende, responde dúvidas, quebra objeções e conduz a lead até o momento de fechar — o único passo que ainda é seu é a confirmação final do agendamento. No Premium, até esse último passo é automatizado.",
+                q: "O Pro substitui uma recepcionista?",
+                a: "Não. O Pro será um apoio para priorizar conversas e responder com mais contexto, mas não substitui uma pessoa. No lançamento, o plano disponível é o Start.",
               },
               {
                 q: "O agendamento autônomo do Premium já funciona?",
-                a: "O núcleo do sistema (todas as funções de geração de resposta, Lead Intelligence, chatbot semi-autônomo, lembretes e pós-consulta) funciona hoje. O agendamento 100% autônomo está em desenvolvimento e será lançado em breve. Quem assinar o Premium agora entra no preço de lançamento e recebe acesso assim que sair.",
+                a: "Não. O agendamento pelo WhatsApp ainda está em desenvolvimento e não faz parte do lançamento. Hoje, o plano disponível é o Start, com respostas e roteiros para você conduzir manualmente.",
               },
               {
                 q: "Funciona pra qualquer procedimento estético?",
-                a: "Sim. O LeadBellus foi construído especificamente pro mercado estético brasileiro. Conhece botox, harmonização facial, preenchimento, bioestimulador, laser, microagulhamento, limpeza de pele, drenagem linfática e muito mais. Não é um ChatGPT genérico — é especializado no seu nicho.",
+                a: "Funciona para muitos procedimentos comuns da estética brasileira, como botox, harmonização facial, preenchimento, bioestimulador, laser, microagulhamento, limpeza de pele e drenagem linfática. Você sempre pode ajustar a resposta antes de enviar.",
               },
               {
                 q: "Preciso de muito tempo pra configurar?",
-                a: "O setup inicial (DNA da Clínica) leva menos de 5 minutos. Depois disso você já está usando. A maioria das pessoas gera a primeira resposta em menos de 2 minutos após o cadastro.",
+                a: "A configuração inicial do tom da clínica leva poucos minutos. Depois disso você já consegue gerar a primeira resposta e ajustar antes de enviar.",
               },
               {
                 q: "Qual a diferença do LeadBellus pra usar o ChatGPT direto?",
-                a: `O ChatGPT não conhece a jornada psicológica da cliente de estética no Brasil. Não sabe que "vou pensar" é objeção de preço disfarçada. Não sabe quando usar autoridade ao invés de acolhimento. Não tem DNA da Clínica, não tem histórico, não tem Lead Intelligence, não tem chatbot integrado ao WhatsApp.`,
+                a: `O ChatGPT é genérico. O LeadBellus já vem organizado para situações comuns da estética brasileira: preço, medo, comparação, cliente que sumiu, convite para avaliação, tom da clínica e histórico de respostas.`,
               },
               {
                 q: "Se eu não gostar, como cancelo?",
@@ -1365,7 +1365,7 @@ export default function LandingPage() {
           </h2>
           <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "16px", lineHeight: 1.8, marginBottom: "20px" }}>
             Toda semana que passa são mais clientes que perguntaram o preço e
-            nunca mais responderam. Mais follow-ups que não foram feitos. Mais
+            nunca mais responderam. Mais retomadas que não foram feitas. Mais
             objeções respondidas errado.
           </p>
           <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "16px", lineHeight: 1.8, marginBottom: "32px" }}>
@@ -1382,9 +1382,9 @@ export default function LandingPage() {
             }}
           >
             {[
-              "Nunca mais fique em branco no WhatsApp",
-              "Nunca mais perca uma lead por não saber o que falar",
-              "Nunca mais sinta que deixou dinheiro na mesa",
+              "Tenha respostas melhores para o WhatsApp",
+              "Reduza perdas por falta de resposta",
+              "Conduza conversas com mais segurança",
             ].map((item) => (
               <div
                 key={item}
@@ -1475,7 +1475,7 @@ export default function LandingPage() {
               </span>
             </div>
             <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", lineHeight: 1.7, maxWidth: "220px", marginBottom: "16px" }}>
-              A resposta certa. No seu tom. Em segundos.
+              Respostas no seu tom. Prontas para revisar e enviar.
             </p>
             <div style={{ display: "flex", gap: "10px" }}>
               <a
