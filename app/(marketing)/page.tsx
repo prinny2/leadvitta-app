@@ -1153,7 +1153,7 @@ export default function LandingPage() {
               Uma conversa recuperada pode pagar o mês inteiro
             </h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>
-              Se uma conversa que antes esfriaria virar agendamento, o Start já
+              Se uma conversa que estava esfriando virar agendamento, o Start já
               pode se pagar. O LeadBellus ajuda a melhorar respostas, mas não
               garante faturamento.
             </p>

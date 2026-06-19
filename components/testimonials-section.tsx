@@ -13,7 +13,7 @@ const testimonials = [
     image: "/CAMILA.png",
   },
   {
-    text: "Minha maior dificuldade era retomar conversa sem parecer insistente. Eu sabia que estava deixando oportunidades para trás, mas nunca encontrava a mensagem certa. O LeadBellus organizou esse processo e deixou o atendimento muito mais natural.",
+    text: "Minha maior dificuldade era retomar uma conversa sem parecer insistente. Eu sabia que estava deixando oportunidades para trás, mas nunca encontrava a mensagem certa. O LeadBellus organizou esse processo e deixou o atendimento muito mais natural.",
     name: "Dra. Renata Oliveira",
     role: "Biomédica Esteta · Curitiba, PR",
     initials: "RO",
