@@ -43,7 +43,7 @@ function AnimatedCounter({ target, prefix = "", duration = 900 }: { target: numb
 // ─── ConversationBubbles ──────────────────────────────────────────────────────
 function ConversationBubbles() {
   return (
-    <div style={{ position: "absolute", left: "0px", top: "60px", pointerEvents: "none" }} className="hidden lg:block">
+    <div style={{ pointerEvents: "none" }}>
       {/* Bubble 1 - typing indicator */}
       <motion.div
         initial={{ opacity: 0, y: 12, scale: 0.92 }}
@@ -130,18 +130,12 @@ function LossValueCard() {
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.65, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
       style={{
-        position: "absolute",
-        right: "0px",
-        top: "80px",
         background: "#ffffff",
         border: "1px solid #E8E4DC",
         borderRadius: "20px",
         padding: "20px 22px",
         boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
-        maxWidth: "230px",
-        zIndex: 2,
       }}
-      className="hidden lg:block"
     >
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         <div style={{
@@ -592,9 +586,16 @@ export function PainPointSection({ funilHref = "/signup" }: { funilHref?: string
       <div style={{ maxWidth: "980px", margin: "0 auto" }}>
 
         {/* ── Header ── */}
-        <div style={{ textAlign: "center", marginBottom: "64px", position: "relative" }}>
-          <ConversationBubbles />
-          <LossValueCard />
+        {/* 3-col grid: decorative left | text center | decorative right */}
+        <div style={{ display: "grid", gridTemplateColumns: "160px 1fr 160px", gap: "24px", marginBottom: "64px", alignItems: "start" }} className="header-grid">
+
+          {/* Left decorative */}
+          <div style={{ paddingTop: "48px" }} className="hidden lg:block">
+            <ConversationBubbles />
+          </div>
+
+          {/* Center text */}
+          <div style={{ textAlign: "center" }}>
 
           {/* Badge */}
           <motion.div
@@ -687,7 +688,15 @@ export function PainPointSection({ funilHref = "/signup" }: { funilHref?: string
           >
             E o pior: você já sabe disso. Já ficou olhando pro WhatsApp pensando "essa eu devia ter conseguido".
           </motion.p>
-        </div>
+
+          </div>{/* end center text */}
+
+          {/* Right decorative */}
+          <div style={{ paddingTop: "48px" }} className="hidden lg:block">
+            <LossValueCard />
+          </div>
+
+        </div>{/* end header-grid */}
 
         {/* ── Checklist + Funnel ── */}
         <div style={{ display: "flex", gap: "20px", alignItems: "flex-start" }} className="checklist-row">
@@ -731,14 +740,21 @@ export function PainPointSection({ funilHref = "/signup" }: { funilHref?: string
       </div>
 
       <style>{`
+        @media (max-width: 1024px) {
+          .header-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .header-grid > div:first-child,
+          .header-grid > div:last-child {
+            display: none !important;
+          }
+        }
         @media (max-width: 768px) {
           .checklist-row {
             flex-direction: column !important;
           }
           .checklist-row > div:last-child {
             width: 100% !important;
-            flex-direction: row !important;
-            align-items: center !important;
           }
         }
       `}</style>
