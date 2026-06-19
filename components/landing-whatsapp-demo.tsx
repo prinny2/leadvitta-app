@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Loader2, Sparkles, Wand2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardBody, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,21 +58,16 @@ const PRESETS: Record<string, { mensagem: string; procedimento?: string }> = {
 };
 
 const VARIANTES: { key: Variante; label: string; hint: string }[] = [
-  {
-    key: "curta",
-    label: "Suave",
-    hint: "Curtinha e carinhosa",
-  },
-  {
-    key: "consultiva",
-    label: "Explica",
-    hint: "Mostra o valor antes do preço",
-  },
-  {
-    key: "persuasiva",
-    label: "Fechamento",
-    hint: "Puxa pro agendamento",
-  },
+  { key: "curta", label: "Suave", hint: "Curtinha e carinhosa" },
+  { key: "consultiva", label: "Explica", hint: "Mostra o valor antes do preço" },
+  { key: "persuasiva", label: "Fechamento", hint: "Puxa pro agendamento" },
+];
+
+const LOADING_STEPS = [
+  "Analisando mensagem…",
+  "Identificando objeção…",
+  "Adaptando ao DNA da clínica…",
+  "Gerando resposta…",
 ];
 
 export function LandingWhatsAppDemo() {
@@ -89,12 +85,24 @@ export function LandingWhatsAppDemo() {
   const [mensagemCliente, setMensagemCliente] = useState(PRESETS.preco.mensagem);
 
   const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState("");
   const [respostas, setRespostas] = useState<RespostaTripla | null>(null);
   const [variante, setVariante] = useState<Variante>("consultiva");
+  const [responseKey, setResponseKey] = useState(0);
 
   const respostaAtual = respostas?.[variante] || "";
+
+  // Cycle through loading steps while generating
+  useEffect(() => {
+    if (!loading) { setLoadingStep(0); return; }
+    setLoadingStep(0);
+    const interval = setInterval(() => {
+      setLoadingStep((s) => (s + 1) % LOADING_STEPS.length);
+    }, 420);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   useEffect(() => {
     if (!demoParam) return;
@@ -164,6 +172,7 @@ export function LandingWhatsAppDemo() {
       }
 
       setRespostas(data.respostas);
+      setResponseKey((k) => k + 1);
       if (data.mock) {
         setAviso(
           data.aviso ||
@@ -181,167 +190,189 @@ export function LandingWhatsAppDemo() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-      <Card className="overflow-hidden">
-        <CardBody className="space-y-4">
-          <div>
-            <CardTitle>Simulador rápido</CardTitle>
-            <p className="mt-1 text-sm text-muted">
-              É simples: <strong>1.</strong> diga o nome e o tom da sua clínica ·{" "}
-              <strong>2.</strong> cole a mensagem da cliente · <strong>3.</strong>{" "}
-              veja 3 jeitos de responder e copie o melhor.
-            </p>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
+      {/* ── Left card — simulator form ── */}
+      <motion.div
+        initial={{ opacity: 0, x: -24 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Card className="overflow-hidden">
+          <CardBody className="space-y-4">
             <div>
-              <Label htmlFor="demo_nome_clinica">Nome da clínica</Label>
+              <CardTitle>Simulador rápido</CardTitle>
+              <p className="mt-1 text-sm text-muted">
+                É simples: <strong>1.</strong> diga o nome e o tom da sua clínica ·{" "}
+                <strong>2.</strong> cole a mensagem da cliente · <strong>3.</strong>{" "}
+                veja 3 jeitos de responder e copie o melhor.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="demo_nome_clinica">Nome da clínica</Label>
+                <Input
+                  id="demo_nome_clinica"
+                  value={nomeClinica}
+                  onChange={(e) => setNomeClinica(e.target.value)}
+                  placeholder="Ex.: Clínica Aurora"
+                  className="simulator-input"
+                />
+              </div>
+              <div>
+                <Label htmlFor="demo_cta">CTA preferido</Label>
+                <Input
+                  id="demo_cta"
+                  value={ctaPreferido}
+                  onChange={(e) => setCtaPreferido(e.target.value)}
+                  placeholder="Ex.: agendar uma avaliação"
+                  className="simulator-input"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="sm:col-span-1">
+                <Label htmlFor="demo_chamar">Como chamar</Label>
+                <Select
+                  id="demo_chamar"
+                  value={comoChamar}
+                  onChange={(v) => setComoChamar(v as ComoChamar)}
+                  options={COMO_CHAMAR_OPTIONS}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="demo_formalidade">
+                  Formalidade{" "}
+                  <span className="text-xs font-medium text-muted">
+                    ({formalidade}%)
+                  </span>
+                </Label>
+                <input
+                  id="demo_formalidade"
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={formalidade}
+                  onChange={(e) => setFormalidade(Number(e.target.value))}
+                  className="h-11 w-full accent-brand-600"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div>
+                <Label htmlFor="demo_proc">Procedimento</Label>
+                <Select
+                  id="demo_proc"
+                  value={procedimento}
+                  onChange={(v) => {
+                    setProcedimento(v);
+                    setRespostas(null);
+                    setAviso("");
+                    setErro("");
+                  }}
+                  options={procOptions}
+                />
+              </div>
+              <div>
+                <Label htmlFor="demo_sit">Situação</Label>
+                <Select
+                  id="demo_sit"
+                  value={situacao}
+                  onChange={(v) => {
+                    setSituacao(v);
+                    setRespostas(null);
+                    setAviso("");
+                    setErro("");
+                  }}
+                  options={sitOptions}
+                />
+              </div>
+              <div>
+                <Label htmlFor="demo_tom">Tom</Label>
+                <Select
+                  id="demo_tom"
+                  value={tom}
+                  onChange={(v) => {
+                    setTom(v);
+                    setRespostas(null);
+                    setAviso("");
+                    setErro("");
+                  }}
+                  options={tomOptions}
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="demo_nome_cliente">Nome da cliente</Label>
               <Input
-                id="demo_nome_clinica"
-                value={nomeClinica}
-                onChange={(e) => setNomeClinica(e.target.value)}
-                placeholder="Ex.: Clínica Aurora"
+                id="demo_nome_cliente"
+                value={nomeCliente}
+                onChange={(e) => setNomeCliente(e.target.value)}
+                placeholder="Ex.: Ana"
+                className="simulator-input"
               />
             </div>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 transition-transform hover:-translate-y-px"
+                onClick={aplicarExemplo}
+              >
+                <Wand2 size={16} /> Usar exemplo
+              </Button>
+              <motion.div className="flex-1" whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  type="button"
+                  className="w-full"
+                  onClick={gerar}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 size={16} className="animate-spin flex-shrink-0" /> Gerando…
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Sparkles size={16} className="flex-shrink-0" /> Gerar
+                    </span>
+                  )}
+                </Button>
+              </motion.div>
+            </div>
+
             <div>
-              <Label htmlFor="demo_cta">CTA preferido</Label>
-              <Input
-                id="demo_cta"
-                value={ctaPreferido}
-                onChange={(e) => setCtaPreferido(e.target.value)}
-                placeholder="Ex.: agendar uma avaliação"
+              <Label htmlFor="demo_msg">Mensagem da cliente</Label>
+              <Textarea
+                id="demo_msg"
+                value={mensagemCliente}
+                onChange={(e) => setMensagemCliente(e.target.value)}
+                placeholder="Cole uma mensagem real do WhatsApp…"
+                className="simulator-input"
               />
+              {erro && <p className="mt-2 text-sm text-red-600">{erro}</p>}
+              <AvisoIA aviso={aviso} className="mt-3" />
             </div>
-          </div>
+          </CardBody>
+        </Card>
+      </motion.div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="sm:col-span-1">
-              <Label htmlFor="demo_chamar">Como chamar</Label>
-              <Select
-                id="demo_chamar"
-                value={comoChamar}
-                onChange={(v) => setComoChamar(v as ComoChamar)}
-                options={COMO_CHAMAR_OPTIONS}
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="demo_formalidade">
-                Formalidade{" "}
-                <span className="text-xs font-medium text-muted">
-                  ({formalidade}%)
-                </span>
-              </Label>
-              <input
-                id="demo_formalidade"
-                type="range"
-                min={0}
-                max={100}
-                value={formalidade}
-                onChange={(e) => setFormalidade(Number(e.target.value))}
-                className="h-11 w-full accent-brand-600"
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div>
-              <Label htmlFor="demo_proc">Procedimento</Label>
-              <Select
-                id="demo_proc"
-                value={procedimento}
-                onChange={(v) => {
-                  setProcedimento(v);
-                  setRespostas(null);
-                  setAviso("");
-                  setErro("");
-                }}
-                options={procOptions}
-              />
-            </div>
-            <div>
-              <Label htmlFor="demo_sit">Situação</Label>
-              <Select
-                id="demo_sit"
-                value={situacao}
-                onChange={(v) => {
-                  setSituacao(v);
-                  setRespostas(null);
-                  setAviso("");
-                  setErro("");
-                }}
-                options={sitOptions}
-              />
-            </div>
-            <div>
-              <Label htmlFor="demo_tom">Tom</Label>
-              <Select
-                id="demo_tom"
-                value={tom}
-                onChange={(v) => {
-                  setTom(v);
-                  setRespostas(null);
-                  setAviso("");
-                  setErro("");
-                }}
-                options={tomOptions}
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="demo_nome_cliente">Nome da cliente</Label>
-            <Input
-              id="demo_nome_cliente"
-              value={nomeCliente}
-              onChange={(e) => setNomeCliente(e.target.value)}
-              placeholder="Ex.: Ana"
-            />
-          </div>
-
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              onClick={aplicarExemplo}
-            >
-              <Wand2 size={16} /> Usar exemplo
-            </Button>
-            <Button
-              type="button"
-              className="flex-1"
-              onClick={gerar}
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 size={16} className="animate-spin flex-shrink-0" /> Gerando…
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <Sparkles size={16} className="flex-shrink-0" /> Gerar
-                </span>
-              )}
-            </Button>
-          </div>
-
-          <div>
-            <Label htmlFor="demo_msg">Mensagem da cliente</Label>
-            <Textarea
-              id="demo_msg"
-              value={mensagemCliente}
-              onChange={(e) => setMensagemCliente(e.target.value)}
-              placeholder="Cole uma mensagem real do WhatsApp…"
-            />
-            {erro && <p className="mt-2 text-sm text-red-600">{erro}</p>}
-            <AvisoIA aviso={aviso} className="mt-3" />
-          </div>
-        </CardBody>
-      </Card>
-
-      <div className="mx-auto w-full max-w-[420px]">
+      {/* ── Right card — WhatsApp preview ── */}
+      <motion.div
+        className="mx-auto w-full max-w-[420px]"
+        initial={{ opacity: 0, x: 24 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, amount: 0.15 }}
+        transition={{ duration: 0.65, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div className="relative overflow-hidden rounded-[2.25rem] border border-brand-100 bg-white shadow-soft">
           <div className="absolute inset-0 bg-[radial-gradient(700px_420px_at_10%_-10%,rgba(205,163,71,0.18),transparent_55%),radial-gradient(700px_420px_at_100%_0%,rgba(14,58,48,0.16),transparent_55%)] opacity-70" />
           <div className="relative">
+            {/* Header */}
             <div className="flex items-center justify-between border-b border-brand-100 bg-white/70 px-5 py-4 backdrop-blur">
               <div>
                 <div className="text-sm font-semibold text-ink">{contato}</div>
@@ -350,41 +381,99 @@ export function LandingWhatsAppDemo() {
               {respostaAtual ? <CopyButton text={respostaAtual} /> : null}
             </div>
 
+            {/* Messages area */}
             <div className="space-y-3 bg-nude-100/70 px-5 py-5">
-              <div className="flex justify-start">
+              {/* Client bubble */}
+              <motion.div
+                className="flex justify-start"
+                initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.45, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              >
                 <div className="max-w-[85%] rounded-2xl rounded-bl-md border border-brand-100 bg-white px-4 py-3 text-sm leading-relaxed text-ink shadow-card">
-                  {mensagemCliente.trim() || (
-                    <span className="text-muted">
-                      Digite uma mensagem para começar…
-                    </span>
-                  )}
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={mensagemCliente}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {mensagemCliente.trim() || (
+                        <span className="text-muted">
+                          Digite uma mensagem para começar…
+                        </span>
+                      )}
+                    </motion.span>
+                  </AnimatePresence>
                 </div>
-              </div>
+              </motion.div>
 
+              {/* Response bubble */}
               <div className="flex justify-end">
                 <div className="max-w-[85%] rounded-2xl rounded-br-md bg-brand-600 px-4 py-3 text-sm leading-relaxed text-white shadow-soft">
-                  {loading ? (
-                    <span className="inline-flex items-center gap-2 text-white/90">
-                      <Loader2 size={16} className="animate-spin" /> Escrevendo…
-                    </span>
-                  ) : respostaAtual ? (
-                    <span className="whitespace-pre-wrap">{respostaAtual}</span>
-                  ) : (
-                    <span className="text-white/80">
-                      Clique em “Gerar” para ver uma resposta aqui.
-                    </span>
-                  )}
+                  <AnimatePresence mode="wait">
+                    {loading ? (
+                      <motion.span
+                        key="loading"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="inline-flex items-center gap-2 text-white/90"
+                      >
+                        <Loader2 size={14} className="animate-spin flex-shrink-0" />
+                        <AnimatePresence mode="wait">
+                          <motion.span
+                            key={loadingStep}
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -4 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {LOADING_STEPS[loadingStep]}
+                          </motion.span>
+                        </AnimatePresence>
+                      </motion.span>
+                    ) : respostaAtual ? (
+                      <motion.span
+                        key={`response-${responseKey}-${variante}`}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                        className="whitespace-pre-wrap"
+                      >
+                        {respostaAtual}
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="empty"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="text-white/80"
+                      >
+                        Clique em "Gerar" para ver uma resposta aqui.
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             </div>
 
+            {/* Variant tabs + copy hint */}
             <div className="border-t border-brand-100 bg-white/80 px-4 py-4 backdrop-blur">
               <div className="grid grid-cols-3 gap-2">
                 {VARIANTES.map((v) => (
-                  <button
+                  <motion.button
                     key={v.key}
                     type="button"
                     onClick={() => setVariante(v.key)}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.97 }}
                     className={cn(
                       "rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-colors",
                       variante === v.key
@@ -396,7 +485,7 @@ export function LandingWhatsAppDemo() {
                     <div className="mt-0.5 text-[11px] font-medium text-muted">
                       {v.hint}
                     </div>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
               <p className="mt-3 text-center text-[11px] text-muted">
@@ -405,7 +494,17 @@ export function LandingWhatsAppDemo() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
+
+      {/* Gold focus ring for inputs */}
+      <style>{`
+        .simulator-input:focus {
+          outline: none;
+          border-color: #C9A060 !important;
+          box-shadow: 0 0 0 3px rgba(201,160,96,0.12) !important;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+      `}</style>
     </div>
   );
 }

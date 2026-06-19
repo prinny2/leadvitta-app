@@ -39,6 +39,7 @@ import { AppBenefitsSection } from "@/components/app-benefits-section";
 import { HeroHighlight, Highlight } from "@/components/hero-highlight-leadbellus";
 import { PainPointSection } from "@/components/pain-point-section";
 import { IndicadoCards, IndicadoHeader } from "@/components/indicado-cards";
+import { SimuladorFadeUp, SimuladorUnderline, SimuladorScenarioBtn } from "@/components/simulador-ui";
 
 const funilHref = "/signup";
 
@@ -362,57 +363,57 @@ export default function LandingPage() {
       {/* ── SIMULADOR INTERATIVO ─────────────────────────────────────────────── */}
       <section id="simulador" style={{ background: "#07101e", padding: "96px 24px" }}>
         <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+
+          {/* ── Header animado ── */}
           <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <TagPill>✦ Experimente agora</TagPill>
-            <h2
-              style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "clamp(28px, 4vw, 42px)",
-                fontWeight: 700,
-                color: "#ffffff",
-                margin: "0 0 16px",
-                lineHeight: 1.2,
-              }}
-            >
-              Veja como ficaria{" "}
-              <span style={{ color: "#C9A060" }}>uma resposta da sua clínica</span>{" "}
-              — agora
-            </h2>
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "15px", maxWidth: "520px", margin: "0 auto 20px" }}>
-              Coloque o nome da sua clínica, escolha o tom e uma situação. A
-              resposta já sai personalizada pra você. Sem criar conta. Sem
-              cartão. Em 30 segundos.
-            </p>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "8px",
-                justifyContent: "center",
-              }}
-            >
+            {/* Badge */}
+            <SimuladorFadeUp delay={0}>
+              <TagPill>✦ Experimente agora</TagPill>
+            </SimuladorFadeUp>
+
+            {/* Título */}
+            <SimuladorFadeUp delay={0.1}>
+              <h2
+                style={{
+                  fontFamily: "var(--font-fraunces, Georgia, serif)",
+                  fontSize: "clamp(28px, 4vw, 42px)",
+                  fontWeight: 700,
+                  color: "#ffffff",
+                  margin: "0 0 16px",
+                  lineHeight: 1.2,
+                }}
+              >
+                Veja como ficaria{" "}
+                <span style={{ position: "relative", display: "inline-block" }}>
+                  <span style={{ color: "#C9A060" }}>uma resposta da sua clínica</span>
+                  <SimuladorUnderline />
+                </span>{" "}
+                — agora
+              </h2>
+            </SimuladorFadeUp>
+
+            {/* Subtítulo */}
+            <SimuladorFadeUp delay={0.2}>
+              <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "15px", maxWidth: "520px", margin: "0 auto 20px" }}>
+                Coloque o nome da sua clínica, escolha o tom e uma situação. A
+                resposta já sai personalizada pra você. Sem criar conta. Sem
+                cartão. Em 30 segundos.
+              </p>
+            </SimuladorFadeUp>
+
+            {/* Botões de situação em cascata */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center" }}>
               {[
                 { id: "preco", label: "Perguntou preço" },
                 { id: "achou_caro", label: "Achou caro" },
                 { id: "sumiu", label: "Sumiu" },
                 { id: "medo", label: "Medo do procedimento" },
-              ].map((d) => (
-                <Link
-                  key={d.id}
-                  href={`/?demo=${d.id}#simulador`}
-                  style={{
-                    border: "1px solid rgba(201,160,96,0.4)",
-                    color: "#C9A060",
-                    borderRadius: "9999px",
-                    padding: "6px 16px",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    textDecoration: "none",
-                    background: "rgba(201,160,96,0.07)",
-                  }}
-                >
-                  {d.label}
-                </Link>
+              ].map((d, i) => (
+                <SimuladorFadeUp key={d.id} delay={0.28 + i * 0.07}>
+                  <SimuladorScenarioBtn href={`/?demo=${d.id}#simulador`} active={false}>
+                    {d.label}
+                  </SimuladorScenarioBtn>
+                </SimuladorFadeUp>
               ))}
             </div>
           </div>
@@ -421,6 +422,8 @@ export default function LandingPage() {
             <LandingWhatsAppDemo />
           </Suspense>
 
+          {/* ── CTA card ── */}
+          <SimuladorFadeUp delay={0.1}>
           <div
             style={{
               background: "#0f1b2f",
@@ -458,6 +461,7 @@ export default function LandingPage() {
               Sem cartão · Acesso imediato · Você configura em 5 minutos
             </p>
           </div>
+          </SimuladorFadeUp>
         </div>
       </section>
 
