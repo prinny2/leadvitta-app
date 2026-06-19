@@ -21,15 +21,15 @@ const PLANS = [
     annual: 80,
     annualTotal: 970,
     savings: 194,
-    paraQuem: "Quer a ferramenta completa de atendimento e nunca mais improvisar no WhatsApp",
-    tagline: "O arsenal completo de resposta. Você no controle, sempre com a mensagem certa.",
+    paraQuem: "Quer parar de improvisar no WhatsApp e ter boas respostas à mão",
+    tagline: "Um pacote de respostas e roteiros para você conduzir melhor cada conversa.",
     selo: "Preço de lançamento",
     features: [
       "Gerador de Respostas ilimitado — 3 versões por situação, no seu tom",
       "Biblioteca de Objeções completa — resposta pronta pra cada objeção",
-      "Follow-up Inteligente — reative quem sumiu no timing certo, com progressão psicológica",
-      `Scripts de Atendimento Completo — fluxos de 3–4 mensagens com timing, do primeiro "oi" ao agendamento`,
-      "DNA da Clínica — personalização total do seu jeito de falar",
+      "Mensagens de retomada — reative quem sumiu com 3 abordagens em etapas",
+      `Roteiros de atendimento — sequências de mensagens para conduzir do primeiro "oi" ao próximo passo`,
+      "Tom da sua clínica — respostas com o seu jeito de falar",
       "Histórico de respostas geradas",
     ],
     ctaMonthly: "Começar com o Start — 7 dias grátis →",
@@ -44,14 +44,14 @@ const PLANS = [
     annual: 164,
     annualTotal: 1970,
     savings: 394,
-    paraQuem: "Quer inteligência pra qualificar leads e um chatbot que prepara o terreno — você entra só pra fechar",
-    tagline: "O bot trabalha. Você fecha. No PRO, o LeadBellus conecta direto ao seu WhatsApp Business. O bot aquece a conversa — você entra só pra confirmar o agendamento.",
-    selo: "⭐ Mais escolhido",
+    paraQuem: "Em breve: para quem quer priorizar conversas e receber apoio extra no atendimento",
+    tagline: "Em breve: recursos para ajudar a identificar conversas com mais chance de avançar e responder com mais contexto.",
+    selo: "Em breve",
     features: [
       "Tudo do Start",
-      "Lead Intelligence — score de conversão + perfil psicológico + estratégia exata por lead",
-      "Conecta no seu WhatsApp — atende direto no seu número, sem instalar outro app",
-      "Chatbot no WhatsApp — atende e qualifica a lead automaticamente, 24h por dia, e te entrega pronta pra fechar",
+      "Análise de prioridade da conversa — em breve",
+      "Integração com WhatsApp — em desenvolvimento",
+      "Apoio automático no WhatsApp — em desenvolvimento",
     ],
     ctaMonthly: "Começar com o Pro — 7 dias grátis →",
     ctaAnnual: "Garantir Pro Anual →",
@@ -65,14 +65,14 @@ const PLANS = [
     annual: 289,
     annualTotal: 3470,
     savings: 694,
-    paraQuem: "Quer que a clínica funcione no piloto automático — do primeiro contato ao agendamento fechado, sem tocar em nada",
-    tagline: "Zero toque humano. O sistema atende, qualifica, agenda e acompanha. Você só aparece pra fazer o procedimento.",
-    selo: "✦ PILOTO AUTOMÁTICO",
+    paraQuem: "Em breve: para quem quer automatizar mais etapas do atendimento",
+    tagline: "Em breve: automações para reduzir tarefas repetitivas antes e depois do atendimento.",
+    selo: "Em breve",
     features: [
       "Tudo do Pro",
       "Lembrete + Orientações Pré-consulta — confirmação automática 24h antes, com preparo por procedimento",
       "Gestão Pós-consulta — acompanhamento automático após o procedimento, fidelização e próximo agendamento",
-      "Agendamento Autônomo — configure sua disponibilidade, o bot conduz e fecha a consulta sem intervenção humana",
+      "Agendamento pelo WhatsApp — em desenvolvimento",
       "Acesso prioritário a todos os módulos futuros, assim que saírem",
     ],
     ctaMonthly: "Garantir meu acesso Premium agora →",
@@ -384,7 +384,7 @@ function PricingCard({
           <WaitlistForm plan={plan.id} className="" />
           {isPremium && (
             <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
-              Preço de lançamento garantido · Agendamento autônomo chegando em breve
+              Preço de lançamento garantido · Agendamento pelo WhatsApp em desenvolvimento
             </p>
           )}
         </>
@@ -546,14 +546,14 @@ export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
             <tr style={{ borderBottom: "1px solid rgba(201,160,96,0.2)" }}>
               <th style={{ padding: "16px 20px", textAlign: "left", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>PLANO</th>
               <th style={{ padding: "16px 20px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>O QUE O HUMANO FAZ</th>
-              <th style={{ padding: "16px 20px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>O QUE O BOT FAZ</th>
+              <th style={{ padding: "16px 20px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>O QUE O SISTEMA AJUDA A FAZER</th>
             </tr>
           </thead>
           <tbody>
             {[
               { plan: "START", human: "Tudo — mas com as respostas certas na mão", bot: "Ferramenta manual" },
-              { plan: "PRO", human: "Só confirma o fechamento", bot: "Atende, qualifica e aquece" },
-              { plan: "PREMIUM", human: "Só faz o procedimento", bot: "Atende, qualifica, agenda e acompanha" },
+              { plan: "PRO", human: "Em breve: confirma os próximos passos", bot: "Em breve: ajuda a priorizar conversas" },
+              { plan: "PREMIUM", human: "Em breve: reduz tarefas manuais", bot: "Em breve: apoia etapas antes e depois da consulta" },
             ].map((row, i) => (
               <tr
                 key={row.plan}

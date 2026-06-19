@@ -20,9 +20,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "LeadBellus — Agendamento Inteligente para Estética",
+  title: "LeadBellus — Respostas para WhatsApp na Estética",
   description:
-    "Aumente os agendamentos da sua clínica com inteligência de conversão. Transforme dúvidas do WhatsApp em vendas reais com respostas estratégicas e seguras.",
+    "Ajude sua clínica de estética a responder melhor no WhatsApp, lidar com objeções e retomar clientes que sumiram, com textos prontos no seu tom.",
   authors: [{ name: "Vinicius Paes da Serra Freire", url: "https://leadbellus.com.br" }],
   publisher: "Vinicius Paes da Serra Freire (MEI)",
   verification: {

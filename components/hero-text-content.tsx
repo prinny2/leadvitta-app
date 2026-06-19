@@ -32,7 +32,7 @@ export function HeroTextContent({
   subtitle,
   bullets,
   ctaHref = "/signup",
-  ctaText = "Quero minha resposta certa agora →",
+  ctaText = "Quero gerar minha resposta agora →",
   hideSimuladorLink = false,
 }: HeroTextContentProps = {}) {
   return (
@@ -99,7 +99,7 @@ export function HeroTextContent({
           margin: "0 0 36px",
         }}
       >
-        {subtitle || "Foi pela resposta errada. O LeadBellus analisa cada mensagem e entrega a resposta certa — no seu tom, pra aquela cliente específica, em 30 segundos. É só copiar e colar."}
+        {subtitle || "Foi por uma resposta que não conduziu. O LeadBellus transforma a mensagem da cliente em 3 opções de resposta no seu tom, para você escolher, copiar e mandar."}
       </motion.p>
 
       {/* Bullets customizados se fornecidos */}
@@ -203,9 +203,9 @@ export function HeroTextContent({
       >
         {[
           { icon: "💬", label: "Respostas estratégicas" },
-          { icon: "🔄", label: "Follow-ups" },
+          { icon: "🔄", label: "Retomadas" },
           { icon: "🛡️", label: "Objeções" },
-          { icon: "🧠", label: "Lead Intelligence" },
+          { icon: "🧠", label: "Prioridade da conversa" },
         ].map((f) => (
           <div
             key={f.label}
