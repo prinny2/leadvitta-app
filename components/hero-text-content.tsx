@@ -191,7 +191,7 @@ export function HeroTextContent({
         animate="visible"
         style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)", marginBottom: "40px" }}
       >
-        7 dias grátis · Sem cartão · Você usa hoje mesmo
+        5 respostas grátis · Sem cartão · Você usa hoje mesmo
       </motion.p>
 
       {/* Feature pills */}

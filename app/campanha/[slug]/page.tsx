@@ -153,7 +153,7 @@ function LaunchBanner() {
         letterSpacing: "0.02em",
       }}
     >
-      ✦ Oferta de Lançamento: Teste grátis por 7 dias e garanta a licença Start com preço congelado.
+      ✦ Oferta de Lançamento: gere 5 respostas grátis e garanta a licença Start com preço congelado.
     </div>
   );
 }
@@ -221,7 +221,7 @@ export default function CampaignPage({ params }: Props) {
               subtitle={campaignSubtitle}
               bullets={campaignBullets}
               ctaHref="/signup?plan=start"
-              ctaText="Garantir meu teste de 7 dias grátis →"
+              ctaText="Gerar 5 respostas grátis →"
               hideSimuladorLink={true}
             />
 
@@ -316,7 +316,7 @@ export default function CampaignPage({ params }: Props) {
             R$97<span style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>/mês</span>
           </p>
           <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>
-            7 dias grátis · sem cartão
+            5 respostas grátis · sem cartão
           </p>
         </div>
         <Link

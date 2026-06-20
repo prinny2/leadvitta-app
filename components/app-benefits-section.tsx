@@ -105,7 +105,7 @@ const RESULTS = [
   {
     icon: <Shield size={22} strokeWidth={1.5} />,
     title: "Mais consistência",
-    text: "Padronização e dados que garantem qualidade em todos os atendimentos.",
+    text: "Padronização e dados que ajudam a manter qualidade em todos os atendimentos.",
   },
   {
     icon: <Star size={22} strokeWidth={1.5} />,

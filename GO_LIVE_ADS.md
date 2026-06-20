@@ -1,76 +1,284 @@
-# 🚀 Campanha de Lançamento — LeadBellus (Junho 2026)
+# LeadBellus - Plano de Google Ads
 
-## 🎯 Objetivo
-Transformar profissionais de estética que "lutam" com o WhatsApp em clientes assinantes do plano Start/Pro.
+Ultima revisao: 2026-06-20
 
-## 💎 Posicionamento "Zero Toque"
-Foco na dor do **"Muito texto"** e da **"Demora"**. O LeadBellus não é apenas um robô; é a inteligência que filtra curiosos e prioriza quem traz ROI (Faturamento).
+## Objetivo
 
----
+Gerar cadastros qualificados de profissionais e clinicas de estetica para testar o LeadBellus com 5 respostas gratis, sem cartao.
 
-## 🏗️ Estrutura da Campanha (Google Ads)
+## Decisao de campanha
 
-### 1. Pesquisa (Search) — Fundo de Funil
-**Público:** Pessoas buscando por automação ou scripts para estética.
+Comecar por Google Search, sem Display e sem remarketing neste primeiro corte.
 
-**Palavras-Chave (Keywords):**
-- `respostas whatsapp estetica`
-- `bot para clinica de beleza`
-- `automação leads whatsapp estetica`
-- `responder clientes rapido estetica`
-- `scripts de vendas whatsapp estetica`
-- `agendamento online clinica estetica`
-- `como fechar mais clientes no whatsapp`
+Motivo: a oferta e B2B, mas o mercado de estetica encosta em temas de saude, imagem corporal e procedimentos cosmeticos. Search com intencao explicita e mais controlavel. Remarketing/listas personalizadas podem aumentar risco de policy por segmentacao sensivel.
 
-**Anúncio 1 (Foco em Agendamento):**
-- **Título 1:** Pare de perder clientes no Whats
-- **Título 2:** Agende em Minutos com IA
-- **Título 3:** LeadBellus: Estética & IA
-- **Desc 1:** Ela perguntou o preço e sumiu? Recupere suas clientes com respostas estratégicas curtas.
-- **Desc 2:** Chega de textões que afastam o cliente premium. Use a IA que filtra ROI e agenda sozinho.
+Referencias oficiais:
 
----
+- Google Ads Misrepresentation: https://support.google.com/adspolicy/answer/6020955
+- Google Ads Healthcare and medicines: https://support.google.com/adspolicy/answer/176031
+- Google Ads Health in personalized advertising: https://support.google.com/adspolicy/answer/16701855
 
-### 2. Rede de Display / Remarketing
-**Público:** Visitantes do site que não converteram em checkout.
+## Regras de copy
 
-**Cópia do Criativo:**
-- "Sua próxima conversa pode virar agenda."
-- "O LeadBellus filtra os curiosos para você focar em quem paga."
-- "Garantia de 7 dias: ou você agenda mais, ou seu dinheiro de volta."
+Usar:
 
----
+- "5 respostas gratis"
+- "sem cartao"
+- "respostas para WhatsApp"
+- "clinicas de estetica"
+- "copiar e mandar"
+- "ajuda a responder melhor"
 
-## 📱 Estrutura para Meta Ads (Instagram/Facebook)
+Nao usar:
 
-### Campanha: "O Fim do Textão"
-**Criativo:** Vídeo curto mostrando uma conversa no WhatsApp travada vs. uma resposta LeadBellus fluída.
+- "7 dias gratis"
+- "garantia de 7 dias"
+- "agenda sozinho"
+- "agenda mais garantido"
+- "15x de retorno"
+- "cliente recuperada paga o mes"
+- depoimentos, nomes, fotos ou estrelas sem autorizacao real
+- promessas de resultado clinico, estetico ou financeiro
 
-**Legenda (Copy):**
-"Você passa o dia escrevendo textões no WhatsApp e a cliente ainda acha caro? 🙄
+## Setup recomendado
 
-Na estética, o tempo é ouro. Enquanto você escreve, ela já agendou na concorrente.
+Campanha: `BR | Search | LeadBellus | WhatsApp Estetica`
 
-Com o LeadBellus, você tem 3 opções de respostas estratégicas que:
-1️⃣ Acolhem a cliente premium.
-2️⃣ Criam valor ANTES do preço.
-3️⃣ Conduzem direto para a agenda.
+Tipo: Search
 
-Filtre os curiosos e foque no faturamento. 💸
+Rede: apenas Pesquisa Google. Desativar Rede de Display.
 
-👉 Teste grátis agora no link da bio! #EsteticaDeResultados #GestaoDeClinicas"
+Local: Brasil. Se o orcamento estiver apertado, comecar por Para, Sao Paulo, Minas Gerais, Parana, Pernambuco e Distrito Federal.
 
----
+Idioma: portugues
 
-## 📈 Métricas de Sucesso (KPIs)
-- **CPA (Custo por Aquisição):** < R$ 40,00
-- **CTR (Click-Through Rate):** > 2% (Search)
-- **Taxa de Conversão (Landing -> Demo):** > 20%
-- **Taxa de Conversão (Demo -> Checkout):** > 5%
+Orcamento inicial: R$ 30 a R$ 50/dia por 5 dias
 
----
+Lance inicial: Maximizar conversoes se o GA4/conversao ja estiver lendo signup. Se ainda nao estiver, usar CPC manual com teto conservador e ajustar depois.
 
-## 🔗 Links Úteis para a Campanha
-- **Landing Principal:** `https://leadbellus.com.br`
-- **Demo Direta:** `https://leadbellus.com.br/onboarding`
-- **Tracking:** GA4 e Meta Pixel IDs já configurados no ambiente.
+Final URL principal:
+
+`https://leadbellus.com.br/campanha/whatsapp-estetica`
+
+Final URL alternativa:
+
+`https://leadbellus.com.br`
+
+Conversao primaria:
+
+- cadastro concluido
+- checkout iniciado
+
+Conversoes secundarias:
+
+- clique no CTA principal
+- uso do simulador
+
+## Grupo 1 - Respostas para WhatsApp
+
+Intencao: profissional buscando ajuda para responder melhor.
+
+Palavras-chave:
+
+- "respostas whatsapp estetica"
+- "resposta para cliente estetica"
+- "mensagem para cliente estetica"
+- "script whatsapp estetica"
+- "como responder cliente no whatsapp"
+- "como responder achou caro estetica"
+- "mensagem para cliente que sumiu"
+- [respostas whatsapp estetica]
+- [script whatsapp estetica]
+- [mensagem cliente estetica]
+
+Headlines:
+
+- LeadBellus Para Estetica
+- Responda Melhor No Whats
+- 5 Respostas Gratis
+- Sem Cartao Para Testar
+- Copie E Mande No Whats
+- Cliente Achou Caro?
+- Cliente Sumiu?
+- Respostas No Seu Tom
+- WhatsApp Da Clinica
+- Pare De Improvisar
+- Roteiros Para Estetica
+- IA Para Atendimento
+
+Descricoes:
+
+- Gere respostas para WhatsApp no tom da sua clinica. 5 gratis, sem cartao.
+- Cliente perguntou preco e sumiu? Receba opcoes curtas para revisar e enviar.
+- Respostas para objecoes, preco e follow-up. Copie, ajuste e mande no WhatsApp.
+- Feito para estetica: mais clareza no atendimento, sem promessa de resultado.
+
+## Grupo 2 - Objeções e preco
+
+Intencao: dor clara de venda travada por preco.
+
+Palavras-chave:
+
+- "cliente achou caro estetica"
+- "como responder cliente achou caro"
+- "responder preco estetica"
+- "cliente pediu desconto estetica"
+- "objecoes estetica whatsapp"
+- "resposta para orçamento estetica"
+- [cliente achou caro estetica]
+- [objecoes estetica whatsapp]
+
+Headlines:
+
+- Cliente Achou Caro?
+- Responda Sem Textao
+- Quebre Objecoes No Whats
+- Mensagens Para Preco
+- LeadBellus Para Clinicas
+- 5 Respostas Gratis
+- Sem Cartao
+- Atendimento Mais Claro
+- Respostas Para Estetica
+- Copiar E Enviar
+
+Descricoes:
+
+- Transforme a mensagem da cliente em respostas mais claras para preco e objecoes.
+- Sem textao. O LeadBellus sugere opcoes curtas para voce revisar e mandar.
+- Use IA para responder melhor no WhatsApp da sua clinica. Teste com 5 respostas.
+- Ajuda para conduzir conversas de estetica sem prometer venda ou resultado.
+
+## Grupo 3 - Automação e ferramenta
+
+Intencao: busca por software, bot ou IA para atendimento.
+
+Palavras-chave:
+
+- "ia para clinica de estetica"
+- "automacao whatsapp estetica"
+- "ferramenta whatsapp estetica"
+- "bot whatsapp clinica estetica"
+- "software atendimento clinica estetica"
+- "crm whatsapp estetica"
+- [ia para clinica de estetica]
+- [automacao whatsapp estetica]
+- [software atendimento estetica]
+
+Headlines:
+
+- IA Para Clinica Estetica
+- Atendimento No WhatsApp
+- LeadBellus
+- Respostas No Tom Da Clinica
+- 5 Respostas Gratis
+- Sem Cartao
+- Roteiros De Atendimento
+- Objeções E Follow-up
+- Copie Ajuste E Envie
+- Para Clinicas De Estetica
+
+Descricoes:
+
+- Ferramenta para gerar respostas de WhatsApp no tom da sua clinica de estetica.
+- Configure o jeito da clinica e use respostas como base para o atendimento.
+- Comece com 5 respostas gratis. Sem cartao, sem fidelidade e sem multa.
+- Nao e promessa de agenda cheia: e apoio para responder com mais clareza.
+
+## Palavras negativas
+
+Adicionar no nivel da campanha:
+
+- curso
+- emprego
+- vaga
+- salario
+- gratis download
+- pdf
+- modelo pronto gratis
+- concurso
+- botox antes e depois
+- preenchimento antes e depois
+- harmonizacao resultado
+- emagrecimento
+- remedio
+- medicamento
+- cirurgia
+- sus
+- anvisa
+- reclame aqui
+- whatsapp gb
+- hack
+- pirata
+- cupom
+- gratuito
+
+Observacao: manter "gratis" fora das negativas exatas se estiver bloqueando buscas com intencao boa. A negativa "gratuito" ajuda a reduzir gente procurando material solto.
+
+## Extensoes
+
+Sitelinks:
+
+- Simulador
+  - URL: `https://leadbellus.com.br/#simulador`
+  - Texto: Veja uma resposta gerada
+
+- Planos
+  - URL: `https://leadbellus.com.br/#precos`
+  - Texto: Start a partir de R$97/mes
+
+- Como funciona
+  - URL: `https://leadbellus.com.br/#funcoes`
+  - Texto: Respostas, objecoes e retomadas
+
+- Privacidade
+  - URL: `https://leadbellus.com.br/privacidade`
+  - Texto: Veja politicas do LeadBellus
+
+Callouts:
+
+- 5 respostas gratis
+- Sem cartao
+- Cancele quando quiser
+- Feito para estetica
+- Respostas no seu tom
+- Copiar e mandar
+
+Snippets estruturados:
+
+- Recursos: Respostas, Objecoes, Retomadas, Roteiros, Tom da clinica
+
+## Checklist antes de ligar
+
+- Confirmar que a LP nao menciona "7 dias gratis".
+- Confirmar que nao ha depoimento com nome/foto sem autorizacao.
+- Confirmar GA4 ativo.
+- Confirmar evento de signup ou checkout iniciado como conversao.
+- Conferir mobile em 360px e 375px.
+- Conferir que o CTA fala "5 respostas gratis" ou "sem cartao".
+
+## Primeiras 48 horas
+
+Olhar a cada 12 horas:
+
+- termos de pesquisa
+- CTR por grupo
+- CPC medio
+- taxa de clique no CTA
+- uso do simulador
+- cadastro iniciado
+- checkout iniciado
+
+Pausar termos com:
+
+- procura por procedimento estetico final, nao software
+- procura por emprego/curso
+- pesquisa medica ou medicamento
+- busca por antes e depois
+
+## Ajuste esperado
+
+Se houver clique sem cadastro, reduzir promessa e levar mais trafego para o simulador.
+
+Se houver cadastro sem checkout, revisar tela de signup, preco e prova do produto.
+
+Se a campanha reprovar por policy, remover termos ligados a procedimento e manter foco em "software de atendimento", "respostas para WhatsApp" e "clinica de estetica".

@@ -341,7 +341,7 @@ export default function LandingPage() {
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "580px", margin: "0 auto" }}>
               Não importa se você atende sozinho, tem uma equipe ou gerencia uma
               clínica completa. Se o WhatsApp é onde as suas vendas acontecem,
-              é aqui que você vai parar de perder dinheiro.
+              é aqui que você reduz improviso e responde com mais clareza.
             </p>
           </IndicadoHeader>
         </div>
@@ -452,7 +452,7 @@ export default function LandingPage() {
                 textDecoration: "none",
               }}
             >
-              Quero o sistema completo — 7 dias grátis →
+              Quero o sistema completo — 5 respostas grátis →
             </Link>
             <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
               Sem cartão · Acesso imediato · Você configura em 5 minutos
@@ -482,12 +482,13 @@ export default function LandingPage() {
                 lineHeight: 1.2,
               }}
             >
-              Uma cliente recuperada já paga o mês inteiro
+              Se uma conversa avançar, o Start já pode fazer sentido
             </h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>
-              Você cobra R$1.500 numa harmonização. Se o LeadBellus te ajuda a
-              fechar 1 cliente a mais por mês — você está pagando R$97 pra
-              faturar R$1.500. São 15x de retorno no pior cenário.
+              O LeadBellus ajuda você a responder melhor, retomar conversas
+              paradas e conduzir objeções com mais segurança. Não promete
+              faturamento, mas pode evitar que uma boa oportunidade morra por
+              falta da resposta certa.
             </p>
           </div>
 
@@ -533,7 +534,7 @@ export default function LandingPage() {
             R$97<span style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>/mês</span>
           </p>
           <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>
-            7 dias grátis · sem cartão
+            5 respostas grátis · sem cartão
           </p>
         </div>
         <Link
@@ -550,7 +551,7 @@ export default function LandingPage() {
             whiteSpace: "nowrap",
           }}
         >
-          Testar grátis →
+          Gerar grátis →
         </Link>
       </div>
     </div>
