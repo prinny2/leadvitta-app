@@ -11,6 +11,13 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* ── Trava de segurança mobile: nenhuma palavra trunca/estoura a largura ── */
+@media (max-width: 768px) {
+  h1, h2, h3, h4, h5, h6, p, span, a, li, button, label {
+    overflow-wrap: break-word;
+  }
+}
+
 /* ── Fundos ── */
 .bg-app {
   background: #07101e;
