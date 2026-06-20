@@ -531,45 +531,79 @@ export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
         })}
       </div>
 
-      {/* Comparison table */}
-      <div
-        style={{
-          background: "#0f1b2f",
-          border: "1px solid rgba(201,160,96,0.2)",
-          borderRadius: "20px",
-          overflowX: "auto",
-          WebkitOverflowScrolling: "touch",
-        }}
-      >
-        <table style={{ width: "100%", minWidth: "520px", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid rgba(201,160,96,0.2)" }}>
-              <th style={{ padding: "16px 20px", textAlign: "left", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>PLANO</th>
-              <th style={{ padding: "16px 20px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>O QUE O HUMANO FAZ</th>
-              <th style={{ padding: "16px 20px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>O QUE O SISTEMA AJUDA A FAZER</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              { plan: "START", human: "Tudo — mas com as respostas certas na mão", bot: "Ferramenta manual" },
-              { plan: "PRO", human: "Em breve: confirma os próximos passos", bot: "Em breve: ajuda a priorizar conversas" },
-              { plan: "PREMIUM", human: "Em breve: reduz tarefas manuais", bot: "Em breve: apoia etapas antes e depois da consulta" },
-            ].map((row, i) => (
-              <tr
-                key={row.plan}
-                style={{
-                  borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.05)" : "none",
-                  background: row.plan === "PRO" ? "rgba(201,160,96,0.05)" : "transparent",
-                }}
-              >
-                <td style={{ padding: "14px 20px", fontSize: "14px", fontWeight: 700, color: "#C9A060" }}>{row.plan}</td>
-                <td style={{ padding: "14px 20px", fontSize: "13px", color: "rgba(255,255,255,0.7)", textAlign: "center" }}>{row.human}</td>
-                <td style={{ padding: "14px 20px", fontSize: "13px", color: "rgba(255,255,255,0.7)", textAlign: "center" }}>{row.bot}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Comparison: tabela no desktop, cards empilhados no mobile (evita scroll lateral escondido) */}
+      {(() => {
+        const rows = [
+          { plan: "START", human: "Tudo — mas com as respostas certas na mão", bot: "Ferramenta manual" },
+          { plan: "PRO", human: "Em breve: confirma os próximos passos", bot: "Em breve: ajuda a priorizar conversas" },
+          { plan: "PREMIUM", human: "Em breve: reduz tarefas manuais", bot: "Em breve: apoia etapas antes e depois da consulta" },
+        ];
+        return (
+          <>
+            <div
+              className="cmp-tbl-wrap"
+              style={{
+                background: "#0f1b2f",
+                border: "1px solid rgba(201,160,96,0.2)",
+                borderRadius: "20px",
+                overflowX: "auto",
+                WebkitOverflowScrolling: "touch",
+              }}
+            >
+              <table style={{ width: "100%", minWidth: "520px", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid rgba(201,160,96,0.2)" }}>
+                    <th style={{ padding: "16px 20px", textAlign: "left", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>PLANO</th>
+                    <th style={{ padding: "16px 20px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>O QUE O HUMANO FAZ</th>
+                    <th style={{ padding: "16px 20px", textAlign: "center", fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.5)", letterSpacing: "0.08em" }}>O QUE O SISTEMA AJUDA A FAZER</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, i) => (
+                    <tr
+                      key={row.plan}
+                      style={{
+                        borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                        background: row.plan === "PRO" ? "rgba(201,160,96,0.05)" : "transparent",
+                      }}
+                    >
+                      <td style={{ padding: "14px 20px", fontSize: "14px", fontWeight: 700, color: "#C9A060" }}>{row.plan}</td>
+                      <td style={{ padding: "14px 20px", fontSize: "13px", color: "rgba(255,255,255,0.7)", textAlign: "center" }}>{row.human}</td>
+                      <td style={{ padding: "14px 20px", fontSize: "13px", color: "rgba(255,255,255,0.7)", textAlign: "center" }}>{row.bot}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="cmp-cards" style={{ display: "none", flexDirection: "column", gap: "12px" }}>
+              {rows.map((row) => (
+                <div
+                  key={row.plan}
+                  style={{
+                    background: row.plan === "PRO" ? "rgba(201,160,96,0.06)" : "#0f1b2f",
+                    border: "1px solid rgba(201,160,96,0.2)",
+                    borderRadius: "16px",
+                    padding: "16px 18px",
+                  }}
+                >
+                  <div style={{ fontSize: "15px", fontWeight: 800, color: "#C9A060", letterSpacing: "0.04em", marginBottom: "10px" }}>{row.plan}</div>
+                  <div style={{ marginBottom: "8px" }}>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em", marginBottom: "2px" }}>O QUE O HUMANO FAZ</div>
+                    <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>{row.human}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: "0.06em", marginBottom: "2px" }}>O QUE O SISTEMA AJUDA A FAZER</div>
+                    <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>{row.bot}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <style>{`@media (max-width: 768px) { .cmp-tbl-wrap { display: none !important; } .cmp-cards { display: flex !important; } }`}</style>
+          </>
+        );
+      })()}
 
       <p style={{ textAlign: "center", fontSize: "13px", color: "rgba(255,255,255,0.35)", marginTop: "20px" }}>
         Todos os planos: cancele quando quiser · sem multa · sem fidelidade
