@@ -269,6 +269,7 @@ export default function LandingPage() {
     <div style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)" }}>
       <Navbar />
       <LaunchBanner />
+      <main>
 
       {/* ── HERO ─────────────────────────────────────────────────────────────── */}
       <section
@@ -503,6 +504,7 @@ export default function LandingPage() {
       <FinalCTASection funilHref={funilHref} />
 
       {/* ── FOOTER ───────────────────────────────────────────────────────────── */}
+      </main>
       <FooterSection />
 
       {/* Espaço pra barra fixa no mobile */}
