@@ -171,7 +171,7 @@ export function IndicadoCards({ funilHref = "/signup" }: { funilHref?: string })
             textDecoration: "none",
           }}
         >
-          Quero testar grátis por 7 dias →
+          Quero gerar 5 respostas grátis →
         </Link>
         <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
           Sem cartão · Acesso imediato · Pronto em 2 minutos

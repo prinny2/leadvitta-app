@@ -16,7 +16,7 @@ export type LimitCheck = {
 };
 
 /**
- * Verifica o limite do trial grátis para um usuário (server-side).
+ * Verifica o limite do plano grátis para um usuário (server-side).
  * - Pagante (billing.status ativo) → ilimitado.
  * - Grátis → até FREE_GENERATION_LIMIT gerações.
  * Sem Admin SDK (ex.: ambiente sem credencial) falha ABERTO — não bloqueia.

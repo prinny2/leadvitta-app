@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const GUARANTEES = [
   {
-    title: "7 dias grátis sem cartão",
+    title: "Respostas grátis pra testar, sem cartão",
     description: "Você testa antes de decidir. Sem cobrança automática.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -270,7 +270,7 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
                 lineHeight: 1.25,
               }}
             >
-              Teste 7 dias. Se não gostar, não paga nada.
+              Gere 5 respostas grátis. Se gostar, assine.
             </motion.h2>
 
             {/* Text block 1 */}
@@ -281,7 +281,7 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               transition={{ duration: 0.45, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
               style={{ fontSize: "15px", color: "#4a5568", lineHeight: 1.8, marginBottom: "12px" }}
             >
-              Você não vai precisar colocar cartão de crédito pra começar. Você testa por 7 dias sem custo.
+              Você não vai precisar colocar cartão de crédito pra começar. Você testa de graça e só assina se gostar.
             </motion.p>
 
             {/* Text block 2 */}
@@ -292,7 +292,7 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               transition={{ duration: 0.45, delay: 0.46, ease: [0.22, 1, 0.36, 1] }}
               style={{ fontSize: "15px", color: "#4a5568", lineHeight: 1.8, marginBottom: "28px" }}
             >
-              Se depois do trial você decidir assinar e em 30 dias sentir que o LeadBellus não fez diferença real — devolvemos{" "}
+              Se depois de testar você decidir assinar e em 30 dias sentir que o LeadBellus não fez diferença real — devolvemos{" "}
               <strong style={{ color: "#0A1628" }}>100% do que você pagou</strong>.
             </motion.p>
 
@@ -403,7 +403,7 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
                     transition: "box-shadow 0.25s ease",
                   }}
                 >
-                  Começar teste grátis
+                  Gerar 5 respostas grátis
                   <motion.span
                     animate={{ x: ctaHovered ? 4 : 0 }}
                     transition={{ duration: 0.2 }}
@@ -414,7 +414,7 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
                 </Link>
               </motion.div>
               <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "12px" }}>
-                7 dias grátis · Sem cartão · Acesso imediato
+                5 respostas grátis · Sem cartão · Acesso imediato
               </p>
             </motion.div>
           </div>
