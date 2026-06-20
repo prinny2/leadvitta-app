@@ -11,6 +11,7 @@ import { Sparkles, TrendingUp, Flame, Snowflake, Sun, ArrowRight, ChevronRight,
 import { getClinica, getBillingPlan } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/theme-provider";
+import { WelcomeOnboarding } from "@/components/welcome-onboarding";
 
 const DIAS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const MESES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
@@ -102,6 +103,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+
+      {/* ── Onboarding do primeiro acesso ── */}
+      <WelcomeOnboarding />
 
       {/* ── Header ── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
