@@ -6,35 +6,35 @@ import { motion, AnimatePresence } from "framer-motion";
 const FAQS = [
   {
     q: "As respostas vão soar robóticas?",
-    a: "Não — esse é exatamente o ponto. O DNA da Clínica aprende o seu tom, como você chama as clientes e o seu CTA preferido. O resultado parece você escrevendo num dia muito bom. As clientes não percebem que foi uma ferramenta — percebem que você responde bem.",
+    a: "Não. O DNA da Clínica aprende o seu tom — o resultado parece você escrevendo num dia muito bom.",
   },
   {
     q: "Qual é a diferença real entre os três planos?",
-    a: "O Start te dá o arsenal completo de resposta manual — você nunca mais fica em branco. O Pro adiciona inteligência de diagnóstico (Lead Intelligence) e um chatbot que qualifica leads e prepara o terreno, mas você ainda confirma o agendamento. O Premium fecha o ciclo: o agendamento acontece sozinho, sem você precisar entrar na conversa.",
+    a: "Start (disponível agora): respostas, objeções e roteiros prontos no seu tom. Pro e Premium (em breve): vão somar Lead Intelligence, chatbot que qualifica e agendamento automático — quem assina agora trava o preço de lançamento.",
   },
   {
     q: "O chatbot do Pro realmente substitui uma recepcionista?",
-    a: "Em grande parte, sim. Ele atende, responde dúvidas, quebra objeções e conduz a lead até o momento de fechar — o único passo que ainda é seu é a confirmação final do agendamento. No Premium, até esse último passo é automatizado.",
+    a: "Essa é a proposta do chatbot do Pro (em breve): atender, tirar dúvidas e conduzir a lead até fechar, deixando só a confirmação pra você. Hoje, no ar, está o Start — as respostas prontas no seu tom.",
   },
   {
     q: "O agendamento autônomo do Premium já funciona?",
-    a: "O núcleo do sistema (todas as funções de geração de resposta, Lead Intelligence, chatbot semi-autônomo, lembretes e pós-consulta) funciona hoje. O agendamento 100% autônomo está em desenvolvimento e será lançado em breve. Quem assinar o Premium agora entra no preço de lançamento e recebe acesso assim que sair.",
+    a: "Hoje funciona o Start: respostas, objeções e roteiros no seu tom. O agendamento automático, o chatbot, os lembretes e o pós-consulta são do Pro/Premium e estão em breve. Quem assina o Premium agora trava o preço de lançamento e recebe assim que sair.",
   },
   {
     q: "Funciona pra qualquer procedimento estético?",
-    a: "Sim. O LeadBellus foi construído especificamente pro mercado estético brasileiro. Conhece botox, harmonização facial, preenchimento, bioestimulador, laser, microagulhamento, limpeza de pele, drenagem linfática e muito mais. Não é um ChatGPT genérico — é especializado no seu nicho.",
+    a: "Sim. É feito pro mercado estético brasileiro: botox, harmonização, preenchimento, laser, limpeza de pele e muito mais. Não é um ChatGPT genérico — é especializado no seu nicho.",
   },
   {
     q: "Preciso de muito tempo pra configurar?",
-    a: "O setup inicial (DNA da Clínica) leva menos de 5 minutos. Depois disso você já está usando. A maioria das pessoas gera a primeira resposta em menos de 2 minutos após o cadastro.",
+    a: "O setup (DNA da Clínica) leva menos de 5 minutos. A maioria gera a primeira resposta em menos de 2 minutos após o cadastro.",
   },
   {
     q: "Qual a diferença do LeadBellus pra usar o ChatGPT direto?",
-    a: `O ChatGPT não conhece a jornada psicológica da cliente de estética no Brasil. Não sabe que "vou pensar" é objeção de preço disfarçada. Não sabe quando usar autoridade ao invés de acolhimento. Não tem DNA da Clínica, não tem histórico, não tem Lead Intelligence, não tem chatbot integrado ao WhatsApp.`,
+    a: `O ChatGPT não conhece a cliente de estética no Brasil — não sabe que "vou pensar" é objeção de preço disfarçada. E não tem DNA da Clínica, Lead Intelligence nem chatbot integrado ao WhatsApp.`,
   },
   {
     q: "Se eu não gostar, como cancelo?",
-    a: "Pelo próprio painel, em um clique. Sem ligar pra ninguém, sem formulário, sem prazo de aviso. Cancela hoje, não cobra mais amanhã.",
+    a: "Pelo painel, em um clique. Sem ligação, sem formulário. Cancela hoje, não cobra mais amanhã.",
   },
 ];
 

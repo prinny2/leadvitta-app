@@ -5,12 +5,12 @@ import { motion, AnimatePresence, useInView } from "framer-motion";
 import Link from "next/link";
 
 const CHECKLIST = [
-  "Deu o preço do botox e a cliente sumiu sem responder",
+  "Deu o preço e a cliente sumiu",
   "Ouviu \"vou pensar\" e nunca mais teve retorno",
-  "A cliente disse \"na outra é mais barato\" e você não soube o que responder",
-  "Fez orçamento há 3 dias e não fez follow-up porque não sabe o que falar",
-  "Ficou com aquela sensação: \"ela ia fechar — eu errei na resposta\"",
-  "Tem 15 conversas abertas e não sabe qual delas está quente pra fechar",
+  "A cliente disse \"na outra é mais barato\" e você travou",
+  "Fez orçamento e não fez follow-up",
+  "Sentiu: \"ela ia fechar — eu errei na resposta\"",
+  "Tem conversas abertas e não sabe qual está quente",
 ];
 
 // ─── AnimatedCounter ──────────────────────────────────────────────────────────
@@ -494,7 +494,7 @@ function FinalDiagnosisBlock({ funilHref }: { funilHref: string }) {
           transition={{ duration: 0.5, delay: 0.5 }}
           style={{ fontSize: "13px", color: "rgba(255,255,255,0.55)", lineHeight: 1.75, margin: "0 0 10px" }}
         >
-          Cada conversa que some sem agendar pode valer de R$800 a R$3.000. Não porque você é ruim no atendimento — mas porque responder bem no WhatsApp, com condução psicológica e estratégia, é uma habilidade de vendas. E ninguém te ensinou isso.
+          Cada conversa que some pode valer de R$800 a R$3.000. Não porque você é ruim no atendimento — mas porque responder bem no WhatsApp é uma habilidade de vendas que ninguém te ensinou.
         </motion.p>
 
         <motion.p
@@ -664,7 +664,7 @@ export function PainPointSection({ funilHref = "/signup" }: { funilHref?: string
             transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
             style={{ color: "#4a5568", fontSize: "16px", lineHeight: 1.8, maxWidth: "580px", margin: "0 auto 16px" }}
           >
-            Não foi porque era cara demais. Foi porque a resposta não conduziu. Não acolheu. Não gerou autoridade. Não criou o próximo passo.
+            Não foi o preço. Foi a resposta — que não conduziu nem criou o próximo passo.
           </motion.p>
 
           {/* Text 2 */}
@@ -675,7 +675,7 @@ export function PainPointSection({ funilHref = "/signup" }: { funilHref?: string
             transition={{ duration: 0.5, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
             style={{ color: "#4a5568", fontSize: "16px", lineHeight: 1.8, maxWidth: "580px", margin: "0 auto 20px" }}
           >
-            Na estética, a maioria das vendas não se perde por falta de interesse — se perde nos primeiros três minutos de conversa no WhatsApp. Quando a mensagem é seca, quando o preço aparece cedo demais, quando a cliente não sente que você é diferente da clínica do lado.
+A maioria das vendas se perde nos primeiros minutos no WhatsApp — não por falta de interesse.
           </motion.p>
 
           {/* Impact phrase */}
@@ -686,7 +686,7 @@ export function PainPointSection({ funilHref = "/signup" }: { funilHref?: string
             transition={{ duration: 0.55, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
             style={{ color: "#92610A", fontSize: "16px", fontWeight: 600, lineHeight: 1.7, maxWidth: "520px", margin: "0 auto", fontStyle: "italic" }}
           >
-            E o pior: você já sabe disso. Já ficou olhando pro WhatsApp pensando "essa eu devia ter conseguido".
+E você já sabe disso: "essa eu devia ter conseguido".
           </motion.p>
 
           </div>{/* end center text */}

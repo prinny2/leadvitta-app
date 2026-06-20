@@ -24,31 +24,31 @@ const CARDS = [
     emoji: "🏥",
     icon: <Building2 size={22} strokeWidth={1.5} />,
     title: "Você tem ou gerencia uma clínica de estética",
-    body: "Botox, harmonização, preenchimento, laser, bioestimulador, microagulhamento — qualquer clínica onde a venda começa numa conversa de WhatsApp antes de virar agendamento.",
+    body: "Onde a venda começa numa conversa de WhatsApp antes de virar agendamento.",
   },
   {
     emoji: "💼",
     icon: <User size={22} strokeWidth={1.5} />,
     title: "Você é autônomo e atende no seu próprio espaço",
-    body: "Profissional solo que faz tudo: o procedimento, o atendimento e a venda. Cada conversa de WhatsApp é uma oportunidade que não pode escapar.",
+    body: "Você faz tudo: o procedimento, o atendimento e a venda. Nenhuma conversa pode escapar.",
   },
   {
     emoji: "👥",
     icon: <Users size={22} strokeWidth={1.5} />,
     title: "Você tem recepcionista ou está pensando em contratar",
-    body: "Treinar alguém pra conduzir conversa de venda leva meses. Com o LeadBellus, seu atendimento já nasce padronizado e estratégico — sem depender da habilidade de cada pessoa.",
+    body: "Treinar leva meses. Com o LeadBellus, seu atendimento já nasce padronizado — sem depender da habilidade de cada pessoa.",
   },
   {
     emoji: "📈",
     icon: <TrendingUp size={22} strokeWidth={1.5} />,
     title: "Você quer mais agendamentos sem aumentar anúncios",
-    body: "O problema não é a captação. É a conversão. Você já tem as leads chegando — elas só estão vazando na conversa.",
+    body: "O problema não é captação, é conversão. As leads já chegam — só vazam na conversa.",
   },
   {
     emoji: "🔄",
     icon: <Layers size={22} strokeWidth={1.5} />,
     title: "Você quer escalar sem depender de você em tudo",
-    body: "Hoje cada resposta importante precisa passar pela sua aprovação. Com o LeadBellus — especialmente no Premium — o sistema atende, qualifica, agenda e acompanha.",
+    body: "Com o LeadBellus — especialmente no Premium — o sistema atende, qualifica, agenda e acompanha.",
   },
 ];
 
@@ -154,7 +154,7 @@ export function IndicadoCards({ funilHref = "/signup" }: { funilHref?: string })
 
       <div style={{ textAlign: "center" }}>
         <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)", marginBottom: "24px" }}>
-          Seja biomédico, médico, fisioterapeuta, esteticista ou gestor de clínica — se o seu negócio de estética vive de agendamentos, esse sistema foi construído pra você.
+          Se o seu negócio de estética vive de agendamentos, esse sistema foi construído pra você.
         </p>
         <Link
           href={funilHref}

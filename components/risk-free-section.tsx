@@ -7,7 +7,7 @@ import Link from "next/link";
 const GUARANTEES = [
   {
     title: "Respostas grátis pra testar, sem cartão",
-    description: "Você testa antes de decidir. Sem cobrança automática.",
+    description: "Sem cobrança automática.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <rect x="2" y="6" width="16" height="11" rx="2" stroke="#C9A060" strokeWidth="1.4" />
@@ -19,7 +19,7 @@ const GUARANTEES = [
   },
   {
     title: "30 dias com dinheiro de volta após assinar",
-    description: "Assinou e não sentiu diferença? Você pode pedir reembolso.",
+    description: "Não sentiu diferença? Peça reembolso.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <path d="M10 2L4 5v5c0 3.87 2.57 7.5 6 8.5 3.43-1 6-4.63 6-8.5V5l-6-3z" stroke="#C9A060" strokeWidth="1.4" strokeLinejoin="round" />
@@ -281,7 +281,7 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               transition={{ duration: 0.45, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
               style={{ fontSize: "15px", color: "#4a5568", lineHeight: 1.8, marginBottom: "12px" }}
             >
-              Você não vai precisar colocar cartão de crédito pra começar. Você testa de graça e só assina se gostar.
+              Sem cartão pra começar. Você testa de graça e só assina se gostar.
             </motion.p>
 
             {/* Text block 2 */}
@@ -292,7 +292,7 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               transition={{ duration: 0.45, delay: 0.46, ease: [0.22, 1, 0.36, 1] }}
               style={{ fontSize: "15px", color: "#4a5568", lineHeight: 1.8, marginBottom: "28px" }}
             >
-              Se depois de testar você decidir assinar e em 30 dias sentir que o LeadBellus não fez diferença real — devolvemos{" "}
+              Assinou e em 30 dias não sentiu diferença? Devolvemos{" "}
               <strong style={{ color: "#0A1628" }}>100% do que você pagou</strong>.
             </motion.p>
 
@@ -312,7 +312,7 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
                 margin: "0 0 8px",
                 lineHeight: 1.4,
               }}>
-                Sem questionamento. Sem formulário. Sem explicação necessária.
+                Sem questionamento. Sem explicação necessária.
               </p>
               {/* Underline drawn */}
               <div style={{ display: "flex", justifyContent: "center" }}>
@@ -367,11 +367,10 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               transition={{ duration: 0.5, delay: 1.0 }}
               style={{ fontSize: "14px", color: "#6b7280", lineHeight: 1.75, marginBottom: "28px" }}
             >
-              O único risco aqui é{" "}
+              O único risco é{" "}
               <span style={{ color: "#0A1628", fontWeight: 600 }}>
                 continuar perdendo clientes no WhatsApp
-              </span>{" "}
-              enquanto existe uma ferramenta que resolve isso por menos do que um único procedimento por mês.
+              </span>.
             </motion.p>
 
             {/* CTA */}

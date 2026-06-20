@@ -25,42 +25,42 @@ const services = [
     icon: <Microscope className="w-6 h-6" />,
     title: "Especialização cirúrgica",
     description:
-      "Construído só pra estética brasileira. Conhece botox, harmonização, laser, preenchimento e a psicologia de compra de cada procedimento.",
+      "Feito só pra estética brasileira: botox, harmonização, laser, preenchimento.",
     position: "left",
   },
   {
     icon: <Smartphone className="w-6 h-6" />,
     title: "Pensado para usar no celular",
     description:
-      "Feito pra quem atende pelo celular entre um procedimento e outro. Interface limpa, resposta em 3 toques, sem curva de aprendizado.",
+      "Pra quem atende pelo celular: resposta em 3 toques, sem curva de aprendizado.",
     position: "left",
   },
   {
     icon: <FlaskConical className="w-6 h-6" />,
     title: "Criado para situações reais de atendimento",
     description:
-      "Cada parte foi pensada para situações comuns de WhatsApp em clínicas de estética: preço, medo, comparação, sumiço e agendamento.",
+      "Pensado pro WhatsApp da clínica: preço, medo, comparação, sumiço e agendamento.",
     position: "left",
   },
   {
     icon: <Brain className="w-6 h-6" />,
     title: "Resposta com clareza e próximo passo",
     description:
-      "A ideia não é só escrever bonito. É ajudar a acolher, explicar valor e sugerir um próximo passo sem prometer resultado.",
+      "Acolhe, explica valor e sugere o próximo passo — sem prometer resultado.",
     position: "right",
   },
   {
     icon: <Heart className="w-6 h-6" />,
     title: "Produto que cresce com você",
     description:
-      "Você manda feedback, a gente implementa. Não somos empresa grande com fila de demanda. Somos pequenos e ágeis por escolha.",
+      "Você manda feedback, a gente implementa. Pequenos e ágeis por escolha.",
     position: "right",
   },
   {
     icon: <ShieldOff className="w-6 h-6" />,
     title: "Zero jargão de tecnologia",
     description:
-      "Você não precisa entender de tecnologia pra usar o LeadBellus. Se você sabe usar o WhatsApp, você já sabe usar o sistema.",
+      "Se você sabe usar o WhatsApp, já sabe usar o LeadBellus.",
     position: "right",
   },
 ];
@@ -177,7 +177,7 @@ export function AboutSection() {
           style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 64px", color: "rgba(10,22,40,0.75)", fontSize: "16px", lineHeight: 1.75 }}
           variants={itemVariants}
         >
-          Não somos uma empresa de tecnologia que resolveu entrar na estética. Somos quem ficou obcecado em entender por que clínicas perdem venda no WhatsApp — e construiu a solução certa pra isso.
+          Ficamos obcecados em entender por que clínicas perdem venda no WhatsApp — e construímos a solução certa pra isso.
         </motion.p>
 
         {/* 3-column grid */}
