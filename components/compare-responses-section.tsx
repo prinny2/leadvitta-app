@@ -940,9 +940,9 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
               >
                 {b.icon}
               </motion.div>
-              <h4 style={{ fontSize: "13px", fontWeight: 700, color: "#0A1628", margin: 0, lineHeight: 1.4 }}>
+              <h3 style={{ fontSize: "13px", fontWeight: 700, color: "#0A1628", margin: 0, lineHeight: 1.4 }}>
                 {b.title}
-              </h4>
+              </h3>
               <p style={{ fontSize: "12px", color: "#6b7280", margin: 0, lineHeight: 1.6 }}>
                 {b.text}
               </p>
