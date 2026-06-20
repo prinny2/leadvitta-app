@@ -99,7 +99,7 @@ export function HeroTextContent({
           margin: "0 0 36px",
         }}
       >
-        {subtitle || "Foi por uma resposta que não conduziu. O LeadBellus transforma a mensagem da cliente em 3 opções de resposta no seu tom, para você escolher, copiar e mandar."}
+        {subtitle || "Foi por uma resposta que não conduziu. O LeadBellus transforma a mensagem da cliente em 3 opções de resposta no seu tom."}
       </motion.p>
 
       {/* Bullets customizados se fornecidos */}

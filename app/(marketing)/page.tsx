@@ -341,9 +341,7 @@ export default function LandingPage() {
               </Highlight>
             </h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "580px", margin: "0 auto" }}>
-              Não importa se você atende sozinho, tem uma equipe ou gerencia uma
-              clínica completa. Se o WhatsApp é onde as suas vendas acontecem,
-              é aqui que você reduz improviso e responde com mais clareza.
+              Se o WhatsApp é onde suas vendas acontecem, é aqui que você responde com mais clareza.
             </p>
           </IndicadoHeader>
         </div>
@@ -394,9 +392,7 @@ export default function LandingPage() {
             {/* Subtítulo */}
             <SimuladorFadeUp delay={0.2}>
               <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "15px", maxWidth: "520px", margin: "0 auto 20px" }}>
-                Coloque o nome da sua clínica, escolha o tom e uma situação. A
-                resposta já sai personalizada pra você. Sem criar conta. Sem
-                cartão. Em 30 segundos.
+                Coloque o nome da clínica, o tom e a situação. A resposta sai personalizada. Sem cartão.
               </p>
             </SimuladorFadeUp>
 
@@ -435,9 +431,8 @@ export default function LandingPage() {
           >
             <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", lineHeight: 1.75, marginBottom: "20px" }}>
               Essa foi <strong style={{ color: "#ffffff" }}>uma</strong> resposta.
-              O LeadBellus faz isso com cada mensagem que chega no seu WhatsApp
-              — com DNA da Clínica completo configurado, histórico de cliente e
-              Lead Intelligence te dizendo o quanto ela está pronta pra fechar.
+              O LeadBellus faz isso com cada mensagem do seu WhatsApp — com DNA
+              da Clínica, histórico do cliente e Lead Intelligence.
             </p>
             <Link
               href={funilHref}
@@ -487,10 +482,9 @@ export default function LandingPage() {
               Se uma conversa avançar, o Start já pode fazer sentido
             </h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>
-              O LeadBellus ajuda você a responder melhor, retomar conversas
-              paradas e conduzir objeções com mais segurança. Não promete
-              faturamento, mas pode evitar que uma boa oportunidade morra por
-              falta da resposta certa.
+              Responda melhor, retome conversas paradas e conduza objeções com
+              mais segurança. Não promete faturamento — evita que uma boa
+              oportunidade morra por falta da resposta certa.
             </p>
           </div>
 
