@@ -272,6 +272,7 @@ function ResultStrip() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
+      className="result-strip-wrapper"
       style={{
         background: "#0A1628",
         border: "1px solid rgba(201,160,96,0.2)",
