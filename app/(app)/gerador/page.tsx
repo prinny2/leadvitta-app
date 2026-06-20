@@ -147,6 +147,7 @@ export default function GeradorPage() {
     setErro("");
     setAviso("");
     setLimitReached(false);
+    setFreeRemaining(null);
     setRespostas(null);
     setNlp(null);
     setSalvo(false);
