@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useShouldReduce } from "@/components/motion-gate";
 
 // Cores da identidade LeadBellus
 // gold: #C9A060 | champagne: #D4C4A0 | deep gold: #92610A | muted blue: #5a7a9a
@@ -21,6 +22,7 @@ function ElegantShape({
   rotate?: number;
   gradientColor?: string;
 }) {
+  const reduce = useShouldReduce();
   return (
     <motion.div
       initial={{ opacity: 0, y: -150, rotate: rotate - 15 }}
@@ -34,12 +36,12 @@ function ElegantShape({
       className={cn("absolute", className)}
     >
       <motion.div
-        animate={{ y: [0, 15, 0] }}
-        transition={{
-          duration: 12,
-          repeat: Number.POSITIVE_INFINITY,
-          ease: "easeInOut",
-        }}
+        animate={reduce ? undefined : { y: [0, 15, 0] }}
+        transition={
+          reduce
+            ? undefined
+            : { duration: 12, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }
+        }
         style={{ width, height }}
         className="relative"
       >

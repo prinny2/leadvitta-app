@@ -44,6 +44,7 @@ import { RiskFreeSection } from "@/components/risk-free-section";
 import { FaqSection } from "@/components/faq-section";
 import { FinalCTASection } from "@/components/final-cta-section";
 import { FooterSection } from "@/components/footer-section";
+import { MotionGate } from "@/components/motion-gate";
 
 const funilHref = "/signup";
 
@@ -266,6 +267,7 @@ function LaunchBanner() {
 // ─── PAGE ──────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
+    <MotionGate>
     <div style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)" }}>
       <Navbar />
       <LaunchBanner />
@@ -555,5 +557,6 @@ export default function LandingPage() {
         </Link>
       </div>
     </div>
+    </MotionGate>
   );
 }
