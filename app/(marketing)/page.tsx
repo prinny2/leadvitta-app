@@ -287,20 +287,12 @@ export default function LandingPage() {
         <HeroShapes />
 
         <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "420px 1fr",
-              gap: "40px",
-              alignItems: "flex-start",
-            }}
-            className="hero-grid"
-          >
+          <div className="hero-grid grid grid-cols-1 md:grid-cols-[420px_1fr] gap-10 items-start">
             {/* Left — copy (animado) */}
             <HeroTextContent />
 
             {/* Right — animated device mockups */}
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "48px" }}>
+            <div className="hidden md:flex justify-center items-start pt-12">
               <HeroDevices />
             </div>
           </div>
