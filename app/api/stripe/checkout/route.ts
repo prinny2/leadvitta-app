@@ -116,6 +116,8 @@ export async function POST(request: Request) {
 
   if (checkoutMode === "subscription") {
     params.subscription_data = { metadata };
+    // Cupom de 100% (total R$0) não precisa de cartão — tira a fricção do checkout grátis.
+    params.payment_method_collection = "if_required";
   } else {
     params.payment_intent_data = { metadata };
   }
