@@ -24,7 +24,7 @@ export type LimitCheck = {
 export async function checkGenerationLimit(uid: string): Promise<LimitCheck> {
   const db = getFirebaseAdminDb();
   if (!db) {
-    return { allowed: true, paid: true, used: 0, remaining: FREE_GENERATION_LIMIT };
+    return { allowed: true, paid: true, used: 0, remaining: Number.POSITIVE_INFINITY };
   }
 
   const snap = await db.collection("clinicas").doc(uid).get();
