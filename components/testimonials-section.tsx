@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useShouldReduce } from "@/components/motion-gate";
 
 const situations = [
   {
@@ -145,6 +146,16 @@ function SituationsColumn({
   duration?: number;
   reverse?: boolean;
 }) {
+  const reduce = useShouldReduce();
+  if (reduce) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        {items.map((item) => (
+          <SituationCard key={item.title} {...item} />
+        ))}
+      </div>
+    );
+  }
   return (
     <div style={{ overflow: "hidden", display: "flex", flexDirection: "column", gap: "20px" }}>
       <motion.div
