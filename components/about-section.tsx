@@ -307,7 +307,7 @@ export function AboutSection() {
               Pronto pra ver o LeadBellus na prática?
             </h3>
             <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "15px", margin: 0 }}>
-              Teste grátis por 7 dias — sem colocar cartão.
+              Gere 5 respostas grátis — sem colocar cartão.
             </p>
           </div>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>

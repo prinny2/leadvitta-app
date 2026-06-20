@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Trial grátis: usuário LOGADO grátis tem limite; pagante é ilimitado.
+    // Plano grátis: usuário LOGADO grátis tem limite; pagante é ilimitado.
     // Sem token (ex.: demo pública da landing) não conta nem bloqueia.
     const token = (body as { firebaseIdToken?: string }).firebaseIdToken;
     const decoded = await verifyFirebaseIdToken(token);

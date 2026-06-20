@@ -32,7 +32,7 @@ const PLANS = [
       "Tom da sua clínica — respostas com o seu jeito de falar",
       "Histórico de respostas geradas",
     ],
-    ctaMonthly: "Começar com o Start — 7 dias grátis →",
+    ctaMonthly: "Começar com o Start — 5 respostas grátis →",
     ctaAnnual: "Garantir Start Anual →",
   },
   {
@@ -53,7 +53,7 @@ const PLANS = [
       "Integração com WhatsApp — em desenvolvimento",
       "Apoio automático no WhatsApp — em desenvolvimento",
     ],
-    ctaMonthly: "Começar com o Pro — 7 dias grátis →",
+    ctaMonthly: "Começar com o Pro — 5 respostas grátis →",
     ctaAnnual: "Garantir Pro Anual →",
   },
   {

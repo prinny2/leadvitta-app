@@ -2,63 +2,66 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 
-const testimonials = [
+const situations = [
   {
-    text: "Eu sempre soube que perdia clientes no WhatsApp, mas achava que era falta de talento pra venda. Não era. Era falta de resposta mais clara. Com o LeadBellus, passei a ter opções melhores para responder orçamento, objeção e cliente que sumiu.",
-    name: "Camila Rocha",
-    role: "Harmonizadora Facial · São Paulo, SP",
-    initials: "CR",
-    image: "/CAMILA.png",
+    title: "Perguntou o preço e sumiu",
+    context:
+      "A cliente pede valor pelo WhatsApp, recebe uma resposta seca e para de responder.",
+    support:
+      "O LeadBellus ajuda a explicar o valor antes de falar só de preço, com opções curtas no tom da clínica.",
   },
   {
-    text: "Minha maior dificuldade era retomar uma conversa sem parecer insistente. Eu sabia que estava deixando oportunidades para trás, mas nunca encontrava a mensagem certa. O LeadBellus organizou esse processo e deixou o atendimento muito mais natural.",
-    name: "Dra. Renata Oliveira",
-    role: "Biomédica Esteta · Curitiba, PR",
-    initials: "RO",
-    image: "/RENATA.png",
+    title: "Achou caro",
+    context:
+      "A pessoa compara com outro orçamento e você precisa responder sem parecer defensiva.",
+    support:
+      "Você recebe caminhos para acolher a objeção, reforçar diferenciais e chamar para o próximo passo.",
   },
   {
-    text: "Tenho uma equipe pequena e cada pessoa respondia de um jeito diferente. Isso deixava o atendimento confuso e dificultava acompanhar os contatos. Depois que configuramos o tom da clínica e os roteiros, a comunicação ficou mais padronizada, sem perder o nosso jeito de falar.",
-    name: "Mariana Castro",
-    role: "Gestora de Clínica Estética · Recife, PE",
-    initials: "MC",
-    image: "/MARIANA.png",
+    title: "Cliente interessada, mas insegura",
+    context:
+      "Ela quer fazer o procedimento, mas tem medo de dor, resultado artificial ou arrependimento.",
+    support:
+      "A resposta sai mais cuidadosa, explicando processo, avaliação e acompanhamento sem prometer resultado.",
   },
   {
-    text: "Trabalho sozinha e respondia tudo manualmente entre procedimentos. Era exaustivo. Hoje abro o LeadBellus, colo a mensagem, escolho uma opção de resposta e sigo a conversa com mais segurança.",
-    name: "Dra. Patrícia Mendes",
-    role: "Biomédica Esteta · Belo Horizonte, MG",
-    initials: "PM",
-    image: "/PATRICIA%20MENDES.png",
+    title: "Recepção respondendo de jeitos diferentes",
+    context:
+      "Cada pessoa da equipe escreve de um jeito, e o atendimento perde padrão.",
+    support:
+      "A clínica configura seu tom e usa respostas como base para manter consistência sem virar robô.",
   },
   {
-    text: "Eu recebia muitos pedidos de orçamento pelo Instagram, mas várias conversas morriam logo depois que eu informava o valor. Com o LeadBellus, comecei a conduzir melhor cada atendimento e parei de responder tudo de forma automática. Hoje consigo explicar valor, lidar com objeções e levar a cliente até o próximo passo com mais segurança.",
-    name: "Juliana Azevedo",
-    role: "Esteticista e proprietária · Campinas, SP",
-    initials: "JA",
-    image: "/JULIANA%20AZEVEDO.png",
+    title: "Domingo à noite no WhatsApp",
+    context:
+      "Você vê mensagem fora do horário e sente que, se demorar, pode perder a oportunidade.",
+    support:
+      "A ferramenta organiza a resposta mais rápido para você revisar, copiar e mandar quando fizer sentido.",
   },
   {
-    text: "Tenho uma recepcionista que ama o trabalho mas tinha dificuldade para conduzir conversa de venda. Configurei o tom da clínica com ela e ensinei a usar os roteiros e a biblioteca de objeções. Ficou mais fácil delegar sem perder o nosso jeito de atender.",
-    name: "Fernanda Lopes",
-    role: "Gestora de Clínica Estética · Uberlândia, MG",
-    initials: "FL",
-    image: "/FERNANDA.png",
+    title: "Follow-up que parece cobrança",
+    context:
+      "Você quer retomar quem sumiu, mas não quer soar insistente ou desesperada.",
+    support:
+      "O LeadBellus sugere retomadas em etapas, com mensagens naturais e menos pressão.",
   },
 ];
 
-const col1 = testimonials.slice(0, 2);
-const col2 = testimonials.slice(2, 4);
-const col3 = testimonials.slice(4, 6);
+const columns = [
+  situations.slice(0, 2),
+  situations.slice(2, 4),
+  situations.slice(4, 6),
+];
 
-function TestimonialCard({ text, name, role, initials, image }: {
-  text: string;
-  name: string;
-  role: string;
-  initials: string;
-  image?: string;
+function SituationCard({
+  title,
+  context,
+  support,
+}: {
+  title: string;
+  context: string;
+  support: string;
 }) {
   return (
     <div
@@ -66,70 +69,79 @@ function TestimonialCard({ text, name, role, initials, image }: {
         background: "#ffffff",
         border: "1.5px solid #E8E4DC",
         borderRadius: "20px",
-        padding: "28px 24px",
+        padding: "26px 24px",
         boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
         maxWidth: "340px",
         width: "100%",
       }}
     >
-      {/* Stars */}
-      <div style={{ display: "flex", gap: "2px", marginBottom: "14px" }}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <svg key={i} width="14" height="14" viewBox="0 0 14 14" fill="#C9A060">
-            <path d="M7 1l1.545 3.13 3.455.502-2.5 2.437.59 3.44L7 8.885l-3.09 1.624.59-3.44L2 4.632l3.455-.502L7 1z" />
-          </svg>
-        ))}
-      </div>
       <p
         style={{
-          fontSize: "14px",
-          color: "#374151",
-          lineHeight: 1.75,
-          fontStyle: "italic",
-          marginBottom: "20px",
+          display: "inline-flex",
+          border: "1px solid rgba(201,160,96,0.35)",
+          borderRadius: "9999px",
+          color: "#92610A",
+          fontSize: "10px",
+          fontWeight: 800,
+          letterSpacing: "0.08em",
+          margin: "0 0 14px",
+          padding: "4px 10px",
+          textTransform: "uppercase",
         }}
       >
-        &ldquo;{text}&rdquo;
+        Situação comum
       </p>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        {image ? (
-          <Image
-            src={image}
-            alt={name}
-            width={40}
-            height={40}
-            style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-          />
-        ) : (
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #C9A060, #92610A)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff",
-              fontWeight: 700,
-              fontSize: "14px",
-              flexShrink: 0,
-            }}
-          >
-            {initials}
-          </div>
-        )}
-        <div>
-          <p style={{ fontSize: "14px", fontWeight: 700, color: "#0A1628", margin: 0, lineHeight: 1.3 }}>{name}</p>
-          <p style={{ fontSize: "12px", color: "#C9A060", fontWeight: 600, margin: 0, lineHeight: 1.4 }}>{role}</p>
-        </div>
+      <h3
+        style={{
+          color: "#0A1628",
+          fontFamily: "var(--font-fraunces, Georgia, serif)",
+          fontSize: "22px",
+          fontWeight: 700,
+          lineHeight: 1.2,
+          margin: "0 0 14px",
+        }}
+      >
+        {title}
+      </h3>
+      <p
+        style={{
+          color: "#4a5568",
+          fontSize: "14px",
+          lineHeight: 1.7,
+          margin: "0 0 16px",
+        }}
+      >
+        {context}
+      </p>
+      <div
+        style={{
+          background: "rgba(201,160,96,0.08)",
+          border: "1px solid rgba(201,160,96,0.18)",
+          borderRadius: "14px",
+          padding: "12px 14px",
+        }}
+      >
+        <p
+          style={{
+            color: "#0A1628",
+            fontSize: "13px",
+            lineHeight: 1.65,
+            margin: 0,
+          }}
+        >
+          {support}
+        </p>
       </div>
     </div>
   );
 }
 
-function TestimonialsColumn({ items, duration = 18, reverse = false }: {
-  items: typeof testimonials;
+function SituationsColumn({
+  items,
+  duration = 18,
+  reverse = false,
+}: {
+  items: typeof situations;
   duration?: number;
   reverse?: boolean;
 }) {
@@ -148,8 +160,8 @@ function TestimonialsColumn({ items, duration = 18, reverse = false }: {
       >
         {[0, 1].map((pass) => (
           <React.Fragment key={pass}>
-            {items.map((t) => (
-              <TestimonialCard key={`${pass}-${t.name}`} {...t} />
+            {items.map((item) => (
+              <SituationCard key={`${pass}-${item.title}`} {...item} />
             ))}
           </React.Fragment>
         ))}
@@ -161,11 +173,10 @@ function TestimonialsColumn({ items, duration = 18, reverse = false }: {
 export function TestimonialsSection() {
   return (
     <section
-      id="depoimentos"
+      id="situacoes"
       style={{ background: "#F5F0E6", padding: "96px 24px", overflow: "hidden" }}
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "56px" }}>
           <div
             style={{
@@ -173,7 +184,7 @@ export function TestimonialsSection() {
               alignItems: "center",
               gap: "6px",
               border: "1px solid #C9A060",
-              color: "#C9A060",
+              color: "#92610A",
               borderRadius: "9999px",
               padding: "4px 14px",
               fontSize: "11px",
@@ -183,7 +194,7 @@ export function TestimonialsSection() {
               marginBottom: "20px",
             }}
           >
-            ✦ Situações comuns
+            Situações comuns do atendimento
           </div>
           <h2
             style={{
@@ -194,38 +205,37 @@ export function TestimonialsSection() {
               margin: "0 0 12px",
             }}
           >
-            O que muda quando você começa a responder do jeito certo
+            Onde a conversa costuma quebrar
           </h2>
           <p style={{ color: "#4a5568", fontSize: "16px", margin: 0 }}>
-            Situações comuns de profissionais de estética. Veja o tipo de problema que o LeadBellus ajuda a resolver.
+            Em vez de prova social fabricada, aqui estão cenários comuns que o LeadBellus ajuda a responder melhor.
           </p>
         </div>
 
-        {/* Columns */}
         <div
-          className="testimonials-grid"
+          className="situations-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
             gap: "20px",
-            maxHeight: "600px",
+            maxHeight: "620px",
             overflow: "hidden",
             maskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
             WebkitMaskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
           }}
         >
-          <TestimonialsColumn items={col1} duration={16} />
-          <TestimonialsColumn items={col2} duration={20} reverse />
-          <TestimonialsColumn items={col3} duration={14} />
+          <SituationsColumn items={columns[0]} duration={18} />
+          <SituationsColumn items={columns[1]} duration={22} reverse />
+          <SituationsColumn items={columns[2]} duration={16} />
         </div>
       </div>
       <style>{`
         @media (max-width: 768px) {
-          .testimonials-grid {
+          .situations-grid {
             grid-template-columns: 1fr !important;
           }
-          .testimonials-grid > div:nth-child(2),
-          .testimonials-grid > div:nth-child(3) {
+          .situations-grid > div:nth-child(2),
+          .situations-grid > div:nth-child(3) {
             display: none !important;
           }
         }

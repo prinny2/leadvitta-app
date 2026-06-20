@@ -37,7 +37,7 @@ function TagPill({ children }: { children: React.ReactNode }) {
 const PROMISES = [
   "Nunca mais fique em branco no WhatsApp",
   "Nunca mais perca uma lead por não saber o que falar",
-  "Nunca mais sinta que deixou dinheiro na mesa",
+  "Pare de sentir que respondeu no improviso",
 ];
 
 export function FinalCTASection({ funilHref }: { funilHref: string }) {
@@ -141,7 +141,7 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
             fontWeight: 600,
           }}
         >
-          Uma única cliente recuperada paga o mês inteiro.<br />
+          Uma boa conversa que avança já pode justificar o mês inteiro.<br />
           O risco de testar é zero.
         </motion.p>
 
@@ -189,7 +189,7 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           transition={{ duration: 0.5, delay: 0.9 }}
           style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", marginTop: "14px" }}
         >
-          7 dias grátis · Sem cartão · Acesso imediato · Você usa hoje mesmo
+          5 respostas grátis · Sem cartão · Acesso imediato · Você usa hoje mesmo
         </motion.p>
       </div>
     </section>
