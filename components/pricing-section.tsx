@@ -21,15 +21,15 @@ const PLANS = [
     annual: 80,
     annualTotal: 970,
     savings: 194,
-    paraQuem: "Quer parar de improvisar no WhatsApp e ter boas respostas à mão",
-    tagline: "Um pacote de respostas e roteiros para você conduzir melhor cada conversa.",
+    paraQuem: "Quer parar de improvisar no WhatsApp.",
+    tagline: "Respostas e roteiros prontos para cada conversa.",
     selo: "Preço de lançamento",
     features: [
-      "Gerador de Respostas ilimitado — 3 versões por situação, no seu tom",
-      "Biblioteca de Objeções completa — resposta pronta pra cada objeção",
-      "Mensagens de retomada — reative quem sumiu com 3 abordagens em etapas",
-      `Roteiros de atendimento — sequências de mensagens para conduzir do primeiro "oi" ao próximo passo`,
-      "Tom da sua clínica — respostas com o seu jeito de falar",
+      "Gerador de Respostas ilimitado — 3 versões no seu tom",
+      "Biblioteca de Objeções completa",
+      "Mensagens de retomada para quem sumiu",
+      "Roteiros de atendimento",
+      "Tom da sua clínica",
       "Histórico de respostas geradas",
     ],
     ctaMonthly: "Começar com o Start — 5 respostas grátis →",
@@ -44,8 +44,8 @@ const PLANS = [
     annual: 164,
     annualTotal: 1970,
     savings: 394,
-    paraQuem: "Em breve: para quem quer priorizar conversas e receber apoio extra no atendimento",
-    tagline: "Em breve: recursos para ajudar a identificar conversas com mais chance de avançar e responder com mais contexto.",
+    paraQuem: "Em breve: para quem quer priorizar conversas.",
+    tagline: "Em breve: recursos para identificar conversas com mais chance de avançar.",
     selo: "Em breve",
     features: [
       "Tudo do Start",
@@ -65,15 +65,15 @@ const PLANS = [
     annual: 289,
     annualTotal: 3470,
     savings: 694,
-    paraQuem: "Em breve: para quem quer automatizar mais etapas do atendimento",
-    tagline: "Em breve: automações para reduzir tarefas repetitivas antes e depois do atendimento.",
+    paraQuem: "Em breve: para quem quer automatizar o atendimento.",
+    tagline: "Em breve: automações antes e depois da consulta.",
     selo: "Em breve",
     features: [
       "Tudo do Pro",
-      "Lembrete + Orientações Pré-consulta — confirmação automática 24h antes, com preparo por procedimento",
-      "Gestão Pós-consulta — acompanhamento automático após o procedimento, fidelização e próximo agendamento",
+      "Lembrete + Orientações Pré-consulta — automático 24h antes",
+      "Gestão Pós-consulta — acompanhamento e próximo agendamento",
       "Agendamento pelo WhatsApp — em desenvolvimento",
-      "Acesso prioritário a todos os módulos futuros, assim que saírem",
+      "Acesso prioritário aos módulos futuros",
     ],
     ctaMonthly: "Garantir meu acesso Premium agora →",
     ctaAnnual: "Garantir Premium Anual →",
@@ -534,9 +534,9 @@ export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
       {/* Comparison: tabela no desktop, cards empilhados no mobile (evita scroll lateral escondido) */}
       {(() => {
         const rows = [
-          { plan: "START", human: "Tudo — mas com as respostas certas na mão", bot: "Ferramenta manual" },
-          { plan: "PRO", human: "Em breve: confirma os próximos passos", bot: "Em breve: ajuda a priorizar conversas" },
-          { plan: "PREMIUM", human: "Em breve: reduz tarefas manuais", bot: "Em breve: apoia etapas antes e depois da consulta" },
+          { plan: "START", human: "Responde com as respostas certas na mão", bot: "Ferramenta manual" },
+          { plan: "PRO", human: "Em breve: confirma próximos passos", bot: "Em breve: prioriza conversas" },
+          { plan: "PREMIUM", human: "Em breve: menos tarefas manuais", bot: "Em breve: apoia antes e depois da consulta" },
         ];
         return (
           <>
@@ -606,7 +606,7 @@ export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
       })()}
 
       <p style={{ textAlign: "center", fontSize: "13px", color: "rgba(255,255,255,0.35)", marginTop: "20px" }}>
-        Todos os planos: cancele quando quiser · sem multa · sem fidelidade
+        Todos os planos: cancele quando quiser · sem multa
         <br />
         💡 Prefere pagar anual?{" "}
         <button

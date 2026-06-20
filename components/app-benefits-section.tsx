@@ -22,14 +22,14 @@ const CARDS = [
   {
     number: "02",
     title: "Lead Intelligence",
-    description: "Entenda o perfil, a intenção e o momento da cliente para responder com estratégia e aumentar a conversão.",
+    description: "Entenda o perfil e o momento da cliente para responder com estratégia.",
     highlight: "Resposta certa no momento certo.",
     icon: <Brain size={24} strokeWidth={1.5} />,
   },
   {
     number: "03",
     title: "Biblioteca de Objeções",
-    description: "Objeções reais do dia a dia da estética, com respostas que acolhem, educam e conduzem.",
+    description: "Respostas prontas para as objeções reais do dia a dia da estética.",
     highlight: "Transforme objeções em oportunidades.",
     icon: <ShieldCheck size={24} strokeWidth={1.5} />,
   },
@@ -43,21 +43,21 @@ const CARDS = [
   {
     number: "05",
     title: "Scripts de Atendimento Completo",
-    description: "Roteiros completos para cada etapa da jornada da cliente, do primeiro contato ao pós-atendimento.",
+    description: "Roteiros para cada etapa da jornada, do primeiro contato ao pós.",
     highlight: "Padronização que gera resultados.",
     icon: <FileText size={24} strokeWidth={1.5} />,
   },
   {
     number: "06",
     title: "DNA da Clínica",
-    description: "Defina a personalidade, diferenciais e protocolos da sua clínica para que a IA responda com a sua voz.",
+    description: "A IA responde com a personalidade e os protocolos da sua clínica.",
     highlight: "Sua essência em cada mensagem.",
     icon: <Dna size={24} strokeWidth={1.5} />,
   },
   {
     number: "07",
     title: "Histórico e Favoritos",
-    description: "Salve suas melhores respostas e acesse rapidamente o que funciona para sua clínica.",
+    description: "Salve e acesse rápido as respostas que funcionam.",
     highlight: "Organização que economiza tempo.",
     icon: <Bookmark size={24} strokeWidth={1.5} />,
   },
@@ -65,28 +65,28 @@ const CARDS = [
     number: "08",
     title: "Chatbot WhatsApp Business",
     description: "Atenda, qualifique e agende no automático, 24h por dia.",
-    highlight: "Mais agendamentos no piloto automático.",
+    highlight: "Em breve · mais agendamentos no piloto automático.",
     icon: <Bot size={24} strokeWidth={1.5} />,
   },
   {
     number: "09",
     title: "Agendamento Autônomo",
-    description: "Deixe a cliente escolher o melhor dia e horário. Menos idas e vindas, mais confirmações.",
-    highlight: "Facilidade para você e para ela.",
+    description: "A cliente escolhe o melhor dia e horário sozinha.",
+    highlight: "Em breve · facilidade para você e para ela.",
     icon: <CalendarCheck size={24} strokeWidth={1.5} />,
   },
   {
     number: "10",
     title: "Lembretes e Orientações Pré-consulta",
-    description: "Reduza faltas com lembretes automáticos e orientações claras antes do atendimento.",
-    highlight: "Mais presença, menos remarcações.",
+    description: "Lembretes automáticos e orientações claras antes do atendimento.",
+    highlight: "Em breve · mais presença, menos remarcações.",
     icon: <Bell size={24} strokeWidth={1.5} />,
   },
   {
     number: "11",
     title: "Gestão Pós-consulta",
-    description: "Acompanhe o pós, peça feedbacks e mantenha o relacionamento ativo com suas clientes.",
-    highlight: "Mais fidelização e indicações.",
+    description: "Peça feedbacks e mantenha o relacionamento ativo no pós.",
+    highlight: "Em breve · mais fidelização e indicações.",
     icon: <Heart size={24} strokeWidth={1.5} />,
   },
 ];
@@ -100,22 +100,22 @@ const RESULTS = [
   {
     icon: <Target size={22} strokeWidth={1.5} />,
     title: "Mais conversão",
-    text: "Estratégias certeiras que transformam conversas em agendamentos.",
+    text: "Conversas que viram agendamentos.",
   },
   {
     icon: <Shield size={22} strokeWidth={1.5} />,
     title: "Mais consistência",
-    text: "Padronização e dados que ajudam a manter qualidade em todos os atendimentos.",
+    text: "Qualidade em todos os atendimentos.",
   },
   {
     icon: <Star size={22} strokeWidth={1.5} />,
     title: "Mais experiência",
-    text: "Atendimento humanizado e previsível em cada ponto de contato.",
+    text: "Atendimento humanizado em cada contato.",
   },
   {
     icon: <TrendingUp size={22} strokeWidth={1.5} />,
     title: "Mais resultado",
-    text: "Mais agendamentos, mais vendas e crescimento sustentável para sua clínica.",
+    text: "Mais agendamentos e crescimento para sua clínica.",
   },
 ];
 
@@ -469,8 +469,7 @@ export function AppBenefitsSection({ funilHref = "/signup" }: { funilHref?: stri
               lineHeight: 1.75,
             }}
           >
-            O aplicativo completo que centraliza respostas estratégicas, prioriza leads,
-            contorna objeções, automatiza follow-ups e gera resultados reais para sua clínica.
+            Respostas estratégicas, follow-ups automáticos e leads priorizados — tudo em um só app.
           </motion.p>
         </div>
 

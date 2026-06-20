@@ -12,11 +12,11 @@ const SCENARIOS = [
     label: "Perguntou preço",
     bad1: {
       message: '"Botox é R$900."',
-      explanation: "Resposta seca, focada só no preço. A cliente sente que é um número, não uma pessoa. Compara com a concorrente mais barata e some.",
+      explanation: "Resposta seca, só preço. A cliente compara e some.",
     },
     bad2: {
       message: '"O valor varia, manda mensagem na semana que vem pra eu ver."',
-      explanation: "Adia sem dar nenhuma informação. A cliente interpreta como desinteresse e já está pesquisando outra clínica.",
+      explanation: "Adia sem informação. Soa desinteresse e a cliente vai pra outra clínica.",
     },
     good1: {
       message: '"Oi, Ana! O investimento pode variar conforme os pontos avaliados e o objetivo do tratamento. Você busca suavizar as linhas da testa, pés de galinha ou prefere um resultado mais preventivo? Assim consigo te orientar melhor sobre o melhor caminho pra você. 💚"',
@@ -24,7 +24,7 @@ const SCENARIOS = [
     },
     good2: {
       message: '"Oi! O valor do botox depende de quantas áreas vamos tratar juntas. Me conta: você quer um resultado mais natural ou mais expressivo? Com isso já consigo te dar uma estimativa real e montar o melhor protocolo pra você. 😊"',
-      explanation: "Personaliza sem revelar preço cedo. Cria diálogo e posiciona a profissional como especialista.",
+      explanation: "Personaliza, cria diálogo e posiciona a profissional como especialista.",
     },
     score: 85,
     perfil: "Analítico · Cautelosa · Detalhista",
@@ -36,19 +36,19 @@ const SCENARIOS = [
     label: "Achou caro",
     bad1: {
       message: '"Ah entendo, mas meu trabalho é diferente..."',
-      explanation: "Modo defensivo, resposta genérica, não convence. A cliente já foi embora mentalmente.",
+      explanation: "Defensivo e genérico. A cliente já foi embora mentalmente.",
     },
     bad2: {
       message: '"É esse o valor mesmo, infelizmente não tem como diminuir."',
-      explanation: "Fecha a negociação sem oferecer contexto. A cliente sente que foi descartada e vai buscar quem justifique melhor.",
+      explanation: "Fecha a porta sem contexto. A cliente se sente descartada.",
     },
     good1: {
       message: '"Entendo, e faz todo sentido querer comparar! Preço mais baixo pode significar produto diluído, aplicador sem especialização ou sem garantia de retoque. No meu atendimento você tem [seu diferencial] e acompanhamento completo. Às vezes a diferença de R$200 evita uma correção de R$2.000 depois. Posso te mostrar o que está incluso?"',
-      explanation: "Educa sem atacar a concorrente. Posiciona o valor real. A cliente vê o preço como investimento.",
+      explanation: "Educa sem atacar a concorrente. A cliente vê preço como investimento.",
     },
     good2: {
       message: '"Faz sentido! Quero te mostrar o que está dentro desse investimento: [lista rápida de diferenciais]. Além disso, ofereço retoque incluso e acompanhamento pós-procedimento. Quer que eu te mande um comparativo rápido do que está incluso?"',
-      explanation: "Transforma o preço em percepção de valor. A cliente entende o que está comprando, não só o número.",
+      explanation: "Transforma preço em valor. A cliente entende o que está comprando.",
     },
     score: 72,
     perfil: "Econômica · Comparativa · Racional",
@@ -60,19 +60,19 @@ const SCENARIOS = [
     label: "Vou pensar",
     bad1: {
       message: '"Ok, qualquer coisa me chama!"',
-      explanation: 'A resposta "ok" encerra a conversa. A cliente pensa, esquece e nunca volta. Venda perdida por omissão.',
+      explanation: 'O "ok" encerra a conversa. A cliente esquece e nunca volta.',
     },
     bad2: {
       message: '"Tudo bem! Quando decidir é só falar comigo 😊"',
-      explanation: "Educada, mas passiva. Joga toda a responsabilidade pra cliente e não cria nenhum motivo pra ela agir agora.",
+      explanation: "Educada, mas passiva. Não dá motivo pra cliente agir agora.",
     },
     good1: {
       message: '"Claro, faz sentido! Só uma coisa: a agenda costuma fechar rápido e não quero que você perca a janela ideal. O que te impede de decidir agora? Às vezes consigo resolver uma dúvida que faz tudo ficar mais claro. 😊"',
-      explanation: "Mantém o diálogo aberto, identifica a objeção real e cria senso de urgência sem pressionar.",
+      explanation: "Mantém o diálogo, revela a objeção real e cria urgência sem pressionar.",
     },
     good2: {
       message: '"Claro! Só pra te ajudar a pensar: o que ainda ficou em aberto pra você? Se for dúvida sobre o procedimento, resultado ou valor — me fala que a gente resolve isso agora juntas. Não quero que você fique com dúvida. 💛"',
-      explanation: "Acolhe a indecisão e convida a cliente a revelar a objeção real. Gera confiança ao invés de pressão.",
+      explanation: "Acolhe a indecisão e convida a revelar a objeção. Confiança, não pressão.",
     },
     score: 61,
     perfil: "Indecisa · Reflexiva · Cautelosa",
@@ -84,19 +84,19 @@ const SCENARIOS = [
     label: "Sumiu",
     bad1: {
       message: '"Oi, tudo bem? Ainda tem interesse?"',
-      explanation: 'Follow-up genérico que parece cobrado. A cliente sente pressão, ignora ou responde "já resolvi".',
+      explanation: 'Follow-up genérico que parece cobrança. A cliente ignora ou responde "já resolvi".',
     },
     bad2: {
       message: '"Oi! Só passando pra saber se você ainda quer marcar 😊"',
-      explanation: "Parece um lembrete de cobrador. A cliente que sumiu não precisa de pressão — precisa de um motivo pra voltar.",
+      explanation: "Parece cobrança. Quem sumiu precisa de um motivo pra voltar, não de pressão.",
     },
     good1: {
       message: '"Oi! Passando pra deixar uma coisa que pode te ajudar a decidir: [resultado real de uma cliente com o mesmo perfil]. Quando quiser retomar, é só falar — sem compromisso. 🌿"',
-      explanation: "Retoma o contato com valor real, sem cobrar resposta. Reativa o interesse de forma natural.",
+      explanation: "Retoma com valor real, sem cobrar resposta. Reativa o interesse.",
     },
     good2: {
       message: '"Oi! Sei que a vida corrida às vezes empurra as decisões pra depois. Só vim te lembrar que [procedimento] tem resultado cumulativo — quanto antes você começa, mais cedo você vê a diferença. Qualquer coisa, tô aqui! 💚"',
-      explanation: "Cria contexto de urgência com cuidado genuíno. Não pressiona, mas planta a semente de agir logo.",
+      explanation: "Cria urgência com cuidado genuíno, sem pressionar.",
     },
     score: 55,
     perfil: "Dispersa · Ocupada · Indecisa",
@@ -108,19 +108,19 @@ const SCENARIOS = [
     label: "Tem desconto?",
     bad1: {
       message: '"Não faço desconto, mas posso parcelar."',
-      explanation: "Nega e fecha a conversa. A cliente sente que tentou e não conseguiu — vai embora sem agendamento.",
+      explanation: "Nega e fecha a conversa. A cliente vai embora sem agendar.",
     },
     bad2: {
       message: '"Não trabalho com desconto, meu preço já é justo."',
-      explanation: "Soa defensivo e arrogante. A cliente não se sente ouvida e vai buscar quem trate a dúvida com mais cuidado.",
+      explanation: "Soa arrogante. A cliente não se sente ouvida e procura outra clínica.",
     },
     good1: {
       message: '"Desconto no procedimento não faço, porque isso impactaria a qualidade que eu entrego. Mas o que posso fazer é montar um protocolo personalizado que entrega mais resultado com o mesmo investimento. Posso te mostrar como isso funciona?"',
-      explanation: "Reposiciona a conversa do preço para o valor. A cliente entende que não é teimosia — é padrão de qualidade.",
+      explanation: "Reposiciona de preço pra valor. Não é teimosia — é padrão de qualidade.",
     },
     good2: {
       message: '"Não trabalho com desconto porque não abro mão da qualidade do material que uso. Mas posso te ajudar a montar um pacote que caiba no seu orçamento e ainda entregue o resultado que você quer. Quer que eu monte uma sugestão pra você?"',
-      explanation: "Mantém o posicionamento premium mas oferece flexibilidade real. A cliente sente que você está do lado dela.",
+      explanation: "Mantém o posicionamento premium com flexibilidade real. A cliente sente você do lado dela.",
     },
     score: 68,
     perfil: "Orientada a preço · Direta · Objetiva",
@@ -147,7 +147,7 @@ const BENEFITS = [
       </svg>
     ),
     title: "Condução estratégica que agenda",
-    text: "Guias práticos para levar a conversa até o próximo passo com naturalidade.",
+    text: "Leve a conversa até o próximo passo com naturalidade.",
   },
   {
     icon: (
@@ -157,7 +157,7 @@ const BENEFITS = [
       </svg>
     ),
     title: "Mais confiança para sua equipe",
-    text: "Padronize atendimentos e dê segurança para seu time vender mais.",
+    text: "Padronize atendimentos e dê segurança ao seu time.",
   },
   {
     icon: (
@@ -491,7 +491,7 @@ function PhoneMockup({ scenario }: { scenario: typeof SCENARIOS[0] }) {
             <span style={{ fontSize: "8px", fontWeight: 800, background: "#C9A060", color: "#0A1628", borderRadius: "4px", padding: "1px 6px", letterSpacing: "0.05em" }}>PRO</span>
           </div>
           <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", lineHeight: 1.6, margin: 0 }}>
-            Cole a mensagem de uma cliente e descubra: score da conversa, perfil psicológico e a estratégia exata para fechar esse lead.
+            Cole a mensagem da cliente e veja: score, perfil psicológico e a estratégia pra fechar.
           </p>
 
           {/* Score */}

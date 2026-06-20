@@ -37,7 +37,6 @@ function TagPill({ children }: { children: React.ReactNode }) {
 const PROMISES = [
   "Nunca mais fique em branco no WhatsApp",
   "Nunca mais perca uma lead por não saber o que falar",
-  "Pare de sentir que respondeu no improviso",
 ];
 
 export function FinalCTASection({ funilHref }: { funilHref: string }) {
@@ -78,9 +77,7 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           transition={{ duration: 0.55, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           style={{ color: "rgba(255,255,255,0.65)", fontSize: "16px", lineHeight: 1.8, marginBottom: "20px" }}
         >
-          Toda semana que passa são mais clientes que perguntaram o preço e nunca
-          mais responderam. Mais follow-ups que não foram feitos. Mais objeções
-          respondidas errado.
+          Toda semana, mais clientes perguntam o preço e somem.
         </motion.p>
 
         <motion.p
@@ -141,8 +138,7 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
             fontWeight: 600,
           }}
         >
-          Uma boa conversa que avança já pode justificar o mês inteiro.<br />
-          O risco de testar é zero.
+          Uma boa conversa já pode justificar o mês. O risco de testar é zero.
         </motion.p>
 
         <motion.div
@@ -189,7 +185,7 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           transition={{ duration: 0.5, delay: 0.9 }}
           style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", marginTop: "14px" }}
         >
-          5 respostas grátis · Sem cartão · Acesso imediato · Você usa hoje mesmo
+          5 respostas grátis · Sem cartão · Acesso imediato
         </motion.p>
       </div>
     </section>
