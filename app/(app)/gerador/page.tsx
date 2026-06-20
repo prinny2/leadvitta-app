@@ -26,6 +26,7 @@ import { tons } from "@/data/tons";
 import { perfisCliente } from "@/data/perfis-cliente";
 import { objetivoOptions, oQueMelhorarOptions } from "@/data/opcoes";
 import { addHistorico } from "@/lib/store";
+import { getFirebaseAuth } from "@/lib/firebase/client";
 import { useClinica } from "@/lib/hooks/use-clinica";
 import { cn } from "@/lib/utils";
 import type { RespostaTripla, Variante } from "@/lib/types";
@@ -89,6 +90,9 @@ export default function GeradorPage() {
   const [respostas, setRespostas] = useState<RespostaTripla | null>(null);
   const [nlp, setNlp] = useState<{ intent?: string; sentiment?: string; score?: number } | null>(null);
   const [salvo, setSalvo] = useState(false);
+  const [limitReached, setLimitReached] = useState(false);
+  const [freeRemaining, setFreeRemaining] = useState<number | null>(null);
+  const [assinando, setAssinando] = useState(false);
 
   useEffect(() => {
     if (clinica?.tom_padrao) setTom(clinica.tom_padrao);
@@ -126,6 +130,14 @@ export default function GeradorPage() {
     );
   }
 
+  async function getToken(): Promise<string | undefined> {
+    try {
+      return await getFirebaseAuth().currentUser?.getIdToken();
+    } catch {
+      return undefined;
+    }
+  }
+
   async function gerar() {
     if (!mensagemCliente.trim()) {
       setErro(modo === "reescrever" ? "Escreva a mensagem que você quer melhorar." : "Cole a mensagem da cliente.");
@@ -134,23 +146,31 @@ export default function GeradorPage() {
     setLoading(true);
     setErro("");
     setAviso("");
+    setLimitReached(false);
     setRespostas(null);
     setNlp(null);
     setSalvo(false);
     try {
+      const firebaseIdToken = await getToken();
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           modo, procedimento, situacao, tom, objetivo, perfilCliente,
           oQueMelhorar: modo === "reescrever" ? oQueMelhorar : undefined,
-          nomeCliente, mensagemCliente, clinica: dnaPayload(),
+          nomeCliente, mensagemCliente, clinica: dnaPayload(), firebaseIdToken,
         }),
       });
       const data = await res.json();
+      if (res.status === 402 || data.limitReached) {
+        setLimitReached(true);
+        setFreeRemaining(0);
+        return;
+      }
       if (!res.ok) { setErro(data.error || "Não foi possível gerar agora."); return; }
       setRespostas(data.respostas);
       setNlp({ intent: data.intent, sentiment: data.sentiment, score: data.score });
+      if (typeof data.freeRemaining === "number") setFreeRemaining(data.freeRemaining);
       if (data.mock) {
         setAviso(data.aviso || "Modo demonstração — mostrando um exemplo. As respostas reais entram quando a clínica está ativa.");
       } else if (data.aviso) {
@@ -160,6 +180,25 @@ export default function GeradorPage() {
       setErro("Falha de conexão. Tente novamente.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function assinarStart() {
+    setAssinando(true);
+    try {
+      const firebaseIdToken = await getToken();
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: "start", interval: "monthly", firebaseIdToken }),
+      });
+      const data = await res.json();
+      if (data.url) { window.location.href = data.url; return; }
+      setErro(data.error || "Não foi possível abrir o checkout.");
+    } catch {
+      setErro("Falha ao abrir o checkout.");
+    } finally {
+      setAssinando(false);
     }
   }
 
@@ -348,6 +387,37 @@ export default function GeradorPage() {
         <div className="space-y-4">
           <AvisoIA aviso={aviso} />
 
+          {freeRemaining !== null && freeRemaining > 0 && !limitReached && (
+            <div className="rounded-xl border border-gold-500/30 bg-gold-500/8 px-4 py-2.5 text-xs text-champagne-300">
+              Plano grátis · <strong className="text-gold-400">faltam {freeRemaining}</strong>{" "}
+              {freeRemaining === 1 ? "resposta grátis" : "respostas grátis"}. Assine o Start pra liberar ilimitado.
+            </div>
+          )}
+
+          {limitReached && (
+            <div className="rounded-2xl border border-gold-500/40 bg-gold-500/10 p-6 text-center shadow-card">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-500/20">
+                <Sparkles size={22} className="text-gold-400" />
+              </div>
+              <p className="font-serif text-lg font-semibold text-champagne-300 mb-1">
+                Você usou suas respostas grátis 🎉
+              </p>
+              <p className="text-sm text-navy-100 mb-4 max-w-[340px] mx-auto leading-relaxed">
+                Assine o <strong className="text-gold-400">Start (R$97/mês)</strong> e gere
+                respostas ilimitadas, no tom da sua clínica.
+              </p>
+              <button
+                type="button"
+                onClick={assinarStart}
+                disabled={assinando}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold-500 px-5 py-3 text-sm font-bold text-navy-900 shadow-cta transition-all hover:-translate-y-0.5 disabled:opacity-60"
+              >
+                {assinando ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                Assinar o Start e continuar
+              </button>
+            </div>
+          )}
+
           {loading && <LoadingRespostas />}
 
           {/* Lead Intelligence */}
@@ -437,7 +507,7 @@ export default function GeradorPage() {
           )}
 
           {/* Empty state */}
-          {!loading && !respostas && (
+          {!loading && !respostas && !limitReached && (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-navy-500 bg-navy-700 py-14 text-center">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-500/10">
                 <MessageSquareText size={22} className="text-gold-500" />

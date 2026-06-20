@@ -1,6 +1,8 @@
 import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { gerarRespostas, refinarResposta } from "@/lib/ai/provider";
 import type { GerarInput, RefineInput } from "@/lib/types";
+import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
+import { checkGenerationLimit, incrementFreeUsage } from "@/lib/usage-limit";
 
 export const runtime = "nodejs";
 
@@ -53,6 +55,26 @@ export async function POST(req: Request) {
       );
     }
 
+    // Trial grátis: usuário LOGADO grátis tem limite; pagante é ilimitado.
+    // Sem token (ex.: demo pública da landing) não conta nem bloqueia.
+    const token = (body as { firebaseIdToken?: string }).firebaseIdToken;
+    const decoded = await verifyFirebaseIdToken(token);
+    let limit = null as Awaited<ReturnType<typeof checkGenerationLimit>> | null;
+    if (decoded?.uid) {
+      limit = await checkGenerationLimit(decoded.uid);
+      if (!limit.allowed) {
+        return jsonNoStore(
+          {
+            error:
+              "Você usou suas respostas grátis. Assine o Start pra continuar gerando respostas ilimitadas.",
+            limitReached: true,
+            freeRemaining: 0,
+          },
+          { status: 402 }
+        );
+      }
+    }
+
     const result = await gerarRespostas({
       modo: body.modo === "reescrever" ? "reescrever" : "gerar",
       procedimento: body.procedimento ?? "",
@@ -66,7 +88,16 @@ export async function POST(req: Request) {
       clinica: body.clinica,
     });
 
-    return jsonNoStore(result);
+    // Conta a geração grátis só após sucesso (pagante nunca conta).
+    let freeRemaining: number | undefined;
+    if (decoded?.uid && limit && !limit.paid) {
+      await incrementFreeUsage(decoded.uid);
+      freeRemaining = Math.max(0, limit.remaining - 1);
+    }
+
+    return jsonNoStore(
+      freeRemaining === undefined ? result : { ...result, freeRemaining }
+    );
   } catch (err: unknown) {
     console.error("[api/generate] erro fatal:", err);
     return jsonNoStore(
