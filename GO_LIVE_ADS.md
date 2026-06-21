@@ -2,6 +2,9 @@
 
 Ultima revisao: 2026-06-20
 
+Fonte de verdade para importacao: `ads/ADS_COMMAND_CENTER.md`.
+Este arquivo e o plano expandido; se houver conflito, siga o Command Center.
+
 ## Objetivo
 
 Gerar cadastros qualificados de profissionais e clinicas de estetica para testar o LeadBellus com 5 respostas gratis, sem cartao.
@@ -184,6 +187,55 @@ Descricoes:
 - Comece com 5 respostas gratis. Sem cartao, sem fidelidade e sem multa.
 - Nao e promessa de agenda cheia: e apoio para responder com mais clareza.
 
+## Grupo 4 - Roteiros e conversao
+
+Intencao: profissional buscando scripts, modelos de mensagem e melhoria de conversa no WhatsApp.
+
+Palavras-chave:
+
+- "roteiro de vendas estetica"
+- "script de vendas estetica whatsapp"
+- "como agendar cliente estetica"
+- "mensagens prontas clinica estetica"
+- "atendimento whatsapp clinica estetica"
+- "converter clientes estetica whatsapp"
+- "script contorno de objecoes estetica"
+- "como responder cliente estetica"
+- "modelo de mensagem para clinica de estetica"
+- "mensagens para fidelizar clientes estetica"
+- "melhorar conversao whatsapp estetica"
+- "script de atendimento estetica"
+- [roteiro de vendas estetica]
+- [script de vendas estetica whatsapp]
+- [mensagens prontas clinica estetica]
+- [atendimento whatsapp clinica estetica]
+- [converter clientes estetica whatsapp]
+- [script de atendimento estetica]
+- [como responder cliente estetica]
+- [copy de vendas para estetica]
+
+Headlines:
+
+- Respostas para WhatsApp
+- Para Clinicas Estetica
+- 5 Respostas Gratis
+- Teste Sem Cartao
+- Copiar E Mandar
+- Atendimento Mais Claro
+- Mensagens Prontas
+- Gere Respostas No Whats
+- Roteiros Para Whatsapp
+- IA Para Clinica Estetica
+- Script De Atendimento
+- Objecoes No WhatsApp
+
+Descricoes:
+
+- Gere respostas curtas para o WhatsApp da sua clinica de estetica. Teste 5 gratis.
+- Atendimento no WhatsApp mais claro e profissional. Copie, ajuste e envie.
+- Gere mensagens para responder objecoes de preco. Teste gratis e sem cartao.
+- Respostas prontas para WhatsApp da clinica de estetica, no tom certo.
+
 ## Palavras negativas
 
 Adicionar no nivel da campanha:
@@ -211,6 +263,26 @@ Adicionar no nivel da campanha:
 - pirata
 - cupom
 - gratuito
+- trabalhe conosco
+- vagas de emprego
+- enviar curriculo
+- apostila
+- e-book gratis
+- treinamento
+- especializacao
+- quanto custa preenchimento
+- preco de botox
+- clinica barata
+- comprar toxina
+- valor de carboxiterapia
+- preco de harmonizacao
+- comprar acido hialuronico
+- fornecedor de botox
+- tratamento melasma
+- remedio espinha
+- dermatologista consulta
+- como tratar acne
+- consulta medica dermatologia
 
 Observacao: manter "gratis" fora das negativas exatas se estiver bloqueando buscas com intencao boa. A negativa "gratuito" ajuda a reduzir gente procurando material solto.
 
@@ -274,6 +346,8 @@ Pausar termos com:
 - procura por emprego/curso
 - pesquisa medica ou medicamento
 - busca por antes e depois
+- download de PDF/modelo gratis sem intencao de software
+- agenda automatica generica que nao procura ajuda de resposta/copy
 
 ## Ajuste esperado
 
