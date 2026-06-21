@@ -1,52 +1,50 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import {
-  Check,
-  ArrowRight,
-  Sparkles,
-  ShieldCheck,
-  Target,
-  Brain,
-  MessageSquare,
-  RefreshCw,
-  FileText,
-  Dna,
-  Archive,
-  Bot,
-  CalendarCheck,
-  Bell,
-  Heart,
-  Building2,
-  User,
-  Users,
-  TrendingUp,
-  Layers,
-  Star,
-} from "lucide-react";
-import { billingPlanList } from "@/lib/billing";
-import { PlanCTA } from "@/components/plan-cta";
-import { WaitlistForm } from "@/components/waitlist-form";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 import { HeroDevices } from "@/components/hero-devices";
 import { HeroShapes } from "@/components/hero-shapes";
 import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
-import { TestimonialsSection } from "@/components/testimonials-section";
-import { AboutSection } from "@/components/about-section";
-import { CompareResponsesSection } from "@/components/compare-responses-section";
 import { AppBenefitsSection } from "@/components/app-benefits-section";
-import { HeroHighlight, Highlight } from "@/components/hero-highlight-leadbellus";
-import { PainPointSection } from "@/components/pain-point-section";
-import { IndicadoCards, IndicadoHeader } from "@/components/indicado-cards";
 import { SimuladorFadeUp, SimuladorUnderline, SimuladorScenarioBtn } from "@/components/simulador-ui";
-import { RiskFreeSection } from "@/components/risk-free-section";
 import { FaqSection } from "@/components/faq-section";
 import { FinalCTASection } from "@/components/final-cta-section";
 import { FooterSection } from "@/components/footer-section";
-import { MotionGate } from "@/components/motion-gate";
 
 const funilHref = "/signup";
+
+function StructuredDataTags() {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "LeadBellus",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    url: "https://www.leadbellus.com.br",
+    description:
+      "Copiloto de WhatsApp para clínicas de estética cria respostas curtas para preço, objeções e follow-up.",
+    inLanguage: "pt-BR",
+    offers: {
+      "@type": "Offer",
+      price: "97",
+      priceCurrency: "BRL",
+      availability: "https://schema.org/InStock",
+      url: "https://www.leadbellus.com.br/signup",
+    },
+    audience: {
+      "@type": "Audience",
+      audienceType: "Clínicas de estética e profissionais de beleza",
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}
 
 // ─── Logo SVG inline ───────────────────────────────────────────────────────────
 function LogoMark({ size = 32 }: { size?: number }) {
@@ -93,7 +91,7 @@ function TagPill({ children, light }: { children: React.ReactNode; light?: boole
         alignItems: "center",
         gap: "6px",
         border: `1px solid ${light ? "rgba(201,160,96,0.5)" : "#C9A060"}`,
-        color: light ? "#92610A" : "#C9A060",
+        color: light ? "#7A5108" : "#C9A060",
         background: light ? "rgba(201,160,96,0.1)" : "transparent",
         borderRadius: "9999px",
         padding: "4px 14px",
@@ -105,47 +103,6 @@ function TagPill({ children, light }: { children: React.ReactNode; light?: boole
       }}
     >
       {children}
-    </div>
-  );
-}
-
-// ─── Gold divider ──────────────────────────────────────────────────────────────
-function GoldDivider() {
-  return (
-    <div
-      style={{
-        height: "1px",
-        background: "linear-gradient(90deg, transparent, #C9A060, transparent)",
-        margin: "32px 0",
-        width: "100%",
-      }}
-    />
-  );
-}
-
-// ─── Check bullet ─────────────────────────────────────────────────────────────
-function CheckBullet({ children, color = "#C9A060" }: { children: React.ReactNode; color?: string }) {
-  return (
-    <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-      <span
-        style={{
-          width: "20px",
-          height: "20px",
-          borderRadius: "50%",
-          background: `${color}22`,
-          border: `1px solid ${color}`,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
-          marginTop: "2px",
-        }}
-      >
-        <Check size={11} color={color} />
-      </span>
-      <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.82)", lineHeight: 1.65 }}>
-        {children}
-      </span>
     </div>
   );
 }
@@ -259,16 +216,104 @@ function LaunchBanner() {
         letterSpacing: "0.02em",
       }}
     >
-      ✦ Lançamento: garanta seu preço de fundadora — ele fica congelado enquanto você for assinante.
+      Lançamento: teste 5 respostas grátis, sem cartão.
     </div>
+  );
+}
+
+function CompactProblemSection() {
+  const cards = [
+    {
+      title: "Preço seco",
+      copy: "Transforme pedido de valor em resposta com contexto, segurança e convite para agenda.",
+      tags: ["Preço", "Avaliação"],
+    },
+    {
+      title: "Objeção de caro",
+      copy: "Responda sem desconto automático e mostre valor antes de perder a conversa.",
+      tags: ["Valor", "Sem desconto"],
+    },
+    {
+      title: "Cliente sumiu",
+      copy: "Retome o contato com follow-up educado, direto e com próximo passo claro.",
+      tags: ["Follow-up", "Retomar"],
+    },
+  ];
+
+  return (
+    <section id="funcoes" style={{ background: "#F6F0E6", padding: "72px 24px" }}>
+      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+        <div style={{ maxWidth: "640px", marginBottom: "32px" }}>
+          <TagPill light>Sinais que ele lê</TagPill>
+          <h2
+            style={{
+              fontFamily: "var(--font-fraunces, Georgia, serif)",
+              fontSize: "clamp(28px, 4vw, 42px)",
+              fontWeight: 700,
+              color: "#07101e",
+              margin: "0 0 12px",
+              lineHeight: 1.16,
+            }}
+          >
+            O WhatsApp mostra a intenção. O LeadBellus transforma em resposta.
+          </h2>
+          <p style={{ color: "#475569", fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
+            Tags curtas guiam a resposta sem virar script engessado.
+          </p>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "16px",
+          }}
+        >
+          {cards.map((card) => (
+            <article
+              key={card.title}
+              style={{
+                background: "#ffffff",
+                border: "1px solid rgba(7,16,30,0.08)",
+                borderRadius: "8px",
+                padding: "24px",
+              }}
+            >
+              <h3 style={{ color: "#07101e", fontSize: "18px", fontWeight: 700, margin: "0 0 10px" }}>
+                {card.title}
+              </h3>
+              <p style={{ color: "#475569", fontSize: "14px", lineHeight: 1.65, margin: 0 }}>{card.copy}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "18px" }}>
+                {card.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    style={{
+                      border: "1px solid rgba(122,81,8,0.18)",
+                      background: "rgba(201,160,96,0.1)",
+                      borderRadius: "9999px",
+                      color: "#7A5108",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      padding: "6px 10px",
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
 // ─── PAGE ──────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
-    <MotionGate>
     <div style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)" }}>
+      <StructuredDataTags />
       <Navbar />
       <LaunchBanner />
       <main>
@@ -291,10 +336,8 @@ export default function LandingPage() {
 
         <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}>
           <div className="hero-grid grid grid-cols-1 md:grid-cols-[420px_1fr] gap-10 items-start">
-            {/* Left — copy (animado) */}
             <HeroTextContent />
 
-            {/* Right — animated device mockups */}
             <div className="hidden md:flex justify-center items-start pt-12">
               <HeroDevices />
             </div>
@@ -314,48 +357,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── PROBLEMA E SOLUÇÃO ───────────────────────────────────────────────── */}
-      <PainPointSection funilHref={funilHref} />
-
-      {/* ── PRA QUEM É INDICADO ──────────────────────────────────────────────── */}
-      <section
-        id="indicado"
-        style={{ background: "#07101e", padding: "96px 24px" }}
-      >
-        <HeroHighlight containerClassName="min-h-0 py-0 mb-14">
-        <div style={{ maxWidth: "1100px", margin: "0 auto", width: "100%" }}>
-          <IndicadoHeader>
-            <TagPill>Antes de continuar</TagPill>
-            <h2
-              style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "clamp(28px, 4vw, 44px)",
-                fontWeight: 700,
-                color: "#ffffff",
-                margin: "0 0 16px",
-                lineHeight: 1.2,
-              }}
-            >
-              Se você cuida de clientes —{" "}
-              <Highlight>
-                <span style={{ color: "#C9A060" }}>o LeadBellus cuida do seu atendimento</span>
-              </Highlight>
-            </h2>
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "580px", margin: "0 auto" }}>
-              Se o WhatsApp é onde suas vendas acontecem, é aqui que você responde com mais clareza.
-            </p>
-          </IndicadoHeader>
-        </div>
-        </HeroHighlight>
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <IndicadoCards funilHref={funilHref} />
-        </div>
-      </section>
+      <CompactProblemSection />
 
       <AppBenefitsSection funilHref={funilHref} />
-
-      <AboutSection />
-
-      <CompareResponsesSection funilHref={funilHref} />
 
       {/* ── SIMULADOR INTERATIVO ─────────────────────────────────────────────── */}
       <section id="simulador" style={{ background: "#07101e", padding: "96px 24px" }}>
@@ -389,14 +393,12 @@ export default function LandingPage() {
               </h2>
             </SimuladorFadeUp>
 
-            {/* Subtítulo */}
             <SimuladorFadeUp delay={0.2}>
               <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "15px", maxWidth: "520px", margin: "0 auto 20px" }}>
-                Coloque o nome da clínica, o tom e a situação. A resposta sai personalizada. Sem cartão.
+                Escolha uma situação e veja a resposta personalizada.
               </p>
             </SimuladorFadeUp>
 
-            {/* Botões de situação em cascata */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center" }}>
               {[
                 { id: "preco", label: "Perguntou preço" },
@@ -430,9 +432,7 @@ export default function LandingPage() {
             }}
           >
             <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", lineHeight: 1.75, marginBottom: "20px" }}>
-              Essa foi <strong style={{ color: "#ffffff" }}>uma</strong> resposta.
-              O LeadBellus faz isso com cada mensagem do seu WhatsApp — com DNA
-              da Clínica, histórico do cliente e Lead Intelligence.
+              Gere respostas para preço, objeções e clientes que sumiram.
             </p>
             <Link
               href={funilHref}
@@ -449,7 +449,7 @@ export default function LandingPage() {
                 textDecoration: "none",
               }}
             >
-              Quero o sistema completo — 5 respostas grátis →
+              Gerar 5 respostas grátis →
             </Link>
             <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
               Sem cartão · Acesso imediato · Você configura em 5 minutos
@@ -458,8 +458,6 @@ export default function LandingPage() {
           </SimuladorFadeUp>
         </div>
       </section>
-
-      <TestimonialsSection />
 
       {/* ── OFERTA / PREÇOS ──────────────────────────────────────────────────── */}
       <section
@@ -479,20 +477,16 @@ export default function LandingPage() {
                 lineHeight: 1.2,
               }}
             >
-              Se uma conversa avançar, o Start já pode fazer sentido
+              Comece pelo plano que resolve hoje
             </h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>
-              Responda melhor, retome conversas paradas e conduza objeções com
-              mais segurança. Não promete faturamento — evita que uma boa
-              oportunidade morra por falta da resposta certa.
+              Teste grátis e assine só se fizer sentido para sua rotina.
             </p>
           </div>
 
           <PricingSection />
         </div>
       </section>
-
-      <RiskFreeSection funilHref={funilHref} />
 
       {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
       <FaqSection />
@@ -504,19 +498,36 @@ export default function LandingPage() {
       </main>
       <FooterSection />
 
+      <style>{`
+        .mobile-sales-spacer,
+        .mobile-sales-bar {
+          display: none;
+        }
+
+        @media (max-width: 767px) {
+          .mobile-sales-spacer {
+            display: block;
+            height: 76px;
+          }
+
+          .mobile-sales-bar {
+            display: flex;
+          }
+        }
+      `}</style>
+
       {/* Espaço pra barra fixa no mobile */}
-      <div className="md:hidden" style={{ height: "76px" }} />
+      <div className="mobile-sales-spacer" />
 
       {/* Barra de venda fixa — só mobile */}
       <div
-        className="md:hidden"
+        className="mobile-sales-bar"
         style={{
           position: "fixed",
           left: 0,
           right: 0,
           bottom: 0,
           zIndex: 60,
-          display: "flex",
           alignItems: "center",
           gap: "12px",
           background: "rgba(7,16,30,0.97)",
@@ -551,6 +562,5 @@ export default function LandingPage() {
         </Link>
       </div>
     </div>
-    </MotionGate>
   );
 }

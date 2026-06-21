@@ -27,6 +27,7 @@ tsconfig.tsbuildinfo
 .claude/scheduled_tasks.lock
 /.codesight/
 /.snapshots/
+/.playwright-cli/
 WhatsApp Image*
 /✦*.txt
 
