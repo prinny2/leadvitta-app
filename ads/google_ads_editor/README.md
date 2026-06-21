@@ -1,6 +1,9 @@
 # LeadBellus Google Ads Import Pack
 
 Created: 2026-06-20
+Updated: 2026-06-20 with Grok keyword research and Gemini visual QA.
+
+Start here before importing: `../ADS_COMMAND_CENTER.md`.
 
 This pack is intentionally separate from the landing page work. It prepares a Search-only launch that can be reviewed in Google Ads Editor before publishing.
 
@@ -11,6 +14,13 @@ This pack is intentionally separate from the landing page work. It prepares a Se
 - `03_negative_keywords.csv`: campaign-level negative keywords.
 - `04_assets_manual.csv`: sitelinks, callouts, and structured snippet values to add manually or map in Editor.
 - `05_launch_checklist.md`: what to check before posting changes.
+
+## Campaign Structure
+
+- `Respostas WhatsApp`: core WhatsApp response intent.
+- `Objecoes E Preco`: price objections and discount conversations.
+- `Automacao E IA`: software/AI discovery intent.
+- `Roteiros E Conversao`: Grok-expanded scripts, templates, and conversion keywords.
 
 ## How To Import
 
@@ -38,3 +48,5 @@ Google's own Editor flow supports CSV import, header review, import, and keeping
 ## Delegation Boundaries
 
 Gemini and Grok should not edit files in `app/`, `components/`, `lib/`, or `.next` while this pack is being reviewed. Their tasks are written in `../agent_briefs/`.
+
+See `../agent_briefs/AGENT_ROLES.md` for the operating split between Codex, Gemini, and Grok.

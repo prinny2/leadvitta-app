@@ -44,3 +44,5 @@ Pause terms that indicate:
 - jobs, salary, courses
 - medical treatment or medication
 - before/after result hunting
+- generic free PDF/template downloads with no software intent
+- generic automatic scheduling intent that does not match response/copy assistance
