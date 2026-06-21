@@ -20,11 +20,52 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.leadbellus.com.br"),
   title: "LeadBellus — Respostas para WhatsApp na Estética",
   description:
-    "Ajude sua clínica de estética a responder melhor no WhatsApp, lidar com objeções e retomar clientes que sumiram, com textos prontos no seu tom.",
+    "Respostas curtas e estratégicas para clínicas de estética venderem melhor no WhatsApp, sem texto longo nem robô genérico.",
+  keywords: [
+    "respostas WhatsApp estética",
+    "IA para clínica de estética",
+    "automação WhatsApp estética",
+    "script de vendas estética",
+    "follow-up WhatsApp clínica",
+    "objeções estética",
+    "LeadBellus",
+  ],
   authors: [{ name: "Vinicius Paes da Serra Freire", url: "https://leadbellus.com.br" }],
   publisher: "Vinicius Paes da Serra Freire (MEI)",
+  alternates: {
+    canonical: "https://www.leadbellus.com.br",
+  },
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/favicon.ico",
+  },
+  openGraph: {
+    title: "LeadBellus — Respostas para WhatsApp na Estética",
+    description:
+      "Transforme preço, objeção e cliente que sumiu em respostas prontas para copiar e mandar no WhatsApp.",
+    url: "https://www.leadbellus.com.br",
+    siteName: "LeadBellus",
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "LeadBellus — Respostas para WhatsApp na Estética",
+    description: "3 respostas curtas, no tom da sua clínica, para copiar e mandar no WhatsApp.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   verification: {
     google: "kvQ3hzLyDrC4JxQpwNrfeCPHrTTbjHCHYi0WZOlLpL0",
   },

@@ -17,10 +17,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
     "@google/genai": "^2.8.0",
-    "@number-flow/react": "^0.6.0",
     "@vercel/analytics": "^2.0.1",
     "botid": "^1.5.11",
-    "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "firebase": "^12.14.0",
     "firebase-admin": "^14.0.0",
@@ -35,7 +33,6 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
-    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",

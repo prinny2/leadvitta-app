@@ -1,6 +1,3 @@
-"use client";
-
-import { use } from "react";
 import Link from "next/link";
 import { HeroShapes } from "@/components/hero-shapes";
 import { HeroDevices } from "@/components/hero-devices";
@@ -52,7 +49,7 @@ function TagPill({ children, light }: { children: React.ReactNode; light?: boole
         alignItems: "center",
         gap: "6px",
         border: `1px solid ${light ? "rgba(201,160,96,0.5)" : "#C9A060"}`,
-        color: light ? "#92610A" : "#C9A060",
+        color: light ? "#7A5108" : "#C9A060",
         background: light ? "rgba(201,160,96,0.1)" : "transparent",
         borderRadius: "9999px",
         padding: "4px 14px",
@@ -162,9 +159,8 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-export default function CampaignPage({ params }: Props) {
-  const resolvedParams = use(params);
-  const slug = resolvedParams.slug;
+export default async function CampaignPage({ params }: Props) {
+  await params;
 
   const campaignHeadline = (
     <>
@@ -337,7 +333,7 @@ export default function CampaignPage({ params }: Props) {
         </Link>
       </div>
 
-      <style jsx global>{`
+      <style>{`
         @media (max-width: 768px) {
           .hero-grid {
             grid-template-columns: 1fr !important;
