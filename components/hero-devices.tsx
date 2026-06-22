@@ -1,214 +1,151 @@
+import type { ReactNode } from "react";
+
 const C = {
-  bg: "#07101e",
-  sidebar: "#0b1424",
-  card: "#0f1b2f",
-  border: "rgba(255,255,255,0.07)",
-  gold: "#C9A060",
-  muted: "#5a7a9a",
-  orange: "#F97316",
-  blue: "#60a5fa",
-  green: "#4ade80",
+  bg: "#06111f",
+  panel: "#0d1b30",
+  panel2: "#10233d",
+  line: "rgba(255,255,255,0.09)",
+  gold: "#F7C96B",
+  coral: "#FF7A59",
+  mint: "#5EE0A0",
+  sky: "#7AC7FF",
+  text: "#F7F1E4",
+  muted: "rgba(247,241,228,0.62)",
 };
 
-const kpis = [
-  { label: "Respostas hoje", value: "12", color: "#fff" },
-  { label: "Prioridade", value: "74%", color: C.gold },
-  { label: "Leads quentes", value: "3", color: C.orange },
-  { label: "Retomadas", value: "8", color: C.blue },
+const intentRows = [
+  { label: "Preco", value: 86, color: C.coral },
+  { label: "Medo", value: 74, color: C.gold },
+  { label: "Chance", value: 81, color: C.mint },
 ];
 
-const responses = [
+const replyOptions = [
   {
     label: "Consultiva",
+    text: "Ana, consigo te passar uma base sim. Antes, me conta se voce busca suavizar linhas ou prevenir?",
     color: C.gold,
-    text: "Antes de falar em valor, me conta: você busca prevenção ou já tem uma linha que incomoda?",
   },
   {
-    label: "Fechamento",
-    color: C.green,
-    text: "Tenho horário esta semana. Você prefere manhã ou tarde?",
+    label: "Fechamento leve",
+    text: "Se quiser, eu vejo um horario para avaliacao e te explico o valor certinho para o seu caso.",
+    color: C.mint,
   },
 ];
 
-function MiniLogo() {
+function SignalBars() {
   return (
-    <svg width="14" height="17" viewBox="0 0 80 96" fill="none" aria-hidden="true">
-      <path d="M40 6 C26 14, 10 32, 10 54 C10 70, 22 82, 40 90" stroke="#C9A060" strokeWidth="8" strokeLinecap="round" fill="none" />
-      <path d="M40 6 C54 14, 70 32, 70 54 C70 70, 58 82, 40 90" stroke="#C9A060" strokeWidth="8" strokeLinecap="round" fill="none" />
-      <line x1="40" y1="32" x2="40" y2="86" stroke="#C9A060" strokeWidth="7" strokeLinecap="round" />
-      <circle cx="40" cy="27" r="10" fill="#C9A060" />
-    </svg>
-  );
-}
-
-function Sidebar() {
-  const items = ["Início", "Gerador", "Prioridade", "Objeções", "Retomadas"];
-
-  return (
-    <div
-      style={{
-        width: 72,
-        flexShrink: 0,
-        background: C.sidebar,
-        borderRight: `1px solid ${C.border}`,
-        padding: "12px 8px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 7,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: 5, paddingBottom: 9, borderBottom: "1px solid rgba(201,160,96,0.14)" }}>
-        <MiniLogo />
-        <span style={{ fontSize: 6, fontWeight: 800, color: "#D4C4A0" }}>LeadBellus</span>
-      </div>
-      {items.map((item, index) => (
-        <div
-          key={item}
-          style={{
-            borderLeft: index === 1 ? `2px solid ${C.gold}` : "2px solid transparent",
-            background: index === 1 ? "rgba(201,160,96,0.08)" : "transparent",
-            borderRadius: 6,
-            padding: "5px 6px",
-            fontSize: 5,
-            color: index === 1 ? C.gold : "rgba(255,255,255,0.38)",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-          }}
-        >
-          {item}
+    <div style={{ display: "grid", gap: 11 }}>
+      {intentRows.map((row) => (
+        <div key={row.label}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 5 }}>
+            <span style={{ color: C.muted, fontSize: 11, fontWeight: 700 }}>{row.label}</span>
+            <span style={{ color: row.color, fontSize: 11, fontWeight: 900 }}>{row.value}%</span>
+          </div>
+          <div style={{ height: 7, borderRadius: 999, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
+            <div
+              style={{
+                width: `${row.value}%`,
+                height: "100%",
+                borderRadius: 999,
+                background: row.color,
+                boxShadow: `0 0 18px ${row.color}55`,
+              }}
+            />
+          </div>
         </div>
       ))}
     </div>
   );
 }
 
-function LaptopApp() {
+function ChatBubble({
+  children,
+  mine,
+}: {
+  children: ReactNode;
+  mine?: boolean;
+}) {
   return (
-    <div style={{ display: "flex", height: "100%" }}>
-      <Sidebar />
-      <div style={{ flex: 1, background: C.bg, padding: "14px", display: "flex", flexDirection: "column", gap: 10 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-          <div>
-            <div style={{ fontSize: 6, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-              IA para atendimento
-            </div>
-            <div style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 16, fontWeight: 700, color: "#D4C4A0" }}>
-              Gerador de respostas
-            </div>
-          </div>
-          <div style={{ background: C.gold, borderRadius: 8, padding: "6px 12px", fontSize: 7, fontWeight: 800, color: C.bg }}>
-            Gerar resposta
-          </div>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 7 }}>
-          {kpis.map((kpi) => (
-            <div key={kpi.label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "8px 7px" }}>
-              <div style={{ fontSize: 5, color: C.muted, marginBottom: 4 }}>{kpi.label}</div>
-              <div style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 16, fontWeight: 800, color: kpi.color }}>
-                {kpi.value}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, flex: 1, minHeight: 0 }}>
-          <div style={{ background: C.card, border: "1px solid rgba(201,160,96,0.18)", borderRadius: 10, padding: 10 }}>
-            <div style={{ fontSize: 6, color: C.muted, marginBottom: 6 }}>Mensagem da cliente</div>
-            <div style={{ background: "#081120", border: "1px solid rgba(201,160,96,0.26)", borderRadius: 8, padding: 10, fontSize: 8, color: "rgba(255,255,255,0.74)", lineHeight: 1.55 }}>
-              Quanto custa o botox? Vi no Instagram e fiquei curiosa.
-            </div>
-            <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ background: "rgba(201,160,96,0.12)", color: C.gold, border: "1px solid rgba(201,160,96,0.28)", borderRadius: 999, padding: "4px 8px", fontSize: 6, fontWeight: 700 }}>
-                Tom consultivo
-              </span>
-              <span style={{ background: "rgba(96,165,250,0.1)", color: C.blue, borderRadius: 999, padding: "4px 8px", fontSize: 6, fontWeight: 700 }}>
-                Preço
-              </span>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {responses.map((response) => (
-              <div
-                key={response.label}
-                style={{
-                  background: C.card,
-                  border: `1px solid ${response.color}33`,
-                  borderLeft: `3px solid ${response.color}`,
-                  borderRadius: 9,
-                  padding: "9px 10px",
-                  flex: 1,
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
-                  <span style={{ fontSize: 7, fontWeight: 800, color: response.color }}>{response.label}</span>
-                  <span style={{ fontSize: 5, color: response.color, border: `1px solid ${response.color}44`, borderRadius: 999, padding: "2px 6px" }}>
-                    Copiar
-                  </span>
-                </div>
-                <p style={{ margin: 0, fontSize: 7, lineHeight: 1.6, color: "rgba(255,255,255,0.66)" }}>
-                  {response.text}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ background: "linear-gradient(135deg,#0f1b2f,#111f36)", border: "1px solid rgba(201,160,96,0.22)", borderRadius: 10, padding: "9px 11px", display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.gold}`, display: "grid", placeItems: "center", color: C.gold, fontSize: 14 }}>
-            74
-          </div>
-          <div>
-            <div style={{ color: "#fff", fontSize: 8, fontWeight: 800 }}>Alta chance de avançar</div>
-            <div style={{ color: C.muted, fontSize: 6, marginTop: 2 }}>Responder agora · conduzir para avaliação</div>
-          </div>
-        </div>
+    <div style={{ display: "flex", justifyContent: mine ? "flex-end" : "flex-start" }}>
+      <div
+        style={{
+          maxWidth: mine ? "86%" : "78%",
+          borderRadius: mine ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+          border: mine ? "1px solid rgba(94,224,160,0.28)" : "1px solid rgba(255,255,255,0.08)",
+          background: mine ? "rgba(94,224,160,0.12)" : "rgba(255,255,255,0.06)",
+          color: mine ? "#EFFFF5" : C.text,
+          padding: "11px 13px",
+          fontSize: 12,
+          lineHeight: 1.55,
+          boxShadow: mine ? "0 14px 34px rgba(94,224,160,0.10)" : "none",
+        }}
+      >
+        {children}
       </div>
     </div>
   );
 }
 
-function PhoneApp() {
+function ReplyCard({
+  label,
+  text,
+  color,
+}: {
+  label: string;
+  text: string;
+  color: string;
+}) {
   return (
-    <div style={{ padding: "26px 10px 10px", height: "100%", display: "flex", flexDirection: "column", gap: 8 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: 9, fontWeight: 700, color: "#D4C4A0" }}>
-          Prioridade
+    <div
+      style={{
+        border: `1px solid ${color}44`,
+        borderLeft: `4px solid ${color}`,
+        borderRadius: 8,
+        padding: "10px 11px",
+        background: "rgba(255,255,255,0.045)",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
+        <span style={{ color, fontSize: 11, fontWeight: 900 }}>{label}</span>
+        <span style={{ color: C.bg, background: color, borderRadius: 999, padding: "3px 8px", fontSize: 9, fontWeight: 900 }}>
+          copiar
         </span>
-        <span style={{ background: "rgba(201,160,96,0.15)", color: C.gold, borderRadius: 999, padding: "2px 6px", fontSize: 5, fontWeight: 800 }}>
-          PRO
-        </span>
       </div>
-      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: 8 }}>
-        <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 6, lineHeight: 1.5 }}>
-          "Quero marcar uma avaliação. Quando tem horário?"
-        </div>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.card, borderRadius: 8, padding: 8 }}>
-        <div style={{ width: 48, height: 48, borderRadius: "50%", border: `5px solid ${C.orange}`, display: "grid", placeItems: "center", color: "#fff", fontSize: 17, fontWeight: 900 }}>
-          78
-        </div>
-        <div>
-          <div style={{ color: C.orange, fontSize: 7, fontWeight: 800 }}>Alta prioridade</div>
-          <div style={{ color: C.muted, fontSize: 5.5, marginTop: 3, lineHeight: 1.4 }}>
-            Intenção clara. Responda rápido.
-          </div>
-        </div>
-      </div>
-      {["Urgência", "Intenção", "Confiança"].map((label, index) => (
-        <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 46, fontSize: 5, color: C.muted }}>{label}</span>
-          <span style={{ flex: 1, height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 99, overflow: "hidden" }}>
-            <span
-              style={{
-                display: "block",
-                width: `${[86, 78, 66][index]}%`,
-                height: "100%",
-                background: "linear-gradient(90deg,#C9A060,#e8c98a)",
-              }}
-            />
-          </span>
+      <p style={{ margin: 0, color: "rgba(247,241,228,0.72)", fontSize: 11, lineHeight: 1.5 }}>{text}</p>
+    </div>
+  );
+}
+
+function ConversionStrip() {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1.2fr 1fr 1fr",
+        gap: 8,
+        borderTop: `1px solid ${C.line}`,
+        paddingTop: 14,
+      }}
+      className="hero-conversion-strip"
+    >
+      {[
+        ["5", "respostas gratis"],
+        ["3", "tons por mensagem"],
+        ["R$97", "Start mensal"],
+      ].map(([value, label], index) => (
+        <div
+          key={label}
+          style={{
+            border: `1px solid ${index === 0 ? "rgba(247,201,107,0.28)" : C.line}`,
+            borderRadius: 8,
+            padding: "10px 11px",
+            background: index === 0 ? "rgba(247,201,107,0.10)" : "rgba(255,255,255,0.04)",
+          }}
+        >
+          <strong style={{ display: "block", color: index === 0 ? C.gold : C.text, fontSize: 21, lineHeight: 1 }}>
+            {value}
+          </strong>
+          <span style={{ color: C.muted, fontSize: 10, fontWeight: 700 }}>{label}</span>
         </div>
       ))}
     </div>
@@ -217,77 +154,178 @@ function PhoneApp() {
 
 export function HeroDevices() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, width: "100%" }}>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
-        {["Dashboard", "Gerador", "Prioridade"].map((label, index) => (
-          <span
-            key={label}
-            style={{
-              background: index === 1 ? C.gold : "rgba(255,255,255,0.06)",
-              border: index === 1 ? "none" : "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 999,
-              padding: "5px 14px",
-              fontSize: 12,
-              fontWeight: 700,
-              color: index === 1 ? C.bg : "rgba(255,255,255,0.48)",
-            }}
-          >
-            {label}
-          </span>
-        ))}
-      </div>
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        maxWidth: 660,
+        minHeight: 430,
+      }}
+    >
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: "-18px",
+          background:
+            "linear-gradient(115deg, transparent 0 24%, rgba(247,201,107,0.14) 24% 25%, transparent 25% 58%, rgba(94,224,160,0.12) 58% 59%, transparent 59% 100%)",
+          opacity: 0.9,
+        }}
+      />
 
-      <div style={{ position: "relative", width: "100%", maxWidth: 650, minHeight: 430 }}>
-        <div style={{ position: "relative", zIndex: 10 }}>
-          <div
-            style={{
-              width: 580,
-              maxWidth: "100%",
-              height: 362,
-              background: "#060d1a",
-              borderRadius: "12px 12px 0 0",
-              border: "2.5px solid #162030",
-              borderBottom: "none",
-              overflow: "hidden",
-              boxShadow: "0 -4px 50px rgba(0,0,0,0.75), 0 0 0 1px rgba(201,160,96,0.05)",
-            }}
-          >
-            <div style={{ height: 18, background: "#030810", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", padding: "0 10px", gap: 5 }}>
-              {["#ef4444", "#f59e0b", "#22c55e"].map((color) => (
-                <span key={color} style={{ width: 6, height: 6, borderRadius: "50%", background: color }} />
+      <div
+        style={{
+          position: "relative",
+          border: "1px solid rgba(247,201,107,0.24)",
+          borderRadius: 18,
+          background:
+            "linear-gradient(145deg, rgba(16,35,61,0.98), rgba(6,17,31,0.98))",
+          boxShadow: "0 30px 90px rgba(0,0,0,0.52), 0 0 0 1px rgba(255,255,255,0.04) inset",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 54px), repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 54px)",
+            maskImage: "linear-gradient(180deg, black, transparent 86%)",
+          }}
+        />
+
+        <div style={{ position: "relative", padding: 18 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: 14 }}>
+            <div>
+              <div style={{ color: C.gold, fontSize: 12, fontWeight: 900 }}>
+                Central ao vivo
+              </div>
+              <div style={{ color: C.muted, fontSize: 11, marginTop: 2 }}>
+                WhatsApp da clinica, leitura de intencao e resposta pronta
+              </div>
+            </div>
+            <div
+              style={{
+                border: `1px solid ${C.coral}66`,
+                background: "rgba(255,122,89,0.12)",
+                borderRadius: 999,
+                color: "#FFD8CB",
+                padding: "7px 11px",
+                fontSize: 11,
+                fontWeight: 900,
+                whiteSpace: "nowrap",
+              }}
+            >
+              lead quente 86
+            </div>
+          </div>
+
+          <div className="hero-live-grid" style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 14 }}>
+            <div style={{ display: "grid", gap: 12 }}>
+              <div
+                style={{
+                  border: `1px solid ${C.line}`,
+                  background: "rgba(6,17,31,0.78)",
+                  borderRadius: 14,
+                  padding: 14,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
+                  <div>
+                    <strong style={{ color: C.text, fontSize: 14 }}>Ana - 12:41</strong>
+                    <p style={{ margin: "3px 0 0", color: C.muted, fontSize: 10 }}>Instagram para WhatsApp</p>
+                  </div>
+                  <span style={{ color: C.mint, fontSize: 10, fontWeight: 900 }}>responder agora</span>
+                </div>
+
+                <div style={{ display: "grid", gap: 9 }}>
+                  <ChatBubble>Oi! Quanto fica o botox? Tenho medo de ficar artificial.</ChatBubble>
+                  <ChatBubble mine>
+                    Ana, consigo te orientar sim. Para ficar natural, o valor depende dos pontos e da avaliacao.
+                  </ChatBubble>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }} className="hero-tags-row">
+                {[
+                  ["Intencao", "Preco", C.coral],
+                  ["Tom", "Acolhedor", C.gold],
+                  ["Proximo passo", "Avaliacao", C.mint],
+                ].map(([label, value, color]) => (
+                  <div key={label} style={{ border: `1px solid ${color}44`, borderRadius: 8, padding: "9px 10px", background: "rgba(255,255,255,0.04)" }}>
+                    <span style={{ display: "block", color: C.muted, fontSize: 9, fontWeight: 800 }}>{label}</span>
+                    <strong style={{ display: "block", color, fontSize: 12, marginTop: 2 }}>{value}</strong>
+                  </div>
+                ))}
+              </div>
+
+              <ConversionStrip />
+            </div>
+
+            <div style={{ display: "grid", gap: 12 }}>
+              <div
+                style={{
+                  border: "1px solid rgba(247,201,107,0.22)",
+                  borderRadius: 14,
+                  background: "rgba(247,201,107,0.08)",
+                  padding: 14,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 11 }}>
+                  <strong style={{ color: C.text, fontSize: 13 }}>Prioridade</strong>
+                  <span style={{ color: C.bg, background: C.gold, borderRadius: 999, padding: "4px 8px", fontSize: 10, fontWeight: 900 }}>
+                    alta
+                  </span>
+                </div>
+                <SignalBars />
+              </div>
+
+              {replyOptions.map((option) => (
+                <ReplyCard key={option.label} {...option} />
               ))}
-            </div>
-            <div style={{ height: "calc(100% - 18px)" }}>
-              <LaptopApp />
-            </div>
-          </div>
-          <div style={{ width: 580, maxWidth: "100%", height: 20, background: "linear-gradient(180deg,#111e2d,#0a1520)", border: "2px solid #162030", borderTop: "none", borderRadius: "0 0 8px 8px" }} />
-          <div style={{ width: 500, maxWidth: "86%", height: 6, margin: "0 auto", background: "linear-gradient(180deg,#0a1520,transparent)", borderRadius: "0 0 40px 40px" }} />
-        </div>
 
-        <div style={{ position: "absolute", right: 0, bottom: 28, zIndex: 20, transform: "rotate(4deg)" }}>
-          <div
-            style={{
-              width: 162,
-              height: 310,
-              background: "#060d1a",
-              borderRadius: 26,
-              border: "2.5px solid #162030",
-              position: "relative",
-              overflow: "hidden",
-              boxShadow: "8px 14px 50px rgba(0,0,0,0.72), 0 0 0 1px rgba(201,160,96,0.07)",
-            }}
-          >
-            <div style={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", width: 40, height: 9, background: "#060d1a", borderRadius: 999, zIndex: 3, border: "1px solid #162030" }} />
-            <div style={{ position: "absolute", inset: 2, background: C.bg, borderRadius: 24, overflow: "hidden" }}>
-              <PhoneApp />
+              <div
+                style={{
+                  border: `1px solid ${C.line}`,
+                  borderRadius: 14,
+                  padding: 13,
+                  background: "rgba(255,255,255,0.04)",
+                }}
+              >
+                <div style={{ color: C.sky, fontSize: 11, fontWeight: 900, marginBottom: 8 }}>
+                  Fluxo automatico
+                </div>
+                {["Detecta a situacao", "Gera 3 respostas", "Copia para o WhatsApp"].map((step, index) => (
+                  <div key={step} style={{ display: "flex", gap: 8, alignItems: "center", marginTop: index ? 7 : 0 }}>
+                    <span style={{ width: 18, height: 18, borderRadius: 999, display: "grid", placeItems: "center", background: "rgba(122,199,255,0.12)", color: C.sky, fontSize: 10, fontWeight: 900 }}>
+                      {index + 1}
+                    </span>
+                    <span style={{ color: "rgba(247,241,228,0.72)", fontSize: 11, fontWeight: 700 }}>
+                      {step}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div style={{ width: 50, height: 4, background: "rgba(255,255,255,0.12)", borderRadius: 2, margin: "6px auto 0" }} />
         </div>
       </div>
 
-      <div style={{ width: 520, maxWidth: "100%", height: 1, background: "linear-gradient(90deg,transparent,rgba(201,160,96,0.18),transparent)", marginTop: -8 }} />
+      <style>{`
+        @media (max-width: 920px) {
+          .hero-live-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .hero-tags-row,
+          .hero-conversion-strip {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

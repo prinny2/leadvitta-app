@@ -1,10 +1,18 @@
 # LeadBellus Ads Command Center
 
 Last consolidated by: Codex
-Last review: 2026-06-20
-Status: ready for Google Ads Editor import review, paused by default
+Last review: 2026-06-21
+Status: automated Google Ads Editor pack, paused by default
 
 This file is the source of truth for the first Google Ads launch. Treat the Gemini/Grok result files as inputs, not as launch instructions. If another file conflicts with this one, follow this file.
+
+Regenerate the import pack with:
+
+```bash
+npm run ads:generate
+```
+
+Do not hand-edit the generated CSVs for campaign structure changes. Put the change in `scripts/generate-google-ads-editor.mjs`, run the generator, then review the diff.
 
 ## Launch Decision
 
@@ -51,6 +59,9 @@ Use Google Ads Editor. Click `Get recent changes` before importing anything.
 
 5. `ads/google_ads_editor/05_launch_checklist.md`
    - Final human review list before posting changes.
+
+6. `ads/google_ads_editor/06_automation_rules.md`
+   - Automated rule setup for spend guardrails, poor keyword pausing, ad approval monitoring, and cautious budget scaling.
 
 ## Manual Review In Editor
 

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { ArrowRight, PlayCircle } from "lucide-react";
 
 interface HeroTextContentProps {
   headline?: ReactNode;
@@ -14,11 +15,11 @@ export function HeroTextContent({
   headline,
   subtitle,
   bullets,
-  ctaHref = "/signup",
-  ctaText = "Gerar minha resposta grátis",
+  ctaHref = "/signup?plan=start",
+  ctaText = "Gerar 5 respostas grátis",
   hideSimuladorLink = false,
 }: HeroTextContentProps = {}) {
-  const intentTags = ["Preço", "Achou caro", "Sumiu", "Agendar"];
+  const intentTags = ["Preço sem susto", "Achou caro", "Cliente sumiu", "Medo do procedimento"];
 
   return (
     <div className="hero-copy">
@@ -33,12 +34,12 @@ export function HeroTextContent({
           padding: "4px 14px",
           fontSize: "11px",
           fontWeight: 700,
-          letterSpacing: "0.08em",
+          letterSpacing: 0,
           textTransform: "uppercase",
           marginBottom: "20px",
         }}
       >
-        Copiloto de WhatsApp para estética
+        WhatsApp da estética, sem improviso
       </div>
 
       <h1
@@ -53,11 +54,11 @@ export function HeroTextContent({
       >
         {headline || (
           <>
-            Ela sumiu.
+            O lead chega
             <br />
-            E não foi
+            quente.
             <br />
-            <span style={{ color: "#C9A060" }}>pelo preço.</span>
+            <span style={{ color: "#F7C96B" }}>A resposta sai pronta.</span>
           </>
         )}
       </h1>
@@ -72,8 +73,35 @@ export function HeroTextContent({
         }}
       >
         {subtitle ||
-          "3 respostas curtas, no tom da sua clínica, para copiar e mandar no WhatsApp."}
+          "O LeadBellus lê a intenção da mensagem, gera 3 respostas no tom da sua clínica e deixa você copiar para o WhatsApp em segundos."}
       </p>
+
+      <div
+        className="hero-mobile-proof"
+        style={{
+          display: "none",
+          border: "1px solid rgba(247,201,107,0.24)",
+          borderRadius: "14px",
+          background: "rgba(255,255,255,0.055)",
+          padding: "12px",
+          margin: "0 auto 22px",
+          maxWidth: "330px",
+          textAlign: "left",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", marginBottom: "9px" }}>
+          <strong style={{ color: "#F7F1E4", fontSize: "12px" }}>Ana - WhatsApp</strong>
+          <span style={{ color: "#5EE0A0", fontSize: "11px", fontWeight: 800 }}>lead quente</span>
+        </div>
+        <div style={{ display: "grid", gap: "8px" }}>
+          <div style={{ borderRadius: "13px 13px 13px 4px", background: "rgba(255,255,255,0.08)", padding: "9px 10px", color: "rgba(255,255,255,0.86)", fontSize: "12px", lineHeight: 1.45 }}>
+            Quanto fica o botox? Tenho medo de ficar artificial.
+          </div>
+          <div style={{ borderRadius: "13px 13px 4px 13px", border: "1px solid rgba(94,224,160,0.28)", background: "rgba(94,224,160,0.12)", padding: "9px 10px", color: "#EFFFF5", fontSize: "12px", lineHeight: 1.45 }}>
+            3 respostas prontas para copiar no tom da clínica.
+          </div>
+        </div>
+      </div>
 
       {bullets ? (
         <div
@@ -128,9 +156,11 @@ export function HeroTextContent({
             display: "inline-flex",
             alignItems: "center",
             gap: "8px",
+            boxShadow: "0 18px 46px rgba(247,201,107,0.28)",
           }}
         >
           {ctaText}
+          <ArrowRight size={17} />
         </Link>
         {!hideSimuladorLink ? (
           <a
@@ -143,15 +173,19 @@ export function HeroTextContent({
               fontSize: "15px",
               fontWeight: 600,
               textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
             }}
           >
+            <PlayCircle size={17} />
             Ver demo
           </a>
         ) : null}
       </div>
 
       <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.42)", margin: "0 0 28px" }}>
-        5 respostas grátis · sem cartão · acesso imediato
+        Demo com 5 respostas · Start R$97/mês · sem cartão para testar
       </p>
 
       <div aria-label="Situações que o LeadBellus ajuda a responder" style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -172,6 +206,14 @@ export function HeroTextContent({
           </span>
         ))}
       </div>
+
+      <style>{`
+        @media (max-width: 767px) {
+          .hero-mobile-proof {
+            display: block !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
