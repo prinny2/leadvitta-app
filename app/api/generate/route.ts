@@ -75,6 +75,13 @@ export async function POST(req: Request) {
       }
     }
 
+    const providerChain = Array.isArray(body.providerChain)
+      ? body.providerChain.filter(
+          (p): p is "openai" | "anthropic" | "gemini" =>
+            p === "openai" || p === "anthropic" || p === "gemini"
+        )
+      : undefined;
+
     const result = await gerarRespostas({
       modo: body.modo === "reescrever" ? "reescrever" : "gerar",
       procedimento: body.procedimento ?? "",
@@ -86,6 +93,7 @@ export async function POST(req: Request) {
       nomeCliente: body.nomeCliente,
       mensagemCliente: String(body.mensagemCliente),
       clinica: body.clinica,
+      providerChain: providerChain?.length ? providerChain : undefined,
     });
 
     // Conta a geração grátis só após sucesso (pagante nunca conta).

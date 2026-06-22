@@ -53,6 +53,8 @@ export type HistoricoItem = {
   score?: number;
 };
 
+export type AIProviderId = "openai" | "anthropic" | "gemini";
+
 export type GerarInput = {
   modo: "gerar" | "reescrever";
   procedimento: string;
@@ -64,6 +66,8 @@ export type GerarInput = {
   nomeCliente?: string;
   mensagemCliente: string;
   clinica?: Partial<Clinica>;
+  /** Ordem de provedores de IA; padrão: OpenAI → Anthropic → Gemini. */
+  providerChain?: AIProviderId[];
 };
 
 /** Entrada para "Melhorar essa resposta" (refina uma variante). */

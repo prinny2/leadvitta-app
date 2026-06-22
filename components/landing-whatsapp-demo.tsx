@@ -185,6 +185,7 @@ export function LandingWhatsAppDemo() {
           objetivo: "direcionar para a avaliação",
           nomeCliente,
           mensagemCliente,
+          providerChain: ["openai", "gemini"],
           clinica: {
             nome_clinica: nomeClinica,
             formalidade,
