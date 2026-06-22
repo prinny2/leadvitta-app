@@ -8,9 +8,10 @@ import { violaCompliance } from "@/lib/ai/prompts";
 import { mockFollowup } from "@/lib/ai/mock";
 
 // Mocks dos SDKs externos: nenhum teste faz chamada de rede real.
-const { openaiCreate, anthropicCreate } = vi.hoisted(() => ({
+const { openaiCreate, anthropicCreate, geminiGenerate } = vi.hoisted(() => ({
   openaiCreate: vi.fn(),
   anthropicCreate: vi.fn(),
+  geminiGenerate: vi.fn(),
 }));
 
 vi.mock("openai", () => ({
@@ -22,6 +23,12 @@ vi.mock("openai", () => ({
 vi.mock("@anthropic-ai/sdk", () => ({
   default: class {
     messages = { create: anthropicCreate };
+  },
+}));
+
+vi.mock("@google/genai", () => ({
+  GoogleGenAI: class {
+    models = { generateContent: geminiGenerate };
   },
 }));
 
@@ -67,6 +74,7 @@ beforeEach(() => {
   vi.unstubAllEnvs();
   openaiCreate.mockReset();
   anthropicCreate.mockReset();
+  geminiGenerate.mockReset();
   vi.spyOn(console, "warn").mockImplementation(() => {});
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -405,6 +413,56 @@ describe("provider — OpenAI configurada", () => {
       expect((await classificar({ sentiment: "3 STARS" })).sentiment).toBe("3 stars");
       expect((await classificar({ sentiment: "muito bom" })).sentiment).toBeUndefined();
     });
+  });
+});
+
+describe("provider — cadeia customizada (LP: OpenAI → Gemini)", () => {
+  beforeEach(() => {
+    vi.stubEnv("OPENAI_API_KEY", "sk-openai");
+    vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant");
+    vi.stubEnv("GEMINI_API_KEY", "gem-key");
+    vi.stubEnv("AI_MODEL", "gpt-4o-mini");
+  });
+
+  it("pula Anthropic e usa Gemini quando OpenAI falha", async () => {
+    const json = JSON.stringify({
+      resposta_curta: "curta",
+      resposta_consultiva: "consultiva",
+      resposta_persuasiva: "persuasiva",
+    });
+
+    openaiCreate.mockImplementation((args: any) => {
+      const user: string = args?.messages?.[1]?.content ?? "";
+      if (user.startsWith("MENSAGEM:")) {
+        return Promise.resolve(oai(JSON.stringify({ intent: "pergunta_preco" })));
+      }
+      return Promise.reject(new Error("openai down"));
+    });
+    anthropicCreate.mockResolvedValue(
+      ant(
+        JSON.stringify({
+          resposta_curta: "nunca",
+          resposta_consultiva: "nunca",
+          resposta_persuasiva: "nunca",
+        })
+      )
+    );
+    geminiGenerate.mockResolvedValue({ text: json });
+
+    const { gerarRespostas } = await loadProvider();
+    const res = await gerarRespostas({
+      ...geradorInput,
+      providerChain: ["openai", "gemini"],
+    });
+
+    expect(res.mock).toBe(false);
+    expect(res.respostas).toEqual({
+      curta: "curta",
+      consultiva: "consultiva",
+      persuasiva: "persuasiva",
+    });
+    expect(anthropicCreate).not.toHaveBeenCalled();
+    expect(geminiGenerate).toHaveBeenCalled();
   });
 });
 

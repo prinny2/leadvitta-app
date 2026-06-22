@@ -22,11 +22,22 @@ import {
 } from "@/lib/ai/prompts";
 import { mockGerador, mockRefine, mockFollowup } from "@/lib/ai/mock";
 import type {
+  AIProviderId,
   GerarInput,
   FollowUpInput,
   RefineInput,
   RespostaTripla,
 } from "@/lib/types";
+
+const DEFAULT_PROVIDER_CHAIN: AIProviderId[] = [
+  "openai",
+  "anthropic",
+  "gemini",
+];
+
+type CallAIOptions = {
+  providers?: AIProviderId[];
+};
 
 // Clients
 let anthropicClient: Anthropic | null = null;
@@ -101,10 +112,15 @@ function parseJson<T>(text: string): T | null {
 }
 
 /** 
- * Chama a IA disponível (OpenAI > Anthropic > Gemini) e devolve o texto.
- * Implementa timeout e fallback automático.
+ * Chama a IA disponível e devolve o texto.
+ * Implementa timeout e fallback automático na ordem de `providers`.
  */
-async function callAI(system: string, user: string, retries = 1): Promise<string> {
+async function callAI(
+  system: string,
+  user: string,
+  retries = 1,
+  options?: CallAIOptions
+): Promise<string> {
   const TIMEOUT_MS = 20000;
 
   const tryOpenAI = async () => {
@@ -178,9 +194,15 @@ async function callAI(system: string, user: string, retries = 1): Promise<string
     }
   };
 
-  const providers = [tryOpenAI, tryAnthropic, tryGemini];
-  for (const provider of providers) {
-    const content = await provider();
+  const chain = options?.providers ?? DEFAULT_PROVIDER_CHAIN;
+  const providerFns = {
+    openai: tryOpenAI,
+    anthropic: tryAnthropic,
+    gemini: tryGemini,
+  } satisfies Record<AIProviderId, () => Promise<string | null>>;
+
+  for (const id of chain) {
+    const content = await providerFns[id]();
     if (content?.trim()) {
       return content.trim();
     }
@@ -190,7 +212,7 @@ async function callAI(system: string, user: string, retries = 1): Promise<string
   if (retries > 0) {
     console.warn(`[callAI] Provedores de IA falharam. Tentando novamente... (${retries} restantes)`);
     await new Promise(r => setTimeout(r, 1000));
-    return callAI(system, user, retries - 1);
+    return callAI(system, user, retries - 1, options);
   }
 
   throw new Error("Não foi possível obter resposta das APIs de IA.");
@@ -256,7 +278,8 @@ function validarSentiment(v: unknown): string | undefined {
 async function garantirCompliance(
   respostas: RespostaTripla,
   user: string,
-  input: GerarInput
+  input: GerarInput,
+  callOptions?: CallAIOptions
 ): Promise<RespostaTripla> {
   const algumViola = (r: RespostaTripla) =>
     violaCompliance(r.curta) ||
@@ -269,7 +292,9 @@ async function garantirCompliance(
     const revisaoRaw = await callAI(
       SYSTEM_GERADOR,
       user +
-        "\n\nATENÇÃO: a resposta anterior usou termos proibidos (promessa de resultado, cura, ausência de risco ou preço fixo). Reescreva as 3 respostas evitando QUALQUER promessa desse tipo. Responda só com o JSON."
+        "\n\nATENÇÃO: a resposta anterior usou termos proibidos (promessa de resultado, cura, ausência de risco ou preço fixo). Reescreva as 3 respostas evitando QUALQUER promessa desse tipo. Responda só com o JSON.",
+      1,
+      callOptions
     );
     const rev = parseJson<GeradorJson>(revisaoRaw);
     if (rev) {
@@ -306,12 +331,18 @@ async function garantirCompliance(
  * Classifica a mensagem do lead (NLP).
  */
 export async function classificarMensagem(
-  texto: string
+  texto: string,
+  options?: CallAIOptions
 ): Promise<Partial<GerarResultado>> {
   if (!isAnyAIConfigured) return {};
 
   try {
-    const raw = await callAI(SYSTEM_CLASSIFIER, `MENSAGEM: "${texto}"`);
+    const raw = await callAI(
+      SYSTEM_CLASSIFIER,
+      `MENSAGEM: "${texto}"`,
+      1,
+      options
+    );
     const parsed = parseJson<GeradorJson>(raw);
     if (!parsed) return {};
     return {
@@ -333,12 +364,15 @@ export async function gerarRespostas(
   }
 
   const user = buildGeradorUser(input);
+  const callOptions: CallAIOptions | undefined = input.providerChain
+    ? { providers: input.providerChain }
+    : undefined;
 
   try {
     // Chama o gerador e o classificador em paralelo para performance.
     const [raw, nlp] = await Promise.all([
-      callAI(SYSTEM_GERADOR, user),
-      classificarMensagem(input.mensagemCliente),
+      callAI(SYSTEM_GERADOR, user, 1, callOptions),
+      classificarMensagem(input.mensagemCliente, callOptions),
     ]);
 
     let parsed = parseJson<GeradorJson>(raw);
@@ -346,7 +380,9 @@ export async function gerarRespostas(
     if (!parsed) {
       const retryRaw = await callAI(
         SYSTEM_GERADOR,
-        user + "\n\nIMPORTANTE: responda APENAS com o JSON pedido, nada além disso."
+        user + "\n\nIMPORTANTE: responda APENAS com o JSON pedido, nada além disso.",
+        1,
+        callOptions
       );
       parsed = parseJson<GeradorJson>(retryRaw);
     }
@@ -367,7 +403,8 @@ export async function gerarRespostas(
         persuasiva: parsed.resposta_persuasiva?.trim() ?? "",
       },
       user,
-      input
+      input,
+      callOptions
     );
 
     return { respostas, mock: false, ...nlp };
