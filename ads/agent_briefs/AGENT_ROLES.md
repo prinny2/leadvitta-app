@@ -42,6 +42,10 @@ Grok owns market and keyword research:
 - competitor/market angle checks without changing product code.
 
 Grok should write findings to `ads/agent_briefs/GROK_MARKET_SCAN_RESULT.md`.
+Keep Grok updated whenever campaign, positioning, keyword, negative keyword,
+offer, or ad-copy decisions change. New Ads work should either update the Grok
+result file or add a short handoff note that tells Grok what changed and what
+needs fresh market/keyword review.
 
 ## Launch Loop
 

@@ -42,10 +42,10 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
     destaque: true,
     disponivel: true,
     features: [
+      "Gerações ilimitadas enquanto a assinatura estiver ativa",
       "Respostas prontas pra preço, “achou caro” e cliente que sumiu",
       "Quebra de objeção sem soar robótico",
       "Mensagens para retomar cliente que sumiu",
-      "Respostas por procedimento",
       "Botão copiar e colar direto no WhatsApp",
     ],
     priceId: process.env.STRIPE_PRICE_ID_START,

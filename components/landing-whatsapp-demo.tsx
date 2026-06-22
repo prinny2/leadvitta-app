@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
-import { Loader2, Sparkles, Wand2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowRight, Loader2, Sparkles, Wand2, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardBody, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,8 @@ import { situacoes } from "@/data/situacoes";
 import { tons } from "@/data/tons";
 import { cn } from "@/lib/utils";
 import type { ComoChamar, RespostaTripla, Variante } from "@/lib/types";
+import { PlanCTA } from "@/components/plan-cta";
+import { LegalConsentLinks } from "@/components/legal-consent-links";
 
 const procOptions = procedimentos.slice(0, 10).map((p) => ({
   value: p.id,
@@ -70,6 +73,9 @@ const LOADING_STEPS = [
   "Gerando resposta…",
 ];
 
+const DEMO_LIMIT = 5;
+const DEMO_USAGE_KEY = "leadbellus_landing_demo_generations_v1";
+
 export function LandingWhatsAppDemo() {
   const searchParams = useSearchParams();
   const demoParam = searchParams.get("demo") || "";
@@ -91,8 +97,26 @@ export function LandingWhatsAppDemo() {
   const [respostas, setRespostas] = useState<RespostaTripla | null>(null);
   const [variante, setVariante] = useState<Variante>("consultiva");
   const [responseKey, setResponseKey] = useState(0);
+  const [demoUses, setDemoUses] = useState(0);
+  const [limitLoaded, setLimitLoaded] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const respostaAtual = respostas?.[variante] || "";
+  const demoRemaining = Math.max(0, DEMO_LIMIT - demoUses);
+  const demoExhausted = limitLoaded && demoRemaining <= 0;
+  const usageProgress = Math.min(100, (demoUses / DEMO_LIMIT) * 100);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(DEMO_USAGE_KEY);
+      const parsed = raw ? Number.parseInt(raw, 10) : 0;
+      setDemoUses(Number.isFinite(parsed) ? Math.min(DEMO_LIMIT, Math.max(0, parsed)) : 0);
+    } catch {
+      setDemoUses(0);
+    } finally {
+      setLimitLoaded(true);
+    }
+  }, []);
 
   // Cycle through loading steps while generating
   useEffect(() => {
@@ -133,6 +157,11 @@ export function LandingWhatsAppDemo() {
   }
 
   async function gerar() {
+    if (demoExhausted) {
+      setErro("");
+      setUpgradeOpen(true);
+      return;
+    }
     if (!mensagemCliente.trim()) {
       setErro("Digite a mensagem da cliente para simular.");
       return;
@@ -173,6 +202,16 @@ export function LandingWhatsAppDemo() {
 
       setRespostas(data.respostas);
       setResponseKey((k) => k + 1);
+      setDemoUses((current) => {
+        const next = Math.min(DEMO_LIMIT, current + 1);
+        try {
+          window.localStorage.setItem(DEMO_USAGE_KEY, String(next));
+        } catch {
+          /* contador local indisponível: a demo segue funcionando. */
+        }
+        if (next >= DEMO_LIMIT) setUpgradeOpen(true);
+        return next;
+      });
       if (data.mock) {
         setAviso(
           data.aviso ||
@@ -190,6 +229,91 @@ export function LandingWhatsAppDemo() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+      <AnimatePresence>
+        {upgradeOpen ? (
+          <motion.div
+            className="fixed inset-0 z-[80] flex items-center justify-center px-4 py-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="start-upgrade-title"
+          >
+            <button
+              type="button"
+              aria-label="Fechar"
+              className="absolute inset-0 bg-[#020711]/75 backdrop-blur-sm"
+              onClick={() => setUpgradeOpen(false)}
+            />
+            <motion.div
+              className="relative w-full max-w-[440px] overflow-hidden rounded-2xl border border-[#C9A060]/30 bg-[#07101e] p-6 text-white shadow-2xl"
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.97 }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <button
+                type="button"
+                aria-label="Fechar"
+                onClick={() => setUpgradeOpen(false)}
+                className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-white/65 transition hover:bg-white/10 hover:text-white"
+              >
+                <X size={17} />
+              </button>
+
+              <div className="mb-4 inline-flex rounded-full border border-[#C9A060]/35 bg-[#C9A060]/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#D9B66D]">
+                Demo encerrada
+              </div>
+
+              <h3
+                id="start-upgrade-title"
+                className="font-serif text-2xl font-semibold leading-tight text-white"
+              >
+                As 5 respostas grátis acabaram.
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-white/68">
+                O Start libera o uso contínuo do gerador para preço, objeções e
+                clientes que sumiram, sem depender da demo da landing.
+              </p>
+
+              <div className="mt-5 grid gap-2 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm text-white/74">
+                <div className="flex items-start justify-between gap-3">
+                  <span>Demo grátis</span>
+                  <strong className="text-white">5 respostas</strong>
+                </div>
+                <div className="flex items-start justify-between gap-3">
+                  <span>Start</span>
+                  <strong className="text-[#D9B66D]">R$97/mês</strong>
+                </div>
+                <p className="border-t border-white/10 pt-3 text-xs leading-relaxed text-white/48">
+                  Demo serve para testar. Start é o plano pago para usar no atendimento
+                  real da clínica.
+                </p>
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                <PlanCTA
+                  plan="start"
+                  interval="monthly"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#C9A060] px-5 py-3 text-sm font-extrabold text-[#07101e] transition hover:bg-[#D9B66D]"
+                >
+                  Assinar Start e continuar
+                </PlanCTA>
+                <Link
+                  href="/signup?plan=start"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#C9A060]/35 px-5 py-3 text-sm font-bold text-[#D9B66D] transition hover:bg-[#C9A060]/10"
+                >
+                  Criar conta primeiro
+                  <ArrowRight size={15} />
+                </Link>
+                <LegalConsentLinks tone="light" />
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       {/* ── Left card — simulator form ── */}
       <motion.div
         initial={{ opacity: 0, x: -24 }}
@@ -200,7 +324,34 @@ export function LandingWhatsAppDemo() {
         <Card className="overflow-hidden">
           <CardBody className="space-y-4">
             <div>
-              <CardTitle>Simulador rápido</CardTitle>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <CardTitle>Simulador rápido</CardTitle>
+                  <p className="mt-1 text-sm text-muted">
+                    Você tem 5 gerações grátis para testar a resposta no seu tom.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => demoExhausted && setUpgradeOpen(true)}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-bold",
+                    demoExhausted
+                      ? "border-[#C9A060] bg-[#C9A060]/10 text-[#7A5108]"
+                      : "border-brand-100 bg-nude-50 text-muted"
+                  )}
+                >
+                  {demoRemaining} de {DEMO_LIMIT} restantes
+                </button>
+              </div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-nude-100">
+                <motion.div
+                  className="h-full rounded-full bg-[#C9A060]"
+                  initial={false}
+                  animate={{ width: `${usageProgress}%` }}
+                  transition={{ duration: 0.25 }}
+                />
+              </div>
               <p className="mt-1 text-sm text-muted">
                 É simples: <strong>1.</strong> diga o nome e o tom da sua clínica ·{" "}
                 <strong>2.</strong> cole a mensagem da cliente · <strong>3.</strong>{" "}
@@ -330,11 +481,15 @@ export function LandingWhatsAppDemo() {
                   type="button"
                   className="w-full"
                   onClick={gerar}
-                  disabled={loading}
+                  disabled={loading || !limitLoaded}
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
                       <Loader2 size={16} className="animate-spin flex-shrink-0" /> Gerando…
+                    </span>
+                  ) : demoExhausted ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Sparkles size={16} className="flex-shrink-0" /> Ver Start
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-2">
@@ -355,6 +510,12 @@ export function LandingWhatsAppDemo() {
                 className="simulator-input"
               />
               {erro && <p className="mt-2 text-sm text-red-600">{erro}</p>}
+              {demoExhausted ? (
+                <p className="mt-2 text-sm font-medium text-[#7A5108]">
+                  Você já usou as 5 respostas da demo. O Start libera o uso no
+                  atendimento real.
+                </p>
+              ) : null}
               <AvisoIA aviso={aviso} className="mt-3" />
             </div>
           </CardBody>

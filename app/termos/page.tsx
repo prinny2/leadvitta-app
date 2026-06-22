@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Termos de Uso — LeadBellus",
-  description: "Termos de Uso do LeadBellus.",
+  title: "Termos de Serviço — LeadBellus",
+  description: "Termos de Serviço do LeadBellus.",
 };
 
 export default function TermosPage() {
@@ -15,7 +15,7 @@ export default function TermosPage() {
         </Link>
 
         <h1 className="mt-6 font-serif text-3xl font-semibold text-champagne-300 sm:text-4xl">
-          Termos de Uso
+          Termos de Serviço
         </h1>
         <p className="mt-2 text-xs text-navy-100">Última atualização: junho de 2026</p>
 
@@ -32,7 +32,7 @@ export default function TermosPage() {
             <h2 className="font-serif text-xl font-semibold text-champagne-200">1. Aceitação</h2>
             <p className="mt-2">
               Ao acessar ou usar o LeadBellus (&quot;Serviço&quot;), você concorda
-              com estes Termos de Uso. Se não concordar, não utilize o Serviço.
+              com estes Termos de Serviço. Se não concordar, não utilize o Serviço.
             </p>
           </section>
 
@@ -60,7 +60,9 @@ export default function TermosPage() {
           <section>
             <h2 className="font-serif text-xl font-semibold text-champagne-200">4. Planos, pagamento e cancelamento</h2>
             <p className="mt-2">
-              Os planos são assinaturas mensais cobradas via Stripe. A assinatura é
+              A demonstração pública permite até 5 respostas gratuitas por navegador.
+              O plano Start é uma assinatura mensal paga, cobrada via Stripe, para uso
+              contínuo do gerador enquanto a assinatura estiver ativa. A assinatura é
               renovada automaticamente a cada período até que seja cancelada. Você
               pode cancelar a qualquer momento, e o acesso permanece até o fim do
               período já pago. Salvo disposição legal em contrário, não há reembolso
