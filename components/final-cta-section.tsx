@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { LegalConsentLinks } from "@/components/legal-consent-links";
 
 function TagPill({ children }: { children: React.ReactNode }) {
   return (
@@ -185,8 +186,17 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           transition={{ duration: 0.5, delay: 0.9 }}
           style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", marginTop: "14px" }}
         >
-          5 respostas grátis · Sem cartão · Acesso imediato
+          Demo com 5 respostas grátis · Start pago para uso contínuo
         </motion.p>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          style={{ maxWidth: "430px", margin: "10px auto 0" }}
+        >
+          <LegalConsentLinks tone="light" />
+        </motion.div>
       </div>
     </section>
   );

@@ -11,6 +11,7 @@ import { SimuladorFadeUp, SimuladorUnderline, SimuladorScenarioBtn } from "@/com
 import { FaqSection } from "@/components/faq-section";
 import { FinalCTASection } from "@/components/final-cta-section";
 import { FooterSection } from "@/components/footer-section";
+import { LegalConsentLinks } from "@/components/legal-consent-links";
 
 const funilHref = "/signup";
 
@@ -241,7 +242,7 @@ function CompactProblemSection() {
   ];
 
   return (
-    <section id="funcoes" style={{ background: "#F6F0E6", padding: "72px 24px" }}>
+    <section id="sinais" style={{ background: "#F6F0E6", padding: "72px 24px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         <div style={{ maxWidth: "640px", marginBottom: "32px" }}>
           <TagPill light>Sinais que ele lê</TagPill>
@@ -432,10 +433,10 @@ export default function LandingPage() {
             }}
           >
             <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", lineHeight: 1.75, marginBottom: "20px" }}>
-              Gere respostas para preço, objeções e clientes que sumiram.
+              A demo libera 5 respostas para testar. O Start é o plano pago para usar no atendimento real.
             </p>
             <Link
-              href={funilHref}
+              href="/signup?plan=start"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -449,11 +450,14 @@ export default function LandingPage() {
                 textDecoration: "none",
               }}
             >
-              Gerar 5 respostas grátis →
+              Criar conta grátis →
             </Link>
             <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
-              Sem cartão · Acesso imediato · Você configura em 5 minutos
+              Demo: 5 respostas · Start: R$97/mês · cancele quando quiser
             </p>
+            <div style={{ maxWidth: "430px", margin: "10px auto 0" }}>
+              <LegalConsentLinks tone="light" />
+            </div>
           </div>
           </SimuladorFadeUp>
         </div>
@@ -538,14 +542,14 @@ export default function LandingPage() {
       >
         <div style={{ lineHeight: 1.2 }}>
           <p style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>
-            R$97<span style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>/mês</span>
+            Start R$97<span style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>/mês</span>
           </p>
           <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>
-            5 respostas grátis · sem cartão
+            Demo grátis: 5 respostas
           </p>
         </div>
         <Link
-          href={funilHref}
+          href="#precos"
           style={{
             marginLeft: "auto",
             background: "#C9A060",
@@ -558,7 +562,7 @@ export default function LandingPage() {
             whiteSpace: "nowrap",
           }}
         >
-          Gerar grátis →
+          Ver Start →
         </Link>
       </div>
     </div>

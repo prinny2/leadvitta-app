@@ -50,7 +50,7 @@ const PRODUTO = [
 ];
 
 const LEGAL = [
-  { label: "Termos de Uso", href: "/termos" },
+  { label: "Termos de Serviço", href: "/termos" },
   { label: "Privacidade", href: "/privacidade" },
   { label: "Política de Reembolso", href: "/reembolso" },
 ];

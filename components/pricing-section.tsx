@@ -3,6 +3,28 @@ import { Check } from "lucide-react";
 import { PlanCTA } from "@/components/plan-cta";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { billingPlanList, type BillingPlanConfig } from "@/lib/billing";
+import { LegalConsentLinks } from "@/components/legal-consent-links";
+
+const PLAN_META = {
+  start: {
+    eyebrow: "Disponível agora",
+    scope: "Plano pago de entrada",
+    bestFor: "Para usar no atendimento real depois das 5 respostas grátis.",
+    contrast: "Demo: 5 respostas. Start: uso contínuo.",
+  },
+  pro: {
+    eyebrow: "Próximo degrau",
+    scope: "Mais operação e histórico",
+    bestFor: "Para equipes que querem padronizar respostas e aprender com as melhores conversas.",
+    contrast: "Tudo do Start, com mais biblioteca e histórico.",
+  },
+  premium: {
+    eyebrow: "Rotina completa",
+    scope: "Automação e prioridade",
+    bestFor: "Para reduzir trabalho manual quando os módulos avançados abrirem.",
+    contrast: "Mais automações sobre a base do Pro.",
+  },
+} as const;
 
 function PricingCard({
   plan,
@@ -13,6 +35,7 @@ function PricingCard({
 }) {
   const available = plan.disponivel;
   const featured = plan.destaque || plan.id === "start";
+  const meta = PLAN_META[plan.id];
 
   return (
     <article
@@ -43,9 +66,33 @@ function PricingCard({
         </span>
       ) : null}
 
-      <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", margin: "0 0 4px" }}>
-        Plano
-      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
+        <span
+          style={{
+            border: "1px solid rgba(201,160,96,0.35)",
+            background: featured ? "rgba(201,160,96,0.12)" : "rgba(255,255,255,0.04)",
+            borderRadius: "9999px",
+            color: featured ? "#D9B66D" : "rgba(255,255,255,0.62)",
+            fontSize: "11px",
+            fontWeight: 800,
+            padding: "5px 10px",
+          }}
+        >
+          {meta.eyebrow}
+        </span>
+        <span
+          style={{
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "9999px",
+            color: "rgba(255,255,255,0.55)",
+            fontSize: "11px",
+            fontWeight: 700,
+            padding: "5px 10px",
+          }}
+        >
+          {meta.scope}
+        </span>
+      </div>
       <h3
         style={{
           fontFamily: "var(--font-fraunces, Georgia, serif)",
@@ -84,6 +131,25 @@ function PricingCard({
         {plan.tagline}
       </p>
 
+      <div
+        style={{
+          background: featured ? "rgba(201,160,96,0.08)" : "rgba(255,255,255,0.035)",
+          border: featured
+            ? "1px solid rgba(201,160,96,0.22)"
+            : "1px solid rgba(255,255,255,0.07)",
+          borderRadius: "12px",
+          padding: "12px 13px",
+          marginBottom: "18px",
+        }}
+      >
+        <p style={{ color: "rgba(255,255,255,0.78)", fontSize: "12px", lineHeight: 1.55, margin: 0 }}>
+          {meta.bestFor}
+        </p>
+        <p style={{ color: featured ? "#D9B66D" : "rgba(255,255,255,0.45)", fontSize: "11px", fontWeight: 700, lineHeight: 1.45, margin: "7px 0 0" }}>
+          {meta.contrast}
+        </p>
+      </div>
+
       <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", display: "grid", gap: "10px" }}>
         {plan.features.slice(0, featured ? 5 : 4).map((feature) => (
           <li
@@ -111,7 +177,7 @@ function PricingCard({
               className="block w-full rounded-xl bg-[#C9A060] px-5 py-3 text-center text-sm font-bold text-[#07101e]"
               style={{ textDecoration: "none" }}
             >
-              Começar com {plan.label}
+              {plan.id === "start" ? "Assinar Start agora" : `Assinar ${plan.label}`}
             </Link>
           ) : (
             <PlanCTA
@@ -119,12 +185,15 @@ function PricingCard({
               interval="monthly"
               className="block w-full rounded-xl bg-[#C9A060] px-5 py-3 text-center text-sm font-bold text-[#07101e]"
             >
-              Começar com {plan.label}
+              {plan.id === "start" ? "Assinar Start agora" : `Assinar ${plan.label}`}
             </PlanCTA>
           )}
           <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.42)", textAlign: "center", margin: "10px 0 0" }}>
-            5 respostas grátis · sem cartão
+            {plan.id === "start"
+              ? "Depois da demo: R$97/mês · cancele quando quiser"
+              : "Checkout seguro via Stripe"}
           </p>
+          <LegalConsentLinks tone="light" className="mt-2" />
         </>
       ) : (
         <>
@@ -140,9 +209,9 @@ function PricingCard({
 
 export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
   const focusByPlan = {
-    start: "Responder melhor hoje",
-    pro: "Priorizar conversas e automações",
-    premium: "Rotina completa de WhatsApp",
+    start: "Pago agora: respostas continuas",
+    pro: "Biblioteca, roteiros e histórico",
+    premium: "Automacoes avancadas em breve",
   } as const;
   const rows = billingPlanList.map((plan) => ({
     plan: plan.label,
@@ -174,6 +243,27 @@ export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
           overflow: "hidden",
         }}
       >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "120px 1fr 110px",
+            gap: "14px",
+            padding: "14px 18px",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            alignItems: "center",
+          }}
+          className="pricing-row"
+        >
+          <strong style={{ color: "rgba(255,255,255,0.86)", fontSize: "14px" }}>
+            Demo grátis
+          </strong>
+          <span style={{ color: "rgba(255,255,255,0.62)", fontSize: "13px" }}>
+            5 respostas para testar, sem cartão
+          </span>
+          <span style={{ color: "#D9B66D", fontSize: "12px", fontWeight: 800 }}>
+            Limitada
+          </span>
+        </div>
         {rows.map((row, index) => (
           <div
             key={row.plan}
