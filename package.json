@@ -9,6 +9,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "ads:generate": "node scripts/generate-google-ads-editor.mjs",
     "firebase:check": "node scripts/check-firestore-contracts.mjs",
     "firebase:emulator:check": "node scripts/check-firestore-emulator.mjs",
     "firebase:verify": "node scripts/verify-firebase.mjs",

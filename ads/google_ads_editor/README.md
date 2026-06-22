@@ -1,11 +1,21 @@
 # LeadBellus Google Ads Import Pack
 
 Created: 2026-06-20
-Updated: 2026-06-20 with Grok keyword research and Gemini visual QA.
+Updated: 2026-06-21 with automated pack generation.
 
 Start here before importing: `../ADS_COMMAND_CENTER.md`.
 
 This pack is intentionally separate from the landing page work. It prepares a Search-only launch that can be reviewed in Google Ads Editor before publishing.
+
+## Regenerate
+
+Run this from the project root whenever campaign copy, keywords, negatives, budget, or UTM structure changes:
+
+```bash
+npm run ads:generate
+```
+
+The generator validates responsive search ad limits before writing the CSVs, then creates the import files plus `06_automation_rules.md`.
 
 ## Files
 
@@ -14,6 +24,7 @@ This pack is intentionally separate from the landing page work. It prepares a Se
 - `03_negative_keywords.csv`: campaign-level negative keywords.
 - `04_assets_manual.csv`: sitelinks, callouts, and structured snippet values to add manually or map in Editor.
 - `05_launch_checklist.md`: what to check before posting changes.
+- `06_automation_rules.md`: rules to configure in Google Ads after conversion tracking is confirmed.
 
 ## Campaign Structure
 

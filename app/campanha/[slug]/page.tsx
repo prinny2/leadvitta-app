@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { HeroShapes } from "@/components/hero-shapes";
 import { HeroDevices } from "@/components/hero-devices";
 import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
@@ -55,7 +54,7 @@ function TagPill({ children, light }: { children: React.ReactNode; light?: boole
         padding: "4px 14px",
         fontSize: "11px",
         fontWeight: 700,
-        letterSpacing: "0.08em",
+        letterSpacing: 0,
         textTransform: "uppercase",
         marginBottom: "20px",
       }}
@@ -150,7 +149,7 @@ function LaunchBanner() {
         letterSpacing: "0.02em",
       }}
     >
-      ✦ Oferta de Lançamento: gere 5 respostas grátis e garanta a licença Start com preço congelado.
+      Oferta de lançamento: teste 5 respostas grátis e veja se o Start encaixa na rotina.
     </div>
   );
 }
@@ -191,15 +190,21 @@ export default async function CampaignPage({ params }: Props) {
         style={{
           background: "#07101e",
           color: "#ffffff",
-          padding: "72px 24px 80px",
+          padding: "78px 24px 84px",
           position: "relative",
           overflow: "hidden",
         }}
       >
-        <div style={{ position: "absolute", top: "-80px", left: "-100px", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(201,160,96,0.10) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: "-60px", right: "-80px", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(201,160,96,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: "30%", right: "10%", width: "300px", height: "300px", background: "radial-gradient(circle, rgba(96,160,201,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <HeroShapes />
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(118deg, transparent 0 45%, rgba(255,122,89,0.10) 45% 46%, transparent 46% 68%, rgba(94,224,160,0.08) 68% 69%, transparent 69% 100%), repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 76px), repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 76px)",
+            opacity: 0.72,
+          }}
+        />
 
         <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}>
           <div
@@ -217,7 +222,7 @@ export default async function CampaignPage({ params }: Props) {
               subtitle={campaignSubtitle}
               bullets={campaignBullets}
               ctaHref="/signup?plan=start"
-              ctaText="Gerar 5 respostas grátis →"
+              ctaText="Gerar 5 respostas grátis"
               hideSimuladorLink={true}
             />
 
