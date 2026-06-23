@@ -11,6 +11,7 @@ import { FaqSection } from "@/components/faq-section";
 import { FinalCTASection } from "@/components/final-cta-section";
 import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
+import { MarketingMobileMenu } from "@/components/marketing-mobile-menu";
 
 const funilHref = "/signup";
 
@@ -183,6 +184,7 @@ function Navbar() {
           </Link>
           <Link
             href="/signup?plan=start"
+            className="hidden md:inline-flex"
             style={{
               background: "#C9A060",
               color: "#07101e",
@@ -196,6 +198,7 @@ function Navbar() {
           >
             Gerar 5 respostas
           </Link>
+          <MarketingMobileMenu />
         </div>
       </div>
     </nav>
