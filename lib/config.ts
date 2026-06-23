@@ -46,6 +46,12 @@ export const isGeminiConfigured =
 export const isAnyAIConfigured =
   isOpenAIConfigured || isAnthropicConfigured || isGeminiConfigured;
 
+/** URL do microserviço leadvitta-nlp (classificação por ML). Apenas no servidor. */
+export const nlpServiceUrl = process.env.NLP_SERVICE_URL?.trim() || "";
+
+/** True quando o serviço externo de NLP (leadvitta-nlp) está configurado. */
+export const isNlpServiceConfigured = !!nlpServiceUrl;
+
 /** Modelo legado/compatível. Prefira os modelos específicos por provedor. */
 export const aiModel = process.env.AI_MODEL || "gpt-4o-mini";
 

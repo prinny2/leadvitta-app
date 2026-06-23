@@ -7,9 +7,12 @@ import {
   isAnthropicConfigured,
   isAnyAIConfigured,
   isGeminiConfigured,
+  isNlpServiceConfigured,
   isOpenAIConfigured,
   openaiModel,
 } from "@/lib/config";
+import { clampScore, validarIntent, validarSentiment } from "@/lib/ai/nlp-validation";
+import { classificarViaNlpService } from "@/lib/ai/nlp-service";
 import {
   SYSTEM_GERADOR,
   SYSTEM_REFINE,
@@ -236,39 +239,6 @@ export type GerarResultado = {
   score?: number;
 };
 
-// ----- Validação da classificação (NLP) -----
-// O LLM pode devolver score fora de 0-100, string, ou intent/sentiment fora do
-// vocabulário. Esses valores vão pro Firestore e pro ranking do inbox, então
-// precisam ser saneados antes de persistir (senão corrompem a triagem de leads).
-const INTENTS_VALIDOS = new Set([
-  "pergunta_preco",
-  "agendamento",
-  "duvida_tecnica",
-  "objecao",
-  "demonstra_interesse",
-  "desistencia",
-  "outro",
-]);
-
-function clampScore(v: unknown): number | undefined {
-  if (v === null || v === undefined || v === "") return undefined;
-  const n = typeof v === "number" ? v : Number(v);
-  if (!Number.isFinite(n)) return undefined;
-  return Math.min(100, Math.max(0, Math.round(n)));
-}
-
-function validarIntent(v: unknown): string | undefined {
-  if (typeof v !== "string") return undefined;
-  const s = v.trim().toLowerCase();
-  return INTENTS_VALIDOS.has(s) ? s : undefined;
-}
-
-function validarSentiment(v: unknown): string | undefined {
-  if (typeof v !== "string") return undefined;
-  const m = v.trim().match(/^([1-5])\s*stars?$/i);
-  return m ? `${m[1]} stars` : undefined;
-}
-
 /**
  * Garante que NENHUMA das 3 respostas viole a denylist: se alguma violar, pede
  * UMA reescrita, RE-VALIDA o resultado e — como última linha de defesa — troca
@@ -334,6 +304,13 @@ export async function classificarMensagem(
   texto: string,
   options?: CallAIOptions
 ): Promise<Partial<GerarResultado>> {
+  // Prefere o serviço de ML externo (leadvitta-nlp) quando configurado; só cai
+  // no classificador LLM se ele falhar ou não devolver intenção válida.
+  if (isNlpServiceConfigured) {
+    const nlp = await classificarViaNlpService(texto);
+    if (nlp?.intent) return nlp;
+  }
+
   if (!isAnyAIConfigured) return {};
 
   try {
