@@ -24,9 +24,11 @@ as a production change. Do not assume "it's done" without live verification
 
 **LeadBellus** — a Brazilian (PT-BR) SaaS micro-app that helps **aesthetic
 clinics and beauty professionals** respond better on WhatsApp. It turns an
-incoming client message into **3 strategic response variants**
-(Suave / Consultiva / Fechamento) with AI compliance guardrails (no guaranteed
-results, no fixed pricing, no medical diagnoses). It also generates objection
+incoming client message into **3 strategic response variants** — display labels
+**Suave / Consultiva / Fechamento**, but the **technical keys** (what the API
+returns and `RespostaTripla` in `lib/types.ts` exposes) are
+**`curta` / `consultiva` / `persuasiva`** — with AI compliance guardrails (no
+guaranteed results, no fixed pricing, no medical diagnoses). It also generates objection
 rebuttals, follow-ups, and sales scripts, and logs every response with
 intent/sentiment/score.
 
@@ -45,7 +47,12 @@ env vars are set.
 - **Auth + data:** Firebase Auth (email/password + Google) and Cloud Firestore;
   Firebase Admin SDK for server-side webhook writes.
 - **Billing:** Stripe (subscription mode), reconciled into Firestore via webhook.
-- **Integrations:** WhatsApp Cloud API (Meta) and Zapier.
+- **Integrations:** **WhatsApp via Z-API** (`ZAPI_INSTANCE_ID` / `ZAPI_TOKEN`;
+  see `lib/whatsapp-zapi.ts`, `lib/whatsapp-types.ts` where `provider.name ===
+  "zapi"`). Z-API **also replaced Zapier** for operational alerts
+  (`lib/ops-notify.ts`). The old Meta WhatsApp Cloud API path is **legacy** — not
+  the active provider. Verified live 2026-06-23: `GET /api/health` →
+  `whatsapp_provider: "zapi"`.
 - **Deploy:** **Production runs on Vercel** (`vini1/leadvitta-app`); env vars are
   baked at build time there. The Cloud Run path — Docker (Node 20,
   `output: "standalone"`) → Cloud Build → Cloud Run (region `southamerica-east1`,
@@ -91,7 +98,7 @@ lib/
   billing.ts                  # Stripe plan config (start/pro/premium)
   store.ts                    # data abstraction: Firestore OR localStorage
   api-security.ts             # CORS/origin check, rate limit, body parse, jsonNoStore
-  whatsapp.ts, zapier.ts      # external API clients
+  whatsapp-zapi.ts whatsapp-types.ts ops-notify.ts  # Z-API client + provider contract + ops alerts
   ai/ provider.ts prompts.ts mock.ts   # OpenAI>Anthropic orchestration + compliance denylist
   firebase/ client.ts admin.ts middleware.ts
   stripe/server.ts
@@ -173,8 +180,11 @@ or `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY`),
 **AI** (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `AI_MODEL`),
 **Stripe** (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CHECKOUT_MODE`,
 `STRIPE_PRICE_ID_{START,PRO,PREMIUM}`),
-**WhatsApp** (`WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_VERIFY_TOKEN`,
-`WHATSAPP_APP_SECRET`), **Zapier** (`ZAPIER_WEBHOOK_URL`, `ZAPIER_SHARED_SECRET`),
+**WhatsApp via Z-API** (`ZAPI_INSTANCE_ID`, `ZAPI_TOKEN`, + alert number for ops;
+see `lib/config.ts` `isZApiConfigured`). The Meta WhatsApp Cloud API vars
+(`WHATSAPP_TOKEN`/`WHATSAPP_PHONE_NUMBER_ID`/`WHATSAPP_VERIFY_TOKEN`/`WHATSAPP_APP_SECRET`)
+and Zapier vars (`ZAPIER_*`) are **legacy** — Z-API is the active provider
+(`.env.local.example` remains the source of truth for current names),
 and optional analytics (`NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_META_PIXEL_ID`),
 plus `NEXT_PUBLIC_SITE_URL`.
 
