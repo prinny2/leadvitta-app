@@ -65,3 +65,30 @@ export function mockFollowup(input: FollowUpInput): string[] {
     `${ola} Tô por aqui se quiser retomar quando for melhor pra você 💕 Se preferir, já deixo um horário sugerido pra avaliarmos com calma. O que acha?`,
   ];
 }
+
+/**
+ * Reescrita segura determinística: troca os termos proibidos por equivalentes
+ * compliant. Base do Auditor de Compliance no modo demo (sem IA) e última linha
+ * de defesa quando a reescrita da IA ainda vier com algum termo proibido.
+ */
+const SOFTEN_RULES: { re: RegExp; repl: string }[] = [
+  { re: /resultados?\s+(?:\S+\s+)?garantid\w*/gi, repl: "resultado que varia de pessoa para pessoa" },
+  { re: /100\s*%\s*seguro/gi, repl: "feito com segurança" },
+  { re: /sem\s+(nenhum\s+)?risco(\s+nenhum)?/gi, repl: "com os devidos cuidados" },
+  { re: /vai\s+ficar\s+perfeit\w*/gi, repl: "pode melhorar bastante" },
+  { re: /elimina\w*\s+(a\s+)?gordura\s+definitiv\w*/gi, repl: "ajuda a reduzir a gordura localizada" },
+  { re: /emagrec\w*\s+\d+\s*(quilos|kg)/gi, repl: "auxilia no emagrecimento" },
+  { re: /cura\w*\s+(o\s+|do\s+)?melasma/gi, repl: "ajuda a controlar o melasma" },
+  { re: /rejuvenesc\w*\s+\d+\s*anos/gi, repl: "deixa o aspecto mais jovem e descansado" },
+  { re: /\bgaranto\b/gi, repl: "busco" },
+  { re: /\bcusta\s+R\$\s*[\d.,]+/gi, repl: "tem o valor definido na avaliação" },
+  { re: /\b(fica|sai)\s+(por\s+|em\s+)?R\$\s*[\d.,]+/gi, repl: "tem o valor definido na avaliação" },
+];
+
+export function softenText(texto: string): string {
+  let out = texto;
+  for (const { re, repl } of SOFTEN_RULES) {
+    out = out.replace(re, repl);
+  }
+  return out;
+}

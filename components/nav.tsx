@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Home, Sparkles, MessagesSquare, Send, ListChecks, History, Settings, LogOut, Brain,
+  Home, Sparkles, MessagesSquare, Send, ListChecks, History, Settings, LogOut, Brain, ShieldCheck,
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
@@ -18,6 +18,7 @@ const links = [
   { href: "/objecoes",           label: "Objeções",           icon: MessagesSquare,pro: false },
   { href: "/follow-up",          label: "Follow-up",          icon: Send,          pro: false },
   { href: "/scripts",            label: "Scripts",            icon: ListChecks,    pro: false },
+  { href: "/compliance",         label: "Revisar texto",      icon: ShieldCheck,   pro: false },
   { href: "/historico",          label: "Histórico",          icon: History,       pro: false },
   { href: "/configuracoes",      label: "Configurações",      icon: Settings,      pro: false },
 ];
