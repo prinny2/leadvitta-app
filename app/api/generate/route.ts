@@ -1,8 +1,8 @@
 import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { gerarRespostas, refinarResposta } from "@/lib/ai/provider";
 import type { GerarInput, RefineInput } from "@/lib/types";
-import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
-import { checkGenerationLimit, incrementFreeUsage } from "@/lib/usage-limit";
+import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
+import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
 
 export const runtime = "nodejs";
 
@@ -59,9 +59,24 @@ export async function POST(req: Request) {
     // Sem token (ex.: demo pública da landing) não conta nem bloqueia.
     const token = (body as { firebaseIdToken?: string }).firebaseIdToken;
     const decoded = await verifyFirebaseIdToken(token);
-    let limit = null as Awaited<ReturnType<typeof checkGenerationLimit>> | null;
+
+    // Token ENVIADO mas inválido/expirado não pode rebaixar para "anônimo
+    // ilimitado" (senão um grátis logado driblaria o limite mandando lixo, e um
+    // legítimo com token expirado geraria sem contar). Só vale quando o Admin
+    // SDK existe — sem credencial, verify falha por config, não por token ruim.
+    if (token && !decoded?.uid && isFirebaseAdminConfigured()) {
+      return jsonNoStore(
+        { error: "Sessão expirada. Entre novamente para continuar.", reauth: true },
+        { status: 401 }
+      );
+    }
+
+    // Reserva ATÔMICA do slot grátis ANTES de gerar (check + increment na mesma
+    // transação) pra fechar a corrida: sem isso, chamadas concorrentes do mesmo
+    // usuário leem used=4 e todas passam, furando o teto de grátis.
+    let limit = null as Awaited<ReturnType<typeof reserveGeneration>> | null;
     if (decoded?.uid) {
-      limit = await checkGenerationLimit(decoded.uid);
+      limit = await reserveGeneration(decoded.uid);
       if (!limit.allowed) {
         return jsonNoStore(
           {
@@ -82,26 +97,31 @@ export async function POST(req: Request) {
         )
       : undefined;
 
-    const result = await gerarRespostas({
-      modo: body.modo === "reescrever" ? "reescrever" : "gerar",
-      procedimento: body.procedimento ?? "",
-      situacao: body.situacao ?? "",
-      tom: body.tom ?? "acolhedor",
-      objetivo: body.objetivo ?? "",
-      perfilCliente: body.perfilCliente,
-      oQueMelhorar: body.oQueMelhorar,
-      nomeCliente: body.nomeCliente,
-      mensagemCliente: String(body.mensagemCliente),
-      clinica: body.clinica,
-      providerChain: providerChain?.length ? providerChain : undefined,
-    });
-
-    // Conta a geração grátis só após sucesso (pagante nunca conta).
-    let freeRemaining: number | undefined;
-    if (decoded?.uid && limit && !limit.paid) {
-      await incrementFreeUsage(decoded.uid);
-      freeRemaining = Math.max(0, limit.remaining - 1);
+    let result;
+    try {
+      result = await gerarRespostas({
+        modo: body.modo === "reescrever" ? "reescrever" : "gerar",
+        procedimento: body.procedimento ?? "",
+        situacao: body.situacao ?? "",
+        tom: body.tom ?? "acolhedor",
+        objetivo: body.objetivo ?? "",
+        perfilCliente: body.perfilCliente,
+        oQueMelhorar: body.oQueMelhorar,
+        nomeCliente: body.nomeCliente,
+        mensagemCliente: String(body.mensagemCliente),
+        clinica: body.clinica,
+        providerChain: providerChain?.length ? providerChain : undefined,
+      });
+    } catch (genErr) {
+      // Geração falhou: devolve o slot reservado pra não "gastar" uma grátis.
+      if (decoded?.uid && limit?.reserved) await releaseGeneration(decoded.uid);
+      throw genErr;
     }
+
+    // O slot grátis já foi consumido na reserva (só pra não-pagante).
+    const freeRemaining = limit?.reserved
+      ? Math.max(0, limit.remaining - 1)
+      : undefined;
 
     return jsonNoStore(
       freeRemaining === undefined ? result : { ...result, freeRemaining }

@@ -32,6 +32,20 @@ describe("lib/config", () => {
     expect(isFirebaseConfigured).toBe(true);
   });
 
+  it("não configura NLP quando NLP_SERVICE_URL está ausente ou vazio", async () => {
+    vi.stubEnv("NLP_SERVICE_URL", "");
+    const { nlpServiceUrl, isNlpServiceConfigured } = await loadConfig();
+    expect(nlpServiceUrl).toBe("");
+    expect(isNlpServiceConfigured).toBe(false);
+  });
+
+  it("normaliza NLP_SERVICE_URL (trim) e marca isNlpServiceConfigured quando presente", async () => {
+    vi.stubEnv("NLP_SERVICE_URL", "  https://nlp.service.local  ");
+    const { nlpServiceUrl, isNlpServiceConfigured } = await loadConfig();
+    expect(nlpServiceUrl).toBe("https://nlp.service.local");
+    expect(isNlpServiceConfigured).toBe(true);
+  });
+
   it("isAnthropicConfigured / isOpenAIConfigured seguem as chaves", async () => {
     vi.stubEnv("ANTHROPIC_API_KEY", "sk-ant");
     vi.stubEnv("OPENAI_API_KEY", "");

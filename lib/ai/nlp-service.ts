@@ -12,7 +12,10 @@ export type NlpClassification = {
   score?: number;
 };
 
-const TIMEOUT_MS = Number(process.env.NLP_SERVICE_TIMEOUT_MS) || 8000;
+// Roda DENTRO de gerarRespostas (síncrono p/ o usuário), então o timeout precisa
+// ser curto: há fallback LLM rápido, e 8s de cold start do FastAPI penalizaria a
+// geração inteira. 4s cobre o caminho quente sem pendurar a resposta.
+const TIMEOUT_MS = Number(process.env.NLP_SERVICE_TIMEOUT_MS) || 4000;
 
 // Labels do leadvitta-nlp (INTENCOES em service/main.py) -> enum do app.
 const INTENT_MAP: Record<string, string> = {
