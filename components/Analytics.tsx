@@ -11,10 +11,8 @@ const META_PIXEL_ID =
 // ID de medição GA4 é PÚBLICO (aparece no HTML de qualquer site). O default garante
 // que o analytics carregue mesmo sem a env var na Vercel; se a env existir, ela vence.
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "G-223KR63TS8";
-// Tag do Google Ads (conversão/remarketing). Pública. Convive com o GA4 no
-// MESMO gtag.js — uma carga só, vários gtag('config', ...).
-const GOOGLE_ADS_ID =
-  process.env.NEXT_PUBLIC_GOOGLE_ADS_ID || "G-LNBEL8GQ11";
+// Conversões Google Ads: importadas do GA4 (Admin → vínculo Ads → importar
+// sign_up / purchase). Não carregamos tag AW- separada — evita ID fantasma.
 
 function AnalyticsContent() {
   const pathname = usePathname();
@@ -62,7 +60,6 @@ export default function Analytics() {
               gtag('config', '${GA4_ID}', {
                 page_path: window.location.pathname + window.location.search
               });
-              gtag('config', '${GOOGLE_ADS_ID}');
             `}
           </Script>
         </>

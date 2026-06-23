@@ -6,6 +6,7 @@ import { parseBillingPlan } from "@/lib/billing";
 import { VisualAuthPanel } from "@/components/visual-auth-panel";
 import { Card, CardBody } from "@/components/ui/card";
 import { trackEvent } from "@/components/Analytics";
+import { buildPurchaseEventParams } from "@/lib/analytics-purchase";
 
 function SignupInner() {
   const params = useSearchParams();
@@ -19,6 +20,8 @@ function SignupInner() {
       : "/dashboard";
   const checkoutSucesso = params.get("checkout") === "sucesso";
   const sessionId = params.get("session_id");
+  const purchasePlan = params.get("plan");
+  const purchaseInterval = params.get("interval");
 
   // Guest checkout: o pagamento acontece antes da conta existir e o Stripe
   // devolve aqui. Dispara o purchase (como /configuracoes faz pós-login),
@@ -32,8 +35,15 @@ function SignupInner() {
     } catch {
       // localStorage indisponível: dispara mesmo assim
     }
-    trackEvent("purchase", { stripe_session_id: sessionId });
-  }, [checkoutSucesso, sessionId]);
+    trackEvent(
+      "purchase",
+      buildPurchaseEventParams({
+        stripeSessionId: sessionId,
+        plan: purchasePlan,
+        interval: purchaseInterval,
+      })
+    );
+  }, [checkoutSucesso, sessionId, purchasePlan, purchaseInterval]);
 
   return (
     <Card className="w-full max-w-md">

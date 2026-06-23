@@ -51,10 +51,10 @@ env vars are set.
   `output: "standalone"`) → Cloud Build → Cloud Run (region `southamerica-east1`,
   service `leadbellus`) — is **legacy** (redirects + old webhooks only); the
   Dockerfile/`cloudbuild.yaml` are kept for it.
-- **Analytics gotcha:** `components/Analytics.tsx` hardcodes a GA4 fallback
-  `G-223KR63TS8` (`NEXT_PUBLIC_GA4_ID || "G-223KR63TS8"`), so the tag loads even
-  without the env var. To point analytics elsewhere you must change that fallback
-  or set `NEXT_PUBLIC_GA4_ID`.
+- **Analytics:** GA4 `G-223KR63TS8` (fallback em `components/Analytics.tsx`).
+  Google Ads conversões via **import GA4** — sem tag AW- no código. Eventos:
+  `sign_up`, `purchase` (com `value`/`currency`/`transaction_id`), funil.
+  Playbook: `ads/ANALYTICS_LAUNCH.md`.
 
 > **Use Node 20** to match the Dockerfile. If the VM ships Node 22:
 > `export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 20`.

@@ -20,6 +20,7 @@ import { BillingPortalButton } from "@/components/billing-portal-button";
 import { NotificacoesToggle } from "@/components/notificacoes-toggle";
 import { billingPlanList, billingPlans, parseBillingPlan } from "@/lib/billing";
 import { trackEvent } from "@/components/Analytics";
+import { buildPurchaseEventParams } from "@/lib/analytics-purchase";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
 
@@ -64,7 +65,16 @@ export default function ConfiguracoesPage() {
       } catch {
         // localStorage indisponível: dispara mesmo assim.
       }
-      if (!already) trackEvent("purchase", { stripe_session_id: sid });
+      if (!already) {
+        trackEvent(
+          "purchase",
+          buildPurchaseEventParams({
+            stripeSessionId: sid,
+            plan: params.get("plan"),
+            interval: params.get("interval"),
+          })
+        );
+      }
     }
   }, []);
 

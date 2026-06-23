@@ -98,8 +98,8 @@ export async function POST(request: Request) {
   const checkoutMode = getStripeCheckoutMode();
   const baseUrl = getBaseUrl(request);
   const successPath = firebaseUid
-    ? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"
-    : "/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}";
+    ? `/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}&plan=${plan}&interval=${interval}`
+    : `/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}&plan=${plan}&interval=${interval}`;
   const cancelPath = firebaseUid
     ? "/configuracoes?checkout=cancelado"
     : "/#demo";
