@@ -27,6 +27,7 @@ import { perfisCliente } from "@/data/perfis-cliente";
 import { objetivoOptions, oQueMelhorarOptions } from "@/data/opcoes";
 import { addHistorico } from "@/lib/store";
 import { getFirebaseAuth } from "@/lib/firebase/client";
+import { trackEvent } from "@/components/Analytics";
 import { useClinica } from "@/lib/hooks/use-clinica";
 import { cn } from "@/lib/utils";
 import type { RespostaTripla, Variante } from "@/lib/types";
@@ -171,6 +172,8 @@ export default function GeradorPage() {
       if (!res.ok) { setErro(data.error || "Não foi possível gerar agora."); return; }
       setRespostas(data.respostas);
       setNlp({ intent: data.intent, sentiment: data.sentiment, score: data.score });
+      // Evento de uso (retenção): disparado quando o usuário gera respostas de fato.
+      trackEvent("use_credit", { modo, procedimento, situacao, mock: !!data.mock });
       if (typeof data.freeRemaining === "number") setFreeRemaining(data.freeRemaining);
       if (data.mock) {
         setAviso(data.aviso || "Modo demonstração — mostrando um exemplo. As respostas reais entram quando a clínica está ativa.");

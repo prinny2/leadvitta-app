@@ -73,7 +73,7 @@ export function HeroTextContent({
         }}
       >
         {subtitle ||
-          "O LeadBellus lê a intenção da mensagem, gera 3 respostas no tom da sua clínica e deixa você copiar para o WhatsApp em segundos."}
+          "Cole a mensagem da cliente e receba 3 respostas no tom da sua clínica, prontas para copiar no WhatsApp em segundos. Teste grátis, sem cartão."}
       </p>
 
       <div

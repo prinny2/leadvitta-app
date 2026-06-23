@@ -122,7 +122,13 @@ export const trackEvent = (
       initiate_checkout: "InitiateCheckout",
       purchase: "Purchase",
     };
-    const metaEvent = standardEvents[eventName] || eventName;
-    (window as any).fbq("track", metaEvent, params);
+    const metaEvent = standardEvents[eventName];
+    if (metaEvent) {
+      // Evento padrão do Meta (Lead, InitiateCheckout, Purchase).
+      (window as any).fbq("track", metaEvent, params);
+    } else {
+      // Evento próprio (ex.: use_credit, select_plan) → trackCustom.
+      (window as any).fbq("trackCustom", eventName, params);
+    }
   }
 };
