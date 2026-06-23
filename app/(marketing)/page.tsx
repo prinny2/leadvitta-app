@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
@@ -7,35 +8,63 @@ import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
 import { AppBenefitsSection } from "@/components/app-benefits-section";
 import { SimuladorFadeUp, SimuladorUnderline, SimuladorScenarioBtn } from "@/components/simulador-ui";
-import { FaqSection } from "@/components/faq-section";
+import { FAQS, FaqSection } from "@/components/faq-section";
 import { FinalCTASection } from "@/components/final-cta-section";
 import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
+import { LandingProofSection } from "@/components/landing-proof-section";
+import { LandingCtaLink } from "@/components/landing-cta-link";
+import { LandingAnalytics } from "@/components/landing-analytics";
 
-const funilHref = "/signup";
+const startHref = "/signup?plan=start";
+
+export const metadata: Metadata = {
+  title: "LeadBellus | Respostas de WhatsApp para Clínicas de Estética",
+  description:
+    "Teste 5 respostas grátis e veja como sua clínica pode responder preço, objeções e follow-up com mais contexto, mais padrão e mais percepção premium no WhatsApp.",
+};
 
 function StructuredDataTags() {
   const data = {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: "LeadBellus",
-    applicationCategory: "BusinessApplication",
-    operatingSystem: "Web",
-    url: "https://www.leadbellus.com.br",
-    description:
-      "Copiloto de WhatsApp para clínicas de estética cria respostas curtas para preço, objeções e follow-up.",
-    inLanguage: "pt-BR",
-    offers: {
-      "@type": "Offer",
-      price: "97",
-      priceCurrency: "BRL",
-      availability: "https://schema.org/InStock",
-      url: "https://www.leadbellus.com.br/signup",
-    },
-    audience: {
-      "@type": "Audience",
-      audienceType: "Clínicas de estética e profissionais de beleza",
-    },
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        name: "LeadBellus",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        url: "https://www.leadbellus.com.br",
+        description:
+          "Copiloto de WhatsApp para clínicas de estética responderem preço, objeções e follow-up com mais contexto e mais padrão.",
+        inLanguage: "pt-BR",
+        offers: {
+          "@type": "Offer",
+          price: "97",
+          priceCurrency: "BRL",
+          availability: "https://schema.org/InStock",
+          url: "https://www.leadbellus.com.br/signup?plan=start",
+        },
+        audience: {
+          "@type": "Audience",
+          audienceType: "Clínicas de estética e profissionais de beleza",
+        },
+        areaServed: {
+          "@type": "Country",
+          name: "Brasil",
+        },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: FAQS.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.a,
+          },
+        })),
+      },
+    ],
   };
 
   return (
@@ -158,9 +187,10 @@ function Navbar() {
 
         <div className="hidden md:flex" style={{ gap: "32px", alignItems: "center" }}>
           {[
-            { label: "Sinais", href: "#sinais" },
+            { label: "Como funciona", href: "#funcoes" },
             { label: "Demo", href: "#simulador" },
-            { label: "Preços", href: "#precos" },
+            { label: "Na prática", href: "#prova" },
+            { label: "Planos", href: "#precos" },
           ].map((l) => (
             <a
               key={l.label}
@@ -181,21 +211,13 @@ function Navbar() {
           >
             Entrar
           </Link>
-          <Link
-            href="/signup?plan=start"
-            style={{
-              background: "#C9A060",
-              color: "#07101e",
-              borderRadius: "9999px",
-              padding: "8px 20px",
-              fontSize: "14px",
-              fontWeight: 700,
-              textDecoration: "none",
-              whiteSpace: "nowrap",
-            }}
+          <LandingCtaLink
+            href={startHref}
+            source="nav_primary"
+            className="min-h-0 px-5 py-2 text-sm"
           >
-            Gerar 5 respostas
-          </Link>
+            Testar demo grátis
+          </LandingCtaLink>
         </div>
       </div>
     </nav>
@@ -216,7 +238,7 @@ function LaunchBanner() {
         letterSpacing: "0.02em",
       }}
     >
-      Plantão de lançamento: 5 respostas grátis para testar no WhatsApp da sua clínica.
+      Teste 5 respostas grátis no tom da sua clínica. Se fizer sentido, continue no Start por R$97/mês.
     </div>
   );
 }
@@ -255,10 +277,11 @@ function CompactProblemSection() {
               lineHeight: 1.16,
             }}
           >
-            O WhatsApp mostra a intenção. O LeadBellus transforma em resposta.
+            O WhatsApp mostra a intenção. Sua equipe não precisa responder no escuro.
           </h2>
           <p style={{ color: "#475569", fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-            Tags curtas guiam a resposta sem virar script engessado.
+            O LeadBellus lê o contexto da conversa e organiza uma resposta mais
+            segura, mais consultiva e mais alinhada ao padrão da clínica.
           </p>
         </div>
 
@@ -314,6 +337,7 @@ export default function LandingPage() {
   return (
     <div style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)" }}>
       <StructuredDataTags />
+      <LandingAnalytics />
       <Navbar />
       <LaunchBanner />
       <main>
@@ -365,7 +389,7 @@ export default function LandingPage() {
       {/* ── PROBLEMA E SOLUÇÃO ───────────────────────────────────────────────── */}
       <CompactProblemSection />
 
-      <AppBenefitsSection funilHref={funilHref} />
+      <AppBenefitsSection funilHref={startHref} />
 
       {/* ── SIMULADOR INTERATIVO ─────────────────────────────────────────────── */}
       <section id="simulador" style={{ background: "#07101e", padding: "96px 24px" }}>
@@ -401,7 +425,8 @@ export default function LandingPage() {
 
             <SimuladorFadeUp delay={0.2}>
               <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "15px", maxWidth: "520px", margin: "0 auto 20px" }}>
-                Escolha uma situação e veja a resposta personalizada.
+                Escolha um contexto comum da clínica e veja como a resposta pode sair
+                mais premium e mais estratégica.
               </p>
             </SimuladorFadeUp>
 
@@ -438,25 +463,15 @@ export default function LandingPage() {
             }}
           >
             <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", lineHeight: 1.75, marginBottom: "20px" }}>
-              A demo libera 5 respostas para testar. O Start é o plano pago para usar no atendimento real.
+              A demo libera 5 respostas para validar o tom. O Start é o plano pago para usar no atendimento real da clínica.
             </p>
-            <Link
-              href="/signup?plan=start"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                background: "#C9A060",
-                color: "#07101e",
-                borderRadius: "9999px",
-                padding: "14px 32px",
-                fontSize: "15px",
-                fontWeight: 700,
-                textDecoration: "none",
-              }}
+            <LandingCtaLink
+              href={startHref}
+              source="simulator_primary"
+              className="px-8"
             >
-              Criar conta grátis →
-            </Link>
+              Testar 5 respostas grátis →
+            </LandingCtaLink>
             <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
               Demo: 5 respostas · Start: R$97/mês · cancele quando quiser
             </p>
@@ -467,6 +482,8 @@ export default function LandingPage() {
           </SimuladorFadeUp>
         </div>
       </section>
+
+      <LandingProofSection />
 
       {/* ── OFERTA / PREÇOS ──────────────────────────────────────────────────── */}
       <section
@@ -489,11 +506,11 @@ export default function LandingPage() {
               Comece pelo plano que resolve hoje
             </h2>
             <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>
-              Teste grátis e assine só se fizer sentido para sua rotina.
+              A demo serve para validar o tom. O Start é o plano pago para usar no atendimento real da clínica.
             </p>
           </div>
 
-          <PricingSection />
+          <PricingSection ctaHref={startHref} />
         </div>
       </section>
 
@@ -501,7 +518,7 @@ export default function LandingPage() {
       <FaqSection />
 
       {/* ── CTA FINAL ────────────────────────────────────────────────────────── */}
-      <FinalCTASection funilHref={funilHref} />
+      <FinalCTASection funilHref={startHref} />
 
       {/* ── FOOTER ───────────────────────────────────────────────────────────── */}
       </main>
@@ -553,22 +570,13 @@ export default function LandingPage() {
             Demo grátis: 5 respostas
           </p>
         </div>
-        <Link
-          href="#precos"
-          style={{
-            marginLeft: "auto",
-            background: "#C9A060",
-            color: "#07101e",
-            fontWeight: 700,
-            fontSize: "15px",
-            borderRadius: "12px",
-            padding: "13px 22px",
-            textDecoration: "none",
-            whiteSpace: "nowrap",
-          }}
+        <LandingCtaLink
+          href={startHref}
+          source="mobile_bar"
+          className="ml-auto rounded-xl px-5 py-[13px] text-[15px]"
         >
-          Ver Start →
-        </Link>
+          Testar demo grátis →
+        </LandingCtaLink>
       </div>
     </div>
   );

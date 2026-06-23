@@ -1,23 +1,27 @@
-const FAQS = [
+export const FAQS = [
   {
     q: "As respostas parecem robóticas?",
     a: "Não. Você define o tom da clínica e revisa antes de copiar para o WhatsApp.",
   },
   {
-    q: "O que funciona hoje?",
-    a: "O Start já entrega respostas, objeções, retomadas, roteiros e tom da clínica. Pro e Premium ficam como próximos módulos.",
+    q: "Qual é a diferença entre a demo e o Start?",
+    a: "A demo pública libera 5 respostas grátis para testar. O Start é o plano pago para usar o gerador na rotina real da clínica, sem depender do limite da landing.",
+  },
+  {
+    q: "O app promete resultado ou preço fixo?",
+    a: "Não. As respostas seguem guardrails para evitar promessa de resultado, diagnóstico e preço fechado quando o caso depende de avaliação.",
   },
   {
     q: "Funciona para quais procedimentos?",
-    a: "Botox, preenchimento, harmonização, laser, limpeza de pele e outros atendimentos estéticos.",
+    a: "Botox, preenchimento, harmonização, laser, limpeza de pele e outros atendimentos estéticos em que o WhatsApp participa da conversa comercial.",
   },
   {
     q: "Demora para configurar?",
-    a: "O cadastro e o DNA da Clínica levam poucos minutos. Depois você já pode gerar respostas.",
+    a: "O cadastro e o DNA da clínica levam poucos minutos. Depois disso, você já consegue gerar respostas no seu tom de atendimento.",
   },
   {
-    q: "Como cancelo?",
-    a: "Pelo painel, sem multa e sem ligação.",
+    q: "Como funciona cobrança, cancelamento e reembolso?",
+    a: "A demo é sem cartão. Quando você assina o Start, a cobrança é processada pela Stripe. O cancelamento é pelo painel e eventuais pedidos de análise seguem a política de reembolso publicada no site.",
   },
 ];
 

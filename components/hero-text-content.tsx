@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { ArrowRight, PlayCircle } from "lucide-react";
+import { LandingCtaLink } from "@/components/landing-cta-link";
 
 interface HeroTextContentProps {
   headline?: ReactNode;
@@ -16,10 +16,20 @@ export function HeroTextContent({
   subtitle,
   bullets,
   ctaHref = "/signup?plan=start",
-  ctaText = "Gerar 5 respostas grátis",
+  ctaText = "Testar 5 respostas grátis",
   hideSimuladorLink = false,
 }: HeroTextContentProps = {}) {
-  const intentTags = ["Preço sem susto", "Achou caro", "Cliente sumiu", "Medo do procedimento"];
+  const intentTags = [
+    "Preço com contexto",
+    "Objeção sem desconto",
+    "Follow-up elegante",
+    "Tom da sua clínica",
+  ];
+  const heroBullets = bullets || [
+    "3 respostas prontas para copiar, adaptar e enviar em segundos.",
+    "Tom consultivo da clínica, sem soar genérico ou improvisado.",
+    "Demo grátis com 5 respostas. Depois, Start R$97/mês para uso contínuo.",
+  ];
 
   return (
     <div className="hero-copy">
@@ -54,11 +64,11 @@ export function HeroTextContent({
       >
         {headline || (
           <>
-            O lead chega
+            Sua clínica recebe o lead.
             <br />
-            quente.
+            <span style={{ color: "#F7C96B" }}>O LeadBellus devolve a resposta</span>
             <br />
-            <span style={{ color: "#F7C96B" }}>A resposta sai pronta.</span>
+            com contexto e padrão.
           </>
         )}
       </h1>
@@ -73,7 +83,7 @@ export function HeroTextContent({
         }}
       >
         {subtitle ||
-          "O LeadBellus lê a intenção da mensagem, gera 3 respostas no tom da sua clínica e deixa você copiar para o WhatsApp em segundos."}
+          "Para clínicas de estética que querem responder preço, medo, objeção e sumiço com mais clareza, mais consistência e uma percepção mais premium no WhatsApp."}
       </p>
 
       <div
@@ -103,7 +113,7 @@ export function HeroTextContent({
         </div>
       </div>
 
-      {bullets ? (
+      {heroBullets.length ? (
         <div
           style={{
             display: "flex",
@@ -113,7 +123,7 @@ export function HeroTextContent({
             maxWidth: "480px",
           }}
         >
-          {bullets.slice(0, 3).map((bullet) => (
+          {heroBullets.slice(0, 3).map((bullet) => (
             <div key={bullet} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
               <span
                 style={{
@@ -143,50 +153,45 @@ export function HeroTextContent({
       ) : null}
 
       <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
-        <Link
+        <LandingCtaLink
           href={ctaHref}
-          style={{
-            background: "#C9A060",
-            color: "#07101e",
-            borderRadius: "9999px",
-            padding: "15px 28px",
-            fontSize: "15px",
-            fontWeight: 700,
-            textDecoration: "none",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            boxShadow: "0 18px 46px rgba(247,201,107,0.28)",
-          }}
+          source="hero_primary"
+          className="px-7"
         >
           {ctaText}
           <ArrowRight size={17} />
-        </Link>
+        </LandingCtaLink>
         {!hideSimuladorLink ? (
-          <a
+          <LandingCtaLink
             href="#simulador"
-            style={{
-              border: "1.5px solid rgba(201,160,96,0.5)",
-              color: "#C9A060",
-              borderRadius: "9999px",
-              padding: "15px 24px",
-              fontSize: "15px",
-              fontWeight: 600,
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
+            source="hero_demo"
+            variant="secondary"
+            className="px-6"
           >
             <PlayCircle size={17} />
             Ver demo
-          </a>
+          </LandingCtaLink>
         ) : null}
       </div>
 
-      <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.42)", margin: "0 0 28px" }}>
-        Demo com 5 respostas · Start R$97/mês · sem cartão para testar
-      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", margin: "0 0 28px" }}>
+        {["Sem cartão para testar", "Start R$97/mês", "Checkout seguro via Stripe"].map((item) => (
+          <span
+            key={item}
+            style={{
+              border: "1px solid rgba(201,160,96,0.2)",
+              background: "rgba(255,255,255,0.05)",
+              color: "rgba(255,255,255,0.72)",
+              borderRadius: "9999px",
+              padding: "7px 12px",
+              fontSize: "12px",
+              fontWeight: 600,
+            }}
+          >
+            {item}
+          </span>
+        ))}
+      </div>
 
       <div aria-label="Situações que o LeadBellus ajuda a responder" style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
         {intentTags.map((label) => (

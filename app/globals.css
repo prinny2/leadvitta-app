@@ -74,6 +74,107 @@ body {
   @apply inline-flex items-center justify-center gap-2 rounded-xl border border-gold-500/30 bg-transparent px-6 py-3 text-base font-semibold text-gold-400 transition-all hover:border-gold-400 hover:bg-gold-500/10;
 }
 
+.landing-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  border-radius: 9999px;
+  padding: 0.9rem 1.45rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.landing-cta:hover {
+  transform: translateY(-1px);
+}
+
+.landing-cta:focus-visible {
+  outline: 2px solid #F7C96B;
+  outline-offset: 3px;
+}
+
+.landing-cta-primary {
+  background: #C9A060;
+  color: #07101e;
+  box-shadow: 0 18px 46px rgba(247,201,107,0.24);
+}
+
+.landing-cta-primary:hover {
+  background: #d7b06b;
+}
+
+.landing-cta-secondary {
+  border: 1.5px solid rgba(201,160,96,0.42);
+  background: rgba(255,255,255,0.04);
+  color: #F0D7A5;
+}
+
+.landing-cta-secondary:hover {
+  border-color: rgba(201,160,96,0.7);
+  background: rgba(201,160,96,0.08);
+}
+
+.landing-cta-dark {
+  background: #07101e;
+  color: #D9B66D;
+  border: 1px solid rgba(201,160,96,0.22);
+  box-shadow: 0 12px 32px rgba(7,16,30,0.14);
+}
+
+.landing-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 9999px;
+  padding: 0.32rem 0.9rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.landing-eyebrow-light {
+  color: #7A5108;
+  border: 1px solid rgba(122,81,8,0.18);
+  background: rgba(201,160,96,0.12);
+}
+
+.landing-surface-card {
+  background: #ffffff;
+  border: 1px solid rgba(7,16,30,0.08);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 8px 26px rgba(10,22,40,0.05);
+}
+
+.landing-soft-panel {
+  border-radius: 14px;
+  border: 1px solid rgba(122,81,8,0.12);
+  background: rgba(201,160,96,0.1);
+  padding: 14px;
+}
+
+.landing-dark-card {
+  background: #0f1b2f;
+  border: 1px solid rgba(201,160,96,0.18);
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.landing-mini-label {
+  color: #92610A;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 0.75rem;
+}
+
 /* ── Linha separadora dourada ── */
 .gold-divider {
   height: 1px;

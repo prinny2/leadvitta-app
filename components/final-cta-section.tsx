@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
+import { LandingCtaLink } from "@/components/landing-cta-link";
 
 function TagPill({ children }: { children: React.ReactNode }) {
   return (
@@ -36,8 +36,8 @@ function TagPill({ children }: { children: React.ReactNode }) {
 }
 
 const PROMISES = [
-  "Nunca mais fique em branco no WhatsApp",
-  "Nunca mais perca uma lead por não saber o que falar",
+  "Teste 5 respostas grátis antes de pagar",
+  "Start mensal para usar no atendimento real da clínica",
 ];
 
 export function FinalCTASection({ funilHref }: { funilHref: string }) {
@@ -68,7 +68,7 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
             lineHeight: 1.15,
           }}
         >
-          Você vai continuar respondendo do mesmo jeito?
+          Teste agora. Se fizer sentido, leve o Start para a rotina.
         </motion.h2>
 
         <motion.p
@@ -78,7 +78,7 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           transition={{ duration: 0.55, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           style={{ color: "rgba(255,255,255,0.65)", fontSize: "16px", lineHeight: 1.8, marginBottom: "20px" }}
         >
-          Toda semana, mais clientes perguntam o preço e somem.
+          Sua equipe não precisa escolher entre responder rápido e responder bem.
         </motion.p>
 
         <motion.p
@@ -88,7 +88,8 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           transition={{ duration: 0.55, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
           style={{ color: "rgba(255,255,255,0.65)", fontSize: "16px", lineHeight: 1.8, marginBottom: "32px" }}
         >
-          Isso não é falta de talento. É falta da ferramenta certa.
+          A demo existe para validar o tom. O Start entra quando a clínica quer usar
+          o processo com consistência no atendimento real.
         </motion.p>
 
         <div
@@ -139,7 +140,7 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
             fontWeight: 600,
           }}
         >
-          Uma boa conversa já pode justificar o mês. O risco de testar é zero.
+          Menos improviso, mais clareza comercial e uma experiência mais alinhada ao posicionamento da clínica.
         </motion.p>
 
         <motion.div
@@ -151,32 +152,14 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           whileTap={{ scale: 0.98 }}
           style={{ display: "inline-block" }}
         >
-          <Link
+          <LandingCtaLink
             href={funilHref}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "10px",
-              background: "#C9A060",
-              color: "#07101e",
-              borderRadius: "16px",
-              padding: "20px 48px",
-              fontSize: "17px",
-              fontWeight: 800,
-              textDecoration: "none",
-              boxShadow: "0 0 0 rgba(201,160,96,0)",
-              transition: "box-shadow 0.25s ease",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 32px rgba(201,160,96,0.45)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 0 rgba(201,160,96,0)";
-            }}
+            source="final_cta"
+            className="rounded-2xl px-12 py-5 text-[17px]"
           >
-            Quero minha clínica respondendo melhor agora
+            Testar 5 respostas grátis
             <ArrowRight size={20} />
-          </Link>
+          </LandingCtaLink>
         </motion.div>
 
         <motion.p
@@ -186,7 +169,7 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           transition={{ duration: 0.5, delay: 0.9 }}
           style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", marginTop: "14px" }}
         >
-          Demo com 5 respostas grátis · Start pago para uso contínuo
+          Demo com 5 respostas grátis · Start R$97/mês para uso contínuo
         </motion.p>
         <motion.div
           initial={{ opacity: 0 }}

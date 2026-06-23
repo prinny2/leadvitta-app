@@ -1,16 +1,16 @@
-import Link from "next/link";
 import { Check } from "lucide-react";
 import { PlanCTA } from "@/components/plan-cta";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { billingPlanList, type BillingPlanConfig } from "@/lib/billing";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
+import { LandingCtaLink } from "@/components/landing-cta-link";
 
 const PLAN_META = {
   start: {
     eyebrow: "Disponível agora",
-    scope: "Plano pago de entrada",
-    bestFor: "Para usar no atendimento real depois das 5 respostas grátis.",
-    contrast: "Demo: 5 respostas. Start: uso contínuo.",
+    scope: "Plano pago para rotina real",
+    bestFor: "Para clínicas que já validaram a demo e querem usar o gerador no atendimento do dia a dia.",
+    contrast: "Demo: 5 respostas grátis. Start: uso contínuo com checkout seguro.",
   },
   pro: {
     eyebrow: "Próximo degrau",
@@ -172,13 +172,13 @@ function PricingCard({
       {available ? (
         <>
           {ctaHref ? (
-            <Link
+            <LandingCtaLink
               href={ctaHref}
-              className="block w-full rounded-xl bg-[#C9A060] px-5 py-3 text-center text-sm font-bold text-[#07101e]"
-              style={{ textDecoration: "none" }}
+              source={`pricing_${plan.id}`}
+              className="flex w-full rounded-xl px-5 py-3 text-sm"
             >
-              {plan.id === "start" ? "Assinar Start agora" : `Assinar ${plan.label}`}
-            </Link>
+              {plan.id === "start" ? "Começar no Start" : `Entrar no ${plan.label}`}
+            </LandingCtaLink>
           ) : (
             <PlanCTA
               plan={plan.id}
@@ -209,9 +209,9 @@ function PricingCard({
 
 export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
   const focusByPlan = {
-    start: "Pago agora: respostas continuas",
+    start: "Uso contínuo no WhatsApp da clínica",
     pro: "Biblioteca, roteiros e histórico",
-    premium: "Automacoes avancadas em breve",
+    premium: "Automações avançadas em breve",
   } as const;
   const rows = billingPlanList.map((plan) => ({
     plan: plan.label,
@@ -258,7 +258,7 @@ export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
             Demo grátis
           </strong>
           <span style={{ color: "rgba(255,255,255,0.62)", fontSize: "13px" }}>
-            5 respostas para testar, sem cartão
+            5 respostas para testar, sem cartão e sem cobrança automática
           </span>
           <span style={{ color: "#D9B66D", fontSize: "12px", fontWeight: 800 }}>
             Limitada

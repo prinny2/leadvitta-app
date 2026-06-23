@@ -1,35 +1,35 @@
-import Link from "next/link";
 import { Brain, CopyCheck, MessageSquare, RefreshCw, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { LandingCtaLink } from "@/components/landing-cta-link";
 
 const CARDS = [
   {
-    title: "Respostas prontas",
-    description: "Preço, medo, desconto, comparação e sumiço sem começar do zero.",
+    title: "Preço sem resposta seca",
+    description: "A equipe sai do improviso e ganha respostas mais completas para valor, avaliação e próximo passo.",
     icon: MessageSquare,
   },
   {
-    title: "Tom da clínica",
-    description: "A resposta sai consultiva, acolhedora ou objetiva, conforme seu jeito de atender.",
+    title: "Tom premium da clínica",
+    description: "A resposta pode soar consultiva, acolhedora ou objetiva, sem parecer texto genérico de IA.",
     icon: SlidersHorizontal,
   },
   {
-    title: "Objeções com contexto",
-    description: "Mostra valor sem brigar por preço nem parecer resposta copiada.",
+    title: "Objeções com valor",
+    description: "Ajuda a sustentar diferenciais sem desconto automático nem postura defensiva.",
     icon: ShieldCheck,
   },
   {
-    title: "Retomadas",
-    description: "Mensagens para voltar em leads paradas sem soar insistente.",
+    title: "Follow-up com tato",
+    description: "Retomadas para leads que sumiram, com pressão menor e CTA mais claro.",
     icon: RefreshCw,
   },
   {
-    title: "Lead Intelligence",
-    description: "Ajuda a entender quando a conversa está quente e qual próximo passo faz sentido.",
+    title: "Leitura da conversa",
+    description: "Sinais de intenção, objeção e prioridade para responder melhor no momento certo.",
     icon: Brain,
   },
   {
-    title: "Copiar e mandar",
-    description: "Você revisa, ajusta se quiser e cola direto no WhatsApp.",
+    title: "Copiar, ajustar e mandar",
+    description: "A recepção revisa, adapta se quiser e segue para o WhatsApp sem fricção.",
     icon: CopyCheck,
   },
 ];
@@ -78,7 +78,7 @@ export function AppBenefitsSection({ funilHref = "/signup" }: { funilHref?: stri
           >
             Menos improviso no WhatsApp.
             <br />
-            Mais conversa conduzida.
+            Mais resposta com contexto.
           </h2>
 
           <p
@@ -90,7 +90,8 @@ export function AppBenefitsSection({ funilHref = "/signup" }: { funilHref?: stri
               lineHeight: 1.65,
             }}
           >
-            O LeadBellus organiza as respostas que sua equipe precisa todos os dias.
+            O LeadBellus organiza a resposta antes que a conversa esfrie: preço,
+            objeção, insegurança e follow-up no tom da sua clínica.
           </p>
         </div>
 
@@ -149,24 +150,14 @@ export function AppBenefitsSection({ funilHref = "/signup" }: { funilHref?: stri
         </div>
 
         <div style={{ textAlign: "center", marginTop: "34px" }}>
-          <Link
+          <LandingCtaLink
             href={funilHref}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              background: "#0A1628",
-              color: "#C9A060",
-              border: "1.5px solid rgba(201,160,96,0.3)",
-              borderRadius: "9999px",
-              padding: "14px 30px",
-              fontSize: "15px",
-              fontWeight: 800,
-              textDecoration: "none",
-            }}
+            source="benefits_primary"
+            variant="dark"
+            className="px-8"
           >
-            Testar 5 respostas grátis
-          </Link>
+            Testar a demo grátis
+          </LandingCtaLink>
         </div>
       </div>
 
