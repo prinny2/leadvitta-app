@@ -1,7 +1,7 @@
 import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { gerarRespostas, refinarResposta } from "@/lib/ai/provider";
 import type { GerarInput, RefineInput } from "@/lib/types";
-import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
+import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 import { checkGenerationLimit, incrementFreeUsage } from "@/lib/usage-limit";
 
 export const runtime = "nodejs";
@@ -59,6 +59,18 @@ export async function POST(req: Request) {
     // Sem token (ex.: demo pública da landing) não conta nem bloqueia.
     const token = (body as { firebaseIdToken?: string }).firebaseIdToken;
     const decoded = await verifyFirebaseIdToken(token);
+
+    // Token ENVIADO mas inválido/expirado não pode rebaixar para "anônimo
+    // ilimitado" (senão um grátis logado driblaria o limite mandando lixo, e um
+    // legítimo com token expirado geraria sem contar). Só vale quando o Admin
+    // SDK existe — sem credencial, verify falha por config, não por token ruim.
+    if (token && !decoded?.uid && isFirebaseAdminConfigured()) {
+      return jsonNoStore(
+        { error: "Sessão expirada. Entre novamente para continuar.", reauth: true },
+        { status: 401 }
+      );
+    }
+
     let limit = null as Awaited<ReturnType<typeof checkGenerationLimit>> | null;
     if (decoded?.uid) {
       limit = await checkGenerationLimit(decoded.uid);
