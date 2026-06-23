@@ -97,6 +97,37 @@ export type FollowUpInput = {
   clinica?: Partial<Clinica>;
 };
 
+/** Entrada do Auditor de Compliance (revisar um texto escrito pela própria clínica). */
+export type AuditoriaInput = {
+  texto: string;
+  clinica?: Partial<Clinica>;
+  /** Ordem de provedores de IA; padrão: OpenAI → Anthropic → Gemini. */
+  providerChain?: AIProviderId[];
+};
+
+export type GravidadeRisco = "alta" | "media" | "baixa";
+
+/** Um risco de compliance encontrado no texto. */
+export type AuditoriaRisco = {
+  /** Trecho problemático (ou termo) encontrado. */
+  trecho: string;
+  /** Por que é um risco e como contornar. */
+  motivo: string;
+  gravidade: GravidadeRisco;
+};
+
+/** Status geral do texto auditado. */
+export type AuditoriaStatus = "ok" | "ajustes" | "risco";
+
+export type AuditoriaResultado = {
+  status: AuditoriaStatus;
+  riscos: AuditoriaRisco[];
+  /** Versão reescrita segura (sempre compliant). */
+  reescrita: string;
+  mock: boolean;
+  aviso?: string;
+};
+
 // ---------------- Inbox / Conversas (Fase 1) ----------------
 
 /** Prioridade do lead (derivada do score). */

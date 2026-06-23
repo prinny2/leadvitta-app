@@ -18,18 +18,25 @@ import {
   SYSTEM_REFINE,
   SYSTEM_FOLLOWUP,
   SYSTEM_CLASSIFIER,
+  SYSTEM_AUDITORIA,
   buildGeradorUser,
   buildRefineUser,
   buildFollowupUser,
+  buildAuditoriaUser,
   violaCompliance,
+  denylistHits,
 } from "@/lib/ai/prompts";
-import { mockGerador, mockRefine, mockFollowup } from "@/lib/ai/mock";
+import { mockGerador, mockRefine, mockFollowup, softenText } from "@/lib/ai/mock";
 import type {
   AIProviderId,
   GerarInput,
   FollowUpInput,
   RefineInput,
   RespostaTripla,
+  AuditoriaInput,
+  AuditoriaResultado,
+  AuditoriaRisco,
+  AuditoriaStatus,
 } from "@/lib/types";
 
 const DEFAULT_PROVIDER_CHAIN: AIProviderId[] = [
@@ -492,6 +499,91 @@ export async function gerarFollowUp(
       mock: true,
       aviso:
         "Não foi possível falar com a IA agora. Mostrando um exemplo.",
+    };
+  }
+}
+
+/**
+ * Auditor de Compliance: revisa um texto escrito pela própria clínica, aponta os
+ * riscos (promessa de resultado, preço fixo, cura, etc.) e devolve uma versão
+ * segura. Combina uma checagem determinística (denylist) com a IA, e garante que
+ * a reescrita NUNCA contenha termo proibido (softenText como última defesa).
+ */
+export async function auditarCompliance(
+  input: AuditoriaInput
+): Promise<AuditoriaResultado> {
+  const texto = (input.texto ?? "").trim();
+
+  // Riscos determinísticos da denylist — confiáveis mesmo sem IA.
+  const deterministicos = denylistHits(texto);
+
+  const statusDe = (riscos: AuditoriaRisco[]): AuditoriaStatus => {
+    if (riscos.some((r) => r.gravidade === "alta")) return "risco";
+    if (riscos.length > 0) return "ajustes";
+    return "ok";
+  };
+
+  // Garante que a reescrita nunca devolve termo proibido.
+  const reescritaSegura = (t: string) => (violaCompliance(t) ? softenText(t) : t);
+
+  // Sem IA (modo demo): denylist + reescrita determinística.
+  if (!isAnyAIConfigured) {
+    return {
+      status: statusDe(deterministicos),
+      riscos: deterministicos,
+      reescrita: deterministicos.length ? softenText(texto) : texto,
+      mock: true,
+    };
+  }
+
+  const callOptions: CallAIOptions | undefined = input.providerChain
+    ? { providers: input.providerChain }
+    : undefined;
+
+  try {
+    const raw = await callAI(
+      SYSTEM_AUDITORIA,
+      buildAuditoriaUser({ ...input, texto }),
+      1,
+      callOptions
+    );
+    const parsed = parseJson<{ riscos?: AuditoriaRisco[]; reescrita?: string }>(raw);
+
+    const gravidadesValidas = ["alta", "media", "baixa"] as const;
+    const aiRiscos: AuditoriaRisco[] = Array.isArray(parsed?.riscos)
+      ? parsed!.riscos
+          .map((r) => ({
+            trecho: String(r?.trecho ?? "").trim(),
+            motivo: String(r?.motivo ?? "").trim(),
+            gravidade: gravidadesValidas.includes(r?.gravidade as never)
+              ? (r.gravidade as AuditoriaRisco["gravidade"])
+              : "media",
+          }))
+          .filter((r) => r.motivo)
+      : [];
+
+    // Determinísticos primeiro; junta os da IA sem duplicar trecho.
+    const vistos = new Set(deterministicos.map((r) => r.trecho.toLowerCase()));
+    const riscos: AuditoriaRisco[] = [...deterministicos];
+    for (const r of aiRiscos) {
+      const chave = r.trecho.toLowerCase();
+      if (chave && vistos.has(chave)) continue;
+      if (chave) vistos.add(chave);
+      riscos.push(r);
+    }
+
+    const reescritaBruta = parsed?.reescrita?.trim();
+    const reescrita = reescritaSegura(reescritaBruta || texto);
+
+    return { status: statusDe(riscos), riscos, reescrita, mock: false };
+  } catch (err) {
+    console.error("[auditarCompliance] erro na IA:", err);
+    return {
+      status: statusDe(deterministicos),
+      riscos: deterministicos,
+      reescrita: deterministicos.length ? softenText(texto) : texto,
+      mock: true,
+      aviso: "Não foi possível falar com a IA agora. Mostrando a checagem automática.",
     };
   }
 }
