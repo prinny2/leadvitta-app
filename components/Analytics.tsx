@@ -4,17 +4,16 @@ import { useEffect, useRef, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 
-// ID do Meta Pixel também é público (aparece no HTML). O default evita deploy
-// sem Pixel quando a env pública não foi assada no build da Vercel.
-const META_PIXEL_ID =
-  process.env.NEXT_PUBLIC_META_PIXEL_ID || "917448661312985";
+// Meta Pixel: só carrega quando há um ID REAL configurado via env
+// (NEXT_PUBLIC_META_PIXEL_ID). Sem fallback fixo — o placeholder não-vinculado
+// foi removido; reative setando a env quando houver um pixel real.
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "";
 // ID de medição GA4 é PÚBLICO (aparece no HTML de qualquer site). O default garante
 // que o analytics carregue mesmo sem a env var na Vercel; se a env existir, ela vence.
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "G-223KR63TS8";
-// Tag do Google Ads (conversão/remarketing). Pública. Convive com o GA4 no
-// MESMO gtag.js — uma carga só, vários gtag('config', ...).
-const GOOGLE_ADS_ID =
-  process.env.NEXT_PUBLIC_GOOGLE_ADS_ID || "G-LNBEL8GQ11";
+// Google Ads: as conversões agora entram pelo VÍNCULO GA4 ↔ Google Ads (import
+// dos eventos sign_up/purchase). A tag fixa antiga (formato G-, não AW-, e sem
+// gtag('event','conversion')) foi removida por não estar vinculada a conversão real.
 
 function AnalyticsContent() {
   const pathname = usePathname();
@@ -62,7 +61,6 @@ export default function Analytics() {
               gtag('config', '${GA4_ID}', {
                 page_path: window.location.pathname + window.location.search
               });
-              gtag('config', '${GOOGLE_ADS_ID}');
             `}
           </Script>
         </>
