@@ -2,7 +2,7 @@ import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest }
 import { gerarRespostas, refinarResposta } from "@/lib/ai/provider";
 import type { GerarInput, RefineInput } from "@/lib/types";
 import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
-import { checkGenerationLimit, incrementFreeUsage } from "@/lib/usage-limit";
+import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
 
 export const runtime = "nodejs";
 
@@ -71,9 +71,12 @@ export async function POST(req: Request) {
       );
     }
 
-    let limit = null as Awaited<ReturnType<typeof checkGenerationLimit>> | null;
+    // Reserva ATÔMICA do slot grátis ANTES de gerar (check + increment na mesma
+    // transação) pra fechar a corrida: sem isso, chamadas concorrentes do mesmo
+    // usuário leem used=4 e todas passam, furando o teto de grátis.
+    let limit = null as Awaited<ReturnType<typeof reserveGeneration>> | null;
     if (decoded?.uid) {
-      limit = await checkGenerationLimit(decoded.uid);
+      limit = await reserveGeneration(decoded.uid);
       if (!limit.allowed) {
         return jsonNoStore(
           {
@@ -94,26 +97,31 @@ export async function POST(req: Request) {
         )
       : undefined;
 
-    const result = await gerarRespostas({
-      modo: body.modo === "reescrever" ? "reescrever" : "gerar",
-      procedimento: body.procedimento ?? "",
-      situacao: body.situacao ?? "",
-      tom: body.tom ?? "acolhedor",
-      objetivo: body.objetivo ?? "",
-      perfilCliente: body.perfilCliente,
-      oQueMelhorar: body.oQueMelhorar,
-      nomeCliente: body.nomeCliente,
-      mensagemCliente: String(body.mensagemCliente),
-      clinica: body.clinica,
-      providerChain: providerChain?.length ? providerChain : undefined,
-    });
-
-    // Conta a geração grátis só após sucesso (pagante nunca conta).
-    let freeRemaining: number | undefined;
-    if (decoded?.uid && limit && !limit.paid) {
-      await incrementFreeUsage(decoded.uid);
-      freeRemaining = Math.max(0, limit.remaining - 1);
+    let result;
+    try {
+      result = await gerarRespostas({
+        modo: body.modo === "reescrever" ? "reescrever" : "gerar",
+        procedimento: body.procedimento ?? "",
+        situacao: body.situacao ?? "",
+        tom: body.tom ?? "acolhedor",
+        objetivo: body.objetivo ?? "",
+        perfilCliente: body.perfilCliente,
+        oQueMelhorar: body.oQueMelhorar,
+        nomeCliente: body.nomeCliente,
+        mensagemCliente: String(body.mensagemCliente),
+        clinica: body.clinica,
+        providerChain: providerChain?.length ? providerChain : undefined,
+      });
+    } catch (genErr) {
+      // Geração falhou: devolve o slot reservado pra não "gastar" uma grátis.
+      if (decoded?.uid && limit?.reserved) await releaseGeneration(decoded.uid);
+      throw genErr;
     }
+
+    // O slot grátis já foi consumido na reserva (só pra não-pagante).
+    const freeRemaining = limit?.reserved
+      ? Math.max(0, limit.remaining - 1)
+      : undefined;
 
     return jsonNoStore(
       freeRemaining === undefined ? result : { ...result, freeRemaining }
