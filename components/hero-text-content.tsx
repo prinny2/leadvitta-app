@@ -2,6 +2,19 @@ import type { ReactNode } from "react";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { LandingCtaLink } from "@/components/landing-cta-link";
 
+const INTENT_TAGS = [
+  "Preço com contexto",
+  "Objeção sem desconto",
+  "Follow-up elegante",
+  "Tom da sua clínica",
+];
+
+const DEFAULT_HERO_BULLETS = [
+  "3 respostas prontas para copiar, adaptar e enviar em segundos.",
+  "Tom consultivo da clínica, sem soar genérico ou improvisado.",
+  "Demo grátis com 5 respostas. Depois, Start R$97/mês para uso contínuo.",
+];
+
 interface HeroTextContentProps {
   headline?: ReactNode;
   subtitle?: ReactNode;
@@ -19,17 +32,7 @@ export function HeroTextContent({
   ctaText = "Testar 5 respostas grátis",
   hideSimuladorLink = false,
 }: HeroTextContentProps = {}) {
-  const intentTags = [
-    "Preço com contexto",
-    "Objeção sem desconto",
-    "Follow-up elegante",
-    "Tom da sua clínica",
-  ];
-  const heroBullets = bullets || [
-    "3 respostas prontas para copiar, adaptar e enviar em segundos.",
-    "Tom consultivo da clínica, sem soar genérico ou improvisado.",
-    "Demo grátis com 5 respostas. Depois, Start R$97/mês para uso contínuo.",
-  ];
+  const heroBullets = bullets || DEFAULT_HERO_BULLETS;
 
   return (
     <div className="hero-copy">
@@ -194,7 +197,7 @@ export function HeroTextContent({
       </div>
 
       <div aria-label="Situações que o LeadBellus ajuda a responder" style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-        {intentTags.map((label) => (
+        {INTENT_TAGS.map((label) => (
           <span
             key={label}
             style={{

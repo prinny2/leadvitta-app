@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
+import { clsx } from "clsx";
 import Link from "next/link";
 import { trackEvent } from "@/components/Analytics";
 
@@ -32,7 +33,7 @@ export function LandingCtaLink({
   return (
     <Link
       href={href}
-      className={`${VARIANT_CLASSNAME[variant]} ${className}`.trim()}
+      className={clsx(VARIANT_CLASSNAME[variant], className)}
       style={style}
       onClick={() => {
         trackEvent("landing_cta_click", { source, href });

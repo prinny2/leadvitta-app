@@ -93,8 +93,9 @@ body {
 }
 
 .landing-cta:focus-visible {
-  outline: 2px solid #F7C96B;
+  outline: 2px solid #07101e;
   outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(247, 201, 107, 0.9);
 }
 
 .landing-cta-primary {

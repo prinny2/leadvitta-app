@@ -37,6 +37,8 @@ export function LandingAnalytics() {
           trackEvent("landing_section_view", { sectionId });
         }
       },
+      // 45% balances early detection with a stronger signal that the section was
+      // actually seen, avoiding accidental views from tiny scroll peeks.
       { threshold: 0.45 }
     );
 
