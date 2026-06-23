@@ -39,7 +39,7 @@ export function HeroTextContent({
           marginBottom: "20px",
         }}
       >
-        WhatsApp da estética, sem improviso
+        Seu WhatsApp da estética sem aperto
       </div>
 
       <h1
@@ -54,11 +54,9 @@ export function HeroTextContent({
       >
         {headline || (
           <>
-            O lead chega
+            A cliente chamou.
             <br />
-            quente.
-            <br />
-            <span style={{ color: "#F7C96B" }}>A resposta sai pronta.</span>
+            <span style={{ color: "#F7C96B" }}>A resposta já sai pronta.</span>
           </>
         )}
       </h1>
@@ -73,7 +71,7 @@ export function HeroTextContent({
         }}
       >
         {subtitle ||
-          "Cole a mensagem da cliente e receba 3 respostas no tom da sua clínica, prontas para copiar no WhatsApp em segundos. Teste grátis, sem cartão."}
+          "Travou no que responder? Cola a mensagem aqui e saem 3 respostas no jeitinho da sua clínica, prontas pra colar no WhatsApp. Grátis pra testar, sem cartão."}
       </p>
 
       <div
@@ -91,7 +89,7 @@ export function HeroTextContent({
       >
         <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", marginBottom: "9px" }}>
           <strong style={{ color: "#F7F1E4", fontSize: "12px" }}>Ana - WhatsApp</strong>
-          <span style={{ color: "#5EE0A0", fontSize: "11px", fontWeight: 800 }}>lead quente</span>
+          <span style={{ color: "#5EE0A0", fontSize: "11px", fontWeight: 800 }}>quase fechando</span>
         </div>
         <div style={{ display: "grid", gap: "8px" }}>
           <div style={{ borderRadius: "13px 13px 13px 4px", background: "rgba(255,255,255,0.08)", padding: "9px 10px", color: "rgba(255,255,255,0.86)", fontSize: "12px", lineHeight: 1.45 }}>

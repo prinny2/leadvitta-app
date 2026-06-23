@@ -1,39 +1,39 @@
 const FAQS = [
   {
     q: "Tem risco de banir meu WhatsApp?",
-    a: "Não. O LeadBellus não se conecta ao seu WhatsApp e não envia nada sozinho. Ele só gera o texto da resposta — você copia e cola na conversa, do seu jeito. Nada de automação que coloca seu número em risco.",
+    a: "Não 🙂 Ele não envia nada sozinho nem se conecta no seu WhatsApp. Só escreve a resposta — você lê, ajusta se quiser e cola na conversa. Seu número fica seguro.",
   },
   {
-    q: "É um chatbot que responde no automático?",
-    a: "Não. É um co-piloto: a IA escreve, você revisa e envia. Quem fala com a cliente continua sendo você ou a sua secretária — com controle total sobre cada mensagem.",
+    q: "É um robô que responde sozinho?",
+    a: "Não. Quem responde é você. A IA só te entrega o texto pronto e você decide o que mandar. O controle é todo seu.",
   },
   {
     q: "As respostas parecem robóticas?",
-    a: "Não. Você define o tom da clínica (acolhedor, premium, direto…) e revisa antes de copiar. As respostas saem com cara de gente, no estilo da sua clínica.",
+    a: "Que nada. Você escolhe o tom da sua clínica e as respostas saem com cara de gente, do seu jeitinho.",
   },
   {
     q: "Funciona no celular?",
-    a: "Sim. O LeadBellus roda direto no navegador do celular, do tablet ou do computador — sem instalar app. Dá para gerar a resposta e colar no WhatsApp na mesma tela.",
+    a: "Sim! No celular, tablet ou computador, direto no navegador. Dá pra gerar a resposta e colar no WhatsApp na mesma tela.",
   },
   {
-    q: "Funciona para quais procedimentos?",
-    a: "Botox, preenchimento, harmonização, laser, limpeza de pele, bioestimulador e outros atendimentos estéticos. Você também pode personalizar pelo DNA da sua clínica.",
+    q: "Serve pra quais procedimentos?",
+    a: "Botox, preenchimento, harmonização, laser, limpeza de pele, bioestimulador e muito mais. E você ainda ajusta tudo pro jeito da sua clínica.",
   },
   {
-    q: "Meus dados e os das clientes ficam seguros?",
-    a: "Sim. Cada conta enxerga só os próprios dados, o acesso é protegido por login e nada é compartilhado entre clínicas.",
+    q: "Meus dados ficam seguros?",
+    a: "Ficam. Cada conta vê só os próprios dados e tudo é protegido por login.",
   },
   {
-    q: "Preciso de cartão para testar?",
-    a: "Não. Você cria a conta e ganha respostas grátis para testar no atendimento real. Só assina o Start (R$97/mês) se fizer sentido para a sua rotina.",
+    q: "Preciso de cartão pra testar?",
+    a: "Não. Testa de graça e só assina o Start (R$97/mês) se curtir.",
   },
   {
-    q: "Demora para configurar?",
-    a: "O cadastro e o DNA da Clínica levam poucos minutos. Depois você já pode gerar respostas.",
+    q: "Demora pra configurar?",
+    a: "Poucos minutos. Você cria a conta, conta um pouquinho sobre a clínica e já começa a gerar respostas.",
   },
   {
     q: "Como cancelo?",
-    a: "Pelo painel, sem multa e sem ligação.",
+    a: "Pelo painel, quando quiser. Sem multa e sem ligação.",
   },
 ];
 

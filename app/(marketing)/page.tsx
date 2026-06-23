@@ -224,19 +224,19 @@ function LaunchBanner() {
 function CompactProblemSection() {
   const cards = [
     {
-      title: "Preço seco",
-      copy: "Transforme pedido de valor em resposta com contexto, segurança e convite para agenda.",
+      title: "Ela perguntou o preço",
+      copy: "Você responde com jeitinho, passa segurança e convida pra avaliação — sem jogar só o valor.",
       tags: ["Preço", "Avaliação"],
     },
     {
-      title: "Objeção de caro",
-      copy: "Responda sem desconto automático e mostre valor antes de perder a conversa.",
+      title: "Achou caro",
+      copy: "Mostra o valor do seu trabalho antes de sair dando desconto.",
       tags: ["Valor", "Sem desconto"],
     },
     {
-      title: "Cliente sumiu",
-      copy: "Retome o contato com follow-up educado, direto e com próximo passo claro.",
-      tags: ["Follow-up", "Retomar"],
+      title: "Sumiu",
+      copy: "Você chama de volta com leveza e um próximo passo claro — sem parecer chata.",
+      tags: ["Retomar", "Follow-up"],
     },
   ];
 
@@ -244,7 +244,7 @@ function CompactProblemSection() {
     <section id="sinais" style={{ background: "#F6F0E6", padding: "72px 24px" }}>
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         <div style={{ maxWidth: "640px", marginBottom: "32px" }}>
-          <TagPill light>Sinais que ele lê</TagPill>
+          <TagPill light>O que a cliente quer dizer</TagPill>
           <h2
             style={{
               fontFamily: "var(--font-fraunces, Georgia, serif)",
@@ -255,10 +255,10 @@ function CompactProblemSection() {
               lineHeight: 1.16,
             }}
           >
-            O WhatsApp mostra a intenção. O LeadBellus transforma em resposta.
+            Você lê a mensagem. A gente já te entrega a resposta.
           </h2>
           <p style={{ color: "#475569", fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-            Tags curtas guiam a resposta sem virar script engessado.
+            Sem decoreba e sem parecer robô.
           </p>
         </div>
 
@@ -266,7 +266,7 @@ function CompactProblemSection() {
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "16px",
+            gap: "20px",
           }}
         >
           {cards.map((card) => (
@@ -274,9 +274,10 @@ function CompactProblemSection() {
               key={card.title}
               style={{
                 background: "#ffffff",
-                border: "1px solid rgba(7,16,30,0.08)",
-                borderRadius: "8px",
-                padding: "24px",
+                border: "1px solid rgba(7,16,30,0.06)",
+                borderRadius: "16px",
+                padding: "28px",
+                boxShadow: "0 8px 24px rgba(7,16,30,0.05)",
               }}
             >
               <h3 style={{ color: "#07101e", fontSize: "18px", fontWeight: 700, margin: "0 0 10px" }}>
