@@ -4,6 +4,10 @@ const FAQS = [
     a: "Não. Você define o tom da clínica e revisa antes de copiar para o WhatsApp.",
   },
   {
+    q: "Por que não uso só o ChatGPT?",
+    a: "Pode usar. Mas aí, toda vez, você escreve o prompt, confere se não prometeu resultado nem cravou preço (proibido na estética) e ajusta o tom. O LeadBellus já faz isso: cola a mensagem, clica, e a resposta sai no seu tom e dentro das regras. Você economiza o trabalho chato, não a mensagem.",
+  },
+  {
     q: "O que funciona hoje?",
     a: "O Start já entrega respostas, objeções, retomadas, roteiros e tom da clínica. Pro e Premium ficam como próximos módulos.",
   },

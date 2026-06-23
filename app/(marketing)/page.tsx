@@ -6,6 +6,10 @@ import { HeroDevices } from "@/components/hero-devices";
 import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
 import { AppBenefitsSection } from "@/components/app-benefits-section";
+import { WhyNotChatGPTSection } from "@/components/why-not-chatgpt";
+import { CompareResponsesSection } from "@/components/compare-responses-section";
+import { RiskFreeSection } from "@/components/risk-free-section";
+import { TestimonialsSection } from "@/components/testimonials-section";
 import { SimuladorFadeUp, SimuladorUnderline, SimuladorScenarioBtn } from "@/components/simulador-ui";
 import { FaqSection } from "@/components/faq-section";
 import { FinalCTASection } from "@/components/final-cta-section";
@@ -362,10 +366,16 @@ export default function LandingPage() {
         `}</style>
       </section>
 
+      {/* ── POR QUE NÃO SÓ O CHATGPT (mata a objeção antes das features) ─────── */}
+      <WhyNotChatGPTSection funilHref={funilHref} />
+
       {/* ── PROBLEMA E SOLUÇÃO ───────────────────────────────────────────────── */}
       <CompactProblemSection />
 
       <AppBenefitsSection funilHref={funilHref} />
+
+      {/* ── ANTES x DEPOIS (prova de valor) ──────────────────────────────────── */}
+      <CompareResponsesSection funilHref={funilHref} />
 
       {/* ── SIMULADOR INTERATIVO ─────────────────────────────────────────────── */}
       <section id="simulador" style={{ background: "#07101e", padding: "96px 24px" }}>
@@ -496,6 +506,12 @@ export default function LandingPage() {
           <PricingSection />
         </div>
       </section>
+
+      {/* ── GARANTIA (risco zero, 30 dias) ───────────────────────────────────── */}
+      <RiskFreeSection funilHref={funilHref} />
+
+      {/* ── SITUAÇÕES COMUNS (onde a conversa quebra) ────────────────────────── */}
+      <TestimonialsSection />
 
       {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
       <FaqSection />

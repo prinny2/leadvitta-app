@@ -73,7 +73,7 @@ export function HeroTextContent({
         }}
       >
         {subtitle ||
-          "O LeadBellus lê a intenção da mensagem, gera 3 respostas no tom da sua clínica e deixa você copiar para o WhatsApp em segundos."}
+          "Não é o ChatGPT genérico: o LeadBellus já sabe o tom da sua clínica e as regras da estética. Cola a mensagem da cliente, clica e copia a resposta certa — curta, sem virar textão de robô — em segundos."}
       </p>
 
       <div
