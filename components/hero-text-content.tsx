@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { LandingCtaLink } from "@/components/landing-cta-link";
 
+const HIGHLIGHT_GOLD = "#F7C96B";
 const INTENT_TAGS = [
   "Preço com contexto",
   "Objeção sem desconto",
@@ -69,7 +70,7 @@ export function HeroTextContent({
           <>
             Sua clínica recebe o lead.
             <br />
-            <span style={{ color: "#F7C96B" }}>O LeadBellus devolve a resposta</span>
+            <span style={{ color: HIGHLIGHT_GOLD }}>O LeadBellus devolve a resposta</span>
             <br />
             com contexto e padrão.
           </>

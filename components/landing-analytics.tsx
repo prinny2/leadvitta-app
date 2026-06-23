@@ -5,6 +5,7 @@ import { trackEvent } from "@/components/Analytics";
 
 const DEPTHS = [25, 50, 75, 90];
 const SECTION_IDS = ["hero", "simulador", "prova", "precos", "cta-final"];
+const SECTION_VISIBILITY_THRESHOLD = 0.45;
 
 export function LandingAnalytics() {
   useEffect(() => {
@@ -39,7 +40,7 @@ export function LandingAnalytics() {
       },
       // 45% balances early detection with a stronger signal that the section was
       // actually seen, avoiding accidental views from tiny scroll peeks.
-      { threshold: 0.45 }
+      { threshold: SECTION_VISIBILITY_THRESHOLD }
     );
 
     SECTION_IDS.forEach((sectionId) => {

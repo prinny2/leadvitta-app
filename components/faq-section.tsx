@@ -1,4 +1,4 @@
-export const FAQS = [
+export const faqs = [
   {
     q: "As respostas parecem robóticas?",
     a: "Não. Você define o tom da clínica e revisa antes de copiar para o WhatsApp.",
@@ -62,7 +62,7 @@ export function FaqSection() {
         </div>
 
         <div style={{ display: "grid", gap: "10px" }}>
-          {FAQS.map((item, index) => (
+          {faqs.map((item, index) => (
             <details
               key={item.q}
               open={index === 0}

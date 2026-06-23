@@ -8,7 +8,7 @@ import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
 import { AppBenefitsSection } from "@/components/app-benefits-section";
 import { SimuladorFadeUp, SimuladorUnderline, SimuladorScenarioBtn } from "@/components/simulador-ui";
-import { FAQS, FaqSection } from "@/components/faq-section";
+import { faqs, FaqSection } from "@/components/faq-section";
 import { FinalCTASection } from "@/components/final-cta-section";
 import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
@@ -55,7 +55,7 @@ function StructuredDataTags() {
       },
       {
         "@type": "FAQPage",
-        mainEntity: FAQS.map((item) => ({
+        mainEntity: faqs.map((item) => ({
           "@type": "Question",
           name: item.q,
           acceptedAnswer: {
