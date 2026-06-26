@@ -251,96 +251,129 @@ export default function LandingPage() {
 
       {/* Faixa de lançamento */}
       <div style={{ background: INK, color: "#F7C96B", textAlign: "center", padding: "9px 24px", fontSize: "13px", fontWeight: 600 }}>
-        Preço de lançamento · teste grátis, sem cartão
+        {"Preço de lançamento · teste grátis, sem cartão"}
       </div>
 
       <main>
         {/* ── HERO ─────────────────────────────────────────────────────────── */}
-        <section style={{ padding: "64px 24px 72px" }}>
+        <section
+          style={{
+            position: "relative",
+            background: ["radial-gradient(1100px 620px at 88% -10%,rgba(189,162,105,.16),transparent 60%)", "#F5F0E6"].join(","),
+            overflow: "hidden",
+          }}
+        >
           <div
             className="hero-grid"
             style={{
-              maxWidth: "1152px",
+              maxWidth: "1240px",
               margin: "0 auto",
+              padding: "84px 32px 96px",
               display: "grid",
-              gridTemplateColumns: "1fr",
-              gap: "44px",
+              gridTemplateColumns: "1.05fr .95fr",
+              gap: "64px",
               alignItems: "center",
             }}
           >
+            {/* Texto */}
             <div>
-              <Eyebrow>Conversão na estética · WhatsApp</Eyebrow>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  border: "1px solid rgba(189,162,105,.55)",
+                  color: "#9A7B3C",
+                  borderRadius: "99px",
+                  padding: "7px 16px",
+                  fontSize: "12px",
+                  fontWeight: 800,
+                  letterSpacing: ".12em",
+                  textTransform: "uppercase",
+                }}
+              >
+                ✦ Feito para clínicas de estética brasileiras
+              </div>
+
               <h1
                 style={{
                   fontFamily: "var(--font-fraunces, Georgia, serif)",
-                  fontSize: "clamp(38px, 5.2vw, 64px)",
-                  fontWeight: 700,
-                  lineHeight: 1.04,
-                  margin: "0 0 18px",
-                  color: INK,
+                  fontWeight: 800,
+                  fontSize: "clamp(44px, 5.4vw, 76px)",
+                  lineHeight: 1.02,
+                  letterSpacing: "-.02em",
+                  margin: "26px 0 0",
+                  color: "#16202F",
                 }}
               >
-                Pare de perder cliente no{" "}
-                <span style={{ color: GOLD_DEEP, fontStyle: "italic" }}>“quanto custa?”</span>
+                A resposta certa.<br />No seu tom.<br />
+                <span style={{ color: "#9A7B3C", fontStyle: "italic" }}>Em segundos.</span>
               </h1>
-              <p style={{ fontSize: "18px", lineHeight: 1.6, color: INK_SOFT, maxWidth: "480px", margin: "0 0 26px" }}>
-                Recebeu mensagem e travou? Cola aqui e saem <strong>3 respostas no jeitinho da sua clínica</strong>, prontas
-                pra colar no WhatsApp. Sem prometer o impossível, sem soar robô.
+
+              <p
+                style={{
+                  fontSize: "19px",
+                  lineHeight: 1.6,
+                  color: "#5E6373",
+                  maxWidth: "540px",
+                  margin: "26px 0 0",
+                }}
+              >
+                O LeadBellus lê cada mensagem da sua cliente e devolve a resposta que acolhe, quebra a objeção e conduz pro agendamento — sem soar robótico. Você só copia e cola no WhatsApp.
               </p>
 
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "14px", marginTop: "36px" }}>
                 <Link
                   href={SIGNUP}
                   style={{
-                    background: INK,
-                    color: "#F7C96B",
-                    borderRadius: "9999px",
-                    padding: "15px 28px",
-                    fontSize: "15px",
-                    fontWeight: 700,
+                    background: "#BDA269",
+                    color: "#1A1206",
                     textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    boxShadow: "0 16px 38px rgba(16,35,59,0.22)",
+                    fontSize: "16px",
+                    fontWeight: 800,
+                    padding: "17px 32px",
+                    borderRadius: "99px",
+                    boxShadow: "0 14px 34px rgba(189,162,105,.32)",
                   }}
                 >
-                  Testar grátis (sem cartão) <ArrowRight size={17} />
+                  Começar grátis por 7 dias →
                 </Link>
                 <a
                   href="#demo"
                   style={{
-                    border: `1.5px solid rgba(16,35,59,0.2)`,
-                    color: INK,
-                    borderRadius: "9999px",
-                    padding: "15px 24px",
-                    fontSize: "15px",
-                    fontWeight: 600,
+                    border: "1px solid #EAE0CC",
+                    color: "#16202F",
                     textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    padding: "17px 30px",
+                    borderRadius: "99px",
+                    background: "#fff",
                   }}
                 >
-                  <PlayCircle size={17} /> Ver demo
+                  Testar o simulador ↓
                 </a>
               </div>
-              <p style={{ fontSize: "13px", color: INK_SOFT, margin: "0 0 26px" }}>
-                Atende <strong>mulheres e homens</strong> · funciona no celular · cancele quando quiser
+
+              <p style={{ fontSize: "13.5px", color: "#5E6373", marginTop: "20px", fontWeight: 600 }}>
+                Sem cartão · Acesso imediato · Você usa hoje mesmo
               </p>
 
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {["Preço sem susto", "“Achou caro”", "Cliente sumiu", "Medo do procedimento"].map((t) => (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "30px" }}>
+                {["💬 Respostas estratégicas", "🔄 Follow-up automático", "🧠 Lead Intelligence"].map((t) => (
                   <span
                     key={t}
                     style={{
-                      background: "rgba(16,35,59,0.04)",
-                      border: "1px solid rgba(16,35,59,0.1)",
-                      borderRadius: "9999px",
-                      padding: "7px 13px",
-                      fontSize: "12px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "7px",
+                      background: "#fff",
+                      border: "1px solid #EAE0CC",
+                      borderRadius: "99px",
+                      padding: "8px 15px",
+                      fontSize: "13px",
                       fontWeight: 600,
-                      color: INK_SOFT,
+                      color: "#16202F",
                     }}
                   >
                     {t}
@@ -349,10 +382,140 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <ChatProof />
+            {/* Mock do gerador */}
+            <div className="hero-mock">
+              <div
+                style={{
+                  background: "linear-gradient(180deg,#0F1A30,#0B1626)",
+                  border: "1px solid #1E2C46",
+                  borderRadius: "24px",
+                  boxShadow: "0 40px 90px rgba(16,24,40,.28)",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Barra topo mac-style */}
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "16px 20px", borderBottom: "1px solid #1E2C46" }}>
+                  <span style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#E0685B", display: "inline-block" }} />
+                  <span style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#E6B95C", display: "inline-block" }} />
+                  <span style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#5EBB7C", display: "inline-block" }} />
+                  <span style={{ marginLeft: "8px", fontSize: "12.5px", fontWeight: 700, color: "#8C94A6", letterSpacing: ".04em" }}>
+                    LeadBellus · Gerador de Respostas
+                  </span>
+                </div>
+
+                <div style={{ padding: "22px" }}>
+                  <div style={{ fontSize: "11px", fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase", color: "#8C94A6" }}>
+                    Mensagem da cliente
+                  </div>
+                  <div
+                    style={{
+                      marginTop: "8px",
+                      background: "#13213A",
+                      border: "1px solid #1E2C46",
+                      borderRadius: "14px 14px 14px 4px",
+                      padding: "13px 16px",
+                      fontSize: "14.5px",
+                      color: "#D8DEE9",
+                      maxWidth: "78%",
+                    }}
+                  >
+                    Oi! Quanto fica o botox? 😊
+                  </div>
+
+                  <div style={{ display: "flex", gap: "8px", margin: "20px 0 14px" }}>
+                    {["Suave", "Consultiva", "Fechamento"].map((v) => (
+                      <span
+                        key={v}
+                        style={{
+                          fontSize: "12.5px",
+                          fontWeight: v === "Consultiva" ? 800 : 700,
+                          padding: "7px 14px",
+                          borderRadius: "99px",
+                          color: v === "Consultiva" ? "#1A1206" : "#8C94A6",
+                          background: v === "Consultiva" ? "#BDA269" : "transparent",
+                          border: v === "Consultiva" ? "none" : "1px solid #1E2C46",
+                        }}
+                      >
+                        {v}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div
+                    style={{
+                      background: "linear-gradient(180deg,rgba(189,162,105,.12),rgba(189,162,105,.05))",
+                      border: "1px solid rgba(189,162,105,.35)",
+                      borderRadius: "4px 14px 14px 14px",
+                      padding: "16px 18px",
+                      fontSize: "14.5px",
+                      lineHeight: 1.55,
+                      color: "#EDE7D8",
+                    }}
+                  >
+                    "Oi, Ana! O investimento pode variar conforme os pontos avaliados e o objetivo do tratamento. Você busca suavizar as linhas da testa, pés de galinha ou prefere um resultado mais preventivo? Assim consigo te orientar melhor. 💚"
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "16px" }}>
+                    <span style={{ fontSize: "12.5px", color: "#5EBB7C", fontWeight: 700 }}>● Gerado em 0,8s</span>
+                    <span
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "7px",
+                        background: "#BDA269",
+                        color: "#1A1206",
+                        fontSize: "13px",
+                        fontWeight: 800,
+                        padding: "9px 18px",
+                        borderRadius: "99px",
+                      }}
+                    >
+                      ⧉ Copiar pro WhatsApp
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Score card */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  marginTop: "18px",
+                  padding: "14px 18px",
+                  background: "#fff",
+                  border: "1px solid #EAE0CC",
+                  borderRadius: "16px",
+                  boxShadow: "0 10px 30px rgba(20,15,5,.05)",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-fraunces, Georgia, serif)",
+                    fontSize: "28px",
+                    fontWeight: 800,
+                    color: "#9A7B3C",
+                  }}
+                >
+                  85
+                </span>
+                <div>
+                  <div style={{ fontSize: "12.5px", fontWeight: 800, color: "#16202F" }}>Score de conversão</div>
+                  <div style={{ fontSize: "12px", color: "#5E6373" }}>Alta chance de agendamento agora</div>
+                </div>
+              </div>
             </div>
           </div>
+
+          <style>{`
+            @keyframes lbFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+            .hero-mock { animation: lbFloat 7s ease-in-out infinite; }
+            @media (max-width: 880px) {
+              .hero-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+              .hero-mock { animation: none; }
+            }
+          `}</style>
         </section>
 
         {/* ── Faixa de confiança ───────────────────────────────────────────── */}
@@ -612,7 +775,7 @@ export default function LandingPage() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px", marginTop: "20px" }}>
                 {DEPOIMENTOS.map((d) => (
                   <figure key={d.nome} style={{ background: CREAM_2, borderRadius: "16px", padding: "22px", margin: 0 }}>
-                    <blockquote style={{ margin: "0 0 12px", fontSize: "14.5px", lineHeight: 1.6, color: INK }}>“{d.texto}”</blockquote>
+                    <blockquote style={{ margin: "0 0 12px", fontSize: "14.5px", lineHeight: 1.6, color: INK }}>"{d.texto}"</blockquote>
                     <figcaption style={{ fontSize: "13px", color: INK_SOFT }}>
                       <strong style={{ color: INK }}>{d.nome}</strong> · {d.clinica}
                     </figcaption>
