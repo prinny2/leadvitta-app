@@ -7,8 +7,7 @@ const defaultCloudRunApiOrigin =
 const apiProxyOrigin = (
   process.env.API_PROXY_ORIGIN || defaultCloudRunApiOrigin
 ).replace(/\/$/, "");
-const enableApiProxy =
-  process.env.ENABLE_API_PROXY === "true" || process.env.VERCEL === "1";
+const enableApiProxy = process.env.ENABLE_API_PROXY === "true";
 
 if (enableApiProxy && /(^https?:\/\/)?(www\.)?leadbellus\.com\.br/i.test(apiProxyOrigin)) {
   throw new Error(
