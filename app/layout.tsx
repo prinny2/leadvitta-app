@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter, Fraunces } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import Analytics from "@/components/Analytics";
 
 // next/font: self-host + fallback com métricas ajustadas (size-adjust), o que
@@ -81,6 +82,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-nude-50 font-sans text-ink antialiased">
         {children}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
