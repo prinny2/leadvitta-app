@@ -20,6 +20,7 @@ import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MarketingMobileMenu } from "@/components/marketing-mobile-menu";
 import { FaqSection } from "@/components/faq-section";
 import { FinalCTASection } from "@/components/final-cta-section";
+import { FuncoesSection } from "@/components/funcoes-section";
 
 const SIGNUP = "/signup?plan=start";
 
@@ -683,6 +684,9 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* ── FUNÇÕES ──────────────────────────────────────────────────────── */}
+        <FuncoesSection />
 
         {/* ── DEMO ─────────────────────────────────────────────────────────── */}
         <section id="demo" style={{ background: CREAM_2, padding: "78px 24px" }}>
