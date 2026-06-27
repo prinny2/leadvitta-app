@@ -18,6 +18,8 @@ import { PricingSection } from "@/components/pricing-section";
 import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MarketingMobileMenu } from "@/components/marketing-mobile-menu";
+import { FaqSection } from "@/components/faq-section";
+import { FinalCTASection } from "@/components/final-cta-section";
 
 const SIGNUP = "/signup?plan=start";
 
@@ -787,72 +789,10 @@ export default function LandingPage() {
         </section>
 
         {/* ── FAQ ──────────────────────────────────────────────────────────── */}
-        <section id="faq" style={{ background: CREAM_2, padding: "78px 24px" }}>
-          <div style={{ maxWidth: "720px", margin: "0 auto" }}>
-            <div style={{ textAlign: "center", marginBottom: "36px" }}>
-              <Eyebrow>Dúvidas frequentes</Eyebrow>
-              <SectionTitle>Antes de começar</SectionTitle>
-            </div>
-            <div style={{ display: "grid", gap: "10px" }}>
-              {[
-                { q: "Tem risco de banir meu WhatsApp?", a: "Não 🙂 Ele não envia nada sozinho nem se conecta no seu WhatsApp. Só escreve a resposta — você lê, ajusta e cola na conversa. Seu número fica seguro." },
-                { q: "É um robô que responde sozinho?", a: "Não. Quem responde é você. A IA só te entrega o texto pronto e você decide o que mandar. O controle é todo seu." },
-                { q: "Serve pra público masculino também?", a: "Sim. Botox masculino, barba, sobrancelha, queda capilar, skincare… o tom se ajusta pra cada cliente, homem ou mulher." },
-                { q: "Funciona no celular?", a: "Sim! No celular, tablet ou computador, direto no navegador. Dá pra gerar a resposta e colar no WhatsApp na mesma tela." },
-                { q: "Preciso de cartão pra testar?", a: "Não. Testa de graça e só assina o Start (R$97/mês) se curtir." },
-                { q: "Como cancelo?", a: "Pelo painel, quando quiser. Sem multa e sem ligação." },
-              ].map((item, i) => (
-                <details key={item.q} open={i === 0} style={{ borderRadius: "14px", border: "1px solid rgba(16,35,59,0.1)", background: "#ffffff", overflow: "hidden" }}>
-                  <summary style={{ padding: "18px 22px", cursor: "pointer", fontWeight: 700, fontSize: "15px", color: INK }}>{item.q}</summary>
-                  <p style={{ padding: "0 22px 20px", fontSize: "14px", color: INK_SOFT, lineHeight: 1.7, margin: 0, borderTop: "1px solid rgba(16,35,59,0.06)", paddingTop: "14px" }}>
-                    {item.a}
-                  </p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
+        <FaqSection />
 
         {/* ── CTA FINAL ────────────────────────────────────────────────────── */}
-        <section style={{ background: NAVY, padding: "84px 24px" }}>
-          <div style={{ maxWidth: "720px", margin: "0 auto", textAlign: "center" }}>
-            <LogoMark size={42} stroke={GOLD} />
-            <h2
-              style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "clamp(28px, 4vw, 44px)",
-                fontWeight: 700,
-                color: "#FBF6EC",
-                margin: "18px 0 14px",
-                lineHeight: 1.12,
-              }}
-            >
-              Sua próxima cliente não vai esperar
-            </h2>
-            <p style={{ color: "rgba(251,246,236,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
-              Toda semana mais gente pergunta o preço e some. Não é falta de talento — é falta da resposta certa na hora certa.
-            </p>
-            <Link
-              href={SIGNUP}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                background: GOLD,
-                color: NAVY,
-                borderRadius: "9999px",
-                padding: "16px 34px",
-                fontSize: "16px",
-                fontWeight: 700,
-                textDecoration: "none",
-                boxShadow: "0 18px 44px rgba(201,160,96,0.32)",
-              }}
-            >
-              Testar grátis agora <ArrowRight size={18} />
-            </Link>
-            <p style={{ fontSize: "13px", color: "rgba(251,246,236,0.5)", marginTop: "14px" }}>Sem cartão · cancele quando quiser</p>
-          </div>
-        </section>
+        <FinalCTASection funilHref={SIGNUP} />
       </main>
 
       <FooterSection />
