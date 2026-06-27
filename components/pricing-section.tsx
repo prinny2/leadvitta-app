@@ -1,301 +1,359 @@
-import Link from "next/link";
-import { Check } from "lucide-react";
+"use client";
+
+import { useState } from "react";
 import { PlanCTA } from "@/components/plan-cta";
 import { WaitlistForm } from "@/components/waitlist-form";
-import { billingPlanList, type BillingPlanConfig } from "@/lib/billing";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
+import { billingPlanList } from "@/lib/billing";
 
 const PLAN_META = {
   start: {
-    eyebrow: "Disponível agora",
-    scope: "Plano pago de entrada",
-    bestFor: "Para usar no atendimento real depois das 5 respostas grátis.",
-    contrast: "Demo: 5 respostas. Start: uso contínuo.",
+    kicker: "Plano de entrada",
+    tagline: "Pra parar de perder cliente no WhatsApp e nunca mais improvisar.",
+    priceM: "R$97",
+    priceA: "R$80",
+    priceATotal: "R$970/ano",
+    featured: false,
+    badge: null,
+    ctaLabel: "Começar com o Start — 7 dias grátis",
+    note: "Sem cartão · Cancele quando quiser · Sem multa",
+    features: [
+      "Gerador de Respostas ilimitado — 3 versões",
+      "Biblioteca de Objeções completa",
+      "Follow-up Inteligente",
+      "Scripts de Atendimento Completo",
+      "DNA da Clínica",
+      "Histórico de respostas",
+    ],
   },
   pro: {
-    eyebrow: "Próximo degrau",
-    scope: "Mais operação e histórico",
-    bestFor: "Para equipes que querem padronizar respostas e aprender com as melhores conversas.",
-    contrast: "Tudo do Start, com mais biblioteca e histórico.",
+    kicker: "Mais operação e inteligência",
+    tagline: "Inteligência pra qualificar leads + um bot que prepara o terreno. Você entra só pra fechar.",
+    priceM: "R$197",
+    priceA: "R$164",
+    priceATotal: "R$1.970/ano",
+    featured: true,
+    badge: "★ Mais escolhido",
+    ctaLabel: "Começar com o Pro — 7 dias grátis",
+    note: "Sem cartão · Cancele quando quiser · Sem multa",
+    features: [
+      "Tudo do Start",
+      "Lead Intelligence — score + perfil + estratégia",
+      "Chatbot WhatsApp — atende e qualifica",
+      "Lembrete + Orientações Pré-consulta",
+      "Gestão Pós-consulta automática",
+    ],
   },
   premium: {
-    eyebrow: "Rotina completa",
-    scope: "Automação e prioridade",
-    bestFor: "Para reduzir trabalho manual quando os módulos avançados abrirem.",
-    contrast: "Mais automações sobre a base do Pro.",
+    kicker: "Rotina completa e prioridade",
+    tagline: "A clínica no piloto automático — do primeiro contato ao agendamento fechado, sem tocar em nada.",
+    priceM: "R$347",
+    priceA: "R$289",
+    priceATotal: "R$3.470/ano",
+    featured: false,
+    badge: null,
+    ctaLabel: "Garantir meu acesso Premium",
+    note: "Preço de lançamento garantido · Cancele quando quiser",
+    features: [
+      "Tudo do Pro",
+      "Agendamento Autônomo — o bot fecha sozinho",
+      "Acesso prioritário a todos os módulos futuros",
+    ],
   },
 } as const;
 
-function PricingCard({
-  plan,
-  ctaHref,
-}: {
-  plan: BillingPlanConfig;
-  ctaHref?: string;
-}) {
-  const available = plan.disponivel;
-  const featured = plan.destaque || plan.id === "start";
-  const meta = PLAN_META[plan.id];
-
-  return (
-    <article
-      style={{
-        background: featured ? "#0f1b2f" : "#0a1220",
-        border: featured ? "2px solid #C9A060" : "1px solid rgba(255,255,255,0.08)",
-        borderRadius: "18px",
-        padding: "28px 24px",
-        position: "relative",
-        boxShadow: featured ? "0 18px 48px rgba(201,160,96,0.13)" : "none",
-      }}
-    >
-      {plan.selo ? (
-        <span
-          style={{
-            position: "absolute",
-            top: "-13px",
-            right: "20px",
-            background: "#C9A060",
-            color: "#07101e",
-            borderRadius: "9999px",
-            padding: "4px 13px",
-            fontSize: "11px",
-            fontWeight: 800,
-          }}
-        >
-          {plan.selo}
-        </span>
-      ) : null}
-
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
-        <span
-          style={{
-            border: "1px solid rgba(201,160,96,0.35)",
-            background: featured ? "rgba(201,160,96,0.12)" : "rgba(255,255,255,0.04)",
-            borderRadius: "9999px",
-            color: featured ? "#D9B66D" : "rgba(255,255,255,0.62)",
-            fontSize: "11px",
-            fontWeight: 800,
-            padding: "5px 10px",
-          }}
-        >
-          {meta.eyebrow}
-        </span>
-        <span
-          style={{
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: "9999px",
-            color: "rgba(255,255,255,0.55)",
-            fontSize: "11px",
-            fontWeight: 700,
-            padding: "5px 10px",
-          }}
-        >
-          {meta.scope}
-        </span>
-      </div>
-      <h3
-        style={{
-          fontFamily: "var(--font-fraunces, Georgia, serif)",
-          fontSize: "28px",
-          color: "#ffffff",
-          margin: "0 0 8px",
-        }}
-      >
-        {plan.label}
-      </h3>
-
-      <div style={{ marginBottom: "14px" }}>
-        <span
-          style={{
-            fontFamily: "var(--font-fraunces, Georgia, serif)",
-            fontSize: "48px",
-            fontWeight: 700,
-            color: featured ? "#C9A060" : "#ffffff",
-            lineHeight: 1,
-          }}
-        >
-          {plan.priceLabel}
-        </span>
-        <span style={{ fontSize: "16px", color: "rgba(255,255,255,0.45)" }}>{plan.periodLabel}</span>
-      </div>
-
-      <p
-        style={{
-          minHeight: "42px",
-          fontSize: "14px",
-          color: "rgba(255,255,255,0.72)",
-          lineHeight: 1.5,
-          margin: "0 0 20px",
-        }}
-      >
-        {plan.tagline}
-      </p>
-
-      <div
-        style={{
-          background: featured ? "rgba(201,160,96,0.08)" : "rgba(255,255,255,0.035)",
-          border: featured
-            ? "1px solid rgba(201,160,96,0.22)"
-            : "1px solid rgba(255,255,255,0.07)",
-          borderRadius: "12px",
-          padding: "12px 13px",
-          marginBottom: "18px",
-        }}
-      >
-        <p style={{ color: "rgba(255,255,255,0.78)", fontSize: "12px", lineHeight: 1.55, margin: 0 }}>
-          {meta.bestFor}
-        </p>
-        <p style={{ color: featured ? "#D9B66D" : "rgba(255,255,255,0.45)", fontSize: "11px", fontWeight: 700, lineHeight: 1.45, margin: "7px 0 0" }}>
-          {meta.contrast}
-        </p>
-      </div>
-
-      <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", display: "grid", gap: "10px" }}>
-        {plan.features.slice(0, featured ? 5 : 4).map((feature) => (
-          <li
-            key={feature}
-            style={{
-              display: "flex",
-              gap: "10px",
-              alignItems: "flex-start",
-              fontSize: "13px",
-              color: "rgba(255,255,255,0.76)",
-              lineHeight: 1.45,
-            }}
-          >
-            <Check size={15} color="#C9A060" style={{ flexShrink: 0, marginTop: "2px" }} />
-            <span>{feature}</span>
-          </li>
-        ))}
-      </ul>
-
-      {available ? (
-        <>
-          {ctaHref ? (
-            <Link
-              href={ctaHref}
-              className="block w-full rounded-xl bg-[#C9A060] px-5 py-3 text-center text-sm font-bold text-[#07101e]"
-              style={{ textDecoration: "none" }}
-            >
-              {plan.id === "start" ? "Assinar Start agora" : `Assinar ${plan.label}`}
-            </Link>
-          ) : (
-            <PlanCTA
-              plan={plan.id}
-              interval="monthly"
-              className="block w-full rounded-xl bg-[#C9A060] px-5 py-3 text-center text-sm font-bold text-[#07101e]"
-            >
-              {plan.id === "start" ? "Assinar Start agora" : `Assinar ${plan.label}`}
-            </PlanCTA>
-          )}
-          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.42)", textAlign: "center", margin: "10px 0 0" }}>
-            {plan.id === "start"
-              ? "Depois da demo: R$97/mês · cancele quando quiser"
-              : "Checkout seguro via Stripe"}
-          </p>
-          <LegalConsentLinks tone="light" className="mt-2" />
-        </>
-      ) : (
-        <>
-          <p style={{ fontSize: "13px", color: "#C9A060", fontWeight: 700, margin: "0 0 12px" }}>
-            Entre na lista de prioridade
-          </p>
-          <WaitlistForm plan={plan.id} />
-        </>
-      )}
-    </article>
-  );
-}
+const CMP_ROWS = [
+  { plan: "START", human: "Tudo — mas com as respostas certas na mão", bot: "Ferramenta manual" },
+  { plan: "PRO", human: "Só confirma o fechamento", bot: "Atende, qualifica e aquece" },
+  { plan: "PREMIUM", human: "Só faz o procedimento", bot: "Atende, qualifica, agenda e acompanha" },
+];
 
 export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
-  const focusByPlan = {
-    start: "Pago agora: respostas continuas",
-    pro: "Biblioteca, roteiros e histórico",
-    premium: "Automacoes avancadas em breve",
-  } as const;
-  const rows = billingPlanList.map((plan) => ({
-    plan: plan.label,
-    focus: focusByPlan[plan.id],
-    status: plan.disponivel ? "Disponível" : "Em breve",
-  }));
+  const [annual, setAnnual] = useState(false);
 
   return (
     <>
+      {/* Toggle mensal / anual */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: "46px" }}>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "4px",
+            background: "#fff",
+            border: "1px solid #EAE0CC",
+            borderRadius: "99px",
+            padding: "7px 8px",
+            boxShadow: "0 6px 18px rgba(20,15,5,.04)",
+          }}
+        >
+          <button
+            onClick={() => setAnnual(false)}
+            style={{
+              fontSize: "14px",
+              fontWeight: annual ? 700 : 800,
+              padding: "9px 20px",
+              borderRadius: "99px",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "inherit",
+              background: annual ? "none" : "#BDA269",
+              color: annual ? "#5C6273" : "#1A1206",
+            }}
+          >
+            Mensal
+          </button>
+          <button
+            onClick={() => setAnnual(true)}
+            style={{
+              fontSize: "14px",
+              fontWeight: annual ? 800 : 700,
+              padding: "9px 20px",
+              borderRadius: "99px",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "inherit",
+              background: annual ? "#BDA269" : "none",
+              color: annual ? "#1A1206" : "#5C6273",
+            }}
+          >
+            Anual <span style={{ fontSize: "11px", opacity: 0.85 }}>· 2 meses gr&aacute;tis</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Cards */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
-          gap: "18px",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: "20px",
           alignItems: "stretch",
-          marginBottom: "28px",
         }}
+        className="pricing-grid"
       >
-        {billingPlanList.map((plan) => (
-          <PricingCard key={plan.id} plan={plan} ctaHref={ctaHref} />
-        ))}
+        {billingPlanList.map((plan) => {
+          const meta = PLAN_META[plan.id];
+          const price = annual ? meta.priceA : meta.priceM;
+          const sub = annual ? `cobrado anualmente · ${meta.priceATotal}` : "cobrado mensalmente";
+
+          return (
+            <article
+              key={plan.id}
+              style={{
+                position: "relative",
+                background: meta.featured
+                  ? "linear-gradient(180deg,#FFFDF8,#FBF3E2)"
+                  : "#fff",
+                border: meta.featured ? "1.5px solid #BDA269" : "1px solid #EAE0CC",
+                borderRadius: "22px",
+                padding: meta.featured ? "38px 28px 32px" : "32px 28px",
+                display: "flex",
+                flexDirection: "column",
+                boxShadow: meta.featured
+                  ? "0 28px 70px rgba(189,162,105,.2)"
+                  : "0 14px 40px rgba(20,15,5,.05)",
+              }}
+            >
+              {meta.badge && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "-13px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "#BDA269",
+                    color: "#1A1206",
+                    fontSize: "11.5px",
+                    fontWeight: 800,
+                    letterSpacing: ".05em",
+                    padding: "6px 16px",
+                    borderRadius: "99px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {meta.badge}
+                </div>
+              )}
+
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 800,
+                  letterSpacing: ".1em",
+                  textTransform: "uppercase",
+                  color: "#9A7B3C",
+                }}
+              >
+                {meta.kicker}
+              </div>
+
+              <h3
+                style={{
+                  fontFamily: "var(--font-fraunces, Georgia, serif)",
+                  fontWeight: 700,
+                  fontSize: "30px",
+                  margin: "10px 0 0",
+                  color: "#16202F",
+                }}
+              >
+                {plan.label}
+              </h3>
+
+              <p
+                style={{
+                  fontSize: "14px",
+                  color: "#5E6373",
+                  margin: "8px 0 18px",
+                  lineHeight: 1.5,
+                  minHeight: "42px",
+                }}
+              >
+                {meta.tagline}
+              </p>
+
+              <div style={{ display: "flex", alignItems: "flex-end", gap: "6px" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-fraunces, Georgia, serif)",
+                    fontWeight: 800,
+                    fontSize: "48px",
+                    color: "#9A7B3C",
+                    lineHeight: 1,
+                  }}
+                >
+                  {price}
+                </span>
+                <span style={{ fontSize: "15px", color: "#8A8E99", marginBottom: "8px" }}>/m&ecirc;s</span>
+              </div>
+
+              <div style={{ fontSize: "12.5px", color: "#8A8E99", marginTop: "8px", minHeight: "18px" }}>
+                {sub}
+              </div>
+
+              {/* CTA */}
+              <div style={{ marginTop: "22px" }}>
+                {plan.disponivel ? (
+                  ctaHref ? (
+                    <a
+                      href={ctaHref}
+                      style={{
+                        display: "block",
+                        textAlign: "center",
+                        background: meta.featured ? "#BDA269" : "#0A121F",
+                        color: meta.featured ? "#1A1206" : "#fff",
+                        textDecoration: "none",
+                        fontSize: "15px",
+                        fontWeight: 800,
+                        padding: "15px",
+                        borderRadius: "12px",
+                      }}
+                    >
+                      {meta.ctaLabel}
+                    </a>
+                  ) : (
+                    <PlanCTA
+                      plan={plan.id}
+                      interval={annual ? "annual" : "monthly"}
+                      className={
+                        meta.featured
+                          ? "block w-full rounded-xl px-5 py-4 text-center text-[15px] font-extrabold cursor-pointer border-0 bg-[#BDA269] text-[#1A1206]"
+                          : "block w-full rounded-xl px-5 py-4 text-center text-[15px] font-extrabold cursor-pointer border-0 bg-[#0A121F] text-white"
+                      }
+                    >
+                      {meta.ctaLabel}
+                    </PlanCTA>
+                  )
+                ) : (
+                  <>
+                    <p style={{ fontSize: "13px", color: "#9A7B3C", fontWeight: 700, margin: "0 0 12px" }}>
+                      Entre na lista de prioridade
+                    </p>
+                    <WaitlistForm plan={plan.id} />
+                  </>
+                )}
+              </div>
+
+              {/* Features */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "24px" }}>
+                {meta.features.map((f) => (
+                  <div key={f} style={{ display: "flex", gap: "11px", alignItems: "flex-start" }}>
+                    <span style={{ flexShrink: 0, color: "#9A7B3C", fontWeight: 800, fontSize: "14px", marginTop: "1px" }}>
+                      ✓
+                    </span>
+                    <span style={{ fontSize: "14px", lineHeight: 1.45, color: "#3A4150" }}>{f}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ fontSize: "12px", color: "#8A8E99", marginTop: "20px", textAlign: "center" }}>
+                {meta.note}
+              </div>
+
+              {plan.disponivel && <LegalConsentLinks tone="dark" className="mt-2" />}
+            </article>
+          );
+        })}
       </div>
 
+      {/* Comparativo */}
       <div
         style={{
-          background: "#0f1b2f",
-          border: "1px solid rgba(201,160,96,0.2)",
-          borderRadius: "16px",
+          background: "#fff",
+          border: "1px solid #EAE0CC",
+          borderRadius: "20px",
+          marginTop: "32px",
           overflow: "hidden",
+          boxShadow: "0 14px 40px rgba(20,15,5,.04)",
         }}
       >
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "120px 1fr 110px",
-            gap: "14px",
-            padding: "14px 18px",
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
-            alignItems: "center",
+            gridTemplateColumns: "1fr 1.4fr 1.4fr",
+            padding: "16px 26px",
+            borderBottom: "1px solid #EAE0CC",
+            fontSize: "11px",
+            fontWeight: 800,
+            letterSpacing: ".08em",
+            textTransform: "uppercase",
+            color: "#8A8E99",
           }}
-          className="pricing-row"
+          className="cmp-row"
         >
-          <strong style={{ color: "rgba(255,255,255,0.86)", fontSize: "14px" }}>
-            Demo grátis
-          </strong>
-          <span style={{ color: "rgba(255,255,255,0.62)", fontSize: "13px" }}>
-            5 respostas para testar, sem cartão
-          </span>
-          <span style={{ color: "#D9B66D", fontSize: "12px", fontWeight: 800 }}>
-            Limitada
-          </span>
+          <span>Plano</span>
+          <span>O que o humano faz</span>
+          <span>O que o bot faz</span>
         </div>
-        {rows.map((row, index) => (
+        {CMP_ROWS.map((row, i) => (
           <div
             key={row.plan}
             style={{
               display: "grid",
-              gridTemplateColumns: "120px 1fr 110px",
-              gap: "14px",
-              padding: "14px 18px",
-              borderBottom: index < rows.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
+              gridTemplateColumns: "1fr 1.4fr 1.4fr",
+              padding: "18px 26px",
+              borderBottom: i < CMP_ROWS.length - 1 ? "1px solid #EAE0CC" : "none",
               alignItems: "center",
             }}
-            className="pricing-row"
+            className="cmp-row"
           >
-            <strong style={{ color: "#C9A060", fontSize: "14px" }}>{row.plan}</strong>
-            <span style={{ color: "rgba(255,255,255,0.72)", fontSize: "13px" }}>{row.focus}</span>
-            <span style={{ color: row.status === "Disponível" ? "#4ade80" : "rgba(255,255,255,0.45)", fontSize: "12px", fontWeight: 700 }}>
-              {row.status}
+            <span style={{ fontWeight: 800, color: "#9A7B3C", fontSize: "14px", letterSpacing: ".04em" }}>
+              {row.plan}
             </span>
+            <span style={{ fontSize: "14px", color: "#3A4150" }}>{row.human}</span>
+            <span style={{ fontSize: "14px", color: "#3A4150" }}>{row.bot}</span>
           </div>
         ))}
       </div>
 
-      <p style={{ textAlign: "center", fontSize: "13px", color: "rgba(255,255,255,0.42)", marginTop: "18px" }}>
-        Cancele quando quiser. Sem multa.
+      <p style={{ textAlign: "center", fontSize: "13.5px", color: "#5E6373", marginTop: "24px" }}>
+        Todos os planos: cancele quando quiser &middot; sem multa &middot; sem fidelidade &middot; pagamento seguro via Stripe
       </p>
 
       <style>{`
-        @media (max-width: 640px) {
-          .pricing-row {
-            grid-template-columns: 1fr !important;
-            gap: 5px !important;
-          }
+        @media (max-width: 880px) {
+          .pricing-grid { grid-template-columns: 1fr !important; }
+          .cmp-row { grid-template-columns: 1fr !important; gap: 4px !important; }
         }
       `}</style>
     </>

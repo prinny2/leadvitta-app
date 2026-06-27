@@ -738,13 +738,29 @@ export default function LandingPage() {
         </section>
 
         {/* ── PREÇOS ───────────────────────────────────────────────────────── */}
-        <section id="precos" style={{ background: NAVY, padding: "84px 24px" }}>
-          <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-            <div style={{ textAlign: "center", marginBottom: "40px" }}>
-              <Eyebrow onNavy>Escolha o seu plano</Eyebrow>
-              <SectionTitle onNavy>Comece pelo plano que resolve hoje</SectionTitle>
-              <p style={{ color: "rgba(251,246,236,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
-                Teste grátis e assine só se fizer sentido pra sua rotina.
+        <section id="precos" style={{ background: "#F5F0E6", padding: "96px 32px" }}>
+          <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: "0" }}>
+              <div style={{ fontSize: "12px", fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", color: "#9A7B3C" }}>
+                Escolha o seu plano
+              </div>
+              <h2
+                style={{
+                  fontFamily: "var(--font-fraunces, Georgia, serif)",
+                  fontWeight: 800,
+                  fontSize: "clamp(30px, 4vw, 50px)",
+                  lineHeight: 1.1,
+                  letterSpacing: "-.02em",
+                  margin: "18px auto 0",
+                  maxWidth: "20ch",
+                  color: "#16202F",
+                }}
+              >
+                Uma cliente recuperada já paga o{" "}
+                <span style={{ color: "#9A7B3C", fontStyle: "italic" }}>mês inteiro</span>
+              </h2>
+              <p style={{ fontSize: "16.5px", lineHeight: 1.6, color: "#5E6373", maxWidth: "600px", margin: "18px auto 46px" }}>
+                Você cobra R$1.500 numa harmonização. Se fechar 1 cliente a mais por mês, são 15x de retorno no pior cenário.
               </p>
             </div>
             <PricingSection />
