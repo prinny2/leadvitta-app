@@ -586,31 +586,175 @@ export default function LandingPage() {
         </section>
 
         {/* ── COMO FUNCIONA ────────────────────────────────────────────────── */}
-        <section id="como-funciona" style={{ background: CREAM_2, padding: "76px 24px" }}>
-          <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
-            <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 40px" }}>
+        <section id="como-funciona" style={{ background: CREAM_2, padding: "88px 24px" }}>
+          <div style={{ maxWidth: "1080px", margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: "52px" }}>
               <Eyebrow>Como funciona</Eyebrow>
-              <SectionTitle>Em 3 passos, sem complicação</SectionTitle>
+              <h2
+                style={{
+                  fontFamily: "var(--font-fraunces, Georgia, serif)",
+                  fontWeight: 800,
+                  fontSize: "clamp(28px, 4vw, 48px)",
+                  lineHeight: 1.1,
+                  letterSpacing: "-.02em",
+                  margin: "16px auto 0",
+                  maxWidth: "22ch",
+                  color: INK,
+                }}
+              >
+                Do &ldquo;responde melhor&rdquo; ao &ldquo;funciona sozinho&rdquo; —{" "}
+                <span style={{ color: GOLD_DEEP, fontStyle: "italic" }}>você escolhe o nível</span>
+              </h2>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }} className="como-funciona-grid">
               {[
-                { n: "01", icon: <MessageCircle size={20} />, t: "Cole a mensagem", c: "Copie o que a pessoa mandou no WhatsApp e cole no LeadBellus." },
-                { n: "02", icon: <Sparkles size={20} />, t: "Receba 3 respostas", c: "No tom da sua clínica: uma suave, uma consultiva e uma de fechamento." },
-                { n: "03", icon: <Copy size={20} />, t: "Copie e mande", c: "Revisa, ajusta se quiser e cola na conversa. Você no controle, sempre." },
-              ].map((s) => (
-                <div key={s.n} style={{ background: "#ffffff", border: "1px solid rgba(16,35,59,0.07)", borderRadius: "18px", padding: "26px" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
-                    <span style={{ width: "42px", height: "42px", borderRadius: "12px", background: INK, color: GOLD, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {s.icon}
+                {
+                  emoji: "🎯",
+                  nivel: "Nível 1",
+                  titulo: "Você responde melhor",
+                  desc: "Cole a mensagem da cliente, selecione a situação e receba 3 respostas no tom da sua clínica em segundos. Nunca mais em branco. Nunca mais resposta seca. Você copia, cola e fecha.",
+                  para: "Para quem está começando",
+                  plano: "plano START",
+                  accent: false,
+                },
+                {
+                  emoji: "🧠",
+                  nivel: "Nível 2",
+                  titulo: "O bot qualifica, você fecha",
+                  desc: "O Lead Intelligence analisa cada conversa e te diz quem está pronto pra fechar — com score, perfil psicológico e estratégia. O chatbot atende as leads automaticamente. Você entra só no momento certo: pra confirmar o agendamento.",
+                  para: "Para quem quer mais resultado com menos esforço",
+                  plano: "plano PRO",
+                  accent: true,
+                },
+                {
+                  emoji: "🤖",
+                  nivel: "Nível 3",
+                  titulo: "A clínica funciona sozinha",
+                  desc: "O bot atende, qualifica, agenda, manda lembrete 24h antes e ainda faz acompanhamento pós-consulta. Você configura os critérios uma vez. A agenda se preenche enquanto você está em procedimento — sem tocar em nada.",
+                  para: "Para quem quer escalar sem contratar",
+                  plano: "plano PREMIUM",
+                  accent: false,
+                },
+              ].map((card) => (
+                <div
+                  key={card.nivel}
+                  style={{
+                    background: card.accent ? INK : "#ffffff",
+                    border: card.accent ? `1.5px solid ${GOLD}` : "1px solid rgba(16,35,59,0.08)",
+                    borderRadius: "22px",
+                    padding: "32px 28px",
+                    display: "flex",
+                    flexDirection: "column",
+                    boxShadow: card.accent
+                      ? "0 24px 60px rgba(201,160,96,.18)"
+                      : "0 10px 30px rgba(16,35,59,.05)",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+                    <span style={{ fontSize: "26px" }}>{card.emoji}</span>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        fontWeight: 800,
+                        letterSpacing: ".1em",
+                        textTransform: "uppercase",
+                        color: card.accent ? GOLD : GOLD_DEEP,
+                        border: `1px solid ${card.accent ? "rgba(201,160,96,.45)" : "rgba(138,99,18,.3)"}`,
+                        borderRadius: "99px",
+                        padding: "4px 11px",
+                      }}
+                    >
+                      {card.nivel}
                     </span>
-                    <span style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: "26px", fontWeight: 700, color: "rgba(16,35,59,0.14)" }}>{s.n}</span>
                   </div>
-                  <h3 style={{ color: INK, fontSize: "18px", fontWeight: 700, margin: "0 0 8px" }}>{s.t}</h3>
-                  <p style={{ color: INK_SOFT, fontSize: "14px", lineHeight: 1.65, margin: 0 }}>{s.c}</p>
+
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-fraunces, Georgia, serif)",
+                      fontSize: "22px",
+                      fontWeight: 700,
+                      color: card.accent ? "#FBF6EC" : INK,
+                      margin: "0 0 14px",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {card.titulo}
+                  </h3>
+
+                  <p
+                    style={{
+                      fontSize: "14.5px",
+                      lineHeight: 1.65,
+                      color: card.accent ? "rgba(251,246,236,.78)" : INK_SOFT,
+                      margin: "0 0 24px",
+                      flex: 1,
+                    }}
+                  >
+                    {card.desc}
+                  </p>
+
+                  <div
+                    style={{
+                      borderTop: `1px solid ${card.accent ? "rgba(201,160,96,.2)" : "rgba(16,35,59,.07)"}`,
+                      paddingTop: "18px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: "13px",
+                        color: card.accent ? "rgba(251,246,236,.6)" : INK_SOFT,
+                        margin: "0 0 4px",
+                      }}
+                    >
+                      {card.para} —
+                    </p>
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 800,
+                        letterSpacing: ".06em",
+                        textTransform: "uppercase",
+                        color: card.accent ? GOLD : GOLD_DEEP,
+                      }}
+                    >
+                      {card.plano}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
+
+            <div style={{ textAlign: "center", marginTop: "40px" }}>
+              <Link
+                href={SIGNUP}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  background: INK,
+                  color: GOLD,
+                  borderRadius: "9999px",
+                  padding: "16px 34px",
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  boxShadow: "0 14px 36px rgba(10,18,31,.18)",
+                }}
+              >
+                Começar pelo nível que faz sentido pra você — 7 dias grátis <ArrowRight size={17} />
+              </Link>
+              <p style={{ fontSize: "13px", color: INK_SOFT, marginTop: "12px" }}>
+                Sem cartão · Muda de plano quando quiser
+              </p>
+            </div>
           </div>
+
+          <style>{`
+            @media (max-width: 820px) {
+              .como-funciona-grid { grid-template-columns: 1fr !important; }
+            }
+          `}</style>
         </section>
 
         {/* ── PARA QUEM É (elas e eles) ────────────────────────────────────── */}
