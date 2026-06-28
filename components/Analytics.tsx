@@ -22,7 +22,8 @@ function AnalyticsContent() {
   const didHandleInitialRender = useRef(false);
 
   // PageView a cada mudança de rota (App Router não recarrega a página)
-  useEffect(()n  if (!pathname) return;
+  useEffect(() => {
+    if (!pathname) return;
     const isInitialRender = !didHandleInitialRender.current;
     didHandleInitialRender.current = true;
 
@@ -104,7 +105,7 @@ export default function Analytics() {
 }
 
 // Helper p/ disparar eventos customizados do client
- export const trackEvent = (
+export const trackEvent = (
   eventName: string,
   params?: Record<string, any>
 ) => {
