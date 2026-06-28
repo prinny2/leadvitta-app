@@ -56,10 +56,10 @@ const LEGAL = [
 ];
 
 const STACK = [
-  { label: "Z-API WhatsApp", icon: MessageCircle },
-  { label: "NLP de intenção", icon: Brain },
-  { label: "GPT-4o + Claude + Gemini", icon: Sparkles },
-  { label: "Stripe seguro", icon: ShieldCheck },
+  { label: "WhatsApp conectado", icon: MessageCircle },
+  { label: "Entende a intenção da conversa", icon: Brain },
+  { label: "Respostas no tom da clínica", icon: Sparkles },
+  { label: "Pagamento seguro", icon: ShieldCheck },
 ];
 
 function FooterLink({ href, children, isNext }: { href: string; children: React.ReactNode; isNext?: boolean }) {
@@ -121,7 +121,7 @@ export function FooterSection() {
             <Wordmark />
           </div>
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", lineHeight: 1.7, maxWidth: "220px", marginBottom: "16px" }}>
-            WhatsApp, NLP e IA no tom da sua clínica.
+            Respostas prontas no tom da sua clínica.
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxWidth: "260px" }}>
             {STACK.map(({ label, icon: Icon }) => (
@@ -225,7 +225,7 @@ export function FooterSection() {
         >
           <ShieldCheck size={14} color="rgba(255,255,255,0.4)" />
           <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)" }}>
-            Stripe · Firebase · Z-API · dados protegidos
+            Pagamento seguro · dados protegidos
           </span>
         </div>
       </motion.div>

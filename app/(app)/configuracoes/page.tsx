@@ -272,10 +272,10 @@ export default function ConfiguracoesPage() {
                 <Input id="whats" value={c.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} placeholder="(11) 99999-9999" />
               </div>
 
-              {/* Z-API automation fields - for auto webhook setup (Claude design sync friendly) */}
+              {/* Campos avancados para conectar o WhatsApp da clinica. */}
               <div className="sm:col-span-2 border-t border-navy-600 pt-4">
-                <Label htmlFor="zapi">Z-API (para automação completa do webhook)</Label>
-                <p className="text-xs text-navy-100 mb-2">Após conectar seu número no Z-API, copie ID e Token aqui. A LeadBellus configura o webhook automaticamente.</p>
+                <Label htmlFor="zapi">Conexão do WhatsApp</Label>
+                <p className="text-xs text-navy-100 mb-2">Cole os dados da sua conexão para a LeadBellus receber e responder mensagens automaticamente.</p>
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div>
                     <Label htmlFor="zapi-inst" className="text-xs">Instance ID</Label>
@@ -431,7 +431,7 @@ export default function ConfiguracoesPage() {
 
       {/* ── Plano e pagamento ── */}
       <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
-        <SectionHeader icon={CreditCard} title="Plano e pagamento" subtitle="Stripe · cobrança segura" />
+        <SectionHeader icon={CreditCard} title="Plano e pagamento" subtitle="Cobrança segura" />
 
         <div className="space-y-4 p-5 sm:p-6">
           <p className="text-sm text-navy-100">

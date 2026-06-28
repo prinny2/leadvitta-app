@@ -13,15 +13,14 @@ const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "";
 // Defina NEXT_PUBLIC_GA4_ID no Vercel para ativar analytics.
 const GA4_ID = ga4MeasurementId;
 
-// Google Ads: as conversões agora entram pelo VÍNCULO GA4 ↔ Google Ads (import
-// dos eventos sign_up/purchase).
+// Google Ads: as conversões agora entram pelo vínculo GA4/Google Ads.
 
 function AnalyticsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const didHandleInitialRender = useRef(false);
 
-  // PageView a cada mudança de rota (App Router não recarrega a página)
+  // PageView a cada mudança de rota (App Router não recarrega a página).
   useEffect(() => {
     if (!pathname) return;
     const isInitialRender = !didHandleInitialRender.current;
@@ -115,7 +114,7 @@ export function getGaClientId() {
   return `${parts[2]}.${parts[3]}`;
 }
 
-// Helper p/ disparar eventos customizados do client (mapeia p/ eventos padrão do Meta)
+// Helper p/ disparar eventos customizados do client (mapeia p/ eventos padrão do Meta).
 export const trackEvent = (
   eventName: string,
   params?: Record<string, any>
