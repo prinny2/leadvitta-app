@@ -19,6 +19,8 @@ import {
   updateDoc,
   arrayUnion,
 } from "firebase/firestore";
+import { supabaseClient, mirrorHistoricoClient } from "@/lib/supabase/client";
+import type { AppHistoricoResposta } from "@/lib/supabase/types";
 import {
   clinicaVazia,
   type Clinica,
@@ -151,12 +153,31 @@ export async function addHistorico(
   if (isFirebaseConfigured) {
     const user = getFirebaseAuth().currentUser;
     if (!user) return;
-    await addDoc(collection(getFirebaseDb(), "historico"), {
+
+    const firebaseData = {
       user_id: user.uid,
       ...item,
       favorito: false,
       created_at: new Date().toISOString(),
-    });
+    };
+
+    const docRef = await addDoc(collection(getFirebaseDb(), "historico"), firebaseData);
+
+    // Phase 1 Supabase additive mirror (client-side, non-blocking)
+    const mirrorItem: AppHistoricoResposta = {
+      firestore_id: docRef.id,
+      firebase_uid: user.uid,
+      tipo: item.tipo,
+      contexto: item.contexto,
+      respostas: item.respostas,
+      favorito: false,
+      intent: item.intent ?? null,
+      sentiment: item.sentiment ?? null,
+      score: item.score ?? null,
+      created_at: firebaseData.created_at,
+    };
+    mirrorHistoricoClient(mirrorItem).catch(() => {});
+
     return;
   }
   if (typeof window === "undefined") return;
@@ -182,6 +203,15 @@ export async function toggleFavorito(
     const user = getFirebaseAuth().currentUser;
     if (!user) return;
     await updateDoc(doc(getFirebaseDb(), "historico", id), { favorito });
+
+    // Phase 1: also update favorite in Supabase mirror (best effort)
+    if (supabaseClient) {
+      supabaseClient
+        .from("app_historico_respostas")
+        .update({ favorito })
+        .eq("firestore_id", id)
+        .then(() => {}, () => {});
+    }
     return;
   }
   if (typeof window === "undefined") return;

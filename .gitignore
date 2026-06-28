@@ -50,3 +50,15 @@ WhatsApp Image*
 /mapa_arquitetura.png
 /cloudrun_login_real.png
 /MESA_PARA_EDUARDO.png
+
+# Secrets / local credentials (never commit real ones; .env.local.example is the template)
+.env
+.env.*
+!.env.local.example
+# Google Ads / GA OAuth desktop client secrets
+ads/**/.env*
+scripts/.ga-*.json
+scripts/.ga-*.json
+# Cursor / Codex / agent local state (if any slips)
+.cursor/rules.local*
+/.cursor/
