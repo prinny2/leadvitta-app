@@ -96,3 +96,8 @@ export const isZApiConfigured =
 
 /** Alias legado — sempre Z-API. */
 export const isWhatsappConfigured = isZApiConfigured;
+
+// GA4 (public) — agora tem flag explícito como os outros provedores.
+// Defina NEXT_PUBLIC_GA4_ID no Vercel para ativar (sem fallback hardcoded).
+export const ga4MeasurementId = process.env.NEXT_PUBLIC_GA4_ID?.trim() || "";
+export const isGA4Configured = !!ga4MeasurementId;
