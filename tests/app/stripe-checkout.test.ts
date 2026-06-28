@@ -7,7 +7,7 @@ const cfg = vi.hoisted(() => ({
   siteUrl: "http://localhost:3000",
 }));
 const billingState = vi.hoisted(() => ({
-  priceId: "price_pro",
+  priceId: "price_1Tj5j8RTJ7iCFKxkiXFVTyx1",
   mode: "payment",
   disponivel: true,
 }));
@@ -62,7 +62,7 @@ beforeEach(() => {
   cfg.isFirebaseConfigured = false;
   cfg.isStripeConfigured = true;
   cfg.siteUrl = "http://localhost:3000";
-  billingState.priceId = "price_pro";
+  billingState.priceId = "price_1Tj5j8RTJ7iCFKxkiXFVTyx1";
   billingState.mode = "payment";
   billingState.disponivel = true;
   verifyToken.mockReset().mockResolvedValue(null);
@@ -92,6 +92,13 @@ describe("Stripe checkout — validações", () => {
     cfg.isStripeConfigured = false;
     const res = await POST(checkoutRequest({ plan: "pro" }));
     expect(res.status).toBe(503);
+  });
+
+  it("retorna 503 quando o price id não é da conta LeadBellus esperada", async () => {
+    billingState.priceId = "price_1ThIde6Qz7MOnODLInHcArD4";
+    const res = await POST(checkoutRequest({ plan: "pro" }));
+    expect(res.status).toBe(503);
+    expect(sessionsCreate).not.toHaveBeenCalled();
   });
 
   it("retorna 400 quando o plano ainda não está disponível", async () => {

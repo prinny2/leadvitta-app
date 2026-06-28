@@ -140,9 +140,10 @@ for (const [snippet, label] of requiredConfigRouteSnippets) {
 }
 
 const requiredNextConfigSnippets = [
-  ["beforeFiles", "proxies API routes before local Next API handlers on Vercel"],
+  ["beforeFiles", "proxies API routes before local Next API handlers when explicitly enabled"],
   ["ENABLE_API_PROXY", "allows explicit API proxy enablement"],
-  ["process.env.VERCEL", "enables the API proxy automatically on Vercel"],
+  ['const enableApiProxy = process.env.ENABLE_API_PROXY === "true"', "keeps API proxy opt-in"],
+  ["if (!enableApiProxy) return []", "leaves Vercel API routes local by default"],
   ["API_PROXY_ORIGIN", "supports a configurable Cloud Run proxy origin"],
   ["leadbellus-87102725202.southamerica-east1.run.app", "defaults API proxy to the direct Cloud Run service"],
 ];
