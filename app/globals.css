@@ -145,7 +145,7 @@ html.light-theme .bg-navy-700 {
 }
 
 html.light-theme .bg-navy-600 {
-  background-color: #F9F8F5 !important;
+  background-color: #FFFFFF !important;
 }
 
 html.light-theme .bg-navy-500\/50,
@@ -222,4 +222,35 @@ html.light-theme select {
 html.light-theme [style*="background: linear-gradient(135deg, #0f1b2f"] {
   background: linear-gradient(135deg, #FFFFFF 0%, #F9F8F5 100%) !important;
   border-color: rgba(201,160,96,0.25) !important;
+}
+
+/* ─────────────────────────────────────────────
+   LAUNCH CAMPAIGN (dark premium for mobile launch)
+   Optimised colours for conversion and contrast on small screens
+   ───────────────────────────────────────────── */
+.launch-gold {
+  color: #E4B85A; /* slightly brighter for small text contrast on mobile */
+}
+.launch-gold-bg {
+  background: #C9A060;
+  color: #07101e;
+}
+.launch-dark {
+  background: #07101e;
+}
+.launch-card {
+  background: rgba(15, 27, 47, 0.85);
+  border-color: rgba(201, 160, 96, 0.2);
+}
+
+/* Mobile launch specific tweaks for better Lighthouse */
+@media (max-width: 640px) {
+  .launch-hero {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+  .launch-cta {
+    font-size: 14px;
+    padding: 12px 20px;
+  }
 }
