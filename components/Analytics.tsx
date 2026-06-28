@@ -104,7 +104,18 @@ export default function Analytics() {
   );
 }
 
-// Helper p/ disparar eventos customizados do client
+export function getGaClientId() {
+  if (typeof document === "undefined") return undefined;
+  const cookie = document.cookie
+    .split("; ")
+    .find((part) => part.startsWith("_ga="));
+  const value = cookie?.split("=")[1];
+  const parts = value?.split(".");
+  if (!parts || parts.length < 4) return undefined;
+  return `${parts[2]}.${parts[3]}`;
+}
+
+// Helper p/ disparar eventos customizados do client (mapeia p/ eventos padrão do Meta)
 export const trackEvent = (
   eventName: string,
   params?: Record<string, any>
@@ -118,7 +129,7 @@ export const trackEvent = (
   if ((window as any).fbq && META_PIXEL_ID) {
     const standardEvents: Record<string, string> = {
       sign_up: "Lead",
-      initiate_checkout: "InitiateCheckout",
+      checkout_click: "InitiateCheckout",
       purchase: "Purchase",
     };
     const metaEvent = standardEvents[eventName] || eventName;

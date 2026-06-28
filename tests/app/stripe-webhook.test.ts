@@ -17,6 +17,7 @@ const { applyClinicBilling, saveBillingPending, syncSubscriptionBilling } =
     syncSubscriptionBilling: vi.fn(),
   }));
 const sendOps = vi.hoisted(() => vi.fn());
+const sendGa4 = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/stripe/server", () => ({
   getStripe: () => ({
@@ -33,6 +34,13 @@ vi.mock("@/lib/stripe/billing-sync", () => ({
 
 vi.mock("@/lib/firebase/admin", () => ({ getFirebaseAdminDb: getDb }));
 vi.mock("@/lib/ops-notify", () => ({ sendOpsNotify: sendOps }));
+vi.mock("@/lib/analytics/ga4-server", () => ({
+  ga4ValueFromCents: (amount?: number | null) =>
+    typeof amount === "number" && Number.isFinite(amount)
+      ? Math.max(0, amount) / 100
+      : undefined,
+  sendGa4Event: sendGa4,
+}));
 
 import { POST } from "@/app/api/stripe/webhook/route";
 
@@ -90,6 +98,7 @@ beforeEach(() => {
   saveBillingPending.mockReset().mockResolvedValue(undefined);
   syncSubscriptionBilling.mockReset().mockResolvedValue("clinica");
   sendOps.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
+  sendGa4.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -123,7 +132,14 @@ describe("Stripe webhook — checkout.session.completed", () => {
     constructEvent.mockReturnValue(
       checkoutEvent({
         id: "cs_1",
-        metadata: { firebase_uid: "uid_1", plan: "pro" },
+        amount_total: 9700,
+        currency: "brl",
+        metadata: {
+          firebase_uid: "uid_1",
+          plan: "pro",
+          ga_client_id: "123.456",
+          stripe_price_id: "price_pro",
+        },
         payment_status: "paid",
         customer: "cus_1",
         customer_details: { email: "ana@exemplo.com" },
@@ -147,6 +163,23 @@ describe("Stripe webhook — checkout.session.completed", () => {
     expect(sendOps).toHaveBeenCalledWith(
       "stripe.checkout.completed",
       expect.objectContaining({ firebase_uid: "uid_1" })
+    );
+    expect(sendGa4).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "purchase",
+        clientId: "123.456",
+        userId: "uid_1",
+        params: expect.objectContaining({
+          transaction_id: "cs_1",
+          affiliation: "Stripe",
+          currency: "BRL",
+          value: 97,
+          plan: "pro",
+        }),
+      })
+    );
+    expect(JSON.stringify(sendGa4.mock.calls[0][0])).not.toContain(
+      "ana@exemplo.com"
     );
   });
 

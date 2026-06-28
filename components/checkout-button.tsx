@@ -6,7 +6,7 @@ import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import type { BillingPlan } from "@/lib/billing";
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { trackEvent } from "./Analytics";
+import { getGaClientId, trackEvent } from "./Analytics";
 
 type CheckoutButtonProps = Omit<ButtonProps, "onClick"> & {
   plan: BillingPlan;
@@ -26,7 +26,7 @@ export function CheckoutButton({
     setErro("");
 
     try {
-      trackEvent("initiate_checkout", { plan });
+      trackEvent("checkout_click", { plan });
       const user = isFirebaseConfigured ? getFirebaseAuth().currentUser : null;
       const firebaseIdToken = user ? await user.getIdToken() : undefined;
 
@@ -37,6 +37,7 @@ export function CheckoutButton({
           plan,
           firebaseIdToken: firebaseIdToken ?? undefined,
           customerEmail: user?.email,
+          gaClientId: getGaClientId(),
         }),
       });
       const data = (await response.json()) as { url?: string; error?: string };

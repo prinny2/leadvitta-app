@@ -11,6 +11,7 @@ import {
   reservarProcessamento,
   liberarProcessamento,
 } from "@/lib/conversas";
+import { upsertHistorico } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -101,7 +102,9 @@ async function processarMensagem(msg: InboundMessage) {
   const respostaFinal = nlp.respostas.consultiva;
 
   const envio = await getWhatsAppProvider().sendText(msg.from, respostaFinal, {
-    channelApiKey: clinica.whatsapp_channel_key,
+    instanceId: clinica.zapi_instance_id,
+    token: clinica.zapi_token,
+    clientToken: clinica.zapi_client_token,
   });
   if (envio.ok) {
     // Auto-resposta NÃO marca como lida — fica na triagem até um humano abrir.
@@ -114,7 +117,7 @@ async function processarMensagem(msg: InboundMessage) {
     await marcarPrecisaAtencao(clinicaId, msg.from);
   }
 
-  await db.collection("historico").add({
+  const histDoc = await db.collection("historico").add({
     user_id: clinicaId,
     tipo: "gerador",
     contexto: {
@@ -130,6 +133,23 @@ async function processarMensagem(msg: InboundMessage) {
     sentiment: nlp.sentiment ?? null,
     score: nlp.score ?? null,
   });
+
+  // Best-effort Supabase additive mirror
+  upsertHistorico({
+    firestore_id: histDoc.id,
+    firebase_uid: clinicaId,
+    tipo: "gerador",
+    contexto: {
+      canal: "whatsapp",
+      de: msg.from,
+      mensagemCliente: msg.text,
+      entregue: envio.ok,
+    },
+    respostas: [respostaFinal],
+    intent: nlp.intent ?? null,
+    sentiment: nlp.sentiment ?? null,
+    score: nlp.score ?? null,
+  }).catch(() => {});
 
   console.log(
     `[whatsapp] resposta ${envio.ok ? "enviada" : "FALHOU"} para ${msg.from} (clínica ${clinicaId}).`

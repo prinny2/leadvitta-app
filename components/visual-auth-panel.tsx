@@ -83,7 +83,7 @@ export function VisualAuthPanel({
   async function persistDraft() {
     const draft = loadDnaDraft();
     if (draft?.nome_clinica?.trim()) {
-      await saveClinica({ ...clinicaVazia, ...draft, onboarded: true });
+      await saveClinica({ ...clinicaVazia, ...draft, onboarded: false });
     }
   }
 
@@ -286,7 +286,7 @@ export function VisualAuthPanel({
             <>
               Primeira vez?{" "}
               <Link href={`/signup${switchQuery}`} className="font-medium text-gold-400 hover:text-gold-300">
-                Testar grátis
+                Assinar Start R$97
               </Link>
             </>
           )}

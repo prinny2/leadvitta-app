@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { ga4ValueFromCents, sendGa4Event } from "@/lib/analytics/ga4-server";
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import {
   applyClinicBilling,
@@ -80,6 +81,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const firebaseUid =
     session.metadata?.firebase_uid || session.client_reference_id || undefined;
   const plan = session.metadata?.plan;
+  const gaClientId = session.metadata?.ga_client_id?.trim();
   const email =
     session.customer_details?.email ||
     session.customer_email ||
@@ -103,6 +105,29 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   } else if (email) {
     await saveBillingPending(email, billing);
   }
+
+  await sendGa4Event({
+    name: "purchase",
+    clientId: gaClientId,
+    userId: firebaseUid,
+    params: {
+      transaction_id: session.id,
+      affiliation: "Stripe",
+      currency: (session.currency || "BRL").toUpperCase(),
+      value: ga4ValueFromCents(session.amount_total),
+      plan,
+      payment_status: session.payment_status,
+      items: [
+        {
+          item_id: session.metadata?.stripe_price_id || plan || "leadbellus",
+          item_name: plan ? `LeadBellus ${plan}` : "LeadBellus",
+          item_category: "subscription",
+          quantity: 1,
+          price: ga4ValueFromCents(session.amount_total),
+        },
+      ],
+    },
+  });
 
   await sendOpsNotify("stripe.checkout.completed", {
     plan,
