@@ -699,8 +699,19 @@ export default function LandingPage() {
         @media (min-width: 768px) { .hero-grid { grid-template-columns: 1.05fr 0.95fr !important; } }
         .lp-mobile-bar { display: none; }
         @media (max-width: 767px) {
-          .lp-mobile-spacer { height: 74px; }
+          .lp-mobile-spacer { height: 92px; }
           .lp-mobile-bar { display: flex; }
+          .lp-mobile-bar-copy { min-width: 0; }
+          .lp-mobile-bar-title,
+          .lp-mobile-bar-subtitle {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        }
+        @media (max-width: 374px) {
+          .lp-mobile-bar { gap: 8px !important; padding-left: 12px !important; }
+          .lp-mobile-bar-cta { padding: 11px 14px !important; font-size: 13px !important; min-width: 112px !important; }
         }
       `}</style>
       <div className="lp-mobile-spacer" />
@@ -708,39 +719,50 @@ export default function LandingPage() {
         className="lp-mobile-bar"
         style={{
           position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 60,
+          left: "12px",
+          right: "12px",
+          bottom: "calc(10px + env(safe-area-inset-bottom))",
+          zIndex: 58,
           alignItems: "center",
           gap: "12px",
-          background: "rgba(251,246,236,0.97)",
-          backdropFilter: "blur(12px)",
-          borderTop: "1px solid rgba(201,160,96,0.3)",
-          padding: "10px 16px calc(10px + env(safe-area-inset-bottom))",
+          boxSizing: "border-box",
+          maxWidth: "520px",
+          minHeight: "66px",
+          margin: "0 auto",
+          background: "rgba(251,246,236,0.96)",
+          backdropFilter: "blur(14px)",
+          border: "1px solid rgba(201,160,96,0.24)",
+          borderRadius: "20px",
+          boxShadow: "0 18px 48px rgba(11,26,46,0.22)",
+          padding: "10px 10px 10px 14px",
         }}
       >
-        <div style={{ lineHeight: 1.2 }}>
-          <p style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: INK }}>
-            Start R$97<span style={{ fontSize: "12px", fontWeight: 400, color: INK_SOFT }}>/mês</span>
+        <div className="lp-mobile-bar-copy" style={{ lineHeight: 1.2 }}>
+          <p className="lp-mobile-bar-title" style={{ margin: 0, fontSize: "14px", fontWeight: 800, color: INK }}>
+            Teste grátis
           </p>
-          <p style={{ margin: 0, fontSize: "11px", color: INK_SOFT }}>Teste grátis, sem cartão</p>
+          <p className="lp-mobile-bar-subtitle" style={{ margin: "3px 0 0", fontSize: "11px", color: INK_SOFT }}>
+            Sem cartão · depois R$97/mês
+          </p>
         </div>
         <Link
           href={SIGNUP}
+          className="lp-mobile-bar-cta"
           style={{
             marginLeft: "auto",
             background: INK,
             color: "#F7C96B",
             fontWeight: 700,
-            fontSize: "15px",
-            borderRadius: "12px",
-            padding: "13px 22px",
+            fontSize: "14px",
+            borderRadius: "14px",
+            padding: "12px 18px",
+            minWidth: "132px",
             textDecoration: "none",
+            textAlign: "center",
             whiteSpace: "nowrap",
           }}
         >
-          Testar grátis →
+          Começar grátis
         </Link>
       </div>
     </div>
