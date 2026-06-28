@@ -3,7 +3,16 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 // A rota de geração orquestra: validação → verificação de token → reserva atômica
 // do plano grátis → IA → (rollback se falhar). Mockamos IA, Firebase e usage-limit
 // para testar a orquestração (em especial o gating do plano grátis) sem rede.
-const { gerar, refinar, verifyToken, adminConfigured, reserve, release } =
+const {
+  gerar,
+  refinar,
+  verifyToken,
+  adminConfigured,
+  reserve,
+  release,
+  upsertClinica,
+  upsertHistorico,
+} =
   vi.hoisted(() => ({
     gerar: vi.fn(),
     refinar: vi.fn(),
@@ -11,6 +20,8 @@ const { gerar, refinar, verifyToken, adminConfigured, reserve, release } =
     adminConfigured: vi.fn(),
     reserve: vi.fn(),
     release: vi.fn(),
+    upsertClinica: vi.fn(),
+    upsertHistorico: vi.fn(),
   }));
 
 vi.mock("@/lib/ai/provider", () => ({
@@ -24,6 +35,10 @@ vi.mock("@/lib/firebase/admin", () => ({
 vi.mock("@/lib/usage-limit", () => ({
   reserveGeneration: reserve,
   releaseGeneration: release,
+}));
+vi.mock("@/lib/supabase/server", () => ({
+  upsertClinica,
+  upsertHistorico,
 }));
 
 import { POST } from "@/app/api/generate/route";
@@ -51,6 +66,8 @@ beforeEach(() => {
   adminConfigured.mockReset().mockReturnValue(true);
   reserve.mockReset().mockResolvedValue(PAID);
   release.mockReset().mockResolvedValue(undefined);
+  upsertClinica.mockReset().mockResolvedValue({ ok: true });
+  upsertHistorico.mockReset().mockResolvedValue({ ok: true });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -92,6 +109,8 @@ describe("generate — demo pública (sem token)", () => {
     expect(res.status).toBe(200);
     expect(reserve).not.toHaveBeenCalled();
     expect(release).not.toHaveBeenCalled();
+    expect(upsertClinica).not.toHaveBeenCalled();
+    expect(upsertHistorico).not.toHaveBeenCalled();
     await expect(res.json()).resolves.not.toHaveProperty("freeRemaining");
   });
 });
@@ -170,6 +189,73 @@ describe("generate — plano grátis (logado)", () => {
     expect(res.status).toBe(200);
     expect(release).not.toHaveBeenCalled();
     await expect(res.json()).resolves.not.toHaveProperty("freeRemaining");
+  });
+
+  it("espelha clínica e geração no Supabase quando há usuário logado", async () => {
+    verifyToken.mockResolvedValue({ uid: "u1" });
+    reserve.mockResolvedValue(PAID);
+    gerar.mockResolvedValue({
+      respostas: {
+        curta: "Oi, Ana! Me conta seu objetivo?",
+        consultiva: "Ana, avaliando seu caso eu te oriento melhor.",
+        persuasiva: "Tenho horário amanhã para avaliarmos com calma.",
+      },
+      mock: false,
+      intent: "pergunta_preco",
+      sentiment: "4 star",
+      score: 78,
+    });
+
+    const res = await POST(
+      genRequest({
+        mensagemCliente: "Quanto custa botox?",
+        firebaseIdToken: "tok",
+        procedimento: "botox",
+        situacao: "preco",
+        tom: "acolhedor",
+        objetivo: "direcionar para avaliação",
+        nomeCliente: "Ana",
+        clinica: {
+          nome_clinica: "Clínica Bella",
+          cidade: "São Paulo",
+          formalidade: 40,
+          como_chamar: "nome",
+          cta_preferido: "marcar uma avaliação",
+          zapi_token: "nao-deve-sair",
+        },
+      })
+    );
+
+    expect(res.status).toBe(200);
+    expect(upsertClinica).toHaveBeenCalledWith(
+      expect.objectContaining({
+        firebase_uid: "u1",
+        nome_clinica: "Clínica Bella",
+        cidade: "São Paulo",
+        formalidade: 40,
+      })
+    );
+    expect(upsertClinica.mock.calls[0][0]).not.toHaveProperty("zapi_token");
+    expect(upsertHistorico).toHaveBeenCalledWith(
+      expect.objectContaining({
+        firebase_uid: "u1",
+        tipo: "gerador",
+        respostas: [
+          "Oi, Ana! Me conta seu objetivo?",
+          "Ana, avaliando seu caso eu te oriento melhor.",
+          "Tenho horário amanhã para avaliarmos com calma.",
+        ],
+        intent: "pergunta_preco",
+        sentiment: "4 star",
+        score: 78,
+      })
+    );
+    expect(upsertHistorico.mock.calls[0][0].contexto).toMatchObject({
+      canal: "web",
+      mensagemCliente: "Quanto custa botox?",
+      procedimento: "botox",
+      situacao: "preco",
+    });
   });
 
   it("geração falha → devolve o slot reservado (releaseGeneration)", async () => {
