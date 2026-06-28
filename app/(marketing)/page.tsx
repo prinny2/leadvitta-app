@@ -196,6 +196,8 @@ function ChatProof() {
         border: "1px solid rgba(16,35,59,0.08)",
         borderRadius: "22px",
         padding: "18px",
+        boxSizing: "border-box",
+        width: "100%",
         boxShadow: "0 30px 60px rgba(16,35,59,0.12)",
         maxWidth: "420px",
       }}
@@ -245,22 +247,24 @@ function ChatProof() {
 // ── PAGE ───────────────────────────────────────────────────────────────────────
 export default function LandingPage() {
   return (
-    <div style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)", background: CREAM, color: INK }}>
+    <div className="landing-root" style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)", background: CREAM, color: INK, overflowX: "hidden" }}>
       <StructuredDataTags />
       <Navbar />
 
       {/* Faixa de lançamento */}
-      <div style={{ background: INK, color: "#F7C96B", textAlign: "center", padding: "9px 24px", fontSize: "13px", fontWeight: 600 }}>
+      <div className="launch-strip" style={{ background: INK, color: "#F7C96B", textAlign: "center", padding: "9px 24px", fontSize: "13px", fontWeight: 600 }}>
         Preço de lançamento · teste grátis, sem cartão
       </div>
 
       <main>
         {/* ── HERO ─────────────────────────────────────────────────────────── */}
-        <section style={{ padding: "64px 24px 72px" }}>
+        <section className="landing-hero" style={{ padding: "64px 24px 72px", overflowX: "hidden" }}>
           <div
             className="hero-grid"
             style={{
               maxWidth: "1152px",
+              width: "100%",
+              minWidth: 0,
               margin: "0 auto",
               display: "grid",
               gridTemplateColumns: "1fr",
@@ -268,9 +272,10 @@ export default function LandingPage() {
               alignItems: "center",
             }}
           >
-            <div>
+            <div className="hero-copy-col" style={{ minWidth: 0 }}>
               <Eyebrow>Conversão na estética · WhatsApp</Eyebrow>
               <h1
+                className="hero-title"
                 style={{
                   fontFamily: "var(--font-fraunces, Georgia, serif)",
                   fontSize: "clamp(38px, 5.2vw, 64px)",
@@ -278,19 +283,21 @@ export default function LandingPage() {
                   lineHeight: 1.04,
                   margin: "0 0 18px",
                   color: INK,
+                  overflowWrap: "break-word",
                 }}
               >
                 Pare de perder cliente no{" "}
-                <span style={{ color: GOLD_DEEP, fontStyle: "italic" }}>“quanto custa?”</span>
+                <span className="hero-title-highlight" style={{ color: GOLD_DEEP, fontStyle: "italic" }}>“quanto custa?”</span>
               </h1>
-              <p style={{ fontSize: "18px", lineHeight: 1.6, color: INK_SOFT, maxWidth: "480px", margin: "0 0 26px" }}>
+              <p className="hero-subtitle" style={{ fontSize: "18px", lineHeight: 1.6, color: INK_SOFT, maxWidth: "480px", margin: "0 0 26px" }}>
                 Recebeu mensagem e travou? Cola aqui e saem <strong>3 respostas no jeitinho da sua clínica</strong>, prontas
                 pra colar no WhatsApp. Sem prometer o impossível, sem soar robô.
               </p>
 
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
+              <div className="hero-cta-row" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
                 <Link
                   href={SIGNUP}
+                  className="hero-cta"
                   style={{
                     background: INK,
                     color: "#F7C96B",
@@ -309,6 +316,7 @@ export default function LandingPage() {
                 </Link>
                 <a
                   href="#demo"
+                  className="hero-cta"
                   style={{
                     border: `1.5px solid rgba(16,35,59,0.2)`,
                     color: INK,
@@ -349,7 +357,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "center" }}>
+            <div className="hero-proof-col" style={{ display: "flex", justifyContent: "center", minWidth: 0, width: "100%" }}>
               <ChatProof />
             </div>
           </div>
@@ -699,6 +707,18 @@ export default function LandingPage() {
         @media (min-width: 768px) { .hero-grid { grid-template-columns: 1.05fr 0.95fr !important; } }
         .lp-mobile-bar { display: none; }
         @media (max-width: 767px) {
+          .landing-root { max-width: 100vw; overflow-x: hidden; }
+          .launch-strip { padding: 8px 12px !important; font-size: 12px !important; line-height: 1.25; }
+          .landing-hero { padding: 52px 20px 58px !important; }
+          .hero-grid,
+          .hero-copy-col,
+          .hero-proof-col { min-width: 0; width: 100%; }
+          .hero-title { max-width: 340px !important; font-size: clamp(34px, 10.7vw, 42px) !important; line-height: 1.06 !important; }
+          .hero-title-highlight { display: block; max-width: 100%; }
+          .hero-subtitle { max-width: 340px !important; font-size: 17px !important; line-height: 1.55 !important; }
+          .hero-cta-row { display: grid !important; grid-template-columns: 1fr; gap: 10px !important; }
+          .hero-cta { box-sizing: border-box; width: 100%; justify-content: center; }
+          .lp-mobile-bar-cta { min-width: 122px !important; padding: 12px 14px !important; font-size: 13px !important; }
           .lp-mobile-spacer { height: 92px; }
           .lp-mobile-bar { display: flex; }
           .lp-mobile-bar-copy { min-width: 0; }
