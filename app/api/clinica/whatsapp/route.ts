@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { verifyFirebaseIdToken, getFirebaseAdminDb } from "@/lib/firebase/admin";
+import { getFirebaseAdminDb } from "@/lib/firebase/admin";
+import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { reivindicarNumero, liberarNumero } from "@/lib/numeros";
 import { enforceRateLimit, rejectCrossOriginRequest } from "@/lib/api-security";
 
@@ -96,7 +97,7 @@ async function setupZapiWebhookForInstance(
   token: string,
   clientToken?: string
 ) {
-  const site = process.env.NEXT_PUBLIC_SITE_URL || "https://www.leadballus.com.br";
+  const site = process.env.NEXT_PUBLIC_SITE_URL || "https://www.leadbellus.com.br";
   let webhookUrl = `${site}/api/whatsapp/webhook`;
 
   const security = process.env.ZAPI_SECURITY_TOKEN;
