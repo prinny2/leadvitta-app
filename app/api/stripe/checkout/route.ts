@@ -8,6 +8,7 @@ import {
 } from "@/lib/billing";
 import { isStripeConfigured, siteUrl } from "@/lib/config";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
+import { isAllowedStripePriceId } from "@/lib/stripe/price-guard";
 import { getStripe } from "@/lib/stripe/server";
 import { sendOpsNotify } from "@/lib/ops-notify";
 
@@ -78,6 +79,16 @@ export async function POST(request: Request) {
     console.error("[stripe.checkout] Stripe não configurado neste ambiente.");
     return jsonNoStore(
       { error: "Checkout indisponível no momento. Fale com o suporte." },
+      { status: 503 }
+    );
+  }
+
+  if (!isAllowedStripePriceId(priceId)) {
+    console.error(
+      `[stripe.checkout] Price ID fora da allowlist LeadBellus: ${priceId}.`
+    );
+    return jsonNoStore(
+      { error: "Checkout em manutenção. Fale com o suporte para ativar." },
       { status: 503 }
     );
   }
