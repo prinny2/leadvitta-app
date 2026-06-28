@@ -19,7 +19,7 @@ import { CheckoutButton } from "@/components/checkout-button";
 import { BillingPortalButton } from "@/components/billing-portal-button";
 import { NotificacoesToggle } from "@/components/notificacoes-toggle";
 import { billingPlanList, billingPlans, parseBillingPlan } from "@/lib/billing";
-import { trackEvent } from "@/components/Analytics";
+import { getGaClientId, trackEvent } from "@/components/Analytics";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
 
@@ -47,16 +47,21 @@ export default function ConfiguracoesPage() {
   const [novaSenha, setNovaSenha] = useState("");
   const [senhaMsg, setSenhaMsg] = useState("");
   const [abrindoCheckout, setAbrindoCheckout] = useState(false);
+  const [checkoutNotice, setCheckoutNotice] = useState<"sucesso" | "cancelado" | null>(null);
 
   useEffect(() => {
     getClinica().then((v) => { setC(v); setCarregando(false); });
 
     const params = new URLSearchParams(window.location.search);
-    if (params.get("checkout") === "sucesso") {
-      // Dispara o purchase uma vez por session_id — refresh/revisita da URL
-      // de sucesso não reconta (mesmo guard do /signup).
+    const checkoutStatus = params.get("checkout");
+    if (checkoutStatus === "sucesso" || checkoutStatus === "cancelado") {
+      setCheckoutNotice(checkoutStatus);
+    }
+    if (checkoutStatus === "sucesso") {
+      // O purchase real vem do webhook assinado do Stripe. Aqui só marcamos
+      // retorno de checkout para UX/diagnóstico, sem receita duplicada.
       const sid = params.get("session_id");
-      const key = `lb_purchase_${sid ?? "sem_sessao"}`;
+      const key = `lb_checkout_returned_${sid ?? "sem_sessao"}`;
       let already = false;
       try {
         already = !!localStorage.getItem(key);
@@ -64,7 +69,7 @@ export default function ConfiguracoesPage() {
       } catch {
         // localStorage indisponível: dispara mesmo assim.
       }
-      if (!already) trackEvent("purchase", { stripe_session_id: sid });
+      if (!already) trackEvent("checkout_returned", { stripe_session_id: sid });
     }
   }, []);
 
@@ -87,12 +92,17 @@ export default function ConfiguracoesPage() {
       clearTimeout(timeout);
       unsub();
       try {
-        trackEvent("initiate_checkout", { plan, origem: "funil_pos_cadastro" });
+        trackEvent("checkout_click", { plan, origem: "funil_pos_cadastro" });
         const firebaseIdToken = await user.getIdToken();
         const res = await fetch("/api/stripe/checkout", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ plan, firebaseIdToken, customerEmail: user.email }),
+          body: JSON.stringify({
+            plan,
+            firebaseIdToken,
+            customerEmail: user.email,
+            gaClientId: getGaClientId(),
+          }),
         });
         const data = (await res.json()) as { url?: string; error?: string };
         if (!res.ok || !data.url) throw new Error(data.error || "Não foi possível abrir o pagamento.");
@@ -138,7 +148,13 @@ export default function ConfiguracoesPage() {
           const res = await fetch("/api/clinica/whatsapp", {
             method: "POST",
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ numero: c.whatsapp, firebaseIdToken }),
+            body: JSON.stringify({ 
+              numero: c.whatsapp, 
+              zapi_instance_id: c.zapi_instance_id, 
+              zapi_token: c.zapi_token, 
+              zapi_client_token: c.zapi_client_token, 
+              firebaseIdToken 
+            }),
           });
           if (!res.ok) {
             const d = (await res.json().catch(() => ({}))) as { error?: string };
@@ -217,6 +233,25 @@ export default function ConfiguracoesPage() {
         </p>
       </div>
 
+      {checkoutNotice === "sucesso" && (
+        <div className="rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3">
+          <p className="text-sm font-semibold text-green-300">Pagamento recebido.</p>
+          <p className="mt-1 text-xs leading-relaxed text-champagne-300">
+            Seu plano está sendo liberado. Se ainda não aparecer atualizado,
+            aguarde alguns segundos e recarregue a página.
+          </p>
+        </div>
+      )}
+
+      {checkoutNotice === "cancelado" && (
+        <div className="rounded-2xl border border-gold-500/30 bg-gold-500/10 px-4 py-3">
+          <p className="text-sm font-semibold text-gold-300">Pagamento não concluído.</p>
+          <p className="mt-1 text-xs leading-relaxed text-champagne-300">
+            Nada foi cobrado. Você pode escolher o plano novamente quando quiser.
+          </p>
+        </div>
+      )}
+
       {/* ── Dados + DNA ── */}
       <form onSubmit={salvar}>
         <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
@@ -233,8 +268,28 @@ export default function ConfiguracoesPage() {
                 <Input id="cidade" value={c.cidade} onChange={(e) => set("cidade", e.target.value)} placeholder="Ex.: São Paulo - SP" />
               </div>
               <div>
-                <Label htmlFor="whats">WhatsApp</Label>
+                <Label htmlFor="whats">WhatsApp (número da clínica)</Label>
                 <Input id="whats" value={c.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} placeholder="(11) 99999-9999" />
+              </div>
+
+              {/* Campos avancados para conectar o WhatsApp da clinica. */}
+              <div className="sm:col-span-2 border-t border-navy-600 pt-4">
+                <Label htmlFor="zapi">Conexão do WhatsApp</Label>
+                <p className="text-xs text-navy-100 mb-2">Cole os dados da sua conexão para a LeadBellus receber e responder mensagens automaticamente.</p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div>
+                    <Label htmlFor="zapi-inst" className="text-xs">Instance ID</Label>
+                    <Input id="zapi-inst" value={c.zapi_instance_id || ""} onChange={(e) => set("zapi_instance_id", e.target.value)} placeholder="Sua instância" />
+                  </div>
+                  <div>
+                    <Label htmlFor="zapi-token" className="text-xs">Token</Label>
+                    <Input id="zapi-token" value={c.zapi_token || ""} onChange={(e) => set("zapi_token", e.target.value)} placeholder="Token" type="password" />
+                  </div>
+                  <div>
+                    <Label htmlFor="zapi-client" className="text-xs">Client-Token (se usar)</Label>
+                    <Input id="zapi-client" value={c.zapi_client_token || ""} onChange={(e) => set("zapi_client_token", e.target.value)} placeholder="Opcional" type="password" />
+                  </div>
+                </div>
               </div>
               <div>
                 <Label htmlFor="tom">Tom de voz padrão</Label>
@@ -376,7 +431,7 @@ export default function ConfiguracoesPage() {
 
       {/* ── Plano e pagamento ── */}
       <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
-        <SectionHeader icon={CreditCard} title="Plano e pagamento" subtitle="Stripe · cobrança segura" />
+        <SectionHeader icon={CreditCard} title="Plano e pagamento" subtitle="Cobrança segura" />
 
         <div className="space-y-4 p-5 sm:p-6">
           <p className="text-sm text-navy-100">

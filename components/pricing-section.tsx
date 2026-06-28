@@ -191,7 +191,7 @@ function PricingCard({
           <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.42)", textAlign: "center", margin: "10px 0 0" }}>
             {plan.id === "start"
               ? "Depois da demo: R$97/mês · cancele quando quiser"
-              : "Checkout seguro via Stripe"}
+              : "Checkout seguro"}
           </p>
           <LegalConsentLinks tone="light" className="mt-2" />
         </>

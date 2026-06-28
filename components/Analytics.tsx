@@ -13,15 +13,14 @@ const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "";
 // Defina NEXT_PUBLIC_GA4_ID no Vercel para ativar analytics.
 const GA4_ID = ga4MeasurementId;
 
-// Google Ads: as conversões agora entram pelo VÍNCULO GA4 ↔ Google Ads (import
-// dos eventos sign_up/purchase).
+// Google Ads: as conversões agora entram pelo vínculo GA4/Google Ads.
 
 function AnalyticsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const didHandleInitialRender = useRef(false);
 
-  // PageView a cada mudança de rota (App Router não recarrega a página)
+  // PageView a cada mudança de rota (App Router não recarrega a página).
   useEffect(() => {
     if (!pathname) return;
     const isInitialRender = !didHandleInitialRender.current;
@@ -104,7 +103,18 @@ export default function Analytics() {
   );
 }
 
-// Helper p/ disparar eventos customizados do client
+export function getGaClientId() {
+  if (typeof document === "undefined") return undefined;
+  const cookie = document.cookie
+    .split("; ")
+    .find((part) => part.startsWith("_ga="));
+  const value = cookie?.split("=")[1];
+  const parts = value?.split(".");
+  if (!parts || parts.length < 4) return undefined;
+  return `${parts[2]}.${parts[3]}`;
+}
+
+// Helper p/ disparar eventos customizados do client (mapeia p/ eventos padrão do Meta).
 export const trackEvent = (
   eventName: string,
   params?: Record<string, any>
@@ -118,7 +128,7 @@ export const trackEvent = (
   if ((window as any).fbq && META_PIXEL_ID) {
     const standardEvents: Record<string, string> = {
       sign_up: "Lead",
-      initiate_checkout: "InitiateCheckout",
+      checkout_click: "InitiateCheckout",
       purchase: "Purchase",
     };
     const metaEvent = standardEvents[eventName] || eventName;

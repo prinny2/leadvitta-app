@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
+import { Brain, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 
 function LogoMark({ size = 34 }: { size?: number }) {
   return (
@@ -44,7 +44,7 @@ function GoldDivider() {
 }
 
 const PRODUTO = [
-  { label: "Funções", href: "#funcoes" },
+  { label: "Como funciona", href: "#como-funciona" },
   { label: "Preços", href: "#precos" },
   { label: "FAQ", href: "#faq" },
 ];
@@ -53,6 +53,13 @@ const LEGAL = [
   { label: "Termos de Serviço", href: "/termos" },
   { label: "Privacidade", href: "/privacidade" },
   { label: "Política de Reembolso", href: "/reembolso" },
+];
+
+const STACK = [
+  { label: "WhatsApp conectado", icon: MessageCircle },
+  { label: "Entende a intenção da conversa", icon: Brain },
+  { label: "Respostas no tom da clínica", icon: Sparkles },
+  { label: "Pagamento seguro", icon: ShieldCheck },
 ];
 
 function FooterLink({ href, children, isNext }: { href: string; children: React.ReactNode; isNext?: boolean }) {
@@ -114,36 +121,24 @@ export function FooterSection() {
             <Wordmark />
           </div>
           <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", lineHeight: 1.7, maxWidth: "220px", marginBottom: "16px" }}>
-            A resposta certa. No seu tom. Em segundos.
+            Respostas prontas no tom da sua clínica.
           </p>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <a
-              href="https://instagram.com/leadbellus"
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "8px",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "rgba(255,255,255,0.5)",
-                fontSize: "14px",
-                textDecoration: "none",
-                transition: "background 0.2s ease, border-color 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.1)";
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.18)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(255,255,255,0.06)";
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.08)";
-              }}
-            >
-              📷
-            </a>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxWidth: "260px" }}>
+            {STACK.map(({ label, icon: Icon }) => (
+              <span
+                key={label}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  color: "rgba(255,255,255,0.52)",
+                  fontSize: "12px",
+                }}
+              >
+                <Icon size={14} color="#C9A060" />
+                {label}
+              </span>
+            ))}
           </div>
         </motion.div>
 
@@ -181,7 +176,7 @@ export function FooterSection() {
           </div>
         </motion.div>
 
-        {/* Contato */}
+        {/* Contato / Suporte */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -189,14 +184,17 @@ export function FooterSection() {
           transition={{ duration: 0.55, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
         >
           <p style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: "16px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
-            Contato
+            Suporte
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <FooterLink href="mailto:contato@leadbellus.com.br">
-              📧 contato@leadbellus.com.br
+            <FooterLink href="mailto:suporte@leadbellus.com.br">
+              suporte@leadbellus.com.br
+            </FooterLink>
+            <FooterLink href="https://instagram.com/leadbellus" isNext={false}>
+              Instagram @leadbellus
             </FooterLink>
             <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)" }}>
-              💬 Suporte pelo chat no app
+              Suporte pelo chat no app
             </span>
           </div>
         </motion.div>
@@ -212,7 +210,7 @@ export function FooterSection() {
         style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px" }}
       >
         <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)", margin: 0 }}>
-          © 2026 LeadBellus · ResonAnza Inova Simples I S · Vinicius Paes da Serra Freire (MEI)
+          © 2026 LeadBellus · Vinicius Paes da Serra Freire (MEI)
         </p>
         <div
           style={{
@@ -227,7 +225,7 @@ export function FooterSection() {
         >
           <ShieldCheck size={14} color="rgba(255,255,255,0.4)" />
           <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)" }}>
-            Pagamento seguro via Stripe · Dados protegidos
+            Pagamento seguro · dados protegidos
           </span>
         </div>
       </motion.div>

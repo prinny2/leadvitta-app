@@ -1,8 +1,17 @@
 // WhatsApp via Z-API (único provedor em produção).
 import { zapiProvider } from "@/lib/whatsapp-zapi";
-import type { WhatsAppProvider, WhatsAppResult } from "@/lib/whatsapp-types";
+import type {
+  WhatsAppProvider,
+  WhatsAppResult,
+  WhatsAppSendOptions,
+} from "@/lib/whatsapp-types";
 
-export type { WhatsAppProvider, WhatsAppResult, InboundMessage } from "@/lib/whatsapp-types";
+export type {
+  WhatsAppProvider,
+  WhatsAppResult,
+  WhatsAppSendOptions,
+  InboundMessage,
+} from "@/lib/whatsapp-types";
 
 export function getWhatsAppProvider(): WhatsAppProvider {
   return zapiProvider;
@@ -16,7 +25,7 @@ export function isWhatsappConfigured(): boolean {
 export async function sendWhatsAppText(
   to: string,
   body: string,
-  opts?: { from?: string; channelApiKey?: string }
+  opts?: WhatsAppSendOptions
 ): Promise<WhatsAppResult> {
   return zapiProvider.sendText(to, body, opts);
 }

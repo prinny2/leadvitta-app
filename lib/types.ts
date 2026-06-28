@@ -4,6 +4,10 @@ export type Clinica = {
   nome_clinica: string;
   cidade: string;
   whatsapp: string;
+  /** Z-API credentials for this clinic's WhatsApp number (provided by user). */
+  zapi_instance_id?: string;
+  zapi_token?: string;
+  zapi_client_token?: string;
   tom_padrao: string;
   procedimentos: string[];
   /** 0 = bem íntimo, 100 = formal. */
@@ -22,6 +26,9 @@ export const clinicaVazia: Clinica = {
   nome_clinica: "",
   cidade: "",
   whatsapp: "",
+  zapi_instance_id: "",
+  zapi_token: "",
+  zapi_client_token: "",
   tom_padrao: "acolhedor",
   procedimentos: [],
   formalidade: 40,

@@ -371,7 +371,7 @@ export default function LandingPage() {
             }}
           >
             {[
-              { icon: <Lock size={15} />, t: "Pagamento seguro via Stripe" },
+              { icon: <Lock size={15} />, t: "Pagamento seguro" },
               { icon: <ShieldCheck size={15} />, t: "Você revisa antes de enviar" },
               { icon: <Smartphone size={15} />, t: "Funciona no celular" },
               { icon: <Check size={15} />, t: "Sem cartão pra testar" },
@@ -591,13 +591,13 @@ export default function LandingPage() {
           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
             <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
               <Eyebrow>Por que confiar</Eyebrow>
-              <SectionTitle>Feito pra estética brasileira — não é ChatGPT genérico</SectionTitle>
+              <SectionTitle>Feito pra estética brasileira — não parece resposta pronta</SectionTitle>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
               {[
                 { icon: <ShieldCheck size={20} />, t: "Respeita as regras", c: "Nunca promete resultado, cura ou preço fixo. Suas respostas saem dentro do que pode." },
                 { icon: <MessageCircle size={20} />, t: "No seu tom", c: "Você define o jeito da clínica. As respostas saem com cara de gente, não de robô." },
-                { icon: <Lock size={20} />, t: "Seus dados protegidos", c: "Cada conta vê só os próprios dados. Pagamento seguro via Stripe." },
+                { icon: <Lock size={20} />, t: "Seus dados protegidos", c: "Cada conta vê só os próprios dados. Pagamento seguro." },
                 { icon: <Clock size={20} />, t: "Risco zero pra testar", c: "Sem cartão pra começar e cancele quando quiser, sem multa." },
               ].map((s) => (
                 <div key={s.t} style={{ background: "#ffffff", border: "1px solid rgba(16,35,59,0.07)", borderRadius: "16px", padding: "22px" }}>
