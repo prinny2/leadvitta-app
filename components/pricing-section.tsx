@@ -15,13 +15,15 @@ const PLAN_META = {
   pro: {
     eyebrow: "Próximo degrau",
     scope: "Mais operação e histórico",
-    bestFor: "Para equipes que querem padronizar respostas e aprender com as melhores conversas.",
+    bestFor:
+      "Para equipes que querem padronizar respostas e aprender com as melhores conversas.",
     contrast: "Tudo do Start, com mais biblioteca e histórico.",
   },
   premium: {
     eyebrow: "Rotina completa",
     scope: "Automação e prioridade",
-    bestFor: "Para reduzir trabalho manual quando os módulos avançados abrirem.",
+    bestFor:
+      "Para reduzir trabalho manual quando os módulos avançados abrirem.",
     contrast: "Mais automações sobre a base do Pro.",
   },
 } as const;
@@ -41,7 +43,9 @@ function PricingCard({
     <article
       style={{
         background: featured ? "#0f1b2f" : "#0a1220",
-        border: featured ? "2px solid #C9A060" : "1px solid rgba(255,255,255,0.08)",
+        border: featured
+          ? "2px solid #C9A060"
+          : "1px solid rgba(255,255,255,0.08)",
         borderRadius: "18px",
         padding: "28px 24px",
         position: "relative",
@@ -66,11 +70,20 @@ function PricingCard({
         </span>
       ) : null}
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "14px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "8px",
+          marginBottom: "14px",
+        }}
+      >
         <span
           style={{
             border: "1px solid rgba(201,160,96,0.35)",
-            background: featured ? "rgba(201,160,96,0.12)" : "rgba(255,255,255,0.04)",
+            background: featured
+              ? "rgba(201,160,96,0.12)"
+              : "rgba(255,255,255,0.04)",
             borderRadius: "9999px",
             color: featured ? "#D9B66D" : "rgba(255,255,255,0.62)",
             fontSize: "11px",
@@ -116,7 +129,9 @@ function PricingCard({
         >
           {plan.priceLabel}
         </span>
-        <span style={{ fontSize: "16px", color: "rgba(255,255,255,0.45)" }}>{plan.periodLabel}</span>
+        <span style={{ fontSize: "16px", color: "rgba(255,255,255,0.45)" }}>
+          {plan.periodLabel}
+        </span>
       </div>
 
       <p
@@ -133,7 +148,9 @@ function PricingCard({
 
       <div
         style={{
-          background: featured ? "rgba(201,160,96,0.08)" : "rgba(255,255,255,0.035)",
+          background: featured
+            ? "rgba(201,160,96,0.08)"
+            : "rgba(255,255,255,0.035)",
           border: featured
             ? "1px solid rgba(201,160,96,0.22)"
             : "1px solid rgba(255,255,255,0.07)",
@@ -142,15 +159,38 @@ function PricingCard({
           marginBottom: "18px",
         }}
       >
-        <p style={{ color: "rgba(255,255,255,0.78)", fontSize: "12px", lineHeight: 1.55, margin: 0 }}>
+        <p
+          style={{
+            color: "rgba(255,255,255,0.78)",
+            fontSize: "12px",
+            lineHeight: 1.55,
+            margin: 0,
+          }}
+        >
           {meta.bestFor}
         </p>
-        <p style={{ color: featured ? "#D9B66D" : "rgba(255,255,255,0.45)", fontSize: "11px", fontWeight: 700, lineHeight: 1.45, margin: "7px 0 0" }}>
+        <p
+          style={{
+            color: featured ? "#D9B66D" : "rgba(255,255,255,0.45)",
+            fontSize: "11px",
+            fontWeight: 700,
+            lineHeight: 1.45,
+            margin: "7px 0 0",
+          }}
+        >
           {meta.contrast}
         </p>
       </div>
 
-      <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", display: "grid", gap: "10px" }}>
+      <ul
+        style={{
+          listStyle: "none",
+          padding: 0,
+          margin: "0 0 24px",
+          display: "grid",
+          gap: "10px",
+        }}
+      >
         {plan.features.slice(0, featured ? 5 : 4).map((feature) => (
           <li
             key={feature}
@@ -163,7 +203,11 @@ function PricingCard({
               lineHeight: 1.45,
             }}
           >
-            <Check size={15} color="#C9A060" style={{ flexShrink: 0, marginTop: "2px" }} />
+            <Check
+              size={15}
+              color="#C9A060"
+              style={{ flexShrink: 0, marginTop: "2px" }}
+            />
             <span>{feature}</span>
           </li>
         ))}
@@ -177,7 +221,9 @@ function PricingCard({
               className="block w-full rounded-xl bg-[#C9A060] px-5 py-3 text-center text-sm font-bold text-[#07101e]"
               style={{ textDecoration: "none" }}
             >
-              {plan.id === "start" ? "Assinar Start agora" : `Assinar ${plan.label}`}
+              {plan.id === "start"
+                ? "Assinar Start agora"
+                : `Assinar ${plan.label}`}
             </Link>
           ) : (
             <PlanCTA
@@ -185,10 +231,19 @@ function PricingCard({
               interval="monthly"
               className="block w-full rounded-xl bg-[#C9A060] px-5 py-3 text-center text-sm font-bold text-[#07101e]"
             >
-              {plan.id === "start" ? "Assinar Start agora" : `Assinar ${plan.label}`}
+              {plan.id === "start"
+                ? "Assinar Start agora"
+                : `Assinar ${plan.label}`}
             </PlanCTA>
           )}
-          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.42)", textAlign: "center", margin: "10px 0 0" }}>
+          <p
+            style={{
+              fontSize: "12px",
+              color: "rgba(255,255,255,0.42)",
+              textAlign: "center",
+              margin: "10px 0 0",
+            }}
+          >
             {plan.id === "start"
               ? "Depois da demo: R$97/mês · cancele quando quiser"
               : "Checkout seguro via Stripe"}
@@ -197,7 +252,14 @@ function PricingCard({
         </>
       ) : (
         <>
-          <p style={{ fontSize: "13px", color: "#C9A060", fontWeight: 700, margin: "0 0 12px" }}>
+          <p
+            style={{
+              fontSize: "13px",
+              color: "#C9A060",
+              fontWeight: 700,
+              margin: "0 0 12px",
+            }}
+          >
             Entre na lista de prioridade
           </p>
           <WaitlistForm plan={plan.id} />
@@ -224,7 +286,8 @@ export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
           gap: "18px",
           alignItems: "stretch",
           marginBottom: "28px",
@@ -272,21 +335,44 @@ export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
               gridTemplateColumns: "120px 1fr 110px",
               gap: "14px",
               padding: "14px 18px",
-              borderBottom: index < rows.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
+              borderBottom:
+                index < rows.length - 1
+                  ? "1px solid rgba(255,255,255,0.06)"
+                  : "none",
               alignItems: "center",
             }}
             className="pricing-row"
           >
-            <strong style={{ color: "#C9A060", fontSize: "14px" }}>{row.plan}</strong>
-            <span style={{ color: "rgba(255,255,255,0.72)", fontSize: "13px" }}>{row.focus}</span>
-            <span style={{ color: row.status === "Disponível" ? "#4ade80" : "rgba(255,255,255,0.45)", fontSize: "12px", fontWeight: 700 }}>
+            <strong style={{ color: "#C9A060", fontSize: "14px" }}>
+              {row.plan}
+            </strong>
+            <span style={{ color: "rgba(255,255,255,0.72)", fontSize: "13px" }}>
+              {row.focus}
+            </span>
+            <span
+              style={{
+                color:
+                  row.status === "Disponível"
+                    ? "#4ade80"
+                    : "rgba(255,255,255,0.45)",
+                fontSize: "12px",
+                fontWeight: 700,
+              }}
+            >
               {row.status}
             </span>
           </div>
         ))}
       </div>
 
-      <p style={{ textAlign: "center", fontSize: "13px", color: "rgba(255,255,255,0.42)", marginTop: "18px" }}>
+      <p
+        style={{
+          textAlign: "center",
+          fontSize: "13px",
+          color: "rgba(255,255,255,0.42)",
+          marginTop: "18px",
+        }}
+      >
         Cancele quando quiser. Sem multa.
       </p>
 

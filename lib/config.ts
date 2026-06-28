@@ -10,8 +10,7 @@ export const firebaseConfig = {
   authDomain:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
     "leadvitta-app.firebaseapp.com",
-  projectId:
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "leadvitta-app",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "leadvitta-app",
   storageBucket:
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
     "leadvitta-app.firebasestorage.app",
@@ -58,7 +57,9 @@ export const aiModel = process.env.AI_MODEL || "gpt-4o-mini";
 /** Modelos por provedor, para fallback sem colisão entre vendors. */
 export const openaiModel =
   process.env.OPENAI_MODEL ||
-  (aiModel.startsWith("gpt") || aiModel.startsWith("o") ? aiModel : "gpt-4o-mini");
+  (aiModel.startsWith("gpt") || aiModel.startsWith("o")
+    ? aiModel
+    : "gpt-4o-mini");
 
 export const anthropicModel =
   process.env.ANTHROPIC_MODEL ||
@@ -80,9 +81,10 @@ export const isStripeConfigured =
     !!process.env.STRIPE_PRICE_ID_PREMIUM);
 
 /** Número que recebe alertas operacionais (signup, checkout, waitlist). Só dígitos. */
-export const opsNotifyPhone = (
-  process.env.OPS_WHATSAPP_NUMBER || ""
-).replace(/\D/g, "");
+export const opsNotifyPhone = (process.env.OPS_WHATSAPP_NUMBER || "").replace(
+  /\D/g,
+  "",
+);
 
 /** True quando Z-API + número de alerta estão configurados. */
 export const isOpsNotifyConfigured =

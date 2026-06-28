@@ -38,7 +38,7 @@ async function claimStripeEvent(event: Stripe.Event): Promise<boolean> {
           processed: false,
           received_at: new Date().toISOString(),
         },
-        { merge: true }
+        { merge: true },
       );
       return true;
     });
@@ -59,16 +59,15 @@ async function finishStripeEvent(event: Stripe.Event) {
       processed: true,
       processed_at: new Date().toISOString(),
     },
-    { merge: true }
+    { merge: true },
   );
 }
 
 async function resolveCheckoutStatus(
-  session: Stripe.Checkout.Session
+  session: Stripe.Checkout.Session,
 ): Promise<string> {
   const subRef = session.subscription;
-  const subId =
-    typeof subRef === "string" ? subRef : subRef?.id;
+  const subId = typeof subRef === "string" ? subRef : subRef?.id;
   if (subId) {
     const sub = await getStripe().subscriptions.retrieve(subId);
     return sub.status;
@@ -90,7 +89,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     plan,
     status: await resolveCheckoutStatus(session),
     stripe_customer_id:
-      typeof session.customer === "string" ? session.customer : session.customer?.id,
+      typeof session.customer === "string"
+        ? session.customer
+        : session.customer?.id,
     stripe_checkout_session_id: session.id,
     stripe_subscription_id:
       typeof session.subscription === "string"
@@ -108,7 +109,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     plan,
     stripe_session_id: session.id,
     stripe_customer_id:
-      typeof session.customer === "string" ? session.customer : session.customer?.id,
+      typeof session.customer === "string"
+        ? session.customer
+        : session.customer?.id,
     stripe_subscription_id:
       typeof session.subscription === "string"
         ? session.subscription
@@ -138,14 +141,16 @@ async function handleSubscriptionEvent(subscription: Stripe.Subscription) {
 async function handleStripeEvent(event: Stripe.Event) {
   if (!(await claimStripeEvent(event))) {
     console.log(
-      `[stripe.webhook] evento ${event.id} já processado — ignorando replay.`
+      `[stripe.webhook] evento ${event.id} já processado — ignorando replay.`,
     );
     return;
   }
 
   switch (event.type) {
     case "checkout.session.completed":
-      await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+      await handleCheckoutCompleted(
+        event.data.object as Stripe.Checkout.Session,
+      );
       break;
     case "customer.subscription.created":
     case "customer.subscription.updated":
@@ -164,7 +169,7 @@ export async function POST(request: Request) {
   if (!webhookSecret) {
     return NextResponse.json(
       { error: "STRIPE_WEBHOOK_SECRET não configurado." },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -172,7 +177,7 @@ export async function POST(request: Request) {
   if (!signature) {
     return NextResponse.json(
       { error: "Header stripe-signature ausente." },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -183,7 +188,7 @@ export async function POST(request: Request) {
     event = getStripe().webhooks.constructEvent(
       rawBody,
       signature,
-      webhookSecret
+      webhookSecret,
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Assinatura inválida.";
@@ -196,7 +201,7 @@ export async function POST(request: Request) {
     console.error("[stripe.webhook] erro ao processar evento", err);
     return NextResponse.json(
       { error: "Erro ao processar evento Stripe." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

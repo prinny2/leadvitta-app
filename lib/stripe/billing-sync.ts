@@ -18,40 +18,46 @@ export function normalizeBillingEmail(email: string): string {
 
 export async function applyClinicBilling(
   firebaseUid: string,
-  billing: ClinicBilling
+  billing: ClinicBilling,
 ): Promise<void> {
   const db = getFirebaseAdminDb();
   if (!db || !firebaseUid) return;
 
-  await db.collection("clinicas").doc(firebaseUid).set(
-    {
-      billing: {
-        ...billing,
-        updated_at: new Date().toISOString(),
+  await db
+    .collection("clinicas")
+    .doc(firebaseUid)
+    .set(
+      {
+        billing: {
+          ...billing,
+          updated_at: new Date().toISOString(),
+        },
       },
-    },
-    { merge: true }
-  );
+      { merge: true },
+    );
 }
 
 /** Guarda cobrança por e-mail quando o checkout foi guest (sem firebase_uid). */
 export async function saveBillingPending(
   email: string,
-  billing: ClinicBilling
+  billing: ClinicBilling,
 ): Promise<void> {
   const db = getFirebaseAdminDb();
   if (!db) return;
   const key = normalizeBillingEmail(email);
   if (!key) return;
 
-  await db.collection("billing_pending").doc(key).set(
-    {
-      ...billing,
-      email: key,
-      updated_at: new Date().toISOString(),
-    },
-    { merge: true }
-  );
+  await db
+    .collection("billing_pending")
+    .doc(key)
+    .set(
+      {
+        ...billing,
+        email: key,
+        updated_at: new Date().toISOString(),
+      },
+      { merge: true },
+    );
 }
 
 /**
@@ -60,7 +66,7 @@ export async function saveBillingPending(
  */
 export async function reconcileBillingForUser(
   firebaseUid: string,
-  email?: string | null
+  email?: string | null,
 ): Promise<{ linked: boolean; reason?: string }> {
   const db = getFirebaseAdminDb();
   if (!db) return { linked: false, reason: "sem_db" };
@@ -77,7 +83,10 @@ export async function reconcileBillingForUser(
   const normalized = email ? normalizeBillingEmail(email) : "";
   if (!normalized) return { linked: false, reason: "sem_email" };
 
-  const pendingSnap = await db.collection("billing_pending").doc(normalized).get();
+  const pendingSnap = await db
+    .collection("billing_pending")
+    .doc(normalized)
+    .get();
   if (!pendingSnap.exists) {
     return { linked: false, reason: "sem_pendencia" };
   }
@@ -103,7 +112,7 @@ function subscriptionBilling(subscription: Stripe.Subscription): ClinicBilling {
     stripe_subscription_id: subscription.id,
     current_period_end: subscription.items.data[0]?.current_period_end
       ? new Date(
-          subscription.items.data[0].current_period_end * 1000
+          subscription.items.data[0].current_period_end * 1000,
         ).toISOString()
       : undefined,
   };
@@ -111,7 +120,7 @@ function subscriptionBilling(subscription: Stripe.Subscription): ClinicBilling {
 
 export async function resolveSubscriptionEmail(
   subscription: Stripe.Subscription,
-  stripe: Stripe
+  stripe: Stripe,
 ): Promise<string | undefined> {
   const fromMeta = subscription.metadata?.firebase_email?.trim();
   if (fromMeta) return normalizeBillingEmail(fromMeta);
@@ -130,7 +139,7 @@ export async function resolveSubscriptionEmail(
 /** Atualiza clínica ou billing_pending conforme uid/e-mail da assinatura. */
 export async function syncSubscriptionBilling(
   subscription: Stripe.Subscription,
-  stripe: Stripe
+  stripe: Stripe,
 ): Promise<"clinica" | "pending" | "skipped"> {
   const billing = subscriptionBilling(subscription);
   const firebaseUid = subscription.metadata?.firebase_uid?.trim();
@@ -148,7 +157,7 @@ export async function syncSubscriptionBilling(
 
   console.warn(
     "[billing-sync] subscription sem firebase_uid nem e-mail",
-    subscription.id
+    subscription.id,
   );
   return "skipped";
 }

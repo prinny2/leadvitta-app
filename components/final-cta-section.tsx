@@ -29,7 +29,7 @@ function TagPill({ children }: { children: React.ReactNode }) {
           background: "rgba(201,160,96,0.07)",
         }}
       >
-        Última parada
+        {children}
       </span>
     </motion.div>
   );
@@ -76,7 +76,12 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.55, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          style={{ color: "rgba(255,255,255,0.65)", fontSize: "16px", lineHeight: 1.8, marginBottom: "20px" }}
+          style={{
+            color: "rgba(255,255,255,0.65)",
+            fontSize: "16px",
+            lineHeight: 1.8,
+            marginBottom: "20px",
+          }}
         >
           Toda semana, mais clientes perguntam o preço e somem.
         </motion.p>
@@ -86,7 +91,12 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.55, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          style={{ color: "rgba(255,255,255,0.65)", fontSize: "16px", lineHeight: 1.8, marginBottom: "32px" }}
+          style={{
+            color: "rgba(255,255,255,0.65)",
+            fontSize: "16px",
+            lineHeight: 1.8,
+            marginBottom: "32px",
+          }}
         >
           Isso não é falta de talento. É falta da ferramenta certa.
         </motion.p>
@@ -106,8 +116,15 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: 0.35 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -3, boxShadow: "0 0 20px rgba(201,160,96,0.15)" }}
+              transition={{
+                duration: 0.5,
+                delay: 0.35 + i * 0.1,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              whileHover={{
+                y: -3,
+                boxShadow: "0 0 20px rgba(201,160,96,0.15)",
+              }}
               style={{
                 background: "rgba(201,160,96,0.06)",
                 border: "1px solid rgba(201,160,96,0.2)",
@@ -120,8 +137,25 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
                 transition: "border-color 0.2s ease",
               }}
             >
-              <span style={{ color: "#C9A060", fontSize: "16px", flexShrink: 0, marginTop: "1px" }}>✦</span>
-              <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.8)", lineHeight: 1.6 }}>{item}</span>
+              <span
+                style={{
+                  color: "#C9A060",
+                  fontSize: "16px",
+                  flexShrink: 0,
+                  marginTop: "1px",
+                }}
+              >
+                ✦
+              </span>
+              <span
+                style={{
+                  fontSize: "14px",
+                  color: "rgba(255,255,255,0.8)",
+                  lineHeight: 1.6,
+                }}
+              >
+                {item}
+              </span>
             </motion.div>
           ))}
         </div>
@@ -168,10 +202,12 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
               transition: "box-shadow 0.25s ease",
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 32px rgba(201,160,96,0.45)";
+              (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                "0 0 32px rgba(201,160,96,0.45)";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 0 rgba(201,160,96,0)";
+              (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                "0 0 0 rgba(201,160,96,0)";
             }}
           >
             Quero minha clínica respondendo melhor agora
@@ -184,7 +220,11 @@ export function FinalCTASection({ funilHref }: { funilHref: string }) {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5, delay: 0.9 }}
-          style={{ fontSize: "13px", color: "rgba(255,255,255,0.35)", marginTop: "14px" }}
+          style={{
+            fontSize: "13px",
+            color: "rgba(255,255,255,0.35)",
+            marginTop: "14px",
+          }}
         >
           Demo com 5 respostas grátis · Start pago para uso contínuo
         </motion.p>

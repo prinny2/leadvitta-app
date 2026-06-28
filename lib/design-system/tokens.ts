@@ -99,7 +99,13 @@ export const palette = {
  * no `app/layout.tsx` (`--font-inter`, `--font-fraunces`).
  */
 export const fontFamily: Record<"sans" | "serif", string[]> = {
-  sans: ["var(--font-inter)", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+  sans: [
+    "var(--font-inter)",
+    "system-ui",
+    "-apple-system",
+    "Segoe UI",
+    "sans-serif",
+  ],
   serif: ["var(--font-fraunces)", "Georgia", "Cambria", "serif"],
 };
 

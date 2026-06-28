@@ -33,7 +33,9 @@ if (!hasJava()) {
     "[firebase:verify] Install JRE/JDK 21+ and run npm run firebase:emulator:check.",
   ].join("\n");
   if (requireEmulator) {
-    console.error(`${message}\n[firebase:verify] REQUIRE_FIREBASE_EMULATOR=1 makes this required.`);
+    console.error(
+      `${message}\n[firebase:verify] REQUIRE_FIREBASE_EMULATOR=1 makes this required.`,
+    );
     process.exit(1);
   }
   console.warn(message);

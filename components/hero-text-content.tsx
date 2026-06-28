@@ -19,7 +19,12 @@ export function HeroTextContent({
   ctaText = "Gerar 5 respostas grátis",
   hideSimuladorLink = false,
 }: HeroTextContentProps = {}) {
-  const intentTags = ["Preço sem susto", "Achou caro", "Cliente sumiu", "Medo do procedimento"];
+  const intentTags = [
+    "Preço sem susto",
+    "Achou caro",
+    "Cliente sumiu",
+    "Medo do procedimento",
+  ];
 
   return (
     <div className="hero-copy">
@@ -89,15 +94,45 @@ export function HeroTextContent({
           textAlign: "left",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", marginBottom: "9px" }}>
-          <strong style={{ color: "#F7F1E4", fontSize: "12px" }}>Ana - WhatsApp</strong>
-          <span style={{ color: "#5EE0A0", fontSize: "11px", fontWeight: 800 }}>lead quente</span>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "8px",
+            marginBottom: "9px",
+          }}
+        >
+          <strong style={{ color: "#F7F1E4", fontSize: "12px" }}>
+            Ana - WhatsApp
+          </strong>
+          <span style={{ color: "#5EE0A0", fontSize: "11px", fontWeight: 800 }}>
+            lead quente
+          </span>
         </div>
         <div style={{ display: "grid", gap: "8px" }}>
-          <div style={{ borderRadius: "13px 13px 13px 4px", background: "rgba(255,255,255,0.08)", padding: "9px 10px", color: "rgba(255,255,255,0.86)", fontSize: "12px", lineHeight: 1.45 }}>
+          <div
+            style={{
+              borderRadius: "13px 13px 13px 4px",
+              background: "rgba(255,255,255,0.08)",
+              padding: "9px 10px",
+              color: "rgba(255,255,255,0.86)",
+              fontSize: "12px",
+              lineHeight: 1.45,
+            }}
+          >
             Quanto fica o botox? Tenho medo de ficar artificial.
           </div>
-          <div style={{ borderRadius: "13px 13px 4px 13px", border: "1px solid rgba(94,224,160,0.28)", background: "rgba(94,224,160,0.12)", padding: "9px 10px", color: "#EFFFF5", fontSize: "12px", lineHeight: 1.45 }}>
+          <div
+            style={{
+              borderRadius: "13px 13px 4px 13px",
+              border: "1px solid rgba(94,224,160,0.28)",
+              background: "rgba(94,224,160,0.12)",
+              padding: "9px 10px",
+              color: "#EFFFF5",
+              fontSize: "12px",
+              lineHeight: 1.45,
+            }}
+          >
             3 respostas prontas para copiar no tom da clínica.
           </div>
         </div>
@@ -114,7 +149,10 @@ export function HeroTextContent({
           }}
         >
           {bullets.slice(0, 3).map((bullet) => (
-            <div key={bullet} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+            <div
+              key={bullet}
+              style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}
+            >
               <span
                 style={{
                   width: "20px",
@@ -134,7 +172,13 @@ export function HeroTextContent({
               >
                 ✓
               </span>
-              <span style={{ fontSize: "15px", color: "rgba(255,255,255,0.85)", lineHeight: 1.45 }}>
+              <span
+                style={{
+                  fontSize: "15px",
+                  color: "rgba(255,255,255,0.85)",
+                  lineHeight: 1.45,
+                }}
+              >
                 {bullet}
               </span>
             </div>
@@ -142,7 +186,14 @@ export function HeroTextContent({
         </div>
       ) : null}
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "16px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "12px",
+          marginBottom: "16px",
+        }}
+      >
         <Link
           href={ctaHref}
           style={{
@@ -184,11 +235,20 @@ export function HeroTextContent({
         ) : null}
       </div>
 
-      <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.42)", margin: "0 0 28px" }}>
+      <p
+        style={{
+          fontSize: "12px",
+          color: "rgba(255,255,255,0.42)",
+          margin: "0 0 28px",
+        }}
+      >
         Demo com 5 respostas · Start R$97/mês · sem cartão para testar
       </p>
 
-      <div aria-label="Situações que o LeadBellus ajuda a responder" style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+      <div
+        aria-label="Situações que o LeadBellus ajuda a responder"
+        style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}
+      >
         {intentTags.map((label) => (
           <span
             key={label}

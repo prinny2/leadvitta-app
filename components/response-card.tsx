@@ -19,7 +19,7 @@ export function ResponseCard({
     <div
       className={cn(
         "rounded-2xl border p-4 shadow-card transition-shadow hover:shadow-soft",
-        dark ? "border-navy-500 bg-navy-700" : "border-brand-100 bg-white"
+        dark ? "border-navy-500 bg-navy-700" : "border-brand-100 bg-white",
       )}
     >
       <div className="mb-2.5 flex items-start justify-between gap-3">
@@ -31,13 +31,15 @@ export function ResponseCard({
                 ? "text-gold-400"
                 : accent === "lavender"
                   ? "text-lavender-600"
-                  : "text-brand-600"
+                  : "text-brand-600",
             )}
           >
             {titulo}
           </div>
           {descricao && (
-            <div className={cn("text-xs", dark ? "text-navy-100" : "text-muted")}>
+            <div
+              className={cn("text-xs", dark ? "text-navy-100" : "text-muted")}
+            >
               {descricao}
             </div>
           )}
@@ -47,7 +49,7 @@ export function ResponseCard({
       <p
         className={cn(
           "whitespace-pre-wrap text-sm leading-relaxed",
-          dark ? "text-champagne-300" : "text-ink"
+          dark ? "text-champagne-300" : "text-ink",
         )}
       >
         {texto}

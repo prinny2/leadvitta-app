@@ -141,7 +141,9 @@ describe("registrarMensagemRecebida", () => {
     expect(conv.prioridade).toBe("quente"); // score 85
     expect(conv.created_at).toBeTruthy(); // conversa nova
     // mensagem gravada com id determinístico sanitizado (dedup) → sub-doc fixo
-    expect(store.has("conversas/c1__5511999998888/mensagens/wamid_1")).toBe(true);
+    expect(store.has("conversas/c1__5511999998888/mensagens/wamid_1")).toBe(
+      true,
+    );
   });
 
   it("sem providerMessageId grava a mensagem via add()", async () => {
@@ -153,7 +155,7 @@ describe("registrarMensagemRecebida", () => {
       text: "oi",
     });
     const msgs = [...store.keys()].filter((k) =>
-      k.startsWith("conversas/c1__5511999998888/mensagens/__auto_")
+      k.startsWith("conversas/c1__5511999998888/mensagens/__auto_"),
     );
     expect(msgs).toHaveLength(1);
   });
@@ -161,7 +163,11 @@ describe("registrarMensagemRecebida", () => {
   it("devolve null sem Admin SDK", async () => {
     getDb.mockReturnValue(null);
     expect(
-      await registrarMensagemRecebida({ clinicaId: "c1", from: "x", text: "y" })
+      await registrarMensagemRecebida({
+        clinicaId: "c1",
+        from: "x",
+        text: "y",
+      }),
     ).toBeNull();
   });
 });
@@ -208,7 +214,9 @@ describe("getConversaServidor", () => {
   });
 
   it("devolve null para conversa inexistente ou incompleta", async () => {
-    const { db } = makeFirestore({ "conversas/incompleta": { clinica_id: "c1" } });
+    const { db } = makeFirestore({
+      "conversas/incompleta": { clinica_id: "c1" },
+    });
     getDb.mockReturnValue(db);
     expect(await getConversaServidor("nao-existe")).toBeNull();
     expect(await getConversaServidor("incompleta")).toBeNull();

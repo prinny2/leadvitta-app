@@ -11,7 +11,11 @@ import {
   isOpenAIConfigured,
   openaiModel,
 } from "@/lib/config";
-import { clampScore, validarIntent, validarSentiment } from "@/lib/ai/nlp-validation";
+import {
+  clampScore,
+  validarIntent,
+  validarSentiment,
+} from "@/lib/ai/nlp-validation";
 import { classificarViaNlpService } from "@/lib/ai/nlp-service";
 import {
   SYSTEM_GERADOR,
@@ -26,7 +30,12 @@ import {
   violaCompliance,
   denylistHits,
 } from "@/lib/ai/prompts";
-import { mockGerador, mockRefine, mockFollowup, softenText } from "@/lib/ai/mock";
+import {
+  mockGerador,
+  mockRefine,
+  mockFollowup,
+  softenText,
+} from "@/lib/ai/mock";
 import type {
   AIProviderId,
   GerarInput,
@@ -77,7 +86,7 @@ function getGemini() {
   return geminiClient;
 }
 
-/** 
+/**
  * Executa uma Promise com timeout.
  */
 async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
@@ -85,10 +94,12 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   const timeoutPromise = new Promise<never>((_, reject) => {
     timer = setTimeout(() => reject(new Error(`API Timeout após ${ms}ms`)), ms);
   });
-  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+  return Promise.race([promise, timeoutPromise]).finally(() =>
+    clearTimeout(timer),
+  );
 }
 
-/** 
+/**
  * Tenta converter texto em JSON de forma resiliente.
  */
 function parseJson<T>(text: string): T | null {
@@ -104,7 +115,7 @@ function parseJson<T>(text: string): T | null {
   // 2. Extrai o conteúdo entre a primeira { e a última }
   const match = text.match(/\{[\s\S]*\}/);
   if (!match) return null;
-  
+
   const jsonString = match[0];
   try {
     return JSON.parse(jsonString) as T;
@@ -121,7 +132,7 @@ function parseJson<T>(text: string): T | null {
   }
 }
 
-/** 
+/**
  * Chama a IA disponível e devolve o texto.
  * Implementa timeout e fallback automático na ordem de `providers`.
  */
@@ -129,7 +140,7 @@ async function callAI(
   system: string,
   user: string,
   retries = 1,
-  options?: CallAIOptions
+  options?: CallAIOptions,
 ): Promise<string> {
   const TIMEOUT_MS = 20000;
 
@@ -145,9 +156,9 @@ async function callAI(
           ],
           temperature: 0.7,
           max_tokens: 1024,
-          response_format: { type: "json_object" }
+          response_format: { type: "json_object" },
         }),
-        TIMEOUT_MS
+        TIMEOUT_MS,
       );
       return resp.choices?.[0]?.message?.content || null;
     } catch (err: any) {
@@ -165,11 +176,15 @@ async function callAI(
           max_tokens: 1024,
           temperature: 0.7,
           system: [
-            { type: "text", text: system, cache_control: { type: "ephemeral" } },
+            {
+              type: "text",
+              text: system,
+              cache_control: { type: "ephemeral" },
+            },
           ],
           messages: [{ role: "user", content: user }],
         }),
-        TIMEOUT_MS
+        TIMEOUT_MS,
       );
       return resp.content
         .map((b) => (b.type === "text" ? b.text : ""))
@@ -195,7 +210,7 @@ async function callAI(
             responseMimeType: "application/json",
           },
         }),
-        TIMEOUT_MS
+        TIMEOUT_MS,
       );
       return resp.text?.trim() || null;
     } catch (err: any) {
@@ -220,8 +235,10 @@ async function callAI(
 
   // Se todos falharem, tenta novamente se houver retries
   if (retries > 0) {
-    console.warn(`[callAI] Provedores de IA falharam. Tentando novamente... (${retries} restantes)`);
-    await new Promise(r => setTimeout(r, 1000));
+    console.warn(
+      `[callAI] Provedores de IA falharam. Tentando novamente... (${retries} restantes)`,
+    );
+    await new Promise((r) => setTimeout(r, 1000));
     return callAI(system, user, retries - 1, options);
   }
 
@@ -256,7 +273,7 @@ async function garantirCompliance(
   respostas: RespostaTripla,
   user: string,
   input: GerarInput,
-  callOptions?: CallAIOptions
+  callOptions?: CallAIOptions,
 ): Promise<RespostaTripla> {
   const algumViola = (r: RespostaTripla) =>
     violaCompliance(r.curta) ||
@@ -271,7 +288,7 @@ async function garantirCompliance(
       user +
         "\n\nATENÇÃO: a resposta anterior usou termos proibidos (promessa de resultado, cura, ausência de risco ou preço fixo). Reescreva as 3 respostas evitando QUALQUER promessa desse tipo. Responda só com o JSON.",
       1,
-      callOptions
+      callOptions,
     );
     const rev = parseJson<GeradorJson>(revisaoRaw);
     if (rev) {
@@ -309,7 +326,7 @@ async function garantirCompliance(
  */
 export async function classificarMensagem(
   texto: string,
-  options?: CallAIOptions
+  options?: CallAIOptions,
 ): Promise<Partial<GerarResultado>> {
   // Prefere o serviço de ML externo (leadvitta-nlp) quando configurado; só cai
   // no classificador LLM se ele falhar ou não devolver intenção válida.
@@ -325,7 +342,7 @@ export async function classificarMensagem(
       SYSTEM_CLASSIFIER,
       `MENSAGEM: "${texto}"`,
       1,
-      options
+      options,
     );
     const parsed = parseJson<GeradorJson>(raw);
     if (!parsed) return {};
@@ -341,7 +358,7 @@ export async function classificarMensagem(
 }
 
 export async function gerarRespostas(
-  input: GerarInput
+  input: GerarInput,
 ): Promise<GerarResultado> {
   if (!isAnyAIConfigured) {
     return { respostas: mockGerador(input), mock: true };
@@ -364,9 +381,10 @@ export async function gerarRespostas(
     if (!parsed) {
       const retryRaw = await callAI(
         SYSTEM_GERADOR,
-        user + "\n\nIMPORTANTE: responda APENAS com o JSON pedido, nada além disso.",
+        user +
+          "\n\nIMPORTANTE: responda APENAS com o JSON pedido, nada além disso.",
         1,
-        callOptions
+        callOptions,
       );
       parsed = parseJson<GeradorJson>(retryRaw);
     }
@@ -375,7 +393,8 @@ export async function gerarRespostas(
       return {
         respostas: mockGerador(input),
         mock: false,
-        aviso: "Não consegui interpretar a resposta da IA; mostrando um exemplo.",
+        aviso:
+          "Não consegui interpretar a resposta da IA; mostrando um exemplo.",
         ...nlp,
       };
     }
@@ -388,7 +407,7 @@ export async function gerarRespostas(
       },
       user,
       input,
-      callOptions
+      callOptions,
     );
 
     return { respostas, mock: false, ...nlp };
@@ -405,7 +424,7 @@ export async function gerarRespostas(
 export type RefineResultado = { texto: string; mock: boolean; aviso?: string };
 
 export async function refinarResposta(
-  input: RefineInput
+  input: RefineInput,
 ): Promise<RefineResultado> {
   if (!isAnyAIConfigured) {
     return { texto: mockRefine(input), mock: true };
@@ -418,7 +437,7 @@ export async function refinarResposta(
       const rev = await callAI(
         SYSTEM_REFINE,
         buildRefineUser(input) +
-          "\n\nATENÇÃO: evite QUALQUER promessa de resultado/cura/ausência de risco ou preço fixo. Responda só com o JSON."
+          "\n\nATENÇÃO: evite QUALQUER promessa de resultado/cura/ausência de risco ou preço fixo. Responda só com o JSON.",
       );
       texto = parseJson<{ resposta?: string }>(rev)?.resposta?.trim() || texto;
     }
@@ -437,7 +456,7 @@ export type FollowUpResultado = {
 };
 
 export async function gerarFollowUp(
-  input: FollowUpInput
+  input: FollowUpInput,
 ): Promise<FollowUpResultado> {
   if (!isAnyAIConfigured) {
     return { mensagens: mockFollowup(input), mock: true };
@@ -452,7 +471,7 @@ export async function gerarFollowUp(
     if (!parsed?.mensagens) {
       raw = await callAI(
         SYSTEM_FOLLOWUP,
-        user + "\n\nIMPORTANTE: responda APENAS com o JSON pedido."
+        user + "\n\nIMPORTANTE: responda APENAS com o JSON pedido.",
       );
       parsed = parseJson<{ mensagens?: string[] }>(raw);
     }
@@ -475,9 +494,11 @@ export async function gerarFollowUp(
         const revRaw = await callAI(
           SYSTEM_FOLLOWUP,
           user +
-            "\n\nATENÇÃO: a resposta anterior usou termos proibidos. Reescreva as 3 mensagens sem QUALQUER promessa de resultado, cura, ausência de risco ou preço fixo. Responda só com o JSON."
+            "\n\nATENÇÃO: a resposta anterior usou termos proibidos. Reescreva as 3 mensagens sem QUALQUER promessa de resultado, cura, ausência de risco ou preço fixo. Responda só com o JSON.",
         );
-        reescritas = (parseJson<{ mensagens?: string[] }>(revRaw)?.mensagens ?? [])
+        reescritas = (
+          parseJson<{ mensagens?: string[] }>(revRaw)?.mensagens ?? []
+        )
           .map((m) => String(m).trim())
           .filter((m) => m && !violaCompliance(m));
       } catch (err) {
@@ -497,8 +518,7 @@ export async function gerarFollowUp(
     return {
       mensagens: mockFollowup(input),
       mock: true,
-      aviso:
-        "Não foi possível falar com a IA agora. Mostrando um exemplo.",
+      aviso: "Não foi possível falar com a IA agora. Mostrando um exemplo.",
     };
   }
 }
@@ -510,7 +530,7 @@ export async function gerarFollowUp(
  * a reescrita NUNCA contenha termo proibido (softenText como última defesa).
  */
 export async function auditarCompliance(
-  input: AuditoriaInput
+  input: AuditoriaInput,
 ): Promise<AuditoriaResultado> {
   const texto = (input.texto ?? "").trim();
 
@@ -524,7 +544,8 @@ export async function auditarCompliance(
   };
 
   // Garante que a reescrita nunca devolve termo proibido.
-  const reescritaSegura = (t: string) => (violaCompliance(t) ? softenText(t) : t);
+  const reescritaSegura = (t: string) =>
+    violaCompliance(t) ? softenText(t) : t;
 
   // Sem IA (modo demo): denylist + reescrita determinística.
   if (!isAnyAIConfigured) {
@@ -545,9 +566,11 @@ export async function auditarCompliance(
       SYSTEM_AUDITORIA,
       buildAuditoriaUser({ ...input, texto }),
       1,
-      callOptions
+      callOptions,
     );
-    const parsed = parseJson<{ riscos?: AuditoriaRisco[]; reescrita?: string }>(raw);
+    const parsed = parseJson<{ riscos?: AuditoriaRisco[]; reescrita?: string }>(
+      raw,
+    );
 
     const gravidadesValidas = ["alta", "media", "baixa"] as const;
     const aiRiscos: AuditoriaRisco[] = Array.isArray(parsed?.riscos)
@@ -583,7 +606,8 @@ export async function auditarCompliance(
       riscos: deterministicos,
       reescrita: deterministicos.length ? softenText(texto) : texto,
       mock: true,
-      aviso: "Não foi possível falar com a IA agora. Mostrando a checagem automática.",
+      aviso:
+        "Não foi possível falar com a IA agora. Mostrando a checagem automática.",
     };
   }
 }

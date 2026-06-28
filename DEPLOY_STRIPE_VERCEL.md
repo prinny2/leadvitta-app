@@ -36,25 +36,25 @@ encaminhado byte-a-byte) que dispara em `beforeFiles`, **antes** dos handlers em
 
 ## 1. Onde cada variável vive
 
-| Variável | Vercel (build) | Cloud Run (runtime) | Observação |
-|---|:--:|:--:|---|
-| `STRIPE_SECRET_KEY` | ❌ | ✅ | checkout + webhook (`config.ts:53`). |
-| `STRIPE_WEBHOOK_SECRET` | ❌ | ✅ | `constructEvent` (`webhook/route.ts`). **Erro clássico: pôr na Vercel.** |
-| `STRIPE_CHECKOUT_MODE` | ❌ | ✅ | `=subscription` (default do código é `payment`, `billing.ts:102-106`). |
-| `STRIPE_PRICE_ID_START` | ❌ | ✅ | `isStripeConfigured` (`config.ts:54`). |
-| `STRIPE_PRICE_ID_PRO` | ❌ | ✅ | manter **VAZIO** até liberar Pro. |
-| `STRIPE_PRICE_ID_PREMIUM` | ❌ | ✅ | manter **VAZIO** até liberar Premium. |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` / `_BASE64` | ❌ | ✅ | Admin SDK; prefira service account anexada (ADC) e deixe vazio. |
-| `FIREBASE_PROJECT_ID` / `_CLIENT_EMAIL` / `_PRIVATE_KEY` | ❌ | ✅ | Admin (server). **Não confundir** `FIREBASE_PROJECT_ID` com `NEXT_PUBLIC_FIREBASE_PROJECT_ID`. |
-| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` | ❌ | ✅ | IA primária + fallbacks. |
-| `ZAPI_INSTANCE_ID` / `ZAPI_TOKEN` / `ZAPI_CLIENT_TOKEN` | ❌ | ✅ | envio outbound Z-API. |
-| `ZAPI_SECURITY_TOKEN` | ❌ | ✅ | valida inbound `/api/whatsapp/webhook`. Sem ele em prod → **403** e mensagens caem. |
-| `ZAPIER_WEBHOOK_URL` / `ZAPIER_SHARED_SECRET` | ❌ | ✅ | integração Zapier. |
-| `NEXT_PUBLIC_SITE_URL` | ✅ | ✅ | **única var nos dois lados**: bundle Vercel (`config.ts:48`) **e** URLs success/cancel do Stripe no Cloud Run. |
-| `NEXT_PUBLIC_FIREBASE_*` (6 vars) | ✅ | ❌ | config cliente, baked no build (`config.ts:5-10`). **Rebuild** p/ mudar. |
-| `NEXT_PUBLIC_GA4_ID` / `NEXT_PUBLIC_META_PIXEL_ID` | ✅ | ❌ | analytics baked no build. Pixel hoje vazio. |
-| `ENABLE_API_PROXY` | build-only | **não setar** | redundante na Vercel (`VERCEL=1` já liga). **No Cloud Run = loop.** |
-| `API_PROXY_ORIGIN` | build-only | **não setar** | **nunca** apontar p/ `leadbellus.com.br` → `next.config.mjs:13-17` **quebra o build**. Deixe vazio (default Cloud Run) ou a URL `.run.app`. |
+| Variável                                                  | Vercel (build) | Cloud Run (runtime) | Observação                                                                                                                                  |
+| --------------------------------------------------------- | :------------: | :-----------------: | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `STRIPE_SECRET_KEY`                                       |       ❌       |         ✅          | checkout + webhook (`config.ts:53`).                                                                                                        |
+| `STRIPE_WEBHOOK_SECRET`                                   |       ❌       |         ✅          | `constructEvent` (`webhook/route.ts`). **Erro clássico: pôr na Vercel.**                                                                    |
+| `STRIPE_CHECKOUT_MODE`                                    |       ❌       |         ✅          | `=subscription` (default do código é `payment`, `billing.ts:102-106`).                                                                      |
+| `STRIPE_PRICE_ID_START`                                   |       ❌       |         ✅          | `isStripeConfigured` (`config.ts:54`).                                                                                                      |
+| `STRIPE_PRICE_ID_PRO`                                     |       ❌       |         ✅          | manter **VAZIO** até liberar Pro.                                                                                                           |
+| `STRIPE_PRICE_ID_PREMIUM`                                 |       ❌       |         ✅          | manter **VAZIO** até liberar Premium.                                                                                                       |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` / `_BASE64`               |       ❌       |         ✅          | Admin SDK; prefira service account anexada (ADC) e deixe vazio.                                                                             |
+| `FIREBASE_PROJECT_ID` / `_CLIENT_EMAIL` / `_PRIVATE_KEY`  |       ❌       |         ✅          | Admin (server). **Não confundir** `FIREBASE_PROJECT_ID` com `NEXT_PUBLIC_FIREBASE_PROJECT_ID`.                                              |
+| `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` |       ❌       |         ✅          | IA primária + fallbacks.                                                                                                                    |
+| `ZAPI_INSTANCE_ID` / `ZAPI_TOKEN` / `ZAPI_CLIENT_TOKEN`   |       ❌       |         ✅          | envio outbound Z-API.                                                                                                                       |
+| `ZAPI_SECURITY_TOKEN`                                     |       ❌       |         ✅          | valida inbound `/api/whatsapp/webhook`. Sem ele em prod → **403** e mensagens caem.                                                         |
+| `ZAPIER_WEBHOOK_URL` / `ZAPIER_SHARED_SECRET`             |       ❌       |         ✅          | integração Zapier.                                                                                                                          |
+| `NEXT_PUBLIC_SITE_URL`                                    |       ✅       |         ✅          | **única var nos dois lados**: bundle Vercel (`config.ts:48`) **e** URLs success/cancel do Stripe no Cloud Run.                              |
+| `NEXT_PUBLIC_FIREBASE_*` (6 vars)                         |       ✅       |         ❌          | config cliente, baked no build (`config.ts:5-10`). **Rebuild** p/ mudar.                                                                    |
+| `NEXT_PUBLIC_GA4_ID` / `NEXT_PUBLIC_META_PIXEL_ID`        |       ✅       |         ❌          | analytics baked no build. Pixel hoje vazio.                                                                                                 |
+| `ENABLE_API_PROXY`                                        |   build-only   |    **não setar**    | redundante na Vercel (`VERCEL=1` já liga). **No Cloud Run = loop.**                                                                         |
+| `API_PROXY_ORIGIN`                                        |   build-only   |    **não setar**    | **nunca** apontar p/ `leadbellus.com.br` → `next.config.mjs:13-17` **quebra o build**. Deixe vazio (default Cloud Run) ou a URL `.run.app`. |
 
 > `NEXT_PUBLIC_*` são **build-time** — mudar exige **rebuild** da Vercel, não só redeploy.
 > `STRIPE_*`/`FIREBASE_*`/`ZAPI_*` são **runtime no Cloud Run** — valem na próxima invocação.
@@ -116,16 +116,16 @@ em `clinicas/{uid}.billing` via Admin SDK (escrita **server-only**). `invoice.pa
 
 ## 5. Diagnóstico (tabela ancorada no código)
 
-| Sintoma | Causa provável | Onde olhar / corrigir |
-|---|---|---|
-| Webhook **400** "No signatures found"/"signature mismatch" | `STRIPE_WEBHOOK_SECRET` errado/ausente **no Cloud Run** (ou whsec de outro endpoint) | `webhook/route.ts:122,142`; `gcloud run services describe leadbellus`. **Não** é problema de bytes do proxy. |
-| Webhook nunca chega / entregas falham no Stripe | endpoint registrado no **apex** (307→www, Stripe não segue) | repointar p/ a URL `.run.app` ou `www`. |
-| Cliente paga e conta **não ativa** | segredos Stripe/Firebase setados **só na Vercel** (inertes) | mover `STRIPE_*`/`FIREBASE_*` p/ Cloud Run. |
-| Checkout **503** | `STRIPE_PRICE_ID_<PLANO>` ausente ou Stripe não configurado no Cloud Run | `checkout/route.ts:57-76`; `config.ts:53-56`. |
-| Checkout **400** "Plano inválido" / "ainda não disponível" | `plan` ≠ start/pro/premium, ou Price ID do plano vazio (`disponivel=false`) | `checkout/route.ts:45-56`; `billing.ts:56,74`. |
-| `/api/config` mostra `stripe_enabled=false` | env do **Cloud Run** (o `/api/config` no domínio é respondido pelo Cloud Run via proxy) | corrigir env no Cloud Run, não na Vercel. |
-| Build da Vercel **falha** ("API proxy loop") | `API_PROXY_ORIGIN` aponta p/ `leadbellus.com.br` | `next.config.mjs:13-17`; deixar vazio ou usar `.run.app`. |
-| Mudei `NEXT_PUBLIC_*` e nada mudou | é **build-time**; precisa rebuild na Vercel | redeploy não basta — refazer o build. |
+| Sintoma                                                    | Causa provável                                                                          | Onde olhar / corrigir                                                                                        |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Webhook **400** "No signatures found"/"signature mismatch" | `STRIPE_WEBHOOK_SECRET` errado/ausente **no Cloud Run** (ou whsec de outro endpoint)    | `webhook/route.ts:122,142`; `gcloud run services describe leadbellus`. **Não** é problema de bytes do proxy. |
+| Webhook nunca chega / entregas falham no Stripe            | endpoint registrado no **apex** (307→www, Stripe não segue)                             | repointar p/ a URL `.run.app` ou `www`.                                                                      |
+| Cliente paga e conta **não ativa**                         | segredos Stripe/Firebase setados **só na Vercel** (inertes)                             | mover `STRIPE_*`/`FIREBASE_*` p/ Cloud Run.                                                                  |
+| Checkout **503**                                           | `STRIPE_PRICE_ID_<PLANO>` ausente ou Stripe não configurado no Cloud Run                | `checkout/route.ts:57-76`; `config.ts:53-56`.                                                                |
+| Checkout **400** "Plano inválido" / "ainda não disponível" | `plan` ≠ start/pro/premium, ou Price ID do plano vazio (`disponivel=false`)             | `checkout/route.ts:45-56`; `billing.ts:56,74`.                                                               |
+| `/api/config` mostra `stripe_enabled=false`                | env do **Cloud Run** (o `/api/config` no domínio é respondido pelo Cloud Run via proxy) | corrigir env no Cloud Run, não na Vercel.                                                                    |
+| Build da Vercel **falha** ("API proxy loop")               | `API_PROXY_ORIGIN` aponta p/ `leadbellus.com.br`                                        | `next.config.mjs:13-17`; deixar vazio ou usar `.run.app`.                                                    |
+| Mudei `NEXT_PUBLIC_*` e nada mudou                         | é **build-time**; precisa rebuild na Vercel                                             | redeploy não basta — refazer o build.                                                                        |
 
 ## 6. WhatsApp (Z-API) — config do webhook inbound
 

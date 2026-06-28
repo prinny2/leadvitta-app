@@ -30,7 +30,8 @@ function AnalyticsContent() {
     if (isInitialRender) return;
 
     const url =
-      pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
+      pathname +
+      (searchParams?.toString() ? `?${searchParams.toString()}` : "");
 
     if (typeof window !== "undefined" && (window as any).gtag && GA4_ID) {
       (window as any).gtag("config", GA4_ID, { page_path: url });
@@ -104,10 +105,7 @@ export default function Analytics() {
 }
 
 // Helper p/ disparar eventos customizados do client (mapeia p/ eventos padrão do Meta)
-export const trackEvent = (
-  eventName: string,
-  params?: Record<string, any>
-) => {
+export const trackEvent = (eventName: string, params?: Record<string, any>) => {
   if (typeof window === "undefined") return;
 
   if ((window as any).gtag && GA4_ID) {

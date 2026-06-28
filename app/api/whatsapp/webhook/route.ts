@@ -30,7 +30,9 @@ async function processarMensagem(msg: InboundMessage) {
 
   // Idempotência: ignora reentregas do provedor (não duplica msg nem auto-resposta).
   if (!(await reservarProcessamento(msg.providerMessageId))) {
-    console.log(`[whatsapp] mensagem ${msg.providerMessageId} já processada — ignorando retry.`);
+    console.log(
+      `[whatsapp] mensagem ${msg.providerMessageId} já processada — ignorando retry.`,
+    );
     return;
   }
 
@@ -60,7 +62,7 @@ async function processarMensagem(msg: InboundMessage) {
       providerMessageId: msg.providerMessageId,
     });
     console.warn(
-      `[whatsapp] clínica ${clinicaId} sem plano ativo (status=${clinica.billing?.status}) — só armazenado.`
+      `[whatsapp] clínica ${clinicaId} sem plano ativo (status=${clinica.billing?.status}) — só armazenado.`,
     );
     return;
   }
@@ -69,7 +71,8 @@ async function processarMensagem(msg: InboundMessage) {
   try {
     nlp = await gerarRespostas({
       modo: "gerar",
-      objetivo: "responder à dúvida do cliente via WhatsApp de forma consultiva e empática",
+      objetivo:
+        "responder à dúvida do cliente via WhatsApp de forma consultiva e empática",
       nomeCliente: msg.contactName || "Cliente",
       mensagemCliente: msg.text,
       procedimento: "geral",
@@ -105,11 +108,13 @@ async function processarMensagem(msg: InboundMessage) {
   });
   if (envio.ok) {
     // Auto-resposta NÃO marca como lida — fica na triagem até um humano abrir.
-    await registrarMensagemEnviada(clinicaId, msg.from, respostaFinal, { marcarLida: false });
+    await registrarMensagemEnviada(clinicaId, msg.from, respostaFinal, {
+      marcarLida: false,
+    });
   } else {
     console.error(
       `[whatsapp] falha ao enviar para ${msg.from}: status=${envio.status}`,
-      envio.data
+      envio.data,
     );
     await marcarPrecisaAtencao(clinicaId, msg.from);
   }
@@ -132,7 +137,7 @@ async function processarMensagem(msg: InboundMessage) {
   });
 
   console.log(
-    `[whatsapp] resposta ${envio.ok ? "enviada" : "FALHOU"} para ${msg.from} (clínica ${clinicaId}).`
+    `[whatsapp] resposta ${envio.ok ? "enviada" : "FALHOU"} para ${msg.from} (clínica ${clinicaId}).`,
   );
 }
 
@@ -159,7 +164,7 @@ export async function POST(req: Request) {
         // Crash após a reserva: devolve, senão o retry vira "duplicata" e a
         // mensagem se perde (o provedor já recebeu 200).
         await liberarProcessamento(msg.providerMessageId);
-      })
+      }),
     );
   }
 

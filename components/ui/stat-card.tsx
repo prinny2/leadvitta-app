@@ -35,13 +35,23 @@ export function StatCard({
     <div
       className={cn(
         "animate-fade-in rounded-2xl border border-brand-100 bg-white p-4 shadow-card",
-        className
+        className,
       )}
     >
-      <div className={cn("mb-3 flex h-9 w-9 items-center justify-center rounded-xl", t.chip)}>
+      <div
+        className={cn(
+          "mb-3 flex h-9 w-9 items-center justify-center rounded-xl",
+          t.chip,
+        )}
+      >
         <Icon size={18} aria-hidden="true" />
       </div>
-      <div className={cn("font-serif text-3xl font-semibold leading-none tabular-nums", t.value)}>
+      <div
+        className={cn(
+          "font-serif text-3xl font-semibold leading-none tabular-nums",
+          t.value,
+        )}
+      >
         {value}
       </div>
       <p className="mt-1.5 text-xs font-medium text-muted">{label}</p>

@@ -33,7 +33,9 @@ export const metadata: Metadata = {
     "objeções estética",
     "LeadBellus",
   ],
-  authors: [{ name: "Vinicius Paes da Serra Freire", url: "https://leadbellus.com.br" }],
+  authors: [
+    { name: "Vinicius Paes da Serra Freire", url: "https://leadbellus.com.br" },
+  ],
   publisher: "Vinicius Paes da Serra Freire (MEI)",
   alternates: {
     canonical: "https://www.leadbellus.com.br",
@@ -54,7 +56,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary",
     title: "LeadBellus — Respostas para WhatsApp na Estética",
-    description: "3 respostas curtas, no tom da sua clínica, para copiar e mandar no WhatsApp.",
+    description:
+      "3 respostas curtas, no tom da sua clínica, para copiar e mandar no WhatsApp.",
   },
   robots: {
     index: true,

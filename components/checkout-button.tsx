@@ -60,7 +60,11 @@ export function CheckoutButton({
         disabled={disabled || loading}
         {...props}
       >
-        {loading ? <Loader2 size={16} className="animate-spin" /> : <CreditCard size={16} />}
+        {loading ? (
+          <Loader2 size={16} className="animate-spin" />
+        ) : (
+          <CreditCard size={16} />
+        )}
         {children}
       </Button>
       {erro && <p className="text-xs text-red-600">{erro}</p>}

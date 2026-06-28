@@ -25,7 +25,9 @@ export default function ErrorBoundary({
             <AlertCircle size={24} />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-ink">Ops, algo deu errado!</h2>
+            <h2 className="text-lg font-semibold text-ink">
+              Ops, algo deu errado!
+            </h2>
             <p className="text-sm text-muted">
               Tivemos um problema inesperado ao carregar esta página.
             </p>

@@ -31,7 +31,7 @@ export function LeadTermometro({
         <span
           className={cn(
             "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold",
-            dark ? "bg-white/12 text-white" : p.cls
+            dark ? "bg-white/12 text-white" : p.cls,
           )}
         >
           <span className="text-sm leading-none">{p.emoji}</span>
@@ -40,11 +40,15 @@ export function LeadTermometro({
         <span
           className={cn(
             "font-serif text-2xl font-semibold leading-none tabular-nums",
-            dark ? "text-white" : "text-ink"
+            dark ? "text-white" : "text-ink",
           )}
         >
           {pct}
-          <span className={cn("text-sm", dark ? "text-nude-200" : "text-muted")}>%</span>
+          <span
+            className={cn("text-sm", dark ? "text-nude-200" : "text-muted")}
+          >
+            %
+          </span>
         </span>
       </div>
 
@@ -54,7 +58,7 @@ export function LeadTermometro({
         <div
           className={cn(
             "h-2.5 w-full overflow-hidden rounded-full",
-            dark ? "bg-white/15" : "bg-nude-200"
+            dark ? "bg-white/15" : "bg-nude-200",
           )}
         >
           <div
@@ -66,7 +70,7 @@ export function LeadTermometro({
         <div
           className={cn(
             "absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow-sm transition-[left] duration-700 ease-out",
-            dark ? "border-brand-dark bg-white" : "border-white bg-ink"
+            dark ? "border-brand-dark bg-white" : "border-white bg-ink",
           )}
           style={{ left: `${pct}%` }}
         />

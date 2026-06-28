@@ -22,7 +22,8 @@ function onlyDigits(n) {
 function initAdmin() {
   if (getApps().length) return getFirestore();
   const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  if (!json) throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON ausente em .env.local");
+  if (!json)
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON ausente em .env.local");
   const sa = JSON.parse(json);
   initializeApp({ credential: cert(sa) });
   return getFirestore();
@@ -31,7 +32,9 @@ function initAdmin() {
 async function main() {
   const numero = onlyDigits(numeroBruto);
   if (!clinicaId || !numero) {
-    console.error("Uso: node scripts/claim-whatsapp-number.mjs <clinicaUid> <numero>");
+    console.error(
+      "Uso: node scripts/claim-whatsapp-number.mjs <clinicaUid> <numero>",
+    );
     process.exit(1);
   }
 
@@ -40,16 +43,24 @@ async function main() {
   const clinicaRef = db.collection("clinicas").doc(clinicaId);
 
   await db.runTransaction(async (tx) => {
-    const [mapSnap, clinicaSnap] = await Promise.all([tx.get(mapRef), tx.get(clinicaRef)]);
+    const [mapSnap, clinicaSnap] = await Promise.all([
+      tx.get(mapRef),
+      tx.get(clinicaRef),
+    ]);
     if (!clinicaSnap.exists) throw new Error(`clinica ${clinicaId} não existe`);
     if (mapSnap.exists && mapSnap.data()?.clinica_id !== clinicaId) {
-      throw new Error(`número ${numero} já pertence a ${mapSnap.data()?.clinica_id}`);
+      throw new Error(
+        `número ${numero} já pertence a ${mapSnap.data()?.clinica_id}`,
+      );
     }
     const antigo = onlyDigits(clinicaSnap.data()?.whatsapp);
     if (antigo && antigo !== numero) {
       tx.delete(db.collection("numeros_whatsapp").doc(antigo));
     }
-    tx.set(mapRef, { clinica_id: clinicaId, claimed_at: new Date().toISOString() });
+    tx.set(mapRef, {
+      clinica_id: clinicaId,
+      claimed_at: new Date().toISOString(),
+    });
     tx.set(clinicaRef, { whatsapp: numero }, { merge: true });
   });
 

@@ -10,7 +10,11 @@ import {
   type MessagePayload,
 } from "firebase/messaging";
 import { getFirebaseApp } from "@/lib/firebase/client";
-import { firebaseConfig, firebaseVapidKey, isFirebaseConfigured } from "@/lib/config";
+import {
+  firebaseConfig,
+  firebaseVapidKey,
+  isFirebaseConfigured,
+} from "@/lib/config";
 
 export type EnableReason =
   | "firebase_off"
@@ -20,11 +24,15 @@ export type EnableReason =
   | "sem_token"
   | "erro";
 
-export type EnableResult = { ok: boolean; token?: string; reason?: EnableReason };
+export type EnableResult = {
+  ok: boolean;
+  token?: string;
+  reason?: EnableReason;
+};
 
 /** Monta a URL do service worker com a config pública na query string. */
 export function swUrlWithConfig(
-  config: typeof firebaseConfig = firebaseConfig
+  config: typeof firebaseConfig = firebaseConfig,
 ): string {
   const params = new URLSearchParams({
     apiKey: config.apiKey ?? "",
@@ -39,7 +47,8 @@ export function swUrlWithConfig(
 /** True quando o browser suporta Web Push + FCM. */
 export async function isWebPushSupported(): Promise<boolean> {
   if (typeof window === "undefined") return false;
-  if (!("serviceWorker" in navigator) || !("Notification" in window)) return false;
+  if (!("serviceWorker" in navigator) || !("Notification" in window))
+    return false;
   try {
     return await isSupported();
   } catch {
@@ -54,15 +63,17 @@ export async function isWebPushSupported(): Promise<boolean> {
 export async function enableWebPush(): Promise<EnableResult> {
   if (!isFirebaseConfigured) return { ok: false, reason: "firebase_off" };
   if (!firebaseVapidKey) return { ok: false, reason: "sem_vapid_key" };
-  if (!(await isWebPushSupported())) return { ok: false, reason: "nao_suportado" };
+  if (!(await isWebPushSupported()))
+    return { ok: false, reason: "nao_suportado" };
 
   try {
     const permission = await Notification.requestPermission();
-    if (permission !== "granted") return { ok: false, reason: "permissao_negada" };
+    if (permission !== "granted")
+      return { ok: false, reason: "permissao_negada" };
 
     const registration = await navigator.serviceWorker.register(
       swUrlWithConfig(),
-      { scope: "/" }
+      { scope: "/" },
     );
 
     const messaging = getMessaging(getFirebaseApp());
@@ -80,7 +91,7 @@ export async function enableWebPush(): Promise<EnableResult> {
 
 /** Escuta mensagens com a aba aberta (primeiro plano). Retorna um unsubscribe. */
 export async function onForegroundMessage(
-  cb: (payload: MessagePayload) => void
+  cb: (payload: MessagePayload) => void,
 ): Promise<() => void> {
   if (!(await isWebPushSupported())) return () => {};
   const messaging = getMessaging(getFirebaseApp());

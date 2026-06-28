@@ -36,7 +36,10 @@ export async function POST(req: Request) {
 
   const { conversaId, texto, firebaseIdToken } = body;
   if (!conversaId || !texto?.trim()) {
-    return NextResponse.json({ error: "conversaId e texto são obrigatórios." }, { status: 400 });
+    return NextResponse.json(
+      { error: "conversaId e texto são obrigatórios." },
+      { status: 400 },
+    );
   }
 
   const decoded = await verifyFirebaseIdToken(firebaseIdToken);
@@ -46,26 +49,38 @@ export async function POST(req: Request) {
 
   const conversa = await getConversaServidor(conversaId);
   if (!conversa) {
-    return NextResponse.json({ error: "Conversa não encontrada." }, { status: 404 });
+    return NextResponse.json(
+      { error: "Conversa não encontrada." },
+      { status: 404 },
+    );
   }
   if (conversa.clinica_id !== decoded.uid) {
     return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
   }
 
   const channelApiKey = await getCanalClinica(decoded.uid);
-  const envio = await getWhatsAppProvider().sendText(conversa.cliente_numero, texto.trim(), {
-    channelApiKey,
-  });
+  const envio = await getWhatsAppProvider().sendText(
+    conversa.cliente_numero,
+    texto.trim(),
+    {
+      channelApiKey,
+    },
+  );
   if (!envio.ok) {
     return NextResponse.json(
       { error: "Não foi possível enviar agora.", status: envio.status },
-      { status: 502 }
+      { status: 502 },
     );
   }
 
   // Resposta manual da clínica zera o "não lida".
-  await registrarMensagemEnviada(decoded.uid, conversa.cliente_numero, texto.trim(), {
-    marcarLida: true,
-  });
+  await registrarMensagemEnviada(
+    decoded.uid,
+    conversa.cliente_numero,
+    texto.trim(),
+    {
+      marcarLida: true,
+    },
+  );
   return NextResponse.json({ ok: true });
 }

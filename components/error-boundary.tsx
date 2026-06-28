@@ -38,7 +38,9 @@ export class ErrorBoundary extends Component<Props, State> {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
                 <AlertCircle size={24} />
               </div>
-              <h2 className="text-xl font-semibold text-ink">Ops! Algo deu errado</h2>
+              <h2 className="text-xl font-semibold text-ink">
+                Ops! Algo deu errado
+              </h2>
               <p className="text-sm text-muted">
                 Ocorreu um erro inesperado nesta parte do aplicativo.
               </p>

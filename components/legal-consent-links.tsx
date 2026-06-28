@@ -26,21 +26,33 @@ export function LegalConsentLinks({
       Ao continuar, você concorda com os{" "}
       <Link
         href="/termos"
-        style={{ color: linkColor, fontWeight: 700, textDecoration: "underline" }}
+        style={{
+          color: linkColor,
+          fontWeight: 700,
+          textDecoration: "underline",
+        }}
       >
         Termos de Serviço
       </Link>
       ,{" "}
       <Link
         href="/privacidade"
-        style={{ color: linkColor, fontWeight: 700, textDecoration: "underline" }}
+        style={{
+          color: linkColor,
+          fontWeight: 700,
+          textDecoration: "underline",
+        }}
       >
         Privacidade
       </Link>{" "}
       e{" "}
       <Link
         href="/reembolso"
-        style={{ color: linkColor, fontWeight: 700, textDecoration: "underline" }}
+        style={{
+          color: linkColor,
+          fontWeight: 700,
+          textDecoration: "underline",
+        }}
       >
         Reembolso
       </Link>

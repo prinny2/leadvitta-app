@@ -16,7 +16,14 @@ import {
   ArrowRight,
   Zap,
 } from "lucide-react";
-import { motion, useScroll, useTransform, useInView, useSpring, type Variants } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useInView,
+  useSpring,
+  type Variants,
+} from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -59,17 +66,36 @@ const services = [
   {
     icon: <ShieldOff className="w-6 h-6" />,
     title: "Zero jargão de tecnologia",
-    description:
-      "Se você sabe usar o WhatsApp, já sabe usar o LeadBellus.",
+    description: "Se você sabe usar o WhatsApp, já sabe usar o LeadBellus.",
     position: "right",
   },
 ];
 
 const stats = [
-  { icon: <Award className="w-6 h-6" />, value: 16, label: "Situações no gerador", suffix: "" },
-  { icon: <Map className="w-6 h-6" />, value: 26, label: "Objeções prontas", suffix: "" },
-  { icon: <LayoutGrid className="w-6 h-6" />, value: 6, label: "Ferramentas no Start", suffix: "" },
-  { icon: <ThumbsUp className="w-6 h-6" />, value: 8, label: "Tons de voz", suffix: "" },
+  {
+    icon: <Award className="w-6 h-6" />,
+    value: 16,
+    label: "Situações no gerador",
+    suffix: "",
+  },
+  {
+    icon: <Map className="w-6 h-6" />,
+    value: 26,
+    label: "Objeções prontas",
+    suffix: "",
+  },
+  {
+    icon: <LayoutGrid className="w-6 h-6" />,
+    value: 6,
+    label: "Ferramentas no Start",
+    suffix: "",
+  },
+  {
+    icon: <ThumbsUp className="w-6 h-6" />,
+    value: 8,
+    label: "Tons de voz",
+    suffix: "",
+  },
 ];
 
 const containerVariants = {
@@ -120,41 +146,97 @@ export function AboutSection() {
       {/* Decorative blobs */}
       <motion.div
         style={{
-          position: "absolute", top: "80px", left: "40px",
-          width: "256px", height: "256px", borderRadius: "50%",
-          background: "rgba(201,160,96,0.06)", filter: "blur(48px)",
-          y: y1, rotate: rotate1,
+          position: "absolute",
+          top: "80px",
+          left: "40px",
+          width: "256px",
+          height: "256px",
+          borderRadius: "50%",
+          background: "rgba(201,160,96,0.06)",
+          filter: "blur(48px)",
+          y: y1,
+          rotate: rotate1,
         }}
       />
       <motion.div
         style={{
-          position: "absolute", bottom: "80px", right: "40px",
-          width: "320px", height: "320px", borderRadius: "50%",
-          background: "rgba(201,160,96,0.05)", filter: "blur(48px)",
-          y: y2, rotate: rotate2,
+          position: "absolute",
+          bottom: "80px",
+          right: "40px",
+          width: "320px",
+          height: "320px",
+          borderRadius: "50%",
+          background: "rgba(201,160,96,0.05)",
+          filter: "blur(48px)",
+          y: y2,
+          rotate: rotate2,
         }}
       />
       <motion.div
-        style={{ position: "absolute", top: "50%", left: "25%", width: "16px", height: "16px", borderRadius: "50%", background: "rgba(201,160,96,0.3)" }}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "25%",
+          width: "16px",
+          height: "16px",
+          borderRadius: "50%",
+          background: "rgba(201,160,96,0.3)",
+        }}
         animate={{ y: [0, -15, 0], opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        style={{ position: "absolute", bottom: "33%", right: "25%", width: "24px", height: "24px", borderRadius: "50%", background: "rgba(201,160,96,0.2)" }}
+        style={{
+          position: "absolute",
+          bottom: "33%",
+          right: "25%",
+          width: "24px",
+          height: "24px",
+          borderRadius: "50%",
+          background: "rgba(201,160,96,0.2)",
+        }}
         animate={{ y: [0, 20, 0], opacity: [0.5, 1, 0.5] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1,
+        }}
       />
 
       <motion.div
-        style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 10 }}
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          position: "relative",
+          zIndex: 10,
+        }}
         initial="hidden"
         animate={isInView ? "visible" : "hidden"}
         variants={containerVariants}
       >
         {/* Header */}
-        <motion.div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "24px" }} variants={itemVariants}>
+        <motion.div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginBottom: "24px",
+          }}
+          variants={itemVariants}
+        >
           <motion.span
-            style={{ color: "#C9A060", fontWeight: 600, marginBottom: "8px", display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", letterSpacing: "0.08em", textTransform: "uppercase" }}
+            style={{
+              color: "#C9A060",
+              fontWeight: 600,
+              marginBottom: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "12px",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+            }}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -162,11 +244,24 @@ export function AboutSection() {
             <Zap className="w-4 h-4" />
             Por Dentro do LeadBellus
           </motion.span>
-          <h2 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 700, textAlign: "center", color: "#0A1628", margin: "0 0 16px" }}>
+          <h2
+            style={{
+              fontFamily: "var(--font-fraunces, Georgia, serif)",
+              fontSize: "clamp(28px, 4vw, 42px)",
+              fontWeight: 700,
+              textAlign: "center",
+              color: "#0A1628",
+              margin: "0 0 16px",
+            }}
+          >
             Quem somos nós
           </h2>
           <motion.div
-            style={{ height: "3px", background: "#C9A060", borderRadius: "2px" }}
+            style={{
+              height: "3px",
+              background: "#C9A060",
+              borderRadius: "2px",
+            }}
             initial={{ width: 0 }}
             animate={{ width: 96 }}
             transition={{ duration: 1, delay: 0.5 }}
@@ -174,26 +269,61 @@ export function AboutSection() {
         </motion.div>
 
         <motion.p
-          style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 64px", color: "rgba(10,22,40,0.75)", fontSize: "16px", lineHeight: 1.75 }}
+          style={{
+            textAlign: "center",
+            maxWidth: "640px",
+            margin: "0 auto 64px",
+            color: "rgba(10,22,40,0.75)",
+            fontSize: "16px",
+            lineHeight: 1.75,
+          }}
           variants={itemVariants}
         >
-          Ficamos obcecados em entender por que clínicas perdem venda no WhatsApp — e construímos a solução certa pra isso.
+          Ficamos obcecados em entender por que clínicas perdem venda no
+          WhatsApp — e construímos a solução certa pra isso.
         </motion.p>
 
         {/* 3-column grid */}
-        <div className="about-grid" style={{ display: "grid", gap: "32px", alignItems: "center" }}>
+        <div
+          className="about-grid"
+          style={{ display: "grid", gap: "32px", alignItems: "center" }}
+        >
           {/* Left column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "48px" }}>
-            {services.filter((s) => s.position === "left").map((s, i) => (
-              <ServiceItem key={i} icon={s.icon} title={s.title} description={s.description} variants={itemVariants} delay={i * 0.2} direction="left" />
-            ))}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "48px" }}
+          >
+            {services
+              .filter((s) => s.position === "left")
+              .map((s, i) => (
+                <ServiceItem
+                  key={i}
+                  icon={s.icon}
+                  title={s.title}
+                  description={s.description}
+                  variants={itemVariants}
+                  delay={i * 0.2}
+                  direction="left"
+                />
+              ))}
           </div>
 
           {/* Center image */}
-          <motion.div style={{ display: "flex", justifyContent: "center", alignItems: "center" }} variants={itemVariants}>
+          <motion.div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+            variants={itemVariants}
+          >
             <div style={{ position: "relative", width: "100%" }}>
               <motion.div
-                style={{ borderRadius: "16px", overflow: "hidden", boxShadow: "0 24px 64px rgba(0,0,0,0.18)", position: "relative" }}
+                style={{
+                  borderRadius: "16px",
+                  overflow: "hidden",
+                  boxShadow: "0 24px 64px rgba(0,0,0,0.18)",
+                  position: "relative",
+                }}
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
@@ -208,9 +338,13 @@ export function AboutSection() {
                 />
                 <motion.div
                   style={{
-                    position: "absolute", inset: 0,
-                    background: "linear-gradient(to top, rgba(7,16,30,0.55), transparent)",
-                    display: "flex", alignItems: "flex-end", justifyContent: "center",
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(to top, rgba(7,16,30,0.55), transparent)",
+                    display: "flex",
+                    alignItems: "flex-end",
+                    justifyContent: "center",
                     padding: "20px",
                   }}
                   initial={{ opacity: 0 }}
@@ -220,10 +354,16 @@ export function AboutSection() {
                   <Link
                     href="/signup"
                     style={{
-                      background: "#C9A060", color: "#07101e",
-                      padding: "10px 20px", borderRadius: "9999px",
-                      display: "inline-flex", alignItems: "center", gap: "6px",
-                      fontSize: "13px", fontWeight: 700, textDecoration: "none",
+                      background: "#C9A060",
+                      color: "#07101e",
+                      padding: "10px 20px",
+                      borderRadius: "9999px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      fontSize: "13px",
+                      fontWeight: 700,
+                      textDecoration: "none",
                     }}
                   >
                     Conhecer o sistema <ArrowRight className="w-4 h-4" />
@@ -234,9 +374,11 @@ export function AboutSection() {
               {/* Border frame */}
               <motion.div
                 style={{
-                  position: "absolute", inset: "-12px",
+                  position: "absolute",
+                  inset: "-12px",
                   border: "2px solid rgba(201,160,96,0.25)",
-                  borderRadius: "24px", zIndex: -1,
+                  borderRadius: "24px",
+                  zIndex: -1,
                 }}
                 initial={{ opacity: 0, scale: 1.1 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -245,43 +387,98 @@ export function AboutSection() {
 
               {/* Floating orbs */}
               <motion.div
-                style={{ position: "absolute", top: "-16px", right: "-32px", width: "64px", height: "64px", borderRadius: "50%", background: "rgba(201,160,96,0.12)", y: y1 }}
+                style={{
+                  position: "absolute",
+                  top: "-16px",
+                  right: "-32px",
+                  width: "64px",
+                  height: "64px",
+                  borderRadius: "50%",
+                  background: "rgba(201,160,96,0.12)",
+                  y: y1,
+                }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.9 }}
               />
               <motion.div
-                style={{ position: "absolute", bottom: "-24px", left: "-40px", width: "80px", height: "80px", borderRadius: "50%", background: "rgba(201,160,96,0.08)", y: y2 }}
+                style={{
+                  position: "absolute",
+                  bottom: "-24px",
+                  left: "-40px",
+                  width: "80px",
+                  height: "80px",
+                  borderRadius: "50%",
+                  background: "rgba(201,160,96,0.08)",
+                  y: y2,
+                }}
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 1.1 }}
               />
               <motion.div
-                style={{ position: "absolute", top: "-40px", left: "50%", transform: "translateX(-50%)", width: "10px", height: "10px", borderRadius: "50%", background: "#C9A060" }}
+                style={{
+                  position: "absolute",
+                  top: "-40px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "50%",
+                  background: "#C9A060",
+                }}
                 animate={{ y: [0, -10, 0], opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
               />
             </div>
           </motion.div>
 
           {/* Right column */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "48px" }}>
-            {services.filter((s) => s.position === "right").map((s, i) => (
-              <ServiceItem key={i} icon={s.icon} title={s.title} description={s.description} variants={itemVariants} delay={i * 0.2} direction="right" />
-            ))}
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "48px" }}
+          >
+            {services
+              .filter((s) => s.position === "right")
+              .map((s, i) => (
+                <ServiceItem
+                  key={i}
+                  icon={s.icon}
+                  title={s.title}
+                  description={s.description}
+                  variants={itemVariants}
+                  delay={i * 0.2}
+                  direction="right"
+                />
+              ))}
           </div>
         </div>
 
         {/* Stats */}
         <motion.div
           ref={statsRef}
-          style={{ marginTop: "80px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "24px" }}
+          style={{
+            marginTop: "80px",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+            gap: "24px",
+          }}
           initial="hidden"
           animate={isStatsInView ? "visible" : "hidden"}
           variants={containerVariants}
         >
           {stats.map((stat, i) => (
-            <StatCounter key={i} icon={stat.icon} value={stat.value} label={stat.label} suffix={stat.suffix} delay={i * 0.1} />
+            <StatCounter
+              key={i}
+              icon={stat.icon}
+              value={stat.value}
+              label={stat.label}
+              suffix={stat.suffix}
+              delay={i * 0.1}
+            />
           ))}
         </motion.div>
 
@@ -303,10 +500,24 @@ export function AboutSection() {
           transition={{ duration: 0.8, delay: 0.5 }}
         >
           <div>
-            <h3 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: "22px", fontWeight: 700, color: "#ffffff", margin: "0 0 6px" }}>
+            <h3
+              style={{
+                fontFamily: "var(--font-fraunces, Georgia, serif)",
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "#ffffff",
+                margin: "0 0 6px",
+              }}
+            >
               Pronto pra ver o LeadBellus na prática?
             </h3>
-            <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "15px", margin: 0 }}>
+            <p
+              style={{
+                color: "rgba(255,255,255,0.65)",
+                fontSize: "15px",
+                margin: 0,
+              }}
+            >
               Gere 5 respostas grátis — sem colocar cartão.
             </p>
           </div>
@@ -314,10 +525,16 @@ export function AboutSection() {
             <Link
               href="/signup"
               style={{
-                background: "#C9A060", color: "#07101e",
-                padding: "14px 28px", borderRadius: "9999px",
-                display: "inline-flex", alignItems: "center", gap: "8px",
-                fontSize: "15px", fontWeight: 700, textDecoration: "none",
+                background: "#C9A060",
+                color: "#07101e",
+                padding: "14px 28px",
+                borderRadius: "9999px",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                fontSize: "15px",
+                fontWeight: 700,
+                textDecoration: "none",
                 whiteSpace: "nowrap",
               }}
             >
@@ -350,7 +567,14 @@ interface ServiceItemProps {
   direction: "left" | "right";
 }
 
-function ServiceItem({ icon, title, description, variants, delay, direction }: ServiceItemProps) {
+function ServiceItem({
+  icon,
+  title,
+  description,
+  variants,
+  delay,
+  direction,
+}: ServiceItemProps) {
   return (
     <motion.div
       style={{ display: "flex", flexDirection: "column" }}
@@ -359,7 +583,12 @@ function ServiceItem({ icon, title, description, variants, delay, direction }: S
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
       <motion.div
-        style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          marginBottom: "10px",
+        }}
         initial={{ x: direction === "left" ? -20 : 20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.6, delay: delay + 0.2 }}
@@ -373,14 +602,32 @@ function ServiceItem({ icon, title, description, variants, delay, direction }: S
             position: "relative",
             flexShrink: 0,
           }}
-          whileHover={{ rotate: [0, -10, 10, -5, 0], transition: { duration: 0.5 } }}
+          whileHover={{
+            rotate: [0, -10, 10, -5, 0],
+            transition: { duration: 0.5 },
+          }}
         >
           {icon}
         </motion.div>
-        <h3 style={{ fontSize: "15px", fontWeight: 700, color: "#0A1628", margin: 0 }}>{title}</h3>
+        <h3
+          style={{
+            fontSize: "15px",
+            fontWeight: 700,
+            color: "#0A1628",
+            margin: 0,
+          }}
+        >
+          {title}
+        </h3>
       </motion.div>
       <motion.p
-        style={{ fontSize: "13px", color: "rgba(10,22,40,0.7)", lineHeight: 1.75, paddingLeft: "48px", margin: 0 }}
+        style={{
+          fontSize: "13px",
+          color: "rgba(10,22,40,0.7)",
+          lineHeight: 1.75,
+          paddingLeft: "48px",
+          margin: 0,
+        }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: delay + 0.4 }}
@@ -416,7 +663,9 @@ function StatCounter({ icon, value, label, suffix, delay }: StatCounterProps) {
     }
   }, [isInView, value, springValue, hasAnimated]);
 
-  const displayValue = useTransform(springValue, (latest) => Math.floor(latest));
+  const displayValue = useTransform(springValue, (latest) =>
+    Math.floor(latest),
+  );
 
   return (
     <motion.div
@@ -439,22 +688,50 @@ function StatCounter({ icon, value, label, suffix, delay }: StatCounterProps) {
     >
       <motion.div
         style={{
-          width: "52px", height: "52px", borderRadius: "50%",
+          width: "52px",
+          height: "52px",
+          borderRadius: "50%",
           background: "rgba(201,160,96,0.08)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          marginBottom: "12px", color: "#C9A060",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: "12px",
+          color: "#C9A060",
         }}
         whileHover={{ rotate: 360, transition: { duration: 0.8 } }}
       >
         {icon}
       </motion.div>
-      <motion.div ref={countRef} style={{ fontSize: "28px", fontWeight: 700, color: "#0A1628", display: "flex", alignItems: "center" }}>
+      <motion.div
+        ref={countRef}
+        style={{
+          fontSize: "28px",
+          fontWeight: 700,
+          color: "#0A1628",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
         <motion.span>{displayValue}</motion.span>
         <span>{suffix}</span>
       </motion.div>
-      <p style={{ fontSize: "12px", color: "rgba(10,22,40,0.65)", marginTop: "4px" }}>{label}</p>
+      <p
+        style={{
+          fontSize: "12px",
+          color: "rgba(10,22,40,0.65)",
+          marginTop: "4px",
+        }}
+      >
+        {label}
+      </p>
       <motion.div
-        style={{ width: "32px", height: "2px", background: "#C9A060", borderRadius: "1px", marginTop: "10px" }}
+        style={{
+          width: "32px",
+          height: "2px",
+          background: "#C9A060",
+          borderRadius: "1px",
+          marginTop: "10px",
+        }}
         whileHover={{ width: 56, transition: { duration: 0.3 } }}
       />
     </motion.div>

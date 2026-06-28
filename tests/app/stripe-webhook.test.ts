@@ -89,7 +89,9 @@ beforeEach(() => {
   applyClinicBilling.mockReset().mockResolvedValue(undefined);
   saveBillingPending.mockReset().mockResolvedValue(undefined);
   syncSubscriptionBilling.mockReset().mockResolvedValue("clinica");
-  sendOps.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
+  sendOps
+    .mockReset()
+    .mockResolvedValue({ sent: false, reason: "not_configured" });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -127,7 +129,7 @@ describe("Stripe webhook — checkout.session.completed", () => {
         payment_status: "paid",
         customer: "cus_1",
         customer_details: { email: "ana@exemplo.com" },
-      })
+      }),
     );
 
     const res = await POST(webhookRequest());
@@ -146,7 +148,7 @@ describe("Stripe webhook — checkout.session.completed", () => {
     expect(saveBillingPending).not.toHaveBeenCalled();
     expect(sendOps).toHaveBeenCalledWith(
       "stripe.checkout.completed",
-      expect.objectContaining({ firebase_uid: "uid_1" })
+      expect.objectContaining({ firebase_uid: "uid_1" }),
     );
   });
 
@@ -159,12 +161,14 @@ describe("Stripe webhook — checkout.session.completed", () => {
         payment_status: "paid",
         subscription: "sub_1",
         customer: "cus_2",
-      })
+      }),
     );
 
     await POST(webhookRequest());
     expect(subRetrieve).toHaveBeenCalledWith("sub_1");
-    expect(applyClinicBilling.mock.calls[0][1]).toMatchObject({ status: "active" });
+    expect(applyClinicBilling.mock.calls[0][1]).toMatchObject({
+      status: "active",
+    });
   });
 
   // Reconciliação do "paga mas não ativa": guest checkout guarda por e-mail.
@@ -176,7 +180,7 @@ describe("Stripe webhook — checkout.session.completed", () => {
         payment_status: "paid",
         customer: "cus_guest",
         customer_details: { email: "guest@exemplo.com" },
-      })
+      }),
     );
 
     const res = await POST(webhookRequest());
@@ -193,7 +197,7 @@ describe("Stripe webhook — checkout.session.completed", () => {
         metadata: { plan: "pro" },
         payment_status: "paid",
         customer: "cus_x",
-      })
+      }),
     );
 
     const res = await POST(webhookRequest());
@@ -213,7 +217,7 @@ describe("Stripe webhook — eventos de assinatura", () => {
         metadata: { firebase_uid: "uid_sub", plan: "premium" },
         customer: "cus_sub",
         items: { data: [{ current_period_end: 1_800_000_000 }] },
-      })
+      }),
     );
 
     const res = await POST(webhookRequest());
@@ -221,7 +225,7 @@ describe("Stripe webhook — eventos de assinatura", () => {
     expect(syncSubscriptionBilling).toHaveBeenCalledTimes(1);
     expect(sendOps).toHaveBeenCalledWith(
       "stripe.subscription.active",
-      expect.objectContaining({ firebase_uid: "uid_sub" })
+      expect.objectContaining({ firebase_uid: "uid_sub" }),
     );
   });
 });
@@ -253,7 +257,7 @@ describe("Stripe webhook — tipos não tratados e falhas", () => {
         metadata: { firebase_uid: "uid_err", plan: "pro" },
         payment_status: "paid",
         customer: "cus_err",
-      })
+      }),
     );
 
     expect((await POST(webhookRequest())).status).toBe(500);

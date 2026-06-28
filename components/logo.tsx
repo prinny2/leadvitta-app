@@ -13,7 +13,7 @@ export function LogoMark({
     <span
       className={cn(
         "flex items-center justify-center rounded-xl bg-brand-800 text-gold-400",
-        className
+        className,
       )}
     >
       <Flower2 size={size} strokeWidth={1.6} />

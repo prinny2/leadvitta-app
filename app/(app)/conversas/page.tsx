@@ -46,17 +46,19 @@ export default function ConversasPage() {
     return [...filtrada].sort((a, b) =>
       rank[a.prioridade] !== rank[b.prioridade]
         ? rank[a.prioridade] - rank[b.prioridade]
-        : (b.score ?? 0) - (a.score ?? 0)
+        : (b.score ?? 0) - (a.score ?? 0),
     );
   }, [itens, filtro]);
 
   return (
     <div>
       <header className="mb-5">
-        <h1 className="font-serif text-3xl font-semibold text-ink">Conversas</h1>
+        <h1 className="font-serif text-3xl font-semibold text-ink">
+          Conversas
+        </h1>
         <p className="text-sm text-muted">
-          As mensagens das suas clientes no WhatsApp, organizadas por prioridade.
-          Responda primeiro quem está mais quente — direto daqui.
+          As mensagens das suas clientes no WhatsApp, organizadas por
+          prioridade. Responda primeiro quem está mais quente — direto daqui.
         </p>
       </header>
 
@@ -71,7 +73,7 @@ export default function ConversasPage() {
                 "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                 filtro === f.value
                   ? "border-brand-400 bg-brand-50 text-brand-600"
-                  : "border-brand-200 bg-white text-muted hover:bg-nude-100"
+                  : "border-brand-200 bg-white text-muted hover:bg-nude-100",
               )}
             >
               {f.label}
@@ -133,7 +135,7 @@ export default function ConversasPage() {
                 href={`/conversas/${encodeURIComponent(c.id)}`}
                 className={cn(
                   "flex items-center gap-3 rounded-2xl border border-l-4 border-brand-100 bg-white p-4 shadow-card transition-colors hover:bg-nude-50",
-                  acento
+                  acento,
                 )}
               >
                 <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-lg">
@@ -153,7 +155,7 @@ export default function ConversasPage() {
                     <span
                       className={cn(
                         "truncate font-medium text-ink",
-                        c.nao_lida && "font-semibold"
+                        c.nao_lida && "font-semibold",
                       )}
                     >
                       {c.cliente_nome || c.cliente_numero}
@@ -161,14 +163,16 @@ export default function ConversasPage() {
                     <span
                       className={cn(
                         "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold",
-                        prio.cls
+                        prio.cls,
                       )}
                     >
                       {prio.label}
                       {typeof c.score === "number" ? ` · ${c.score}%` : ""}
                     </span>
                   </div>
-                  <p className="truncate text-sm text-muted">{c.ultima_mensagem}</p>
+                  <p className="truncate text-sm text-muted">
+                    {c.ultima_mensagem}
+                  </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <span className="text-[11px] text-muted">

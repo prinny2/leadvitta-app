@@ -23,7 +23,11 @@ vi.mock("firebase/messaging", () => ({
   isSupported: vi.fn().mockResolvedValue(false),
 }));
 
-import { swUrlWithConfig, enableWebPush, isWebPushSupported } from "@/lib/firebase/messaging";
+import {
+  swUrlWithConfig,
+  enableWebPush,
+  isWebPushSupported,
+} from "@/lib/firebase/messaging";
 
 beforeEach(() => {
   cfg.isFirebaseConfigured = false;
@@ -68,19 +72,28 @@ describe("isWebPushSupported", () => {
 describe("enableWebPush — guardas", () => {
   it("retorna firebase_off quando o Firebase não está configurado", async () => {
     cfg.isFirebaseConfigured = false;
-    expect(await enableWebPush()).toEqual({ ok: false, reason: "firebase_off" });
+    expect(await enableWebPush()).toEqual({
+      ok: false,
+      reason: "firebase_off",
+    });
   });
 
   it("retorna sem_vapid_key quando falta a chave pública", async () => {
     cfg.isFirebaseConfigured = true;
     cfg.firebaseVapidKey = undefined;
-    expect(await enableWebPush()).toEqual({ ok: false, reason: "sem_vapid_key" });
+    expect(await enableWebPush()).toEqual({
+      ok: false,
+      reason: "sem_vapid_key",
+    });
   });
 
   it("retorna nao_suportado quando o ambiente não suporta push", async () => {
     cfg.isFirebaseConfigured = true;
     cfg.firebaseVapidKey = "BVAPID";
     // Em node não há window/navigator → isWebPushSupported() é false.
-    expect(await enableWebPush()).toEqual({ ok: false, reason: "nao_suportado" });
+    expect(await enableWebPush()).toEqual({
+      ok: false,
+      reason: "nao_suportado",
+    });
   });
 });

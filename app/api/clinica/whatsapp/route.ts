@@ -44,14 +44,17 @@ export async function POST(req: Request) {
   if (r.motivo === "em_uso") {
     return NextResponse.json(
       { error: "Esse número já está conectado a outra conta." },
-      { status: 409 }
+      { status: 409 },
     );
   }
   if (r.motivo === "vazio") {
-    return NextResponse.json({ error: "Informe um número válido." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Informe um número válido." },
+      { status: 400 },
+    );
   }
   return NextResponse.json(
     { error: "Não foi possível salvar o número agora." },
-    { status: 500 }
+    { status: 500 },
   );
 }

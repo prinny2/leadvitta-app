@@ -22,10 +22,10 @@ let url =
 const displayPhoneNumber = onlyDigits(
   options.displayPhoneNumber ||
     process.env.WHATSAPP_SIM_DISPLAY_PHONE_NUMBER ||
-    "5591999999999"
+    "5591999999999",
 );
 const from = onlyDigits(
-  options.from || process.env.WHATSAPP_SIM_FROM || "5591888888888"
+  options.from || process.env.WHATSAPP_SIM_FROM || "5591888888888",
 );
 const contactName =
   options.name || process.env.WHATSAPP_SIM_CONTACT_NAME || "Cliente Teste";
@@ -75,7 +75,9 @@ try {
   });
 } catch (error) {
   console.error("[whatsapp:simulate] request failed:", formatError(error));
-  console.error("[whatsapp:simulate] Is the Next.js server running? Try: npm run dev");
+  console.error(
+    "[whatsapp:simulate] Is the Next.js server running? Try: npm run dev",
+  );
   process.exit(1);
 }
 
@@ -86,13 +88,13 @@ console.log("[whatsapp:simulate] body =", responseBody || "(empty)");
 
 if (!response.ok) {
   console.error(
-    "[whatsapp:simulate] Webhook rejected the payload. Check ZAPI_SECURITY_TOKEN matches the server."
+    "[whatsapp:simulate] Webhook rejected the payload. Check ZAPI_SECURITY_TOKEN matches the server.",
   );
   process.exit(1);
 }
 
 console.log(
-  "[whatsapp:simulate] Ack received. Processing runs in background on the server."
+  "[whatsapp:simulate] Ack received. Processing runs in background on the server.",
 );
 
 function parseArgs(argv) {
@@ -106,7 +108,8 @@ function parseArgs(argv) {
 
     const equalsIndex = arg.indexOf("=");
     const rawKey = equalsIndex === -1 ? arg : arg.slice(0, equalsIndex);
-    const inlineValue = equalsIndex === -1 ? undefined : arg.slice(equalsIndex + 1);
+    const inlineValue =
+      equalsIndex === -1 ? undefined : arg.slice(equalsIndex + 1);
     const key = normalizeKey(rawKey);
     if (!key) throw new Error(`Unknown argument: ${arg}`);
 

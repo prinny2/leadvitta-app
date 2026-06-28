@@ -4,7 +4,7 @@ type ZapierResult =
 
 export async function sendZapierEvent(
   event: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ): Promise<ZapierResult> {
   const webhookUrl = process.env.ZAPIER_WEBHOOK_URL;
   if (!webhookUrl) return { sent: false, reason: "not_configured" };

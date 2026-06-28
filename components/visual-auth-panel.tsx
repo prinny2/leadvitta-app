@@ -72,9 +72,7 @@ export function VisualAuthPanel({
   const [erro, setErro] = useState("");
 
   const nome =
-    clinicName.trim() ||
-    loadDnaDraft()?.nome_clinica?.trim() ||
-    "sua clínica";
+    clinicName.trim() || loadDnaDraft()?.nome_clinica?.trim() || "sua clínica";
 
   const preview =
     previewMessage.trim() ||
@@ -110,7 +108,7 @@ export function VisualAuthPanel({
       const credential = await signInWithEmailAndPassword(
         getFirebaseAuth(),
         email,
-        senha
+        senha,
       );
       setAuthCookie();
       await finishAuth(await credential.user.getIdToken());
@@ -129,7 +127,7 @@ export function VisualAuthPanel({
       const credential = await createUserWithEmailAndPassword(
         getFirebaseAuth(),
         email,
-        senha
+        senha,
       );
       setAuthCookie();
       const idToken = await credential.user.getIdToken();
@@ -142,7 +140,7 @@ export function VisualAuthPanel({
       setErro(
         msg.includes("email-already-in-use")
           ? "Este e-mail já está cadastrado."
-          : "Não foi possível criar a conta."
+          : "Não foi possível criar a conta.",
       );
     } finally {
       setLoading(false);
@@ -155,7 +153,7 @@ export function VisualAuthPanel({
     try {
       const credential = await signInWithPopup(
         getFirebaseAuth(),
-        new GoogleAuthProvider()
+        new GoogleAuthProvider(),
       );
       setAuthCookie();
       const idToken = await credential.user.getIdToken();
@@ -278,14 +276,20 @@ export function VisualAuthPanel({
           {isSignup ? (
             <>
               Já tem conta?{" "}
-              <Link href={`/login${switchQuery}`} className="font-medium text-gold-400 hover:text-gold-300">
+              <Link
+                href={`/login${switchQuery}`}
+                className="font-medium text-gold-400 hover:text-gold-300"
+              >
                 Entrar
               </Link>
             </>
           ) : (
             <>
               Primeira vez?{" "}
-              <Link href={`/signup${switchQuery}`} className="font-medium text-gold-400 hover:text-gold-300">
+              <Link
+                href={`/signup${switchQuery}`}
+                className="font-medium text-gold-400 hover:text-gold-300"
+              >
                 Testar grátis
               </Link>
             </>

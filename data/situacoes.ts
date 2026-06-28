@@ -105,5 +105,4 @@ export const situacoes: Situacao[] = [
   },
 ];
 
-export const situacaoPorId = (id: string) =>
-  situacoes.find((s) => s.id === id);
+export const situacaoPorId = (id: string) => situacoes.find((s) => s.id === id);

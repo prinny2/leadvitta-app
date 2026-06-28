@@ -46,7 +46,10 @@ describe("sendZapierEvent", () => {
 
   it("retorna failed com status quando o webhook não responde ok", async () => {
     vi.stubEnv("ZAPIER_WEBHOOK_URL", "https://hooks.zapier.com/x");
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 500 }),
+    );
 
     const res = await sendZapierEvent("novo_lead", {});
     expect(res).toEqual({ sent: false, reason: "failed", status: 500 });

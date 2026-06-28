@@ -57,7 +57,7 @@ describe("sendWhatsAppText (Z-API)", () => {
 
     const [url, init] = fetchSpy.mock.calls[0];
     expect(url).toBe(
-      "https://api.z-api.io/instances/INST123/token/TOK456/send-text"
+      "https://api.z-api.io/instances/INST123/token/TOK456/send-text",
     );
     expect((init as RequestInit).method).toBe("POST");
     const body = JSON.parse((init as RequestInit).body as string);
@@ -75,10 +75,8 @@ describe("sendWhatsAppText (Z-API)", () => {
     vi.stubGlobal("fetch", fetchSpy);
 
     await sendWhatsAppText("5591985156690", "oi");
-    const headers = (fetchSpy.mock.calls[0][1] as RequestInit).headers as Record<
-      string,
-      string
-    >;
+    const headers = (fetchSpy.mock.calls[0][1] as RequestInit)
+      .headers as Record<string, string>;
     expect(headers["Client-Token"]).toBe("CLIENT789");
   });
 
@@ -90,7 +88,7 @@ describe("sendWhatsAppText (Z-API)", () => {
         ok: false,
         status: 400,
         json: () => Promise.reject(new Error("not json")),
-      })
+      }),
     );
     const res = await sendWhatsAppText("5591985156690", "oi");
     expect(res.ok).toBe(false);
@@ -125,7 +123,9 @@ describe("zapiProvider.parseInbound", () => {
   });
 
   it("retorna null para JSON inválido", () => {
-    expect(zapiProvider.parseInbound("{ nao json", new Request("http://x/"))).toBeNull();
+    expect(
+      zapiProvider.parseInbound("{ nao json", new Request("http://x/")),
+    ).toBeNull();
   });
 });
 
@@ -135,7 +135,7 @@ describe("zapiProvider.validateWebhook", () => {
     vi.stubEnv("NODE_ENV", "test");
     const ok = await zapiProvider.validateWebhook(
       new Request("http://x/api/whatsapp/webhook"),
-      "{}"
+      "{}",
     );
     expect(ok).toBe(true);
   });
@@ -144,11 +144,11 @@ describe("zapiProvider.validateWebhook", () => {
     vi.stubEnv("ZAPI_SECURITY_TOKEN", "s3cr3t");
     const good = await zapiProvider.validateWebhook(
       new Request("http://x/api/whatsapp/webhook?token=s3cr3t"),
-      "{}"
+      "{}",
     );
     const bad = await zapiProvider.validateWebhook(
       new Request("http://x/api/whatsapp/webhook?token=errado"),
-      "{}"
+      "{}",
     );
     expect(good).toBe(true);
     expect(bad).toBe(false);
@@ -160,13 +160,13 @@ describe("zapiProvider.validateWebhook", () => {
       new Request("http://x/api/whatsapp/webhook", {
         headers: { "x-zapi-token": "s3cr3t" },
       }),
-      "{}"
+      "{}",
     );
     const bad = await zapiProvider.validateWebhook(
       new Request("http://x/api/whatsapp/webhook", {
         headers: { "x-zapi-token": "errado" },
       }),
-      "{}"
+      "{}",
     );
     expect(good).toBe(true);
     expect(bad).toBe(false);

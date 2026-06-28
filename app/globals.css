@@ -13,7 +13,18 @@ body {
 
 /* ── Trava de segurança mobile: nenhuma palavra trunca/estoura a largura ── */
 @media (max-width: 768px) {
-  h1, h2, h3, h4, h5, h6, p, span, a, li, button, label {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  a,
+  li,
+  button,
+  label {
     overflow-wrap: break-word;
   }
 }
@@ -25,14 +36,26 @@ body {
 
 .bg-hero {
   background:
-    radial-gradient(1200px 500px at 12% -10%, rgba(201, 160, 96, 0.08), transparent 60%),
-    radial-gradient(1000px 520px at 100% 0%, rgba(201, 160, 96, 0.12), transparent 55%),
+    radial-gradient(
+      1200px 500px at 12% -10%,
+      rgba(201, 160, 96, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 520px at 100% 0%,
+      rgba(201, 160, 96, 0.12),
+      transparent 55%
+    ),
     #07101e;
 }
 
 .bg-navy-glow {
   background:
-    radial-gradient(800px 420px at 82% 0%, rgba(201, 160, 96, 0.10), transparent 60%),
+    radial-gradient(
+      800px 420px at 82% 0%,
+      rgba(201, 160, 96, 0.1),
+      transparent 60%
+    ),
     #0b1424;
 }
 
@@ -53,7 +76,7 @@ body {
 
 /* ── Gradiente texto dourado ── */
 .text-gold-gradient {
-  background: linear-gradient(135deg, #E4B85A 0%, #C9A060 45%, #B8860B 100%);
+  background: linear-gradient(135deg, #e4b85a 0%, #c9a060 45%, #b8860b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -77,13 +100,13 @@ body {
 /* ── Linha separadora dourada ── */
 .gold-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, #C9A060, transparent);
+  background: linear-gradient(90deg, transparent, #c9a060, transparent);
 }
 
 /* ── Scrollbar ── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #C9A060 #0b1424;
+  scrollbar-color: #c9a060 #0b1424;
 }
 *::-webkit-scrollbar {
   width: 6px;
@@ -93,7 +116,7 @@ body {
   background: #0b1424;
 }
 *::-webkit-scrollbar-thumb {
-  background: #C9A060;
+  background: #c9a060;
   border-radius: 9999px;
 }
 
@@ -106,7 +129,7 @@ body {
 .badge-pain {
   @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider;
   background: rgba(185, 28, 28, 0.2);
-  color: #FCA5A5;
+  color: #fca5a5;
 }
 
 /* ── Card de dor (tiles "onde o dinheiro vaza") ── */
@@ -132,20 +155,20 @@ html.light-theme {
 html.light-theme body,
 html.light-theme .bg-navy-900,
 html.light-theme main.bg-navy-900 {
-  background-color: #F5F4F0 !important;
+  background-color: #f5f4f0 !important;
 }
 
 html.light-theme .bg-navy-800,
 html.light-theme aside.bg-navy-800 {
-  background-color: #FFFFFF !important;
+  background-color: #ffffff !important;
 }
 
 html.light-theme .bg-navy-700 {
-  background-color: #FFFFFF !important;
+  background-color: #ffffff !important;
 }
 
 html.light-theme .bg-navy-600 {
-  background-color: #F9F8F5 !important;
+  background-color: #f9f8f5 !important;
 }
 
 html.light-theme .bg-navy-500\/50,
@@ -156,15 +179,15 @@ html.light-theme .bg-navy-600\/50 {
 /* Borders */
 html.light-theme .border-navy-500,
 html.light-theme .border-navy-500\/50 {
-  border-color: #E8E4DC !important;
+  border-color: #e8e4dc !important;
 }
 
 html.light-theme .border-r.border-navy-500\/50 {
-  border-color: #E8E4DC !important;
+  border-color: #e8e4dc !important;
 }
 
 html.light-theme .border-b.border-navy-500\/50 {
-  border-color: #E8E4DC !important;
+  border-color: #e8e4dc !important;
 }
 
 /* Text colors */
@@ -173,11 +196,11 @@ html.light-theme .text-champagne-300 {
 }
 
 html.light-theme .text-navy-100 {
-  color: #6B7280 !important;
+  color: #6b7280 !important;
 }
 
 html.light-theme .text-white {
-  color: #0A1628 !important;
+  color: #0a1628 !important;
 }
 
 html.light-theme .text-navy-50 {
@@ -186,40 +209,47 @@ html.light-theme .text-navy-50 {
 
 /* Cards */
 html.light-theme .shadow-card {
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04) !important;
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.06),
+    0 4px 16px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Nav active state */
 html.light-theme .border-l-2.border-gold-500 {
-  background-color: rgba(201,160,96,0.1) !important;
+  background-color: rgba(201, 160, 96, 0.1) !important;
 }
 
 /* Gold divider stays */
 html.light-theme .gold-divider {
-  background: linear-gradient(90deg, transparent, rgba(201,160,96,0.4), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(201, 160, 96, 0.4),
+    transparent
+  );
 }
 
 /* Scrollbar */
 html.light-theme * {
-  scrollbar-color: #C9A060 #F0EDE6;
+  scrollbar-color: #c9a060 #f0ede6;
 }
 
 /* Recharts chart text */
 html.light-theme .recharts-cartesian-axis-tick text {
-  fill: #9CA3AF !important;
+  fill: #9ca3af !important;
 }
 
 /* Input/textarea in light mode */
 html.light-theme input,
 html.light-theme textarea,
 html.light-theme select {
-  background-color: #F9F8F5 !important;
-  border-color: #E8E4DC !important;
-  color: #0A1628 !important;
+  background-color: #f9f8f5 !important;
+  border-color: #e8e4dc !important;
+  color: #0a1628 !important;
 }
 
 /* Lead Intelligence page bg in light mode */
 html.light-theme [style*="background: linear-gradient(135deg, #0f1b2f"] {
-  background: linear-gradient(135deg, #FFFFFF 0%, #F9F8F5 100%) !important;
-  border-color: rgba(201,160,96,0.25) !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f9f8f5 100%) !important;
+  border-color: rgba(201, 160, 96, 0.25) !important;
 }

@@ -1,20 +1,30 @@
 import Link from "next/link";
-import { Brain, CopyCheck, MessageSquare, RefreshCw, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import {
+  Brain,
+  CopyCheck,
+  MessageSquare,
+  RefreshCw,
+  ShieldCheck,
+  SlidersHorizontal,
+} from "lucide-react";
 
 const CARDS = [
   {
     title: "Respostas prontas",
-    description: "Preço, medo, desconto, comparação e sumiço sem começar do zero.",
+    description:
+      "Preço, medo, desconto, comparação e sumiço sem começar do zero.",
     icon: MessageSquare,
   },
   {
     title: "Tom da clínica",
-    description: "A resposta sai consultiva, acolhedora ou objetiva, conforme seu jeito de atender.",
+    description:
+      "A resposta sai consultiva, acolhedora ou objetiva, conforme seu jeito de atender.",
     icon: SlidersHorizontal,
   },
   {
     title: "Objeções com contexto",
-    description: "Mostra valor sem brigar por preço nem parecer resposta copiada.",
+    description:
+      "Mostra valor sem brigar por preço nem parecer resposta copiada.",
     icon: ShieldCheck,
   },
   {
@@ -24,7 +34,8 @@ const CARDS = [
   },
   {
     title: "Lead Intelligence",
-    description: "Ajuda a entender quando a conversa está quente e qual próximo passo faz sentido.",
+    description:
+      "Ajuda a entender quando a conversa está quente e qual próximo passo faz sentido.",
     icon: Brain,
   },
   {
@@ -34,7 +45,11 @@ const CARDS = [
   },
 ];
 
-export function AppBenefitsSection({ funilHref = "/signup" }: { funilHref?: string }) {
+export function AppBenefitsSection({
+  funilHref = "/signup",
+}: {
+  funilHref?: string;
+}) {
   return (
     <section
       id="funcoes"
@@ -45,7 +60,9 @@ export function AppBenefitsSection({ funilHref = "/signup" }: { funilHref?: stri
         position: "relative",
       }}
     >
-      <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative" }}>
+      <div
+        style={{ maxWidth: "1100px", margin: "0 auto", position: "relative" }}
+      >
         <div style={{ textAlign: "center", marginBottom: "42px" }}>
           <div
             style={{
@@ -90,7 +107,8 @@ export function AppBenefitsSection({ funilHref = "/signup" }: { funilHref?: stri
               lineHeight: 1.65,
             }}
           >
-            O LeadBellus organiza as respostas que sua equipe precisa todos os dias.
+            O LeadBellus organiza as respostas que sua equipe precisa todos os
+            dias.
           </p>
         </div>
 
@@ -140,7 +158,14 @@ export function AppBenefitsSection({ funilHref = "/signup" }: { funilHref?: stri
                 >
                   {card.title}
                 </h3>
-                <p style={{ fontSize: "13px", color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: "#64748b",
+                    margin: 0,
+                    lineHeight: 1.6,
+                  }}
+                >
                   {card.description}
                 </p>
               </article>

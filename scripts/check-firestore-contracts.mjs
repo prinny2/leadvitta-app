@@ -15,7 +15,9 @@ function fail(message) {
 function hasIndex(indexes, collectionGroup, fields) {
   return indexes.some((idx) => {
     if (idx.collectionGroup !== collectionGroup) return false;
-    const got = (idx.fields ?? []).map((f) => `${f.fieldPath}:${f.order ?? f.arrayConfig}`);
+    const got = (idx.fields ?? []).map(
+      (f) => `${f.fieldPath}:${f.order ?? f.arrayConfig}`,
+    );
     return fields.every((field) => got.includes(field));
   });
 }
@@ -52,7 +54,9 @@ const routeWaitlist = read("app/api/waitlist/route.ts");
 const forbiddenAppDirs = new Set(["dist", "build", "out"]);
 walkDirs(path.join(root, "app"), (dir, name) => {
   if (forbiddenAppDirs.has(name)) {
-    fail(`${rel(dir)} must not exist inside app/; Next treats nested page files as routes.`);
+    fail(
+      `${rel(dir)} must not exist inside app/; Next treats nested page files as routes.`,
+    );
   }
 });
 
@@ -70,12 +74,14 @@ const requiredIndexes = [
   {
     collectionGroup: "historico",
     fields: ["user_id:ASCENDING", "created_at:DESCENDING"],
-    queryHint: "listHistorico() where(user_id == uid) + orderBy(created_at desc)",
+    queryHint:
+      "listHistorico() where(user_id == uid) + orderBy(created_at desc)",
   },
   {
     collectionGroup: "conversas",
     fields: ["clinica_id:ASCENDING", "ultima_atividade:DESCENDING"],
-    queryHint: "listConversas() where(clinica_id == uid) + orderBy(ultima_atividade desc)",
+    queryHint:
+      "listConversas() where(clinica_id == uid) + orderBy(ultima_atividade desc)",
   },
 ];
 
@@ -91,35 +97,58 @@ const requiredStoreSnippets = [
   ['orderBy("created_at", "desc")', "historico descending date order"],
   ['collection(getFirebaseDb(), "conversas")', "conversas collection query"],
   ['where("clinica_id", "==", user.uid)', "conversas owner filter"],
-  ['orderBy("ultima_atividade", "desc")', "conversas descending activity order"],
-  ['collection(getFirebaseDb(), "conversas", conversaId, "mensagens")', "mensagens subcollection query"],
+  [
+    'orderBy("ultima_atividade", "desc")',
+    "conversas descending activity order",
+  ],
+  [
+    'collection(getFirebaseDb(), "conversas", conversaId, "mensagens")',
+    "mensagens subcollection query",
+  ],
   ['orderBy("em", "asc")', "mensagens chronological order"],
 ];
 
 for (const [snippet, label] of requiredStoreSnippets) {
-  if (!store.includes(snippet)) fail(`lib/store.ts no longer contains expected ${label}.`);
+  if (!store.includes(snippet))
+    fail(`lib/store.ts no longer contains expected ${label}.`);
 }
 
 const requiredAdminSnippets = [
   ["FIREBASE_SERVICE_ACCOUNT_JSON", "supports service-account JSON env"],
-  ["FIREBASE_SERVICE_ACCOUNT_JSON_BASE64", "supports base64 service-account env"],
-  ['parsed.privateKey ?? parsed.private_key', "accepts privateKey and private_key service-account keys"],
-  ['FIREBASE_PRIVATE_KEY?.replace(/\\\\n/g, "\\n")', "normalizes escaped private key newlines"],
+  [
+    "FIREBASE_SERVICE_ACCOUNT_JSON_BASE64",
+    "supports base64 service-account env",
+  ],
+  [
+    "parsed.privateKey ?? parsed.private_key",
+    "accepts privateKey and private_key service-account keys",
+  ],
+  [
+    'FIREBASE_PRIVATE_KEY?.replace(/\\\\n/g, "\\n")',
+    "normalizes escaped private key newlines",
+  ],
   ["GOOGLE_CLOUD_PROJECT", "supports Google runtime project id"],
   ["GCLOUD_PROJECT", "supports legacy Google runtime project id"],
   ["process.env.K_SERVICE", "supports Cloud Run ADC-style initialization"],
-  ["getApps().length ? getApps()[0] : initializeApp(options)", "reuses existing Admin SDK app"],
+  [
+    "getApps().length ? getApps()[0] : initializeApp(options)",
+    "reuses existing Admin SDK app",
+  ],
   ["getAuth(app).verifyIdToken(idToken)", "verifies Firebase Auth ID tokens"],
 ];
 
 for (const [snippet, label] of requiredAdminSnippets) {
-  if (!admin.includes(snippet)) fail(`lib/firebase/admin.ts no longer ${label}.`);
+  if (!admin.includes(snippet))
+    fail(`lib/firebase/admin.ts no longer ${label}.`);
 }
 
 const requiredConfigSnippets = [
   ["NEXT_PUBLIC_FIREBASE_API_KEY", "reads public Firebase api key"],
   ["NEXT_PUBLIC_FIREBASE_PROJECT_ID", "reads public Firebase project id"],
-  ["!!firebaseConfig.apiKey && !!firebaseConfig.projectId", "only enables Firebase when api key and project id exist"],
+  [
+    "!!firebaseConfig.apiKey && !!firebaseConfig.projectId",
+    "only enables Firebase when api key and project id exist",
+  ],
   ["GEMINI_API_KEY", "detects Gemini server-side api key"],
 ];
 
@@ -128,27 +157,41 @@ for (const [snippet, label] of requiredConfigSnippets) {
 }
 
 const requiredConfigRouteSnippets = [
-  ["firebase_enabled: isFirebaseConfigured", "reports Firebase client availability"],
-  ["firebase_admin_enabled: isFirebaseAdminConfigured()", "reports Firebase Admin availability"],
+  [
+    "firebase_enabled: isFirebaseConfigured",
+    "reports Firebase client availability",
+  ],
+  [
+    "firebase_admin_enabled: isFirebaseAdminConfigured()",
+    "reports Firebase Admin availability",
+  ],
   ["stripe_enabled: isStripeConfigured", "reports Stripe availability"],
   ["ai_enabled: isAnyAIConfigured", "reports AI availability"],
   ["gemini: isGeminiConfigured", "reports Gemini availability"],
 ];
 
 for (const [snippet, label] of requiredConfigRouteSnippets) {
-  if (!configRoute.includes(snippet)) fail(`app/api/config/route.ts no longer ${label}.`);
+  if (!configRoute.includes(snippet))
+    fail(`app/api/config/route.ts no longer ${label}.`);
 }
 
 const requiredNextConfigSnippets = [
-  ["beforeFiles", "proxies API routes before local Next API handlers on Vercel"],
+  [
+    "beforeFiles",
+    "proxies API routes before local Next API handlers on Vercel",
+  ],
   ["ENABLE_API_PROXY", "allows explicit API proxy enablement"],
   ["process.env.VERCEL", "enables the API proxy automatically on Vercel"],
   ["API_PROXY_ORIGIN", "supports a configurable Cloud Run proxy origin"],
-  ["leadbellus-87102725202.southamerica-east1.run.app", "defaults API proxy to the direct Cloud Run service"],
+  [
+    "leadbellus-87102725202.southamerica-east1.run.app",
+    "defaults API proxy to the direct Cloud Run service",
+  ],
 ];
 
 for (const [snippet, label] of requiredNextConfigSnippets) {
-  if (!nextConfig.includes(snippet)) fail(`next.config.mjs no longer ${label}.`);
+  if (!nextConfig.includes(snippet))
+    fail(`next.config.mjs no longer ${label}.`);
 }
 
 for (const secretName of [
@@ -163,36 +206,56 @@ for (const secretName of [
 }
 
 const requiredRuleSnippets = [
-  ['match /clinicas/{uid}', "clinicas owner document rules"],
+  ["match /clinicas/{uid}", "clinicas owner document rules"],
   ['!("billing" in request.resource.data)', "client create cannot set billing"],
-  ['request.resource.data.billing == resource.data.billing', "client update cannot change billing"],
-  ['request.resource.data.whatsapp == resource.data.whatsapp', "client update cannot change whatsapp"],
   [
-    'request.resource.data.whatsapp_channel_key == resource.data.whatsapp_channel_key',
+    "request.resource.data.billing == resource.data.billing",
+    "client update cannot change billing",
+  ],
+  [
+    "request.resource.data.whatsapp == resource.data.whatsapp",
+    "client update cannot change whatsapp",
+  ],
+  [
+    "request.resource.data.whatsapp_channel_key == resource.data.whatsapp_channel_key",
     "client update cannot change whatsapp_channel_key",
   ],
-  ['match /conversas/{convId}', "conversas rules"],
+  ["match /conversas/{convId}", "conversas rules"],
   [".hasOnly(['nao_lida', 'arquivada'])", "conversas update allowlist"],
-  ['match /mensagens/{msgId}', "mensagens subcollection rules"],
-  ['get(/databases/$(database)/documents/conversas/$(convId)).data.clinica_id == request.auth.uid', "mensagens parent-owner check"],
-  ['match /numeros_whatsapp/{numero}', "numeros_whatsapp server-only rules"],
-  ['match /mensagens_processadas/{id}', "mensagens_processadas server-only rules"],
-  ['match /stripe_events/{eventId}', "stripe_events server-only rules"],
-  ['match /billing_pending/{email}', "billing_pending server-only rules"],
-  ['match /waitlist/{entryId}', "waitlist server-only rules"],
-  ['match /{document=**}', "deny-by-default catchall"],
+  ["match /mensagens/{msgId}", "mensagens subcollection rules"],
+  [
+    "get(/databases/$(database)/documents/conversas/$(convId)).data.clinica_id == request.auth.uid",
+    "mensagens parent-owner check",
+  ],
+  ["match /numeros_whatsapp/{numero}", "numeros_whatsapp server-only rules"],
+  [
+    "match /mensagens_processadas/{id}",
+    "mensagens_processadas server-only rules",
+  ],
+  ["match /stripe_events/{eventId}", "stripe_events server-only rules"],
+  ["match /billing_pending/{email}", "billing_pending server-only rules"],
+  ["match /waitlist/{entryId}", "waitlist server-only rules"],
+  ["match /{document=**}", "deny-by-default catchall"],
 ];
 
 for (const [snippet, label] of requiredRuleSnippets) {
-  if (!rules.includes(snippet)) fail(`firestore.rules no longer contains expected ${label}.`);
+  if (!rules.includes(snippet))
+    fail(`firestore.rules no longer contains expected ${label}.`);
 }
 
-for (const collection of ["numeros_whatsapp", "mensagens_processadas", "stripe_events", "billing_pending", "waitlist"]) {
+for (const collection of [
+  "numeros_whatsapp",
+  "mensagens_processadas",
+  "stripe_events",
+  "billing_pending",
+  "waitlist",
+]) {
   const re = new RegExp(
     `match /${collection}/\\{[^}]+\\}\\s*\\{[\\s\\S]*?allow read, write: if false;`,
-    "m"
+    "m",
   );
-  if (!re.test(rules)) fail(`${collection} must remain read/write false for clients.`);
+  if (!re.test(rules))
+    fail(`${collection} must remain read/write false for clients.`);
 }
 
 const requiredRouteContracts = [
@@ -200,8 +263,14 @@ const requiredRouteContracts = [
     file: "app/api/clinica/whatsapp/route.ts",
     source: routeClinicaWhatsapp,
     snippets: [
-      ['import { verifyFirebaseIdToken }', "imports Firebase token verification"],
-      ["verifyFirebaseIdToken(body.firebaseIdToken)", "verifies the request Firebase ID token"],
+      [
+        "import { verifyFirebaseIdToken }",
+        "imports Firebase token verification",
+      ],
+      [
+        "verifyFirebaseIdToken(body.firebaseIdToken)",
+        "verifies the request Firebase ID token",
+      ],
       ["decoded.uid", "uses authenticated uid for number ownership"],
     ],
   },
@@ -209,40 +278,76 @@ const requiredRouteContracts = [
     file: "app/api/conversas/reply/route.ts",
     source: routeConversasReply,
     snippets: [
-      ['import { verifyFirebaseIdToken }', "imports Firebase token verification"],
-      ["verifyFirebaseIdToken(firebaseIdToken)", "verifies the request Firebase ID token"],
-      ["conversa.clinica_id !== decoded.uid", "blocks replies to conversations from another clinic"],
+      [
+        "import { verifyFirebaseIdToken }",
+        "imports Firebase token verification",
+      ],
+      [
+        "verifyFirebaseIdToken(firebaseIdToken)",
+        "verifies the request Firebase ID token",
+      ],
+      [
+        "conversa.clinica_id !== decoded.uid",
+        "blocks replies to conversations from another clinic",
+      ],
     ],
   },
   {
     file: "app/api/stripe/checkout/route.ts",
     source: routeStripeCheckout,
     snippets: [
-      ['import { verifyFirebaseIdToken }', "imports Firebase token verification"],
-      ["verifyFirebaseIdToken(body.firebaseIdToken)", "verifies Firebase ID token before checkout"],
-      ["client_reference_id: firebaseUid", "links Stripe checkout to Firebase uid"],
-      ['? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"', "returns authenticated checkouts to settings"],
-      [': "/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"', "returns public checkouts to signup"],
+      [
+        "import { verifyFirebaseIdToken }",
+        "imports Firebase token verification",
+      ],
+      [
+        "verifyFirebaseIdToken(body.firebaseIdToken)",
+        "verifies Firebase ID token before checkout",
+      ],
+      [
+        "client_reference_id: firebaseUid",
+        "links Stripe checkout to Firebase uid",
+      ],
+      [
+        '? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"',
+        "returns authenticated checkouts to settings",
+      ],
+      [
+        ': "/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"',
+        "returns public checkouts to signup",
+      ],
     ],
   },
   {
     file: "app/api/notify/signup/route.ts",
     source: routeNotifySignup,
     snippets: [
-      ['import { verifyFirebaseIdToken }', "imports Firebase token verification"],
-      ["verifyFirebaseIdToken(getBearerToken(request))", "verifies Bearer Firebase ID token"],
+      [
+        "import { verifyFirebaseIdToken }",
+        "imports Firebase token verification",
+      ],
+      [
+        "verifyFirebaseIdToken(getBearerToken(request))",
+        "verifies Bearer Firebase ID token",
+      ],
       ["firebase_uid: decodedToken.uid", "sends authenticated uid downstream"],
-      ['import { sendOpsNotify }', "sends ops alerts via Z-API"],
+      ["import { sendOpsNotify }", "sends ops alerts via Z-API"],
     ],
   },
   {
     file: "app/api/waitlist/route.ts",
     source: routeWaitlist,
     snippets: [
-      ['getFirebaseAdminDb', "uses Admin SDK rather than client Firestore"],
-      ['db.collection("waitlist").doc(id).set', "writes waitlist through server route"],
-      ['enforceRateLimit(request', "rate-limits public waitlist writes"],
-      ['rejectCrossOriginRequest(request)', "rejects cross-origin public waitlist writes"],
+      ["getFirebaseAdminDb", "uses Admin SDK rather than client Firestore"],
+      [
+        'db.collection("waitlist").doc(id).set',
+        "writes waitlist through server route",
+      ],
+      ["enforceRateLimit(request", "rate-limits public waitlist writes"],
+      [
+        "rejectCrossOriginRequest(request)",
+        "rejects cross-origin public waitlist writes",
+      ],
     ],
   },
 ];
@@ -256,5 +361,7 @@ for (const route of requiredRouteContracts) {
 }
 
 if (!process.exitCode) {
-  console.log("[firebase:check] Firebase rules/config/API contracts look consistent.");
+  console.log(
+    "[firebase:check] Firebase rules/config/API contracts look consistent.",
+  );
 }

@@ -20,7 +20,8 @@ export const scripts: Script[] = [
   {
     id: "perguntou_preco",
     titulo: "Cliente perguntou o preço",
-    descricao: "Quando ela só pergunta 'quanto custa?' antes de qualquer contexto.",
+    descricao:
+      "Quando ela só pergunta 'quanto custa?' antes de qualquer contexto.",
     passos: [
       {
         etapa: "Acolher",

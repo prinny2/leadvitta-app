@@ -17,10 +17,14 @@ export function EmptyState({
       <CardBody
         className={cn(
           "flex flex-col items-center gap-3 py-14 text-center",
-          dark ? "text-navy-100" : "text-muted"
+          dark ? "text-navy-100" : "text-muted",
         )}
       >
-        <Icon size={28} className={dark ? "text-navy-300" : "text-brand-300"} aria-hidden="true" />
+        <Icon
+          size={28}
+          className={dark ? "text-navy-300" : "text-brand-300"}
+          aria-hidden="true"
+        />
         <p className="max-w-xs text-sm">{mensagem}</p>
       </CardBody>
     </Card>

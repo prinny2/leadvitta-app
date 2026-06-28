@@ -5,9 +5,11 @@ This document contains supplementary keywords, negative keyword filters, respons
 ---
 
 ## 1. Additional Search Keywords (20 Keywords)
+
 The following 20 high-intent search keywords target Brazilian aesthetics clinics and beauty professionals looking for scripts, templates, objections handling, and conversational conversions.
 
 ### Phrase Match Types (12)
+
 1. `"roteiro de vendas estetica"` (captures users looking for structured aesthetic sales scripts)
 2. `"script de vendas estetica whatsapp"` (highly targeted for WhatsApp sales scripting)
 3. `"como agendar cliente estetica"` (focuses on booking optimization)
@@ -22,6 +24,7 @@ The following 20 high-intent search keywords target Brazilian aesthetics clinics
 12. `"script de atendimento estetica"` (generic high-intent search for customer support script)
 
 ### Exact Match Types (8)
+
 13. `[roteiro de vendas estetica]`
 14. `[script de vendas estetica whatsapp]`
 15. `[mensagens prontas clinica estetica]`
@@ -34,20 +37,24 @@ The following 20 high-intent search keywords target Brazilian aesthetics clinics
 ---
 
 ## 2. Additional Negative Keywords (20 Keywords)
+
 To shield our budget from consumer intent, job seekers, generic educational courses, and clinical queries, the following 20 negative keywords should be added immediately at the campaign level.
 
 ### Career & Job Filter (3)
+
 1. `"trabalhe conosco"` (Phrase)
 2. `"vagas de emprego"` (Phrase)
 3. `"enviar curriculo"` (Phrase)
 
 ### Courses & Free Generic Materials Filter (4)
+
 4. `apostila` (Broad)
 5. `"e-book gratis"` (Phrase)
 6. `treinamento` (Broad)
 7. `especialização` (Broad)
 
 ### Procedure Shoppers & B2C Price Retail Filter (8)
+
 8. `"quanto custa preenchimento"` (Phrase)
 9. `"preço de botox"` (Phrase)
 10. `"clinica barata"` (Phrase)
@@ -58,6 +65,7 @@ To shield our budget from consumer intent, job seekers, generic educational cour
 15. `"fornecedor de botox"` (Phrase)
 
 ### Medical Diagnostics & Treatments Filter (5)
+
 16. `"tratamento melasma"` (Phrase)
 17. `"remedio espinha"` (Phrase)
 18. `"dermatologista consulta"` (Phrase)
@@ -67,7 +75,8 @@ To shield our budget from consumer intent, job seekers, generic educational cour
 ---
 
 ## 3. Headline Alternatives (10 Headlines)
-*Character limit: <= 30 characters each.*
+
+_Character limit: <= 30 characters each._
 These headlines perfectly adhere to the policy safety guardrails (no exaggerated outcome or automatic scheduling claims) and highlight the primary "5 answers free, no card" value proposition.
 
 1. `Respostas para WhatsApp` (23 chars)
@@ -84,7 +93,8 @@ These headlines perfectly adhere to the policy safety guardrails (no exaggerated
 ---
 
 ## 4. Description Alternatives (6 Descriptions)
-*Character limit: <= 90 characters each.*
+
+_Character limit: <= 90 characters each._
 Complies with policy limitations, avoiding medical guarantees, clinical claims, or automated scheduler terms.
 
 1. `Gere respostas curtas para o WhatsApp da sua clinica de estetica. Teste com 5 gratis.` (85 chars)
@@ -97,10 +107,11 @@ Complies with policy limitations, avoiding medical guarantees, clinical claims, 
 ---
 
 ## 5. Search-Term Themes to Watch (First 48 Hours)
+
 A key part of launching a B2B SaaS targeting clinics is filtering out consumers seeking treatments. The following five themes must be reviewed in the Search Terms report every 12 hours:
 
 1. **Procedure Queries**: Users searching for physical operations or clinics to perform procedures (e.g., "clinica de botox perto de mim", "onde fazer preenchimento"). Must be immediately paused/negated.
 2. **Career & Job Hunters**: Searches indicating job seekers (e.g., "vaga recepcionista estetica", "vagas esteticista"). Check search patterns and append to the negatives list.
 3. **Generic Free Materials**: Queries looking for raw copy-paste templates without paying or utilizing a software platform (e.g., "mensagens prontas gratis pdf", "modelos whatsapp download").
-4. **General Scheduling Tools**: Users looking for generic automated schedulers (e.g., "agenda sozinho estetica", "sistema agendamento automatico") to make sure our value proposition of *clarity and copy assistance* is what they want, not an automatic bot.
+4. **General Scheduling Tools**: Users looking for generic automated schedulers (e.g., "agenda sozinho estetica", "sistema agendamento automatico") to make sure our value proposition of _clarity and copy assistance_ is what they want, not an automatic bot.
 5. **Pathological & Clinical Diagnostics**: Patients seeking treatment advice (e.g., "como acabar com espinhas em casa", "melhor pomada para melasma"). These can trigger policy flags and must be excluded.

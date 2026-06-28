@@ -157,7 +157,14 @@ function SituationsColumn({
     );
   }
   return (
-    <div style={{ overflow: "hidden", display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div
+      style={{
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        gap: "20px",
+      }}
+    >
       <motion.div
         animate={{ translateY: reverse ? "0%" : "-50%" }}
         initial={{ translateY: reverse ? "-50%" : "0%" }}
@@ -167,7 +174,12 @@ function SituationsColumn({
           ease: "linear",
           repeatType: "loop",
         }}
-        style={{ display: "flex", flexDirection: "column", gap: "20px", paddingBottom: "20px" }}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px",
+          paddingBottom: "20px",
+        }}
       >
         {[0, 1].map((pass) => (
           <React.Fragment key={pass}>
@@ -185,7 +197,11 @@ export function TestimonialsSection() {
   return (
     <section
       id="situacoes"
-      style={{ background: "#F5F0E6", padding: "96px 24px", overflow: "hidden" }}
+      style={{
+        background: "#F5F0E6",
+        padding: "96px 24px",
+        overflow: "hidden",
+      }}
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: "56px" }}>
@@ -219,7 +235,8 @@ export function TestimonialsSection() {
             Onde a conversa costuma quebrar
           </h2>
           <p style={{ color: "#4a5568", fontSize: "16px", margin: 0 }}>
-            Em vez de prova social fabricada, aqui estão cenários comuns que o LeadBellus ajuda a responder melhor.
+            Em vez de prova social fabricada, aqui estão cenários comuns que o
+            LeadBellus ajuda a responder melhor.
           </p>
         </div>
 
@@ -231,8 +248,10 @@ export function TestimonialsSection() {
             gap: "20px",
             maxHeight: "620px",
             overflow: "hidden",
-            maskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
+            maskImage:
+              "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
           }}
         >
           <SituationsColumn items={columns[0]} duration={18} />

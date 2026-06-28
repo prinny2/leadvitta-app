@@ -51,5 +51,4 @@ export const followups: FollowUp[] = [
   },
 ];
 
-export const followUpPorId = (id: string) =>
-  followups.find((f) => f.id === id);
+export const followUpPorId = (id: string) => followups.find((f) => f.id === id);

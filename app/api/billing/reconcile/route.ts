@@ -28,7 +28,10 @@ export async function POST(request: Request) {
 
   const decoded = await verifyFirebaseIdToken(getBearerToken(request));
   if (!decoded?.uid) {
-    return jsonNoStore({ error: "Faça login para vincular a assinatura." }, { status: 401 });
+    return jsonNoStore(
+      { error: "Faça login para vincular a assinatura." },
+      { status: 401 },
+    );
   }
 
   const result = await reconcileBillingForUser(decoded.uid, decoded.email);

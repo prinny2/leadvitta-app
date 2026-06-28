@@ -6,13 +6,13 @@ primitivas** reutilizáveis, evitando hex espalhado e estilos divergentes.
 
 ## Estrutura
 
-| Arquivo | Papel |
-| --- | --- |
-| `lib/design-system/tokens.ts` | Tokens tipados (paleta, tipografia, raios, sombras, keyframes, animação). **Fonte única de verdade.** |
-| `tailwind.config.ts` | Consome `tokens` em `theme.extend` e gera as classes utilitárias. |
-| `app/globals.css` | Estilos base + utilitários compostos (`.bg-hero`, `.glass-card`, `.text-gold-gradient`, …) construídos sobre os tokens. |
-| `components/ui/*` | Primitivas de UI (`Button`, `Card`, `Input`, `Badge`, …). |
-| `components/ui/index.ts` | Barrel para importar o kit: `import { Button, Badge } from "@/components/ui";` |
+| Arquivo                       | Papel                                                                                                                   |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `lib/design-system/tokens.ts` | Tokens tipados (paleta, tipografia, raios, sombras, keyframes, animação). **Fonte única de verdade.**                   |
+| `tailwind.config.ts`          | Consome `tokens` em `theme.extend` e gera as classes utilitárias.                                                       |
+| `app/globals.css`             | Estilos base + utilitários compostos (`.bg-hero`, `.glass-card`, `.text-gold-gradient`, …) construídos sobre os tokens. |
+| `components/ui/*`             | Primitivas de UI (`Button`, `Card`, `Input`, `Badge`, …).                                                               |
+| `components/ui/index.ts`      | Barrel para importar o kit: `import { Button, Badge } from "@/components/ui";`                                          |
 
 ## Tokens
 
@@ -22,14 +22,14 @@ import { tokens, palette } from "@/lib/design-system/tokens";
 
 ### Paleta
 
-| Escala | Uso |
-| --- | --- |
-| `nude` | Creme quente — fundos (hero, cards). |
-| `brand` | Verde-escuro da marca — superfícies premium, texto. |
-| `gold` | Dourado — CTAs, destaques, conversão. |
-| `lavender` | Champagne — texto sobre fundo escuro. |
-| `pain` | Coral — gancho de dor / perda. |
-| `ink` / `muted` | Tinta de texto e cinza neutro de apoio. |
+| Escala          | Uso                                                 |
+| --------------- | --------------------------------------------------- |
+| `nude`          | Creme quente — fundos (hero, cards).                |
+| `brand`         | Verde-escuro da marca — superfícies premium, texto. |
+| `gold`          | Dourado — CTAs, destaques, conversão.               |
+| `lavender`      | Champagne — texto sobre fundo escuro.               |
+| `pain`          | Coral — gancho de dor / perda.                      |
+| `ink` / `muted` | Tinta de texto e cinza neutro de apoio.             |
 
 Cada escala vai de `50` (claro) a `900` (escuro). Use sempre as classes do
 Tailwind (`bg-brand-500`, `text-gold-700`) — **não** escreva hex de marca à mão.
@@ -47,7 +47,14 @@ Tailwind (`bg-brand-500`, `text-gold-700`) — **não** escreva hex de marca à 
 ## Kit de primitivas
 
 ```tsx
-import { Button, Card, CardBody, CardTitle, Badge, Input } from "@/components/ui";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardTitle,
+  Badge,
+  Input,
+} from "@/components/ui";
 ```
 
 - **`Button`** — variantes `cta | primary | secondary | outline | ghost`,

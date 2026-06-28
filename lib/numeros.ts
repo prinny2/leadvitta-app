@@ -12,7 +12,7 @@ export type ClaimResult =
 /** A clínica reivindica um número. Falha se já pertence a OUTRA clínica. */
 export async function reivindicarNumero(
   clinicaId: string,
-  numeroBruto: string
+  numeroBruto: string,
 ): Promise<ClaimResult> {
   const db = getFirebaseAdminDb();
   if (!db) return { ok: false, motivo: "sem_db" };
@@ -32,12 +32,17 @@ export async function reivindicarNumero(
     }
 
     // Libera o número antigo desta clínica, se mudou.
-    const numeroAntigo = numeroDigits(clinicaSnap.data()?.whatsapp as string | undefined);
+    const numeroAntigo = numeroDigits(
+      clinicaSnap.data()?.whatsapp as string | undefined,
+    );
     if (numeroAntigo && numeroAntigo !== numero) {
       tx.delete(db.collection("numeros_whatsapp").doc(numeroAntigo));
     }
 
-    tx.set(mapRef, { clinica_id: clinicaId, claimed_at: new Date().toISOString() });
+    tx.set(mapRef, {
+      clinica_id: clinicaId,
+      claimed_at: new Date().toISOString(),
+    });
     tx.set(clinicaRef, { whatsapp: numero }, { merge: true });
     return { ok: true as const, numero };
   });
@@ -51,7 +56,9 @@ export async function liberarNumero(clinicaId: string): Promise<ClaimResult> {
   return db.runTransaction(async (tx) => {
     const clinicaRef = db.collection("clinicas").doc(clinicaId);
     const clinicaSnap = await tx.get(clinicaRef);
-    const numeroAtual = numeroDigits(clinicaSnap.data()?.whatsapp as string | undefined);
+    const numeroAtual = numeroDigits(
+      clinicaSnap.data()?.whatsapp as string | undefined,
+    );
     if (numeroAtual) {
       tx.delete(db.collection("numeros_whatsapp").doc(numeroAtual));
     }
@@ -62,7 +69,7 @@ export async function liberarNumero(clinicaId: string): Promise<ClaimResult> {
 
 /** Descobre a clínica dona de um número (tenta variantes de DDI). */
 export async function resolverClinicaPorNumero(
-  numeroBruto: string
+  numeroBruto: string,
 ): Promise<string | null> {
   const db = getFirebaseAdminDb();
   if (!db) return null;

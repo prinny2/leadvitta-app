@@ -15,7 +15,6 @@ import { CopyButton } from "@/components/copy-button";
 import { AvisoIA } from "@/components/aviso-ia";
 import { LoadingRespostas } from "@/components/loading-respostas";
 import { useClinica } from "@/lib/hooks/use-clinica";
-import { cn } from "@/lib/utils";
 import type { AuditoriaResultado, GravidadeRisco } from "@/lib/types";
 
 const EXEMPLO =
@@ -24,7 +23,8 @@ const EXEMPLO =
 const STATUS_META = {
   ok: {
     titulo: "Tudo certo",
-    descricao: "Não encontramos promessas ou termos de risco. Pode enviar com tranquilidade.",
+    descricao:
+      "Não encontramos promessas ou termos de risco. Pode enviar com tranquilidade.",
     icon: ShieldCheck,
     cor: "#5EE0A0",
     bg: "rgba(94,224,160,0.12)",
@@ -32,7 +32,8 @@ const STATUS_META = {
   },
   ajustes: {
     titulo: "Vale um ajuste",
-    descricao: "Achamos pontos que é melhor suavizar. Veja abaixo e use a versão segura.",
+    descricao:
+      "Achamos pontos que é melhor suavizar. Veja abaixo e use a versão segura.",
     icon: ShieldAlert,
     cor: "#C9A060",
     bg: "rgba(201,160,96,0.12)",
@@ -40,7 +41,8 @@ const STATUS_META = {
   },
   risco: {
     titulo: "Atenção: risco alto",
-    descricao: "Tem promessa proibida no texto. Troque pela versão segura antes de enviar.",
+    descricao:
+      "Tem promessa proibida no texto. Troque pela versão segura antes de enviar.",
     icon: ShieldX,
     cor: "#F87171",
     bg: "rgba(248,113,113,0.12)",
@@ -48,7 +50,10 @@ const STATUS_META = {
   },
 } as const;
 
-const GRAVIDADE_META: Record<GravidadeRisco, { label: string; cor: string; bg: string }> = {
+const GRAVIDADE_META: Record<
+  GravidadeRisco,
+  { label: string; cor: string; bg: string }
+> = {
   alta: { label: "Alta", cor: "#F87171", bg: "rgba(248,113,113,0.15)" },
   media: { label: "Média", cor: "#F7C96B", bg: "rgba(247,201,107,0.15)" },
   baixa: { label: "Baixa", cor: "#9CC2E0", bg: "rgba(156,194,224,0.15)" },
@@ -97,7 +102,7 @@ export default function CompliancePage() {
       if (data.mock) {
         setAviso(
           data.aviso ||
-            "Modo demonstração — usando a checagem automática. A revisão com IA entra quando a clínica está ativa."
+            "Modo demonstração — usando a checagem automática. A revisão com IA entra quando a clínica está ativa.",
         );
       } else if (data.aviso) {
         setAviso(data.aviso);
@@ -120,9 +125,9 @@ export default function CompliancePage() {
           Revisar texto
         </h1>
         <p className="text-sm text-navy-100 mt-1">
-          Cole uma mensagem, legenda ou anúncio que você escreveu. A gente aponta
-          os riscos de compliance (promessa de resultado, preço fixo, cura…) e
-          devolve uma versão segura pra você usar.
+          Cole uma mensagem, legenda ou anúncio que você escreveu. A gente
+          aponta os riscos de compliance (promessa de resultado, preço fixo,
+          cura…) e devolve uma versão segura pra você usar.
         </p>
       </div>
 
@@ -160,7 +165,9 @@ export default function CompliancePage() {
             </div>
 
             {erro && (
-              <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">{erro}</p>
+              <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">
+                {erro}
+              </p>
             )}
 
             <button
@@ -169,7 +176,11 @@ export default function CompliancePage() {
               disabled={loading}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-navy-800 px-4 py-3 text-sm font-bold text-gold-400 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-cta disabled:translate-y-0 disabled:opacity-60"
             >
-              {loading ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
+              {loading ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <ShieldCheck size={18} />
+              )}
               Revisar compliance
             </button>
           </div>
@@ -197,10 +208,17 @@ export default function CompliancePage() {
                 style={{ background: status.bg, borderColor: status.borda }}
               >
                 {StatusIcon && (
-                  <StatusIcon size={22} className="mt-0.5 shrink-0" style={{ color: status.cor }} />
+                  <StatusIcon
+                    size={22}
+                    className="mt-0.5 shrink-0"
+                    style={{ color: status.cor }}
+                  />
                 )}
                 <div>
-                  <p className="text-sm font-bold" style={{ color: status.cor }}>
+                  <p
+                    className="text-sm font-bold"
+                    style={{ color: status.cor }}
+                  >
                     {status.titulo}
                   </p>
                   <p className="mt-0.5 text-xs leading-relaxed text-champagne-300">
@@ -214,12 +232,17 @@ export default function CompliancePage() {
                 <div className="space-y-2">
                   <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-navy-100">
                     <AlertTriangle size={14} className="text-gold-500" />
-                    {resultado.riscos.length} ponto{resultado.riscos.length > 1 ? "s" : ""} de atenção
+                    {resultado.riscos.length} ponto
+                    {resultado.riscos.length > 1 ? "s" : ""} de atenção
                   </p>
                   {resultado.riscos.map((r, i) => {
-                    const g = GRAVIDADE_META[r.gravidade] ?? GRAVIDADE_META.media;
+                    const g =
+                      GRAVIDADE_META[r.gravidade] ?? GRAVIDADE_META.media;
                     return (
-                      <div key={i} className="rounded-xl border border-navy-500 bg-navy-700 p-3">
+                      <div
+                        key={i}
+                        className="rounded-xl border border-navy-500 bg-navy-700 p-3"
+                      >
                         <div className="mb-1 flex items-center justify-between gap-2">
                           {r.trecho ? (
                             <span className="rounded bg-navy-800 px-2 py-0.5 text-xs italic text-champagne-300">
@@ -235,7 +258,9 @@ export default function CompliancePage() {
                             {g.label}
                           </span>
                         </div>
-                        <p className="text-sm leading-relaxed text-navy-100">{r.motivo}</p>
+                        <p className="text-sm leading-relaxed text-navy-100">
+                          {r.motivo}
+                        </p>
                       </div>
                     );
                   })}
@@ -263,10 +288,12 @@ export default function CompliancePage() {
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-500/10">
                 <ShieldCheck size={22} className="text-gold-500" />
               </div>
-              <p className="mb-1 text-sm font-medium text-champagne-300">A revisão aparece aqui</p>
+              <p className="mb-1 text-sm font-medium text-champagne-300">
+                A revisão aparece aqui
+              </p>
               <p className="max-w-[240px] text-xs leading-relaxed text-navy-100">
-                Cole um texto ao lado e clique em “Revisar compliance”. Mostramos os
-                riscos e a versão segura.
+                Cole um texto ao lado e clique em “Revisar compliance”.
+                Mostramos os riscos e a versão segura.
               </p>
             </div>
           )}

@@ -21,7 +21,10 @@ function line(key: string, value: unknown): string | null {
   return `${key}: ${String(value)}`;
 }
 
-function formatOpsMessage(event: string, payload: Record<string, unknown>): string {
+function formatOpsMessage(
+  event: string,
+  payload: Record<string, unknown>,
+): string {
   const rows = [
     `🔔 LeadBellus · ${eventLabel(event)}`,
     line("📧 E-mail", payload.email),
@@ -40,14 +43,17 @@ function formatOpsMessage(event: string, payload: Record<string, unknown>): stri
 /** Alerta operacional via Z-API (substitui Zapier). Fire-and-forget no caller. */
 export async function sendOpsNotify(
   event: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ): Promise<OpsNotifyResult> {
   if (!isOpsNotifyConfigured || !opsNotifyPhone) {
     return { sent: false, reason: "not_configured" };
   }
 
   try {
-    const result = await sendWhatsAppText(opsNotifyPhone, formatOpsMessage(event, payload));
+    const result = await sendWhatsAppText(
+      opsNotifyPhone,
+      formatOpsMessage(event, payload),
+    );
     if (!result.ok) {
       console.warn("[ops-notify] Z-API status", result.status, result.data);
       return { sent: false, reason: "failed", status: result.status };

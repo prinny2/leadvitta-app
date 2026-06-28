@@ -50,7 +50,9 @@ export default function ConversaThreadPage() {
   }, [id]);
 
   useEffect(() => {
-    getClinica().then(setClinica).catch(() => {});
+    getClinica()
+      .then(setClinica)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -86,7 +88,12 @@ export default function ConversaThreadPage() {
       }
       setMensagens((prev) => [
         ...(prev ?? []),
-        { id: `local-${Date.now()}`, direcao: "out", texto: corpo, em: new Date().toISOString() },
+        {
+          id: `local-${Date.now()}`,
+          direcao: "out",
+          texto: corpo,
+          em: new Date().toISOString(),
+        },
       ]);
       setTexto("");
     } catch (e) {
@@ -144,7 +151,7 @@ export default function ConversaThreadPage() {
     }
   }
 
-  const prio = conversa ? PRIO[conversa.prioridade] ?? PRIO.morno : null;
+  const prio = conversa ? (PRIO[conversa.prioridade] ?? PRIO.morno) : null;
 
   return (
     <div className="mx-auto flex h-[calc(100vh-7rem)] max-w-2xl flex-col">
@@ -163,14 +170,23 @@ export default function ConversaThreadPage() {
               {conversa?.cliente_nome || conversa?.cliente_numero || "Conversa"}
             </span>
             {prio && (
-              <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold", prio.cls)}>
+              <span
+                className={cn(
+                  "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold",
+                  prio.cls,
+                )}
+              >
                 {prio.emoji} {prio.label}
-                {typeof conversa?.score === "number" ? ` · ${conversa.score}%` : ""}
+                {typeof conversa?.score === "number"
+                  ? ` · ${conversa.score}%`
+                  : ""}
               </span>
             )}
           </div>
           {conversa?.cliente_nome && (
-            <span className="text-xs text-muted">{conversa.cliente_numero}</span>
+            <span className="text-xs text-muted">
+              {conversa.cliente_numero}
+            </span>
           )}
         </div>
       </div>
@@ -185,14 +201,17 @@ export default function ConversaThreadPage() {
         {mensagens?.map((m) => (
           <div
             key={m.id}
-            className={cn("flex", m.direcao === "out" ? "justify-end" : "justify-start")}
+            className={cn(
+              "flex",
+              m.direcao === "out" ? "justify-end" : "justify-start",
+            )}
           >
             <div
               className={cn(
                 "max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-card",
                 m.direcao === "out"
                   ? "rounded-br-md bg-brand-600 text-white"
-                  : "rounded-bl-md border border-brand-100 bg-white text-ink"
+                  : "rounded-bl-md border border-brand-100 bg-white text-ink",
               )}
             >
               <span className="sr-only">
@@ -261,7 +280,11 @@ export default function ConversaThreadPage() {
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white transition-colors hover:bg-brand-600 disabled:opacity-50"
             aria-label="Enviar"
           >
-            {enviando ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+            {enviando ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <Send size={18} />
+            )}
           </button>
         </div>
       </div>

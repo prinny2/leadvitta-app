@@ -16,9 +16,13 @@ function addOriginVariants(allowed: Set<string>, rawUrl: string) {
 
     const host = url.hostname;
     if (host.startsWith("www.")) {
-      allowed.add(`${url.protocol}//${host.slice(4)}${url.port ? `:${url.port}` : ""}`);
+      allowed.add(
+        `${url.protocol}//${host.slice(4)}${url.port ? `:${url.port}` : ""}`,
+      );
     } else if (!host.includes("localhost") && !host.endsWith(".localhost")) {
-      allowed.add(`${url.protocol}//www.${host}${url.port ? `:${url.port}` : ""}`);
+      allowed.add(
+        `${url.protocol}//www.${host}${url.port ? `:${url.port}` : ""}`,
+      );
     }
   } catch {
     // Ignora URL malformada; a checagem final vai bloquear.
@@ -33,8 +37,7 @@ function getForwardedOrigin(request: Request) {
   if (!host) return null;
 
   const proto =
-    request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
-    "https";
+    request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
 
   return `${proto}://${host}`;
 }
@@ -84,7 +87,7 @@ export function rejectCrossOriginRequest(request: Request) {
     if (allowedOrigins.has(origin)) return null;
     return NextResponse.json(
       { error: "Origem não autorizada." },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -97,14 +100,14 @@ export function rejectCrossOriginRequest(request: Request) {
 
     return NextResponse.json(
       { error: "Referer não autorizado." },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
   if (isProduction) {
     return NextResponse.json(
       { error: "Origem obrigatória para esta operação." },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -113,7 +116,7 @@ export function rejectCrossOriginRequest(request: Request) {
 
 export function enforceRateLimit(
   request: Request,
-  { bucket, limit, windowMs }: RateLimitOptions
+  { bucket, limit, windowMs }: RateLimitOptions,
 ) {
   const now = Date.now();
   cleanupRateLimitStore(now);
@@ -129,7 +132,7 @@ export function enforceRateLimit(
   if (entry.count >= limit) {
     const retryAfterSeconds = Math.max(
       1,
-      Math.ceil((entry.resetAt - now) / 1000)
+      Math.ceil((entry.resetAt - now) / 1000),
     );
 
     return NextResponse.json(
@@ -140,7 +143,7 @@ export function enforceRateLimit(
           "Retry-After": String(retryAfterSeconds),
           "Cache-Control": "no-store",
         },
-      }
+      },
     );
   }
 
@@ -151,14 +154,14 @@ export function enforceRateLimit(
 
 export async function readJsonBody<T>(
   request: Request,
-  maxBytes: number
+  maxBytes: number,
 ): Promise<{ data?: T; error?: NextResponse }> {
   const contentType = request.headers.get("content-type") || "";
   if (!contentType.toLowerCase().includes("application/json")) {
     return {
       error: NextResponse.json(
         { error: "Content-Type deve ser application/json." },
-        { status: 415 }
+        { status: 415 },
       ),
     };
   }
@@ -169,7 +172,7 @@ export async function readJsonBody<T>(
     return {
       error: NextResponse.json(
         { error: "Payload maior do que o permitido." },
-        { status: 413 }
+        { status: 413 },
       ),
     };
   }
@@ -179,7 +182,7 @@ export async function readJsonBody<T>(
     return {
       error: NextResponse.json(
         { error: "Payload maior do que o permitido." },
-        { status: 413 }
+        { status: 413 },
       ),
     };
   }

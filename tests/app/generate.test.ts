@@ -31,7 +31,10 @@ import { POST } from "@/app/api/generate/route";
 function genRequest(body: unknown) {
   return new Request("http://localhost:3000/api/generate", {
     method: "POST",
-    headers: { origin: "http://localhost:3000", "content-type": "application/json" },
+    headers: {
+      origin: "http://localhost:3000",
+      "content-type": "application/json",
+    },
     body: JSON.stringify(body),
   });
 }
@@ -45,7 +48,9 @@ const PAID = {
 };
 
 beforeEach(() => {
-  gerar.mockReset().mockResolvedValue({ respostas: ["a", "b", "c"], mock: true });
+  gerar
+    .mockReset()
+    .mockResolvedValue({ respostas: ["a", "b", "c"], mock: true });
   refinar.mockReset().mockResolvedValue({ resposta: "refinada" });
   verifyToken.mockReset().mockResolvedValue(null);
   adminConfigured.mockReset().mockReturnValue(true);
@@ -78,7 +83,7 @@ describe("generate — validação", () => {
 
   it("refinar válido chama refinarResposta e retorna 200", async () => {
     const res = await POST(
-      genRequest({ acao: "refinar", variante: "suave", respostaAtual: "oi" })
+      genRequest({ acao: "refinar", variante: "suave", respostaAtual: "oi" }),
     );
     expect(res.status).toBe(200);
     expect(refinar).toHaveBeenCalledTimes(1);
@@ -101,7 +106,7 @@ describe("generate — token inválido", () => {
     verifyToken.mockResolvedValue(null);
     adminConfigured.mockReturnValue(true);
     const res = await POST(
-      genRequest({ mensagemCliente: "oi", firebaseIdToken: "lixo" })
+      genRequest({ mensagemCliente: "oi", firebaseIdToken: "lixo" }),
     );
     expect(res.status).toBe(401);
     expect(gerar).not.toHaveBeenCalled();
@@ -112,7 +117,7 @@ describe("generate — token inválido", () => {
     verifyToken.mockResolvedValue(null);
     adminConfigured.mockReturnValue(false);
     const res = await POST(
-      genRequest({ mensagemCliente: "oi", firebaseIdToken: "lixo" })
+      genRequest({ mensagemCliente: "oi", firebaseIdToken: "lixo" }),
     );
     expect(res.status).toBe(200);
     expect(reserve).not.toHaveBeenCalled();
@@ -131,7 +136,7 @@ describe("generate — plano grátis (logado)", () => {
     });
 
     const res = await POST(
-      genRequest({ mensagemCliente: "oi", firebaseIdToken: "tok" })
+      genRequest({ mensagemCliente: "oi", firebaseIdToken: "tok" }),
     );
     expect(res.status).toBe(402);
     const body = await res.json();
@@ -151,7 +156,7 @@ describe("generate — plano grátis (logado)", () => {
     });
 
     const res = await POST(
-      genRequest({ mensagemCliente: "oi", firebaseIdToken: "tok" })
+      genRequest({ mensagemCliente: "oi", firebaseIdToken: "tok" }),
     );
     expect(res.status).toBe(200);
     expect(reserve).toHaveBeenCalledWith("u1");
@@ -165,7 +170,7 @@ describe("generate — plano grátis (logado)", () => {
     reserve.mockResolvedValue(PAID);
 
     const res = await POST(
-      genRequest({ mensagemCliente: "oi", firebaseIdToken: "tok" })
+      genRequest({ mensagemCliente: "oi", firebaseIdToken: "tok" }),
     );
     expect(res.status).toBe(200);
     expect(release).not.toHaveBeenCalled();
@@ -184,7 +189,7 @@ describe("generate — plano grátis (logado)", () => {
     gerar.mockRejectedValue(new Error("AI down"));
 
     const res = await POST(
-      genRequest({ mensagemCliente: "oi", firebaseIdToken: "tok" })
+      genRequest({ mensagemCliente: "oi", firebaseIdToken: "tok" }),
     );
     expect(res.status).toBe(500);
     expect(release).toHaveBeenCalledWith("u1");

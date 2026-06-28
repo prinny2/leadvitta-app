@@ -16,20 +16,26 @@ const SCENARIOS = [
     },
     bad2: {
       message: '"O valor varia, manda mensagem na semana que vem pra eu ver."',
-      explanation: "Adia sem informação. Soa desinteresse e a cliente vai pra outra clínica.",
+      explanation:
+        "Adia sem informação. Soa desinteresse e a cliente vai pra outra clínica.",
     },
     good1: {
-      message: '"Oi, Ana! O investimento pode variar conforme os pontos avaliados e o objetivo do tratamento. Você busca suavizar as linhas da testa, pés de galinha ou prefere um resultado mais preventivo? Assim consigo te orientar melhor sobre o melhor caminho pra você. 💚"',
-      explanation: "Acolhe, demonstra expertise, desvia do preço e conduz pra avaliação.",
+      message:
+        '"Oi, Ana! O investimento pode variar conforme os pontos avaliados e o objetivo do tratamento. Você busca suavizar as linhas da testa, pés de galinha ou prefere um resultado mais preventivo? Assim consigo te orientar melhor sobre o melhor caminho pra você. 💚"',
+      explanation:
+        "Acolhe, demonstra expertise, desvia do preço e conduz pra avaliação.",
     },
     good2: {
-      message: '"Oi! O valor do botox depende de quantas áreas vamos tratar juntas. Me conta: você quer um resultado mais natural ou mais expressivo? Com isso já consigo te dar uma estimativa real e montar o melhor protocolo pra você. 😊"',
-      explanation: "Personaliza, cria diálogo e posiciona a profissional como especialista.",
+      message:
+        '"Oi! O valor do botox depende de quantas áreas vamos tratar juntas. Me conta: você quer um resultado mais natural ou mais expressivo? Com isso já consigo te dar uma estimativa real e montar o melhor protocolo pra você. 😊"',
+      explanation:
+        "Personaliza, cria diálogo e posiciona a profissional como especialista.",
     },
     score: 85,
     perfil: "Analítico · Cautelosa · Detalhista",
     perfilSub: "Busca segurança, provas e clareza.",
-    estrategia: "Reforce autoridade, apresente resultados e conduza para o próximo passo.",
+    estrategia:
+      "Reforce autoridade, apresente resultados e conduza para o próximo passo.",
   },
   {
     id: "caro",
@@ -43,36 +49,47 @@ const SCENARIOS = [
       explanation: "Fecha a porta sem contexto. A cliente se sente descartada.",
     },
     good1: {
-      message: '"Entendo, e faz todo sentido querer comparar! Preço mais baixo pode significar produto diluído, aplicador sem especialização ou sem garantia de retoque. No meu atendimento você tem [seu diferencial] e acompanhamento completo. Às vezes a diferença de R$200 evita uma correção de R$2.000 depois. Posso te mostrar o que está incluso?"',
-      explanation: "Educa sem atacar a concorrente. A cliente vê preço como investimento.",
+      message:
+        '"Entendo, e faz todo sentido querer comparar! Preço mais baixo pode significar produto diluído, aplicador sem especialização ou sem garantia de retoque. No meu atendimento você tem [seu diferencial] e acompanhamento completo. Às vezes a diferença de R$200 evita uma correção de R$2.000 depois. Posso te mostrar o que está incluso?"',
+      explanation:
+        "Educa sem atacar a concorrente. A cliente vê preço como investimento.",
     },
     good2: {
-      message: '"Faz sentido! Quero te mostrar o que está dentro desse investimento: [lista rápida de diferenciais]. Além disso, ofereço retoque incluso e acompanhamento pós-procedimento. Quer que eu te mande um comparativo rápido do que está incluso?"',
-      explanation: "Transforma preço em valor. A cliente entende o que está comprando.",
+      message:
+        '"Faz sentido! Quero te mostrar o que está dentro desse investimento: [lista rápida de diferenciais]. Além disso, ofereço retoque incluso e acompanhamento pós-procedimento. Quer que eu te mande um comparativo rápido do que está incluso?"',
+      explanation:
+        "Transforma preço em valor. A cliente entende o que está comprando.",
     },
     score: 72,
     perfil: "Econômica · Comparativa · Racional",
     perfilSub: "Precisa entender o custo-benefício antes de decidir.",
-    estrategia: "Posicione valor, use âncoras de preço e mostre o risco do mais barato.",
+    estrategia:
+      "Posicione valor, use âncoras de preço e mostre o risco do mais barato.",
   },
   {
     id: "pensar",
     label: "Vou pensar",
     bad1: {
       message: '"Ok, qualquer coisa me chama!"',
-      explanation: 'O "ok" encerra a conversa. A cliente esquece e nunca volta.',
+      explanation:
+        'O "ok" encerra a conversa. A cliente esquece e nunca volta.',
     },
     bad2: {
       message: '"Tudo bem! Quando decidir é só falar comigo 😊"',
-      explanation: "Educada, mas passiva. Não dá motivo pra cliente agir agora.",
+      explanation:
+        "Educada, mas passiva. Não dá motivo pra cliente agir agora.",
     },
     good1: {
-      message: '"Claro, faz sentido! Só uma coisa: a agenda costuma fechar rápido e não quero que você perca a janela ideal. O que te impede de decidir agora? Às vezes consigo resolver uma dúvida que faz tudo ficar mais claro. 😊"',
-      explanation: "Mantém o diálogo, revela a objeção real e cria urgência sem pressionar.",
+      message:
+        '"Claro, faz sentido! Só uma coisa: a agenda costuma fechar rápido e não quero que você perca a janela ideal. O que te impede de decidir agora? Às vezes consigo resolver uma dúvida que faz tudo ficar mais claro. 😊"',
+      explanation:
+        "Mantém o diálogo, revela a objeção real e cria urgência sem pressionar.",
     },
     good2: {
-      message: '"Claro! Só pra te ajudar a pensar: o que ainda ficou em aberto pra você? Se for dúvida sobre o procedimento, resultado ou valor — me fala que a gente resolve isso agora juntas. Não quero que você fique com dúvida. 💛"',
-      explanation: "Acolhe a indecisão e convida a revelar a objeção. Confiança, não pressão.",
+      message:
+        '"Claro! Só pra te ajudar a pensar: o que ainda ficou em aberto pra você? Se for dúvida sobre o procedimento, resultado ou valor — me fala que a gente resolve isso agora juntas. Não quero que você fique com dúvida. 💛"',
+      explanation:
+        "Acolhe a indecisão e convida a revelar a objeção. Confiança, não pressão.",
     },
     score: 61,
     perfil: "Indecisa · Reflexiva · Cautelosa",
@@ -84,24 +101,30 @@ const SCENARIOS = [
     label: "Sumiu",
     bad1: {
       message: '"Oi, tudo bem? Ainda tem interesse?"',
-      explanation: 'Follow-up genérico que parece cobrança. A cliente ignora ou responde "já resolvi".',
+      explanation:
+        'Follow-up genérico que parece cobrança. A cliente ignora ou responde "já resolvi".',
     },
     bad2: {
       message: '"Oi! Só passando pra saber se você ainda quer marcar 😊"',
-      explanation: "Parece cobrança. Quem sumiu precisa de um motivo pra voltar, não de pressão.",
+      explanation:
+        "Parece cobrança. Quem sumiu precisa de um motivo pra voltar, não de pressão.",
     },
     good1: {
-      message: '"Oi! Passando pra deixar uma coisa que pode te ajudar a decidir: [resultado real de uma cliente com o mesmo perfil]. Quando quiser retomar, é só falar — sem compromisso. 🌿"',
-      explanation: "Retoma com valor real, sem cobrar resposta. Reativa o interesse.",
+      message:
+        '"Oi! Passando pra deixar uma coisa que pode te ajudar a decidir: [resultado real de uma cliente com o mesmo perfil]. Quando quiser retomar, é só falar — sem compromisso. 🌿"',
+      explanation:
+        "Retoma com valor real, sem cobrar resposta. Reativa o interesse.",
     },
     good2: {
-      message: '"Oi! Sei que a vida corrida às vezes empurra as decisões pra depois. Só vim te lembrar que [procedimento] tem resultado cumulativo — quanto antes você começa, mais cedo você vê a diferença. Qualquer coisa, tô aqui! 💚"',
+      message:
+        '"Oi! Sei que a vida corrida às vezes empurra as decisões pra depois. Só vim te lembrar que [procedimento] tem resultado cumulativo — quanto antes você começa, mais cedo você vê a diferença. Qualquer coisa, tô aqui! 💚"',
       explanation: "Cria urgência com cuidado genuíno, sem pressionar.",
     },
     score: 55,
     perfil: "Dispersa · Ocupada · Indecisa",
     perfilSub: "Precisa de um motivo relevante para voltar à conversa.",
-    estrategia: "Reengaje com prova social ou conteúdo de valor, sem pedir resposta direta.",
+    estrategia:
+      "Reengaje com prova social ou conteúdo de valor, sem pedir resposta direta.",
   },
   {
     id: "desconto",
@@ -112,20 +135,26 @@ const SCENARIOS = [
     },
     bad2: {
       message: '"Não trabalho com desconto, meu preço já é justo."',
-      explanation: "Soa arrogante. A cliente não se sente ouvida e procura outra clínica.",
+      explanation:
+        "Soa arrogante. A cliente não se sente ouvida e procura outra clínica.",
     },
     good1: {
-      message: '"Desconto no procedimento não faço, porque isso impactaria a qualidade que eu entrego. Mas o que posso fazer é montar um protocolo personalizado que entrega mais resultado com o mesmo investimento. Posso te mostrar como isso funciona?"',
-      explanation: "Reposiciona de preço pra valor. Não é teimosia — é padrão de qualidade.",
+      message:
+        '"Desconto no procedimento não faço, porque isso impactaria a qualidade que eu entrego. Mas o que posso fazer é montar um protocolo personalizado que entrega mais resultado com o mesmo investimento. Posso te mostrar como isso funciona?"',
+      explanation:
+        "Reposiciona de preço pra valor. Não é teimosia — é padrão de qualidade.",
     },
     good2: {
-      message: '"Não trabalho com desconto porque não abro mão da qualidade do material que uso. Mas posso te ajudar a montar um pacote que caiba no seu orçamento e ainda entregue o resultado que você quer. Quer que eu monte uma sugestão pra você?"',
-      explanation: "Mantém o posicionamento premium com flexibilidade real. A cliente sente você do lado dela.",
+      message:
+        '"Não trabalho com desconto porque não abro mão da qualidade do material que uso. Mas posso te ajudar a montar um pacote que caiba no seu orçamento e ainda entregue o resultado que você quer. Quer que eu monte uma sugestão pra você?"',
+      explanation:
+        "Mantém o posicionamento premium com flexibilidade real. A cliente sente você do lado dela.",
     },
     score: 68,
     perfil: "Orientada a preço · Direta · Objetiva",
     perfilSub: "Quer sentir que fez um bom negócio.",
-    estrategia: "Defenda o preço com posicionamento de valor, nunca com negativa seca.",
+    estrategia:
+      "Defenda o preço com posicionamento de valor, nunca com negativa seca.",
   },
 ];
 
@@ -133,7 +162,12 @@ const BENEFITS = [
   {
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <path d="M14 3L17.5 10.5L26 11.5L20 17.5L21.5 26L14 22L6.5 26L8 17.5L2 11.5L10.5 10.5L14 3Z" stroke="#C9A060" strokeWidth="1.5" strokeLinejoin="round"/>
+        <path
+          d="M14 3L17.5 10.5L26 11.5L20 17.5L21.5 26L14 22L6.5 26L8 17.5L2 11.5L10.5 10.5L14 3Z"
+          stroke="#C9A060"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
       </svg>
     ),
     title: "Respostas que educam e encantam",
@@ -142,8 +176,13 @@ const BENEFITS = [
   {
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <circle cx="14" cy="14" r="10" stroke="#C9A060" strokeWidth="1.5"/>
-        <path d="M14 8v6l4 2" stroke="#C9A060" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="14" cy="14" r="10" stroke="#C9A060" strokeWidth="1.5" />
+        <path
+          d="M14 8v6l4 2"
+          stroke="#C9A060"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
       </svg>
     ),
     title: "Condução estratégica que agenda",
@@ -152,8 +191,18 @@ const BENEFITS = [
   {
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <path d="M14 4L5 10v8l9 6 9-6v-8L14 4z" stroke="#C9A060" strokeWidth="1.5" strokeLinejoin="round"/>
-        <path d="M14 14l-4-3m4 3l4-3m-4 3v6" stroke="#C9A060" strokeWidth="1.5" strokeLinecap="round"/>
+        <path
+          d="M14 4L5 10v8l9 6 9-6v-8L14 4z"
+          stroke="#C9A060"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14 14l-4-3m4 3l4-3m-4 3v6"
+          stroke="#C9A060"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
       </svg>
     ),
     title: "Mais confiança para sua equipe",
@@ -162,8 +211,20 @@ const BENEFITS = [
   {
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <polyline points="4,20 10,13 15,17 24,8" stroke="#C9A060" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <polyline points="18,8 24,8 24,14" stroke="#C9A060" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <polyline
+          points="4,20 10,13 15,17 24,8"
+          stroke="#C9A060"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <polyline
+          points="18,8 24,8 24,14"
+          stroke="#C9A060"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     ),
     title: "Resultado que você vê no caixa",
@@ -203,8 +264,24 @@ function BadResponseCard({
     >
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-        <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#f87171", flexShrink: 0 }} />
-        <span style={{ fontSize: "10px", fontWeight: 800, letterSpacing: "0.1em", color: "#ef4444", textTransform: "uppercase" }}>
+        <div
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: "#f87171",
+            flexShrink: 0,
+          }}
+        />
+        <span
+          style={{
+            fontSize: "10px",
+            fontWeight: 800,
+            letterSpacing: "0.1em",
+            color: "#ef4444",
+            textTransform: "uppercase",
+          }}
+        >
           Resposta Comum
         </span>
       </div>
@@ -226,31 +303,84 @@ function BadResponseCard({
       </div>
 
       {/* Icon + badge */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-        <div style={{ width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "8px",
+        }}
+      >
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-            <rect x="2" y="5" width="32" height="22" rx="6" stroke="#f87171" strokeWidth="1.5"/>
-            <path d="M8 27l4-5h12l4 5" stroke="#f87171" strokeWidth="1.5" strokeLinejoin="round"/>
-            <line x1="13" y1="12" x2="23" y2="18" stroke="#f87171" strokeWidth="1.5" strokeLinecap="round"/>
-            <line x1="23" y1="12" x2="13" y2="18" stroke="#f87171" strokeWidth="1.5" strokeLinecap="round"/>
+            <rect
+              x="2"
+              y="5"
+              width="32"
+              height="22"
+              rx="6"
+              stroke="#f87171"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M8 27l4-5h12l4 5"
+              stroke="#f87171"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+            <line
+              x1="13"
+              y1="12"
+              x2="23"
+              y2="18"
+              stroke="#f87171"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+            <line
+              x1="23"
+              y1="12"
+              x2="13"
+              y2="18"
+              stroke="#f87171"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
           </svg>
         </div>
-        <div style={{
-          background: "#fee2e2",
-          color: "#b91c1c",
-          fontSize: "9px",
-          fontWeight: 800,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          borderRadius: "9999px",
-          padding: "3px 10px",
-        }}>
+        <div
+          style={{
+            background: "#fee2e2",
+            color: "#b91c1c",
+            fontSize: "9px",
+            fontWeight: 800,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            borderRadius: "9999px",
+            padding: "3px 10px",
+          }}
+        >
           Sem Estratégia
         </div>
       </div>
 
       {/* Explanation */}
-      <p style={{ fontSize: "12.5px", color: "#6b7280", lineHeight: 1.65, margin: 0 }}>
+      <p
+        style={{
+          fontSize: "12.5px",
+          color: "#6b7280",
+          lineHeight: 1.65,
+          margin: 0,
+        }}
+      >
         {explanation}
       </p>
     </motion.div>
@@ -301,41 +431,104 @@ function GoodResponseCard({
     >
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-        <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#C9A060", flexShrink: 0 }} />
-        <span style={{ fontSize: "10px", fontWeight: 800, letterSpacing: "0.1em", color: "#92610A", textTransform: "uppercase" }}>
+        <div
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: "50%",
+            background: "#C9A060",
+            flexShrink: 0,
+          }}
+        />
+        <span
+          style={{
+            fontSize: "10px",
+            fontWeight: 800,
+            letterSpacing: "0.1em",
+            color: "#92610A",
+            textTransform: "uppercase",
+          }}
+        >
           Resposta com LeadBellus
         </span>
       </div>
 
       {/* Brand stamp + message bubble */}
-      <div style={{
-        background: "rgba(201,160,96,0.06)",
-        border: "1px solid rgba(201,160,96,0.25)",
-        borderRadius: "14px",
-        padding: "14px 16px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-      }}>
+      <div
+        style={{
+          background: "rgba(201,160,96,0.06)",
+          border: "1px solid rgba(201,160,96,0.25)",
+          borderRadius: "14px",
+          padding: "14px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+        }}
+      >
         {/* Mini logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: "6px", justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            justifyContent: "center",
+          }}
+        >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" stroke="#C9A060" strokeWidth="1.5"/>
-            <path d="M8 12l3 3 5-5" stroke="#C9A060" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path
+              d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"
+              stroke="#C9A060"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M8 12l3 3 5-5"
+              stroke="#C9A060"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
-          <span style={{ fontSize: "11px", fontWeight: 700, color: "#C9A060", letterSpacing: "0.04em" }}>LeadBellus</span>
+          <span
+            style={{
+              fontSize: "11px",
+              fontWeight: 700,
+              color: "#C9A060",
+              letterSpacing: "0.04em",
+            }}
+          >
+            LeadBellus
+          </span>
         </div>
-        <p style={{ fontSize: "13px", color: "#2d3748", lineHeight: 1.7, margin: 0 }}>
+        <p
+          style={{
+            fontSize: "13px",
+            color: "#2d3748",
+            lineHeight: 1.7,
+            margin: 0,
+          }}
+        >
           {message}
         </p>
       </div>
 
       {/* Check */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "8px",
+        }}
+      >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ duration: 0.4, delay: delay + 0.3, type: "spring", stiffness: 300 }}
+          transition={{
+            duration: 0.4,
+            delay: delay + 0.3,
+            type: "spring",
+            stiffness: 300,
+          }}
           style={{
             width: 32,
             height: 32,
@@ -348,13 +541,27 @@ function GoodResponseCard({
           }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M2.5 7.5l3 3 6-6" stroke="#C9A060" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            <path
+              d="M2.5 7.5l3 3 6-6"
+              stroke="#C9A060"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </motion.div>
       </div>
 
       {/* Explanation */}
-      <p style={{ fontSize: "12.5px", color: "#92610A", fontWeight: 600, lineHeight: 1.55, margin: 0 }}>
+      <p
+        style={{
+          fontSize: "12.5px",
+          color: "#92610A",
+          fontWeight: 600,
+          lineHeight: 1.55,
+          margin: 0,
+        }}
+      >
         {explanation}
       </p>
 
@@ -368,7 +575,9 @@ function GoodResponseCard({
             transition={{ duration: 0.2 }}
             onClick={handleCopy}
             style={{
-              background: copied ? "rgba(201,160,96,0.2)" : "rgba(201,160,96,0.1)",
+              background: copied
+                ? "rgba(201,160,96,0.2)"
+                : "rgba(201,160,96,0.1)",
               border: "1px solid #C9A060",
               borderRadius: "9999px",
               padding: "6px 14px",
@@ -415,91 +624,223 @@ function ScoreBar({ score }: { score: number }) {
 
   return (
     <div ref={ref}>
-      <div style={{ fontSize: "8px", fontWeight: 700, letterSpacing: "0.12em", color: "#C9A060", textTransform: "uppercase", marginBottom: "6px" }}>
+      <div
+        style={{
+          fontSize: "8px",
+          fontWeight: 700,
+          letterSpacing: "0.12em",
+          color: "#C9A060",
+          textTransform: "uppercase",
+          marginBottom: "6px",
+        }}
+      >
         Score da Conversa
       </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "4px" }}>
-        <span style={{ fontSize: "32px", fontWeight: 800, color: "#ffffff", lineHeight: 1 }}>{current}</span>
-        <span style={{ fontSize: "11px", color: "rgba(201,160,96,0.8)" }}>Alta chance de agendamento</span>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: "6px",
+          marginBottom: "4px",
+        }}
+      >
+        <span
+          style={{
+            fontSize: "32px",
+            fontWeight: 800,
+            color: "#ffffff",
+            lineHeight: 1,
+          }}
+        >
+          {current}
+        </span>
+        <span style={{ fontSize: "11px", color: "rgba(201,160,96,0.8)" }}>
+          Alta chance de agendamento
+        </span>
       </div>
-      <div style={{ height: "4px", background: "rgba(255,255,255,0.1)", borderRadius: "9999px", overflow: "hidden" }}>
+      <div
+        style={{
+          height: "4px",
+          background: "rgba(255,255,255,0.1)",
+          borderRadius: "9999px",
+          overflow: "hidden",
+        }}
+      >
         <motion.div
           animate={{ width: `${current}%` }}
           transition={{ duration: 0.05, ease: "linear" }}
-          style={{ height: "100%", background: "linear-gradient(90deg, #C9A060, #e8c98a)", borderRadius: "9999px" }}
+          style={{
+            height: "100%",
+            background: "linear-gradient(90deg, #C9A060, #e8c98a)",
+            borderRadius: "9999px",
+          }}
         />
       </div>
     </div>
   );
 }
 
-function PhoneMockup({ scenario }: { scenario: typeof SCENARIOS[0] }) {
+function PhoneMockup({ scenario }: { scenario: (typeof SCENARIOS)[0] }) {
   return (
-    <div style={{
-      width: "100%",
-      maxWidth: "260px",
-      margin: "0 auto",
-      background: "#0A1628",
-      borderRadius: "40px",
-      padding: "10px",
-      boxShadow: "0 40px 80px rgba(10,22,40,0.45), 0 0 0 1px rgba(255,255,255,0.06)",
-      position: "relative",
-    }}>
+    <div
+      style={{
+        width: "100%",
+        maxWidth: "260px",
+        margin: "0 auto",
+        background: "#0A1628",
+        borderRadius: "40px",
+        padding: "10px",
+        boxShadow:
+          "0 40px 80px rgba(10,22,40,0.45), 0 0 0 1px rgba(255,255,255,0.06)",
+        position: "relative",
+      }}
+    >
       {/* Notch */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: "6px" }}>
-        <div style={{ width: "72px", height: "20px", background: "#000", borderRadius: "0 0 14px 14px" }} />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: "6px",
+        }}
+      >
+        <div
+          style={{
+            width: "72px",
+            height: "20px",
+            background: "#000",
+            borderRadius: "0 0 14px 14px",
+          }}
+        />
       </div>
 
       {/* Screen */}
-      <div style={{
-        background: "#0f1b2f",
-        borderRadius: "30px",
-        padding: "16px 14px 14px",
-        minHeight: "440px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px",
-      }}>
+      <div
+        style={{
+          background: "#0f1b2f",
+          borderRadius: "30px",
+          padding: "16px 14px 14px",
+          minHeight: "440px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+        }}
+      >
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <div style={{ width: 22, height: 22, background: "rgba(201,160,96,0.2)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div
+              style={{
+                width: 22,
+                height: 22,
+                background: "rgba(201,160,96,0.2)",
+                borderRadius: "6px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" stroke="#C9A060" strokeWidth="2"/>
-                <path d="M8 12l3 3 5-5" stroke="#C9A060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path
+                  d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"
+                  stroke="#C9A060"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M8 12l3 3 5-5"
+                  stroke="#C9A060"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </div>
-            <span style={{ fontSize: "12px", fontWeight: 700, color: "#ffffff" }}>Lead<span style={{ color: "#C9A060" }}>Bellus</span></span>
+            <span
+              style={{ fontSize: "12px", fontWeight: 700, color: "#ffffff" }}
+            >
+              Lead<span style={{ color: "#C9A060" }}>Bellus</span>
+            </span>
           </div>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path
+              d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"
+              stroke="rgba(255,255,255,0.5)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
 
         {/* Main card */}
-        <div style={{
-          background: "rgba(255,255,255,0.04)",
-          borderRadius: "16px",
-          padding: "14px",
-          border: "1px solid rgba(201,160,96,0.15)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-        }}>
+        <div
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            borderRadius: "16px",
+            padding: "14px",
+            border: "1px solid rgba(201,160,96,0.15)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "11px", fontWeight: 700, color: "#ffffff" }}>Lead Intelligence</span>
-            <span style={{ fontSize: "8px", fontWeight: 800, background: "#C9A060", color: "#0A1628", borderRadius: "4px", padding: "1px 6px", letterSpacing: "0.05em" }}>PRO</span>
+            <span
+              style={{ fontSize: "11px", fontWeight: 700, color: "#ffffff" }}
+            >
+              Lead Intelligence
+            </span>
+            <span
+              style={{
+                fontSize: "8px",
+                fontWeight: 800,
+                background: "#C9A060",
+                color: "#0A1628",
+                borderRadius: "4px",
+                padding: "1px 6px",
+                letterSpacing: "0.05em",
+              }}
+            >
+              PRO
+            </span>
           </div>
-          <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.5)", lineHeight: 1.6, margin: 0 }}>
-            Cole a mensagem da cliente e veja: score, perfil psicológico e a estratégia pra fechar.
+          <p
+            style={{
+              fontSize: "9px",
+              color: "rgba(255,255,255,0.5)",
+              lineHeight: 1.6,
+              margin: 0,
+            }}
+          >
+            Cole a mensagem da cliente e veja: score, perfil psicológico e a
+            estratégia pra fechar.
           </p>
 
           {/* Score */}
           <ScoreBar score={scenario.score} />
 
           {/* Perfil */}
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "10px" }}>
-            <div style={{ fontSize: "7px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", marginBottom: "4px" }}>
+          <div
+            style={{
+              borderTop: "1px solid rgba(255,255,255,0.06)",
+              paddingTop: "10px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "7px",
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                color: "rgba(255,255,255,0.35)",
+                textTransform: "uppercase",
+                marginBottom: "4px",
+              }}
+            >
               Perfil Psicológico
             </div>
             <AnimatePresence mode="wait">
@@ -510,15 +851,46 @@ function PhoneMockup({ scenario }: { scenario: typeof SCENARIOS[0] }) {
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.3 }}
               >
-                <p style={{ fontSize: "10px", fontWeight: 700, color: "#ffffff", margin: "0 0 2px" }}>{scenario.perfil}</p>
-                <p style={{ fontSize: "9px", color: "rgba(255,255,255,0.45)", margin: 0 }}>{scenario.perfilSub}</p>
+                <p
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    margin: "0 0 2px",
+                  }}
+                >
+                  {scenario.perfil}
+                </p>
+                <p
+                  style={{
+                    fontSize: "9px",
+                    color: "rgba(255,255,255,0.45)",
+                    margin: 0,
+                  }}
+                >
+                  {scenario.perfilSub}
+                </p>
               </motion.div>
             </AnimatePresence>
           </div>
 
           {/* Estratégia */}
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "10px" }}>
-            <div style={{ fontSize: "7px", fontWeight: 700, letterSpacing: "0.12em", color: "rgba(255,255,255,0.35)", textTransform: "uppercase", marginBottom: "4px" }}>
+          <div
+            style={{
+              borderTop: "1px solid rgba(255,255,255,0.06)",
+              paddingTop: "10px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "7px",
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                color: "rgba(255,255,255,0.35)",
+                textTransform: "uppercase",
+                marginBottom: "4px",
+              }}
+            >
               Estratégia Recomendada
             </div>
             <AnimatePresence mode="wait">
@@ -528,7 +900,12 @@ function PhoneMockup({ scenario }: { scenario: typeof SCENARIOS[0] }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.3 }}
-                style={{ fontSize: "9px", color: "rgba(255,255,255,0.65)", margin: 0, lineHeight: 1.6 }}
+                style={{
+                  fontSize: "9px",
+                  color: "rgba(255,255,255,0.65)",
+                  margin: 0,
+                  lineHeight: 1.6,
+                }}
               >
                 {scenario.estrategia}
               </motion.p>
@@ -537,7 +914,13 @@ function PhoneMockup({ scenario }: { scenario: typeof SCENARIOS[0] }) {
 
           {/* Button */}
           <motion.button
-            animate={{ boxShadow: ["0 0 0px rgba(201,160,96,0)", "0 0 10px rgba(201,160,96,0.35)", "0 0 0px rgba(201,160,96,0)"] }}
+            animate={{
+              boxShadow: [
+                "0 0 0px rgba(201,160,96,0)",
+                "0 0 10px rgba(201,160,96,0.35)",
+                "0 0 0px rgba(201,160,96,0)",
+              ],
+            }}
             transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
             style={{
               background: "transparent",
@@ -557,36 +940,80 @@ function PhoneMockup({ scenario }: { scenario: typeof SCENARIOS[0] }) {
         </div>
 
         {/* Footer nav */}
-        <div style={{
-          display: "flex",
-          justifyContent: "space-around",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
-          paddingTop: "10px",
-        }}>
-          {["Início", "Gerador", "Inteligência", "Scripts", "Histórico"].map((item) => (
-            <div key={item} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px" }}>
-              <div style={{
-                width: 16,
-                height: 16,
-                borderRadius: "4px",
-                background: item === "Inteligência" ? "rgba(201,160,96,0.2)" : "transparent",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-                <div style={{ width: 8, height: 8, borderRadius: "2px", background: item === "Inteligência" ? "#C9A060" : "rgba(255,255,255,0.25)" }} />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-around",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+            paddingTop: "10px",
+          }}
+        >
+          {["Início", "Gerador", "Inteligência", "Scripts", "Histórico"].map(
+            (item) => (
+              <div
+                key={item}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "3px",
+                }}
+              >
+                <div
+                  style={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: "4px",
+                    background:
+                      item === "Inteligência"
+                        ? "rgba(201,160,96,0.2)"
+                        : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "2px",
+                      background:
+                        item === "Inteligência"
+                          ? "#C9A060"
+                          : "rgba(255,255,255,0.25)",
+                    }}
+                  />
+                </div>
+                <span
+                  style={{
+                    fontSize: "6px",
+                    color:
+                      item === "Inteligência"
+                        ? "#C9A060"
+                        : "rgba(255,255,255,0.3)",
+                  }}
+                >
+                  {item}
+                </span>
               </div>
-              <span style={{ fontSize: "6px", color: item === "Inteligência" ? "#C9A060" : "rgba(255,255,255,0.3)" }}>
-                {item}
-              </span>
-            </div>
-          ))}
+            ),
+          )}
         </div>
       </div>
 
       {/* Home indicator */}
-      <div style={{ display: "flex", justifyContent: "center", paddingTop: "8px" }}>
-        <div style={{ width: "80px", height: "4px", background: "rgba(255,255,255,0.2)", borderRadius: "9999px" }} />
+      <div
+        style={{ display: "flex", justifyContent: "center", paddingTop: "8px" }}
+      >
+        <div
+          style={{
+            width: "80px",
+            height: "4px",
+            background: "rgba(255,255,255,0.2)",
+            borderRadius: "9999px",
+          }}
+        />
       </div>
     </div>
   );
@@ -608,13 +1035,16 @@ function ConnectorLines() {
     >
       <defs>
         <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#C9A060" stopOpacity="0.4"/>
-          <stop offset="50%" stopColor="#C9A060" stopOpacity="0.8"/>
-          <stop offset="100%" stopColor="#C9A060" stopOpacity="0.4"/>
+          <stop offset="0%" stopColor="#C9A060" stopOpacity="0.4" />
+          <stop offset="50%" stopColor="#C9A060" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#C9A060" stopOpacity="0.4" />
         </linearGradient>
         <filter id="glow">
-          <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
         </filter>
       </defs>
       {/* Left top → center */}
@@ -671,17 +1101,24 @@ function ConnectorLines() {
 
 // ─── Main Section ─────────────────────────────────────────────────────────────
 
-export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?: string }) {
+export function CompareResponsesSection({
+  funilHref = "/signup",
+}: {
+  funilHref?: string;
+}) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scenario = SCENARIOS[activeIndex];
 
   return (
     <section
       id="antes-depois"
-      style={{ background: "#F7F3EB", padding: "100px 24px", overflow: "hidden" }}
+      style={{
+        background: "#F7F3EB",
+        padding: "100px 24px",
+        overflow: "hidden",
+      }}
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-
         {/* ── Header ── */}
         <div style={{ textAlign: "center", marginBottom: "52px" }}>
           <motion.div
@@ -722,7 +1159,8 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
               lineHeight: 1.2,
             }}
           >
-            A diferença entre a resposta<br />
+            A diferença entre a resposta
+            <br />
             que perde e a resposta que{" "}
             <span style={{ position: "relative", display: "inline-block" }}>
               <span style={{ color: "#C9A060" }}>agenda</span>
@@ -732,7 +1170,13 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ delay: 0.7 }}
                 viewBox="0 0 120 12"
-                style={{ position: "absolute", bottom: "-6px", left: 0, width: "100%", overflow: "visible" }}
+                style={{
+                  position: "absolute",
+                  bottom: "-6px",
+                  left: 0,
+                  width: "100%",
+                  overflow: "visible",
+                }}
                 preserveAspectRatio="none"
               >
                 <motion.path
@@ -755,9 +1199,16 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            style={{ color: "#6b7280", fontSize: "15px", maxWidth: "480px", margin: "0 auto", lineHeight: 1.7 }}
+            style={{
+              color: "#6b7280",
+              fontSize: "15px",
+              maxWidth: "480px",
+              margin: "0 auto",
+              lineHeight: 1.7,
+            }}
           >
-            Não é sobre ser mais inteligente. É sobre ter a resposta certa já pronta pra usar.
+            Não é sobre ser mais inteligente. É sobre ter a resposta certa já
+            pronta pra usar.
           </motion.p>
         </div>
 
@@ -800,20 +1251,26 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
         {/* ── 3-column layout ── */}
         <div style={{ position: "relative" }}>
           {/* Connector lines — desktop only */}
-          <div className="connector-lines-wrapper" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+          <div
+            className="connector-lines-wrapper"
+            style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
+          >
             <ConnectorLines />
           </div>
 
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr auto 1fr",
-            gap: "24px",
-            alignItems: "center",
-          }}
-          className="compare-grid"
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr auto 1fr",
+              gap: "24px",
+              alignItems: "center",
+            }}
+            className="compare-grid"
           >
             {/* Left column */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+            >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`bad-${scenario.id}`}
@@ -821,10 +1278,22 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.25 }}
-                  style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "20px",
+                  }}
                 >
-                  <BadResponseCard message={scenario.bad1.message} explanation={scenario.bad1.explanation} delay={0} />
-                  <BadResponseCard message={scenario.bad2.message} explanation={scenario.bad2.explanation} delay={0.1} />
+                  <BadResponseCard
+                    message={scenario.bad1.message}
+                    explanation={scenario.bad1.explanation}
+                    delay={0}
+                  />
+                  <BadResponseCard
+                    message={scenario.bad2.message}
+                    explanation={scenario.bad2.explanation}
+                    delay={0.1}
+                  />
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -834,7 +1303,11 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
               initial={{ opacity: 0, y: 32, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                duration: 0.7,
+                delay: 0.4,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               style={{ width: "260px", flexShrink: 0 }}
               className="phone-center"
             >
@@ -869,24 +1342,36 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
                     transition: "box-shadow 0.25s ease, transform 0.2s ease",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 6px 28px rgba(201,160,96,0.25), 0 4px 20px rgba(10,22,40,0.2)";
-                    (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-1px)";
+                    (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                      "0 6px 28px rgba(201,160,96,0.25), 0 4px 20px rgba(10,22,40,0.2)";
+                    (e.currentTarget as HTMLAnchorElement).style.transform =
+                      "translateY(-1px)";
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 20px rgba(10,22,40,0.2)";
-                    (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
+                    (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+                      "0 4px 20px rgba(10,22,40,0.2)";
+                    (e.currentTarget as HTMLAnchorElement).style.transform =
+                      "translateY(0)";
                   }}
                 >
                   Ver como fica na minha clínica →
                 </Link>
-                <p style={{ fontSize: "11px", color: "#92610A", marginTop: "8px" }}>
+                <p
+                  style={{
+                    fontSize: "11px",
+                    color: "#92610A",
+                    marginTop: "8px",
+                  }}
+                >
                   Teste grátis no simulador abaixo — sem login, sem cartão
                 </p>
               </div>
             </motion.div>
 
             {/* Right column */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+            >
               <AnimatePresence mode="wait">
                 <motion.div
                   key={`good-${scenario.id}`}
@@ -894,10 +1379,22 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.25 }}
-                  style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "20px",
+                  }}
                 >
-                  <GoodResponseCard message={scenario.good1.message} explanation={scenario.good1.explanation} delay={0} />
-                  <GoodResponseCard message={scenario.good2.message} explanation={scenario.good2.explanation} delay={0.1} />
+                  <GoodResponseCard
+                    message={scenario.good1.message}
+                    explanation={scenario.good1.explanation}
+                    delay={0}
+                  />
+                  <GoodResponseCard
+                    message={scenario.good2.message}
+                    explanation={scenario.good2.explanation}
+                    delay={0.1}
+                  />
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -935,15 +1432,32 @@ export function CompareResponsesSection({ funilHref = "/signup" }: { funilHref?:
               }}
             >
               <motion.div
-                whileHover={{ filter: "drop-shadow(0 0 6px rgba(201,160,96,0.5))" }}
+                whileHover={{
+                  filter: "drop-shadow(0 0 6px rgba(201,160,96,0.5))",
+                }}
                 transition={{ duration: 0.2 }}
               >
                 {b.icon}
               </motion.div>
-              <h3 style={{ fontSize: "13px", fontWeight: 700, color: "#0A1628", margin: 0, lineHeight: 1.4 }}>
+              <h3
+                style={{
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  color: "#0A1628",
+                  margin: 0,
+                  lineHeight: 1.4,
+                }}
+              >
                 {b.title}
               </h3>
-              <p style={{ fontSize: "12px", color: "#6b7280", margin: 0, lineHeight: 1.6 }}>
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: "#6b7280",
+                  margin: 0,
+                  lineHeight: 1.6,
+                }}
+              >
                 {b.text}
               </p>
             </motion.div>

@@ -1,4 +1,9 @@
-import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import {
+  enforceRateLimit,
+  jsonNoStore,
+  readJsonBody,
+  rejectCrossOriginRequest,
+} from "@/lib/api-security";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { sendOpsNotify } from "@/lib/ops-notify";
 
@@ -30,7 +35,7 @@ export async function POST(request: Request) {
   if (!decodedToken) {
     return jsonNoStore(
       { error: "Firebase Admin/ID token obrigatório para enviar lead." },
-      { status: 401 }
+      { status: 401 },
     );
   }
 

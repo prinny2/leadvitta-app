@@ -70,24 +70,33 @@ export function SimuladorScenarioBtn({
         href={href}
         style={{
           display: "inline-block",
-          border: active ? "1px solid #C9A060" : "1px solid rgba(201,160,96,0.4)",
+          border: active
+            ? "1px solid #C9A060"
+            : "1px solid rgba(201,160,96,0.4)",
           color: "#C9A060",
           borderRadius: "9999px",
           padding: "6px 16px",
           fontSize: "12px",
           fontWeight: 600,
           textDecoration: "none",
-          background: active ? "rgba(201,160,96,0.15)" : "rgba(201,160,96,0.07)",
-          transition: "background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
+          background: active
+            ? "rgba(201,160,96,0.15)"
+            : "rgba(201,160,96,0.07)",
+          transition:
+            "background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease",
         }}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLAnchorElement).style.background = "rgba(201,160,96,0.15)";
+          (e.currentTarget as HTMLAnchorElement).style.background =
+            "rgba(201,160,96,0.15)";
           (e.currentTarget as HTMLAnchorElement).style.borderColor = "#C9A060";
-          (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 12px rgba(201,160,96,0.2)";
+          (e.currentTarget as HTMLAnchorElement).style.boxShadow =
+            "0 0 12px rgba(201,160,96,0.2)";
         }}
         onMouseLeave={(e) => {
-          (e.currentTarget as HTMLAnchorElement).style.background = "rgba(201,160,96,0.07)";
-          (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(201,160,96,0.4)";
+          (e.currentTarget as HTMLAnchorElement).style.background =
+            "rgba(201,160,96,0.07)";
+          (e.currentTarget as HTMLAnchorElement).style.borderColor =
+            "rgba(201,160,96,0.4)";
           (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
         }}
       >

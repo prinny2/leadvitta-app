@@ -10,7 +10,12 @@ interface Props {
   children: ReactNode;
 }
 
-export function PricingCardAnimated({ index, isPopular, cardStyle, children }: Props) {
+export function PricingCardAnimated({
+  index,
+  isPopular,
+  cardStyle,
+  children,
+}: Props) {
   return (
     <motion.div
       initial={{ y: 50, opacity: 0 }}
@@ -32,7 +37,12 @@ export function PricingCardAnimated({ index, isPopular, cardStyle, children }: P
       style={{
         ...cardStyle,
         zIndex: isPopular ? 10 : 0,
-        transformOrigin: index === 0 ? "right center" : index === 2 ? "left center" : "center center",
+        transformOrigin:
+          index === 0
+            ? "right center"
+            : index === 2
+              ? "left center"
+              : "center center",
       }}
     >
       {children}

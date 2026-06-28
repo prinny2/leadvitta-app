@@ -170,5 +170,4 @@ export const objecoes: CategoriaObjecao[] = [
   },
 ];
 
-export const categoriaPorId = (id: string) =>
-  objecoes.find((c) => c.id === id);
+export const categoriaPorId = (id: string) => objecoes.find((c) => c.id === id);

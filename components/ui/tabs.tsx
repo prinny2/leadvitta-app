@@ -34,10 +34,7 @@ export function TabsList({
 }) {
   return (
     <div
-      className={cn(
-        "inline-flex gap-1 rounded-xl bg-nude-100 p-1",
-        className
-      )}
+      className={cn("inline-flex gap-1 rounded-xl bg-nude-100 p-1", className)}
     >
       {children}
     </div>
@@ -61,7 +58,7 @@ export function TabsTrigger({
         "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
         active
           ? "bg-white text-brand-600 shadow-sm"
-          : "text-muted hover:text-ink"
+          : "text-muted hover:text-ink",
       )}
     >
       {children}

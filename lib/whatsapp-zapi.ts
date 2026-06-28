@@ -34,14 +34,15 @@ export const zapiProvider: WhatsAppProvider = {
     if (!expected) return !isProductionRuntime();
 
     const url = new URL(req.url);
-    const got = url.searchParams.get("token") || req.headers.get("x-zapi-token") || "";
+    const got =
+      url.searchParams.get("token") || req.headers.get("x-zapi-token") || "";
     return got === expected;
   },
 
   parseInbound(rawBody) {
     try {
       const payload = JSON.parse(rawBody);
-      
+
       // Z-API envia diferentes tipos de eventos. O que nos interessa é "ReceivedMessage".
       if (payload.type !== "ReceivedMessage" || !payload.text?.message) {
         return null;
@@ -64,9 +65,13 @@ export const zapiProvider: WhatsAppProvider = {
   async sendText(to, body): Promise<WhatsAppResult> {
     const instance = INSTANCE();
     const token = TOKEN();
-    
+
     if (!instance || !token) {
-      return { ok: false, status: 0, data: { error: "Z-API não configurado (ZAPI_INSTANCE_ID/ZAPI_TOKEN)." } };
+      return {
+        ok: false,
+        status: 0,
+        data: { error: "Z-API não configurado (ZAPI_INSTANCE_ID/ZAPI_TOKEN)." },
+      };
     }
 
     const headers: Record<string, string> = {
@@ -88,7 +93,7 @@ export const zapiProvider: WhatsAppProvider = {
           phone: stripPrefix(to),
           message: body,
         }),
-      }
+      },
     );
 
     const data = await res.json().catch(() => ({}));
@@ -98,9 +103,16 @@ export const zapiProvider: WhatsAppProvider = {
   async sendImage(to, imageUrl, caption): Promise<WhatsAppResult> {
     const instance = INSTANCE();
     const token = TOKEN();
-    if (!instance || !token) return { ok: false, status: 0, data: { error: "Z-API não configurado." } };
+    if (!instance || !token)
+      return {
+        ok: false,
+        status: 0,
+        data: { error: "Z-API não configurado." },
+      };
 
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (CLIENT_TOKEN()) headers["Client-Token"] = CLIENT_TOKEN()!;
 
     const res = await fetch(
@@ -113,7 +125,7 @@ export const zapiProvider: WhatsAppProvider = {
           image: imageUrl,
           caption,
         }),
-      }
+      },
     );
     const data = await res.json().catch(() => ({}));
     return { ok: res.ok, status: res.status, data };
@@ -122,9 +134,16 @@ export const zapiProvider: WhatsAppProvider = {
   async sendButtons(to, body, buttons): Promise<WhatsAppResult> {
     const instance = INSTANCE();
     const token = TOKEN();
-    if (!instance || !token) return { ok: false, status: 0, data: { error: "Z-API não configurado." } };
+    if (!instance || !token)
+      return {
+        ok: false,
+        status: 0,
+        data: { error: "Z-API não configurado." },
+      };
 
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (CLIENT_TOKEN()) headers["Client-Token"] = CLIENT_TOKEN()!;
 
     const res = await fetch(
@@ -139,7 +158,7 @@ export const zapiProvider: WhatsAppProvider = {
             buttons: buttons.map((b) => ({ id: b.id, label: b.label })),
           },
         }),
-      }
+      },
     );
     const data = await res.json().catch(() => ({}));
     return { ok: res.ok, status: res.status, data };

@@ -43,7 +43,8 @@ export function WaitlistForm({ plan, className }: WaitlistFormProps) {
     return (
       <p className={className}>
         <span className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-700">
-          <Check size={15} /> Pronto! Você será avisada quando o {plan === "premium" ? "Premium" : "Pro"} abrir.
+          <Check size={15} /> Pronto! Você será avisada quando o{" "}
+          {plan === "premium" ? "Premium" : "Pro"} abrir.
         </span>
       </p>
     );
@@ -70,8 +71,12 @@ export function WaitlistForm({ plan, className }: WaitlistFormProps) {
           Avise-me
         </button>
       </div>
-      {erro ? <p className="mt-1.5 text-xs text-red-600">{erro}</p> : (
-        <p className="mt-1.5 text-xs text-muted">Entre na lista de espera — sem compromisso.</p>
+      {erro ? (
+        <p className="mt-1.5 text-xs text-red-600">{erro}</p>
+      ) : (
+        <p className="mt-1.5 text-xs text-muted">
+          Entre na lista de espera — sem compromisso.
+        </p>
       )}
     </form>
   );

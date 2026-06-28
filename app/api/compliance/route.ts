@@ -1,4 +1,9 @@
-import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import {
+  jsonNoStore,
+  enforceRateLimit,
+  readJsonBody,
+  rejectCrossOriginRequest,
+} from "@/lib/api-security";
 import { auditarCompliance } from "@/lib/ai/provider";
 import type { AuditoriaInput } from "@/lib/types";
 
@@ -25,14 +30,14 @@ export async function POST(req: Request) {
     if (!texto) {
       return jsonNoStore(
         { error: "Cole o texto que você quer revisar." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const providerChain = Array.isArray(body.providerChain)
       ? body.providerChain.filter(
           (p): p is "openai" | "anthropic" | "gemini" =>
-            p === "openai" || p === "anthropic" || p === "gemini"
+            p === "openai" || p === "anthropic" || p === "gemini",
         )
       : undefined;
 

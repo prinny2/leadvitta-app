@@ -1,4 +1,9 @@
-import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import {
+  enforceRateLimit,
+  jsonNoStore,
+  readJsonBody,
+  rejectCrossOriginRequest,
+} from "@/lib/api-security";
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { parseBillingPlan } from "@/lib/billing";
 import { sendOpsNotify } from "@/lib/ops-notify";
@@ -28,7 +33,10 @@ export async function POST(request: Request) {
   const parsed = await readJsonBody<WaitlistBody>(request, 2_048);
   if (parsed.error) return parsed.error;
 
-  const email = typeof parsed.data?.email === "string" ? parsed.data.email.trim().toLowerCase() : "";
+  const email =
+    typeof parsed.data?.email === "string"
+      ? parsed.data.email.trim().toLowerCase()
+      : "";
   if (!EMAIL_RE.test(email) || email.length > 200) {
     return jsonNoStore({ error: "Informe um e-mail válido." }, { status: 400 });
   }
@@ -47,7 +55,7 @@ export async function POST(request: Request) {
       plan,
       created_at: new Date().toISOString(),
     },
-    { merge: true }
+    { merge: true },
   );
 
   await sendOpsNotify("waitlist.joined", { email, plan }).catch(() => {});

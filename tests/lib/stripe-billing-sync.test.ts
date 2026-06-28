@@ -36,7 +36,9 @@ function makeFirestore(seed: Record<string, any> = {}) {
       store.delete(path);
     },
   });
-  const db = { collection: (c: string) => ({ doc: (d: string) => docRef(`${c}/${d}`) }) };
+  const db = {
+    collection: (c: string) => ({ doc: (d: string) => docRef(`${c}/${d}`) }),
+  };
   return { db, store, deleted, sets };
 }
 
@@ -77,8 +79,13 @@ describe("saveBillingPending", () => {
   it("grava por e-mail normalizado em billing_pending", async () => {
     const fs = makeFirestore();
     getDb.mockReturnValue(fs.db);
-    await saveBillingPending("Guest@Exemplo.com", { plan: "pro", status: "paid" });
-    const w = fs.sets.find((s) => s.path === "billing_pending/guest@exemplo.com");
+    await saveBillingPending("Guest@Exemplo.com", {
+      plan: "pro",
+      status: "paid",
+    });
+    const w = fs.sets.find(
+      (s) => s.path === "billing_pending/guest@exemplo.com",
+    );
     expect(w).toBeTruthy();
     expect(w?.data).toMatchObject({ email: "guest@exemplo.com", plan: "pro" });
   });
@@ -147,8 +154,11 @@ describe("resolveSubscriptionEmail", () => {
   it("prefere o e-mail dos metadados da assinatura", async () => {
     const stripe = { customers: { retrieve: vi.fn() } } as any;
     const email = await resolveSubscriptionEmail(
-      { metadata: { firebase_email: "Meta@Exemplo.com" }, customer: "cus_1" } as any,
-      stripe
+      {
+        metadata: { firebase_email: "Meta@Exemplo.com" },
+        customer: "cus_1",
+      } as any,
+      stripe,
     );
     expect(email).toBe("meta@exemplo.com");
     expect(stripe.customers.retrieve).not.toHaveBeenCalled();
@@ -156,11 +166,13 @@ describe("resolveSubscriptionEmail", () => {
 
   it("busca no customer quando não há e-mail nos metadados", async () => {
     const stripe = {
-      customers: { retrieve: vi.fn().mockResolvedValue({ email: "Cli@Exemplo.com" }) },
+      customers: {
+        retrieve: vi.fn().mockResolvedValue({ email: "Cli@Exemplo.com" }),
+      },
     } as any;
     const email = await resolveSubscriptionEmail(
       { metadata: {}, customer: "cus_2" } as any,
-      stripe
+      stripe,
     );
     expect(stripe.customers.retrieve).toHaveBeenCalledWith("cus_2");
     expect(email).toBe("cli@exemplo.com");
@@ -172,7 +184,7 @@ describe("resolveSubscriptionEmail", () => {
     } as any;
     const email = await resolveSubscriptionEmail(
       { metadata: {}, customer: "cus_3" } as any,
-      stripe
+      stripe,
     );
     expect(email).toBeUndefined();
   });
@@ -197,7 +209,7 @@ describe("syncSubscriptionBilling", () => {
     getDb.mockReturnValue(fs.db);
     const out = await syncSubscriptionBilling(
       subscription({ metadata: { firebase_uid: "uid_1", plan: "pro" } }),
-      stripe
+      stripe,
     );
     expect(out).toBe("clinica");
     expect(fs.store.get("clinicas/uid_1").billing).toMatchObject({
@@ -211,7 +223,7 @@ describe("syncSubscriptionBilling", () => {
     getDb.mockReturnValue(fs.db);
     const out = await syncSubscriptionBilling(
       subscription({ metadata: { firebase_email: "x@y.com" } }),
-      stripe
+      stripe,
     );
     expect(out).toBe("pending");
     expect(fs.store.has("billing_pending/x@y.com")).toBe(true);

@@ -18,7 +18,9 @@ const MOTIVOS: Record<EnableReason, string> = {
 };
 
 export function NotificacoesToggle() {
-  const [estado, setEstado] = useState<"idle" | "loading" | "ok" | "erro">("idle");
+  const [estado, setEstado] = useState<"idle" | "loading" | "ok" | "erro">(
+    "idle",
+  );
   const [msg, setMsg] = useState("");
 
   async function ativar() {
@@ -54,7 +56,11 @@ export function NotificacoesToggle() {
             <Check size={16} /> Notificações ativadas neste dispositivo.
           </p>
         ) : (
-          <Button onClick={ativar} disabled={estado === "loading"} variant="outline">
+          <Button
+            onClick={ativar}
+            disabled={estado === "loading"}
+            variant="outline"
+          >
             {estado === "loading" ? (
               <Loader2 size={16} className="animate-spin" />
             ) : (

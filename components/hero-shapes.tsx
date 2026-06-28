@@ -38,7 +38,10 @@ const SHAPES = [
 
 export function HeroShapes() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div
+      className="absolute inset-0 overflow-hidden pointer-events-none"
+      aria-hidden="true"
+    >
       {SHAPES.map((shape) => (
         <div
           key={`${shape.className}-${shape.width}`}

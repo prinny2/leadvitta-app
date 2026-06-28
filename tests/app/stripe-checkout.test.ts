@@ -66,8 +66,12 @@ beforeEach(() => {
   billingState.mode = "payment";
   billingState.disponivel = true;
   verifyToken.mockReset().mockResolvedValue(null);
-  sessionsCreate.mockReset().mockResolvedValue({ id: "cs_new", url: "https://stripe/checkout/cs_new" });
-  sendOps.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
+  sessionsCreate
+    .mockReset()
+    .mockResolvedValue({ id: "cs_new", url: "https://stripe/checkout/cs_new" });
+  sendOps
+    .mockReset()
+    .mockResolvedValue({ sent: false, reason: "not_configured" });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -108,7 +112,7 @@ describe("Stripe checkout — criação da sessão", () => {
     verifyToken.mockResolvedValue({ uid: "uid_1", email: "ana@exemplo.com" });
 
     const res = await POST(
-      checkoutRequest({ plan: "pro", firebaseIdToken: "tok" })
+      checkoutRequest({ plan: "pro", firebaseIdToken: "tok" }),
     );
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({
@@ -128,7 +132,7 @@ describe("Stripe checkout — criação da sessão", () => {
 
     expect(sendOps).toHaveBeenCalledWith(
       "checkout.started",
-      expect.objectContaining({ firebase_uid: "uid_1", plan: "pro" })
+      expect.objectContaining({ firebase_uid: "uid_1", plan: "pro" }),
     );
   });
 
@@ -139,7 +143,7 @@ describe("Stripe checkout — criação da sessão", () => {
     verifyToken.mockResolvedValue(null);
 
     const res = await POST(
-      checkoutRequest({ plan: "pro", customerEmail: "guest@exemplo.com" })
+      checkoutRequest({ plan: "pro", customerEmail: "guest@exemplo.com" }),
     );
     expect(res.status).toBe(200);
 

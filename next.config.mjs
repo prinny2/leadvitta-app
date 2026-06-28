@@ -9,9 +9,12 @@ const apiProxyOrigin = (
 ).replace(/\/$/, "");
 const enableApiProxy = process.env.ENABLE_API_PROXY === "true";
 
-if (enableApiProxy && /(^https?:\/\/)?(www\.)?leadbellus\.com\.br/i.test(apiProxyOrigin)) {
+if (
+  enableApiProxy &&
+  /(^https?:\/\/)?(www\.)?leadbellus\.com\.br/i.test(apiProxyOrigin)
+) {
   throw new Error(
-    "API_PROXY_ORIGIN must point to the Cloud Run origin, not leadbellus.com.br, to avoid an API proxy loop."
+    "API_PROXY_ORIGIN must point to the Cloud Run origin, not leadbellus.com.br, to avoid an API proxy loop.",
   );
 }
 

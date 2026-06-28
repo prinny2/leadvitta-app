@@ -67,7 +67,7 @@ export async function saveClinica(c: Clinica): Promise<void> {
     await setDoc(
       doc(getFirebaseDb(), "clinicas", user.uid),
       { ...resto, updated_at: new Date().toISOString() },
-      { merge: true }
+      { merge: true },
     );
     return;
   }
@@ -122,7 +122,7 @@ export async function saveFcmToken(token: string): Promise<void> {
   await setDoc(
     doc(getFirebaseDb(), "clinicas", user.uid),
     { fcm_tokens: arrayUnion(token), updated_at: new Date().toISOString() },
-    { merge: true }
+    { merge: true },
   );
 }
 
@@ -135,10 +135,10 @@ export async function listHistorico(): Promise<HistoricoItem[]> {
       collection(getFirebaseDb(), "historico"),
       where("user_id", "==", user.uid),
       orderBy("created_at", "desc"),
-      limit(200)
+      limit(200),
     );
     const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as HistoricoItem));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as HistoricoItem);
   }
   if (typeof window === "undefined") return [];
   const raw = window.localStorage.getItem(LS_HISTORICO);
@@ -146,7 +146,10 @@ export async function listHistorico(): Promise<HistoricoItem[]> {
 }
 
 export async function addHistorico(
-  item: Pick<HistoricoItem, "tipo" | "contexto" | "respostas" | "intent" | "sentiment" | "score">
+  item: Pick<
+    HistoricoItem,
+    "tipo" | "contexto" | "respostas" | "intent" | "sentiment" | "score"
+  >,
 ): Promise<void> {
   if (isFirebaseConfigured) {
     const user = getFirebaseAuth().currentUser;
@@ -176,7 +179,7 @@ export async function addHistorico(
 
 export async function toggleFavorito(
   id: string,
-  favorito: boolean
+  favorito: boolean,
 ): Promise<void> {
   if (isFirebaseConfigured) {
     const user = getFirebaseAuth().currentUser;
@@ -201,10 +204,10 @@ export async function listConversas(): Promise<Conversa[]> {
     collection(getFirebaseDb(), "conversas"),
     where("clinica_id", "==", user.uid),
     orderBy("ultima_atividade", "desc"),
-    limit(100)
+    limit(100),
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Conversa));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Conversa);
 }
 
 export async function getConversa(id: string): Promise<Conversa | null> {
@@ -215,14 +218,16 @@ export async function getConversa(id: string): Promise<Conversa | null> {
   return { id: snap.id, ...snap.data() } as Conversa;
 }
 
-export async function getMensagens(conversaId: string): Promise<MensagemConversa[]> {
+export async function getMensagens(
+  conversaId: string,
+): Promise<MensagemConversa[]> {
   if (!isFirebaseConfigured) return [];
   const user = getFirebaseAuth().currentUser;
   if (!user) return [];
   const q = query(
     collection(getFirebaseDb(), "conversas", conversaId, "mensagens"),
     orderBy("em", "asc"),
-    limit(500)
+    limit(500),
   );
   const snap = await getDocs(q);
   return snap.docs.map((d) => {
@@ -239,12 +244,14 @@ export async function getMensagens(conversaId: string): Promise<MensagemConversa
 export async function marcarConversaLida(conversaId: string): Promise<void> {
   if (!isFirebaseConfigured) return;
   if (!getFirebaseAuth().currentUser) return;
-  await updateDoc(doc(getFirebaseDb(), "conversas", conversaId), { nao_lida: false });
+  await updateDoc(doc(getFirebaseDb(), "conversas", conversaId), {
+    nao_lida: false,
+  });
 }
 
 export async function arquivarConversa(
   conversaId: string,
-  arquivada: boolean
+  arquivada: boolean,
 ): Promise<void> {
   if (!isFirebaseConfigured) return;
   if (!getFirebaseAuth().currentUser) return;

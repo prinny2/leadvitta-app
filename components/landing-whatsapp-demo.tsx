@@ -62,7 +62,11 @@ const PRESETS: Record<string, { mensagem: string; procedimento?: string }> = {
 
 const VARIANTES: { key: Variante; label: string; hint: string }[] = [
   { key: "curta", label: "Suave", hint: "Curtinha e carinhosa" },
-  { key: "consultiva", label: "Explica", hint: "Mostra o valor antes do preço" },
+  {
+    key: "consultiva",
+    label: "Explica",
+    hint: "Mostra o valor antes do preço",
+  },
   { key: "persuasiva", label: "Fechamento", hint: "Puxa pro agendamento" },
 ];
 
@@ -88,7 +92,9 @@ export function LandingWhatsAppDemo() {
   const [procedimento, setProcedimento] = useState("botox");
   const [situacao, setSituacao] = useState("preco");
   const [tom, setTom] = useState("acolhedor");
-  const [mensagemCliente, setMensagemCliente] = useState(PRESETS.preco.mensagem);
+  const [mensagemCliente, setMensagemCliente] = useState(
+    PRESETS.preco.mensagem,
+  );
 
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -110,7 +116,9 @@ export function LandingWhatsAppDemo() {
     try {
       const raw = window.localStorage.getItem(DEMO_USAGE_KEY);
       const parsed = raw ? Number.parseInt(raw, 10) : 0;
-      setDemoUses(Number.isFinite(parsed) ? Math.min(DEMO_LIMIT, Math.max(0, parsed)) : 0);
+      setDemoUses(
+        Number.isFinite(parsed) ? Math.min(DEMO_LIMIT, Math.max(0, parsed)) : 0,
+      );
     } catch {
       setDemoUses(0);
     } finally {
@@ -120,7 +128,10 @@ export function LandingWhatsAppDemo() {
 
   // Cycle through loading steps while generating
   useEffect(() => {
-    if (!loading) { setLoadingStep(0); return; }
+    if (!loading) {
+      setLoadingStep(0);
+      return;
+    }
     setLoadingStep(0);
     const interval = setInterval(() => {
       setLoadingStep((s) => (s + 1) % LOADING_STEPS.length);
@@ -216,7 +227,7 @@ export function LandingWhatsAppDemo() {
       if (data.mock) {
         setAviso(
           data.aviso ||
-            "Modo demonstração: mostramos um exemplo realista pra você ver como fica."
+            "Modo demonstração: mostramos um exemplo realista pra você ver como fica.",
         );
       } else if (data.aviso) {
         setAviso(data.aviso);
@@ -288,8 +299,8 @@ export function LandingWhatsAppDemo() {
                   <strong className="text-[#D9B66D]">R$97/mês</strong>
                 </div>
                 <p className="border-t border-white/10 pt-3 text-xs leading-relaxed text-white/48">
-                  Demo serve para testar. Start é o plano pago para usar no atendimento
-                  real da clínica.
+                  Demo serve para testar. Start é o plano pago para usar no
+                  atendimento real da clínica.
                 </p>
               </div>
 
@@ -329,7 +340,8 @@ export function LandingWhatsAppDemo() {
                 <div>
                   <CardTitle>Simulador rápido</CardTitle>
                   <p className="mt-1 text-sm text-muted">
-                    Você tem 5 gerações grátis para testar a resposta no seu tom.
+                    Você tem 5 gerações grátis para testar a resposta no seu
+                    tom.
                   </p>
                 </div>
                 <button
@@ -339,7 +351,7 @@ export function LandingWhatsAppDemo() {
                     "rounded-full border px-3 py-1.5 text-xs font-bold",
                     demoExhausted
                       ? "border-[#C9A060] bg-[#C9A060]/10 text-[#7A5108]"
-                      : "border-brand-100 bg-nude-50 text-muted"
+                      : "border-brand-100 bg-nude-50 text-muted",
                   )}
                 >
                   {demoRemaining} de {DEMO_LIMIT} restantes
@@ -354,9 +366,9 @@ export function LandingWhatsAppDemo() {
                 />
               </div>
               <p className="mt-1 text-sm text-muted">
-                É simples: <strong>1.</strong> diga o nome e o tom da sua clínica ·{" "}
-                <strong>2.</strong> cole a mensagem da cliente · <strong>3.</strong>{" "}
-                veja 3 jeitos de responder e copie o melhor.
+                É simples: <strong>1.</strong> diga o nome e o tom da sua
+                clínica · <strong>2.</strong> cole a mensagem da cliente ·{" "}
+                <strong>3.</strong> veja 3 jeitos de responder e copie o melhor.
               </p>
             </div>
 
@@ -477,7 +489,11 @@ export function LandingWhatsAppDemo() {
               >
                 <Wand2 size={16} /> Usar exemplo
               </Button>
-              <motion.div className="flex-1" whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+              <motion.div
+                className="flex-1"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <Button
                   type="button"
                   className="w-full"
@@ -486,7 +502,11 @@ export function LandingWhatsAppDemo() {
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
-                      <Loader2 size={16} className="animate-spin flex-shrink-0" /> Gerando…
+                      <Loader2
+                        size={16}
+                        className="animate-spin flex-shrink-0"
+                      />{" "}
+                      Gerando…
                     </span>
                   ) : demoExhausted ? (
                     <span className="flex items-center justify-center gap-2">
@@ -551,7 +571,11 @@ export function LandingWhatsAppDemo() {
                 initial={{ opacity: 0, y: 8, scale: 0.97 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.45, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                transition={{
+                  duration: 0.45,
+                  delay: 0.2,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
               >
                 <div className="max-w-[85%] rounded-2xl rounded-bl-md border border-brand-100 bg-white px-4 py-3 text-sm leading-relaxed text-ink shadow-card">
                   <AnimatePresence mode="wait">
@@ -585,7 +609,10 @@ export function LandingWhatsAppDemo() {
                         transition={{ duration: 0.2 }}
                         className="inline-flex items-center gap-2 text-white/90"
                       >
-                        <Loader2 size={14} className="animate-spin flex-shrink-0" />
+                        <Loader2
+                          size={14}
+                          className="animate-spin flex-shrink-0"
+                        />
                         <AnimatePresence mode="wait">
                           <motion.span
                             key={loadingStep}
@@ -604,7 +631,10 @@ export function LandingWhatsAppDemo() {
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{
+                          duration: 0.35,
+                          ease: [0.22, 1, 0.36, 1],
+                        }}
                         className="whitespace-pre-wrap"
                       >
                         {respostaAtual}
@@ -640,7 +670,7 @@ export function LandingWhatsAppDemo() {
                       "rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-colors",
                       variante === v.key
                         ? "border-brand-300 bg-brand-50 text-brand-700"
-                        : "border-brand-100 bg-white text-ink hover:bg-nude-50"
+                        : "border-brand-100 bg-white text-ink hover:bg-nude-50",
                     )}
                   >
                     <div>{v.label}</div>

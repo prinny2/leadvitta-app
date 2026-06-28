@@ -4,7 +4,10 @@ import {
   readJsonBody,
   rejectCrossOriginRequest,
 } from "@/lib/api-security";
-import { getFirebaseAdminDb, verifyFirebaseIdToken } from "@/lib/firebase/admin";
+import {
+  getFirebaseAdminDb,
+  verifyFirebaseIdToken,
+} from "@/lib/firebase/admin";
 import { getStripe } from "@/lib/stripe/server";
 import { siteUrl } from "@/lib/config";
 
@@ -41,7 +44,7 @@ export async function POST(request: Request) {
     console.error("[stripe.portal] Firebase Admin não configurado.");
     return jsonNoStore(
       { error: "Portal indisponível no momento. Fale com o suporte." },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -49,28 +52,32 @@ export async function POST(request: Request) {
     console.error("[stripe.portal] Stripe não configurado neste ambiente.");
     return jsonNoStore(
       { error: "Portal indisponível no momento. Fale com o suporte." },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
-  const decodedToken = await verifyFirebaseIdToken(parsed.data?.firebaseIdToken);
+  const decodedToken = await verifyFirebaseIdToken(
+    parsed.data?.firebaseIdToken,
+  );
   if (!decodedToken?.uid) {
     return jsonNoStore(
       { error: "Faça login antes de gerenciar sua assinatura." },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
-  const clinicaSnap = await db.collection("clinicas").doc(decodedToken.uid).get();
+  const clinicaSnap = await db
+    .collection("clinicas")
+    .doc(decodedToken.uid)
+    .get();
   const stripeCustomerId = clinicaSnap.data()?.billing?.stripe_customer_id;
 
   if (typeof stripeCustomerId !== "string" || !stripeCustomerId.trim()) {
     return jsonNoStore(
       {
-        error:
-          "Ainda não encontramos uma assinatura ativa para esta conta.",
+        error: "Ainda não encontramos uma assinatura ativa para esta conta.",
       },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -85,7 +92,7 @@ export async function POST(request: Request) {
     console.error("[stripe.portal] erro ao criar sessão", error);
     return jsonNoStore(
       { error: "Não foi possível abrir o portal de assinatura." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

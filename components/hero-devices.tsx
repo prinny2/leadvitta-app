@@ -37,11 +37,29 @@ function SignalBars() {
     <div style={{ display: "grid", gap: 11 }}>
       {intentRows.map((row) => (
         <div key={row.label}>
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 5 }}>
-            <span style={{ color: C.muted, fontSize: 11, fontWeight: 700 }}>{row.label}</span>
-            <span style={{ color: row.color, fontSize: 11, fontWeight: 900 }}>{row.value}%</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 12,
+              marginBottom: 5,
+            }}
+          >
+            <span style={{ color: C.muted, fontSize: 11, fontWeight: 700 }}>
+              {row.label}
+            </span>
+            <span style={{ color: row.color, fontSize: 11, fontWeight: 900 }}>
+              {row.value}%
+            </span>
           </div>
-          <div style={{ height: 7, borderRadius: 999, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
+          <div
+            style={{
+              height: 7,
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.08)",
+              overflow: "hidden",
+            }}
+          >
             <div
               style={{
                 width: `${row.value}%`,
@@ -66,12 +84,19 @@ function ChatBubble({
   mine?: boolean;
 }) {
   return (
-    <div style={{ display: "flex", justifyContent: mine ? "flex-end" : "flex-start" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: mine ? "flex-end" : "flex-start",
+      }}
+    >
       <div
         style={{
           maxWidth: mine ? "86%" : "78%",
           borderRadius: mine ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-          border: mine ? "1px solid rgba(94,224,160,0.28)" : "1px solid rgba(255,255,255,0.08)",
+          border: mine
+            ? "1px solid rgba(94,224,160,0.28)"
+            : "1px solid rgba(255,255,255,0.08)",
           background: mine ? "rgba(94,224,160,0.12)" : "rgba(255,255,255,0.06)",
           color: mine ? "#EFFFF5" : C.text,
           padding: "11px 13px",
@@ -105,13 +130,39 @@ function ReplyCard({
         background: "rgba(255,255,255,0.045)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 10,
+          marginBottom: 6,
+        }}
+      >
         <span style={{ color, fontSize: 11, fontWeight: 900 }}>{label}</span>
-        <span style={{ color: C.bg, background: color, borderRadius: 999, padding: "3px 8px", fontSize: 9, fontWeight: 900 }}>
+        <span
+          style={{
+            color: C.bg,
+            background: color,
+            borderRadius: 999,
+            padding: "3px 8px",
+            fontSize: 9,
+            fontWeight: 900,
+          }}
+        >
           copiar
         </span>
       </div>
-      <p style={{ margin: 0, color: "rgba(247,241,228,0.72)", fontSize: 11, lineHeight: 1.5 }}>{text}</p>
+      <p
+        style={{
+          margin: 0,
+          color: "rgba(247,241,228,0.72)",
+          fontSize: 11,
+          lineHeight: 1.5,
+        }}
+      >
+        {text}
+      </p>
     </div>
   );
 }
@@ -139,13 +190,23 @@ function ConversionStrip() {
             border: `1px solid ${index === 0 ? "rgba(247,201,107,0.28)" : C.line}`,
             borderRadius: 8,
             padding: "10px 11px",
-            background: index === 0 ? "rgba(247,201,107,0.10)" : "rgba(255,255,255,0.04)",
+            background:
+              index === 0 ? "rgba(247,201,107,0.10)" : "rgba(255,255,255,0.04)",
           }}
         >
-          <strong style={{ display: "block", color: index === 0 ? C.gold : C.text, fontSize: 21, lineHeight: 1 }}>
+          <strong
+            style={{
+              display: "block",
+              color: index === 0 ? C.gold : C.text,
+              fontSize: 21,
+              lineHeight: 1,
+            }}
+          >
             {value}
           </strong>
-          <span style={{ color: C.muted, fontSize: 10, fontWeight: 700 }}>{label}</span>
+          <span style={{ color: C.muted, fontSize: 10, fontWeight: 700 }}>
+            {label}
+          </span>
         </div>
       ))}
     </div>
@@ -180,7 +241,8 @@ export function HeroDevices() {
           borderRadius: 18,
           background:
             "linear-gradient(145deg, rgba(16,35,61,0.98), rgba(6,17,31,0.98))",
-          boxShadow: "0 30px 90px rgba(0,0,0,0.52), 0 0 0 1px rgba(255,255,255,0.04) inset",
+          boxShadow:
+            "0 30px 90px rgba(0,0,0,0.52), 0 0 0 1px rgba(255,255,255,0.04) inset",
           overflow: "hidden",
         }}
       >
@@ -196,7 +258,15 @@ export function HeroDevices() {
         />
 
         <div style={{ position: "relative", padding: 18 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: 14 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 14,
+              marginBottom: 14,
+            }}
+          >
             <div>
               <div style={{ color: C.gold, fontSize: 12, fontWeight: 900 }}>
                 Central ao vivo
@@ -221,7 +291,14 @@ export function HeroDevices() {
             </div>
           </div>
 
-          <div className="hero-live-grid" style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 14 }}>
+          <div
+            className="hero-live-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1.15fr 0.85fr",
+              gap: 14,
+            }}
+          >
             <div style={{ display: "grid", gap: 12 }}>
               <div
                 style={{
@@ -231,31 +308,88 @@ export function HeroDevices() {
                   padding: 14,
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 10,
+                    marginBottom: 12,
+                  }}
+                >
                   <div>
-                    <strong style={{ color: C.text, fontSize: 14 }}>Ana - 12:41</strong>
-                    <p style={{ margin: "3px 0 0", color: C.muted, fontSize: 10 }}>Instagram para WhatsApp</p>
+                    <strong style={{ color: C.text, fontSize: 14 }}>
+                      Ana - 12:41
+                    </strong>
+                    <p
+                      style={{
+                        margin: "3px 0 0",
+                        color: C.muted,
+                        fontSize: 10,
+                      }}
+                    >
+                      Instagram para WhatsApp
+                    </p>
                   </div>
-                  <span style={{ color: C.mint, fontSize: 10, fontWeight: 900 }}>responder agora</span>
+                  <span
+                    style={{ color: C.mint, fontSize: 10, fontWeight: 900 }}
+                  >
+                    responder agora
+                  </span>
                 </div>
 
                 <div style={{ display: "grid", gap: 9 }}>
-                  <ChatBubble>Oi! Quanto fica o botox? Tenho medo de ficar artificial.</ChatBubble>
+                  <ChatBubble>
+                    Oi! Quanto fica o botox? Tenho medo de ficar artificial.
+                  </ChatBubble>
                   <ChatBubble mine>
-                    Ana, consigo te orientar sim. Para ficar natural, o valor depende dos pontos e da avaliacao.
+                    Ana, consigo te orientar sim. Para ficar natural, o valor
+                    depende dos pontos e da avaliacao.
                   </ChatBubble>
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }} className="hero-tags-row">
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 8,
+                }}
+                className="hero-tags-row"
+              >
                 {[
                   ["Intencao", "Preco", C.coral],
                   ["Tom", "Acolhedor", C.gold],
                   ["Proximo passo", "Avaliacao", C.mint],
                 ].map(([label, value, color]) => (
-                  <div key={label} style={{ border: `1px solid ${color}44`, borderRadius: 8, padding: "9px 10px", background: "rgba(255,255,255,0.04)" }}>
-                    <span style={{ display: "block", color: C.muted, fontSize: 9, fontWeight: 800 }}>{label}</span>
-                    <strong style={{ display: "block", color, fontSize: 12, marginTop: 2 }}>{value}</strong>
+                  <div
+                    key={label}
+                    style={{
+                      border: `1px solid ${color}44`,
+                      borderRadius: 8,
+                      padding: "9px 10px",
+                      background: "rgba(255,255,255,0.04)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "block",
+                        color: C.muted,
+                        fontSize: 9,
+                        fontWeight: 800,
+                      }}
+                    >
+                      {label}
+                    </span>
+                    <strong
+                      style={{
+                        display: "block",
+                        color,
+                        fontSize: 12,
+                        marginTop: 2,
+                      }}
+                    >
+                      {value}
+                    </strong>
                   </div>
                 ))}
               </div>
@@ -272,9 +406,27 @@ export function HeroDevices() {
                   padding: 14,
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 11 }}>
-                  <strong style={{ color: C.text, fontSize: 13 }}>Prioridade</strong>
-                  <span style={{ color: C.bg, background: C.gold, borderRadius: 999, padding: "4px 8px", fontSize: 10, fontWeight: 900 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: 11,
+                  }}
+                >
+                  <strong style={{ color: C.text, fontSize: 13 }}>
+                    Prioridade
+                  </strong>
+                  <span
+                    style={{
+                      color: C.bg,
+                      background: C.gold,
+                      borderRadius: 999,
+                      padding: "4px 8px",
+                      fontSize: 10,
+                      fontWeight: 900,
+                    }}
+                  >
                     alta
                   </span>
                 </div>
@@ -293,15 +445,52 @@ export function HeroDevices() {
                   background: "rgba(255,255,255,0.04)",
                 }}
               >
-                <div style={{ color: C.sky, fontSize: 11, fontWeight: 900, marginBottom: 8 }}>
+                <div
+                  style={{
+                    color: C.sky,
+                    fontSize: 11,
+                    fontWeight: 900,
+                    marginBottom: 8,
+                  }}
+                >
                   Fluxo automatico
                 </div>
-                {["Detecta a situacao", "Gera 3 respostas", "Copia para o WhatsApp"].map((step, index) => (
-                  <div key={step} style={{ display: "flex", gap: 8, alignItems: "center", marginTop: index ? 7 : 0 }}>
-                    <span style={{ width: 18, height: 18, borderRadius: 999, display: "grid", placeItems: "center", background: "rgba(122,199,255,0.12)", color: C.sky, fontSize: 10, fontWeight: 900 }}>
+                {[
+                  "Detecta a situacao",
+                  "Gera 3 respostas",
+                  "Copia para o WhatsApp",
+                ].map((step, index) => (
+                  <div
+                    key={step}
+                    style={{
+                      display: "flex",
+                      gap: 8,
+                      alignItems: "center",
+                      marginTop: index ? 7 : 0,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 18,
+                        height: 18,
+                        borderRadius: 999,
+                        display: "grid",
+                        placeItems: "center",
+                        background: "rgba(122,199,255,0.12)",
+                        color: C.sky,
+                        fontSize: 10,
+                        fontWeight: 900,
+                      }}
+                    >
                       {index + 1}
                     </span>
-                    <span style={{ color: "rgba(247,241,228,0.72)", fontSize: 11, fontWeight: 700 }}>
+                    <span
+                      style={{
+                        color: "rgba(247,241,228,0.72)",
+                        fontSize: 11,
+                        fontWeight: 700,
+                      }}
+                    >
                       {step}
                     </span>
                   </div>

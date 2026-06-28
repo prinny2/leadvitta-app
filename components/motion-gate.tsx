@@ -13,7 +13,7 @@ export function useShouldReduce() {
 
   useEffect(() => {
     const mq = window.matchMedia(
-      "(max-width: 768px), (prefers-reduced-motion: reduce)"
+      "(max-width: 768px), (prefers-reduced-motion: reduce)",
     );
     const update = () => setReduce(mq.matches);
     update();

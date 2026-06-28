@@ -10,14 +10,10 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname;
   const pathname = request.nextUrl.pathname;
 
-  if (
-    isLegacyPublicHost(hostname) &&
-    !shouldKeepLegacyApiRoute(pathname)
-  ) {
+  if (isLegacyPublicHost(hostname) && !shouldKeepLegacyApiRoute(pathname)) {
     const target = buildCanonicalRedirectUrl(
-      request.nextUrl,
       pathname,
-      request.nextUrl.search
+      request.nextUrl.search,
     );
     return NextResponse.redirect(target, 308);
   }

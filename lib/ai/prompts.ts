@@ -19,9 +19,11 @@ const VARIANTE_NOME: Record<string, string> = {
 };
 
 const VARIANTE_POSTURA: Record<string, string> = {
-  curta: "acolhe sem pressionar e reabre a conversa com UMA pergunta estratégica",
+  curta:
+    "acolhe sem pressionar e reabre a conversa com UMA pergunta estratégica",
   consultiva: "educa e qualifica, explicando que depende da avaliação/objetivo",
-  persuasiva: "conduz direto para a avaliação/agendamento com urgência leve (horários)",
+  persuasiva:
+    "conduz direto para a avaliação/agendamento com urgência leve (horários)",
 };
 
 // ======================================================================
@@ -81,12 +83,16 @@ function blocoVoz(clinica: GerarInput["clinica"], nome?: string): string[] {
   const linhas: string[] = [];
   if (clinica?.nome_clinica) {
     linhas.push(
-      `Clínica: ${clinica.nome_clinica}${clinica.cidade ? " — " + clinica.cidade : ""}.`
+      `Clínica: ${clinica.nome_clinica}${clinica.cidade ? " — " + clinica.cidade : ""}.`,
     );
   }
-  linhas.push(`Tratamento da cliente: ${comoChamarInstrucao(clinica?.como_chamar, nome)}`);
+  linhas.push(
+    `Tratamento da cliente: ${comoChamarInstrucao(clinica?.como_chamar, nome)}`,
+  );
   if (typeof clinica?.formalidade === "number") {
-    linhas.push(`Nível de formalidade: ${formalidadeLabel(clinica.formalidade)}.`);
+    linhas.push(
+      `Nível de formalidade: ${formalidadeLabel(clinica.formalidade)}.`,
+    );
   }
   if (clinica?.cta_preferido) {
     linhas.push(`CTA preferido da clínica: ${clinica.cta_preferido}.`);
@@ -101,18 +107,22 @@ export function buildGeradorUser(input: GerarInput): string {
   const proc = procedimentoPorId(input.procedimento);
   const sit = situacaoPorId(input.situacao);
   const tom = tomPorId(input.tom);
-  const perfil = input.perfilCliente ? perfilPorValue(input.perfilCliente) : undefined;
+  const perfil = input.perfilCliente
+    ? perfilPorValue(input.perfilCliente)
+    : undefined;
   const linhas: string[] = [];
 
   if (input.modo === "reescrever") {
     linhas.push(
-      "TAREFA: Reescreva a mensagem abaixo (escrita pela própria profissional) deixando-a mais humanizada, estratégica e persuasiva, seguindo a fórmula. Gere as 3 variações."
+      "TAREFA: Reescreva a mensagem abaixo (escrita pela própria profissional) deixando-a mais humanizada, estratégica e persuasiva, seguindo a fórmula. Gere as 3 variações.",
     );
     if (input.oQueMelhorar && input.oQueMelhorar.length) {
       linhas.push(`Pontos a melhorar: ${input.oQueMelhorar.join("; ")}.`);
     }
   } else {
-    linhas.push("TAREFA: Gere 3 respostas para a profissional enviar à cliente, seguindo a fórmula.");
+    linhas.push(
+      "TAREFA: Gere 3 respostas para a profissional enviar à cliente, seguindo a fórmula.",
+    );
   }
 
   linhas.push(...blocoVoz(input.clinica, input.nomeCliente));
@@ -126,12 +136,15 @@ export function buildGeradorUser(input: GerarInput): string {
     linhas.push(`Procedimento: ${input.procedimento}.`);
   }
   if (sit) linhas.push(`Situação: ${sit.label}. ${sit.diretriz}`);
-  if (perfil) linhas.push(`Perfil da cliente: ${perfil.label}. ${perfil.diretriz}`);
+  if (perfil)
+    linhas.push(`Perfil da cliente: ${perfil.label}. ${perfil.diretriz}`);
   if (tom) linhas.push(`Tom desejado: ${tom.label}. ${tom.instrucao}`);
   if (input.objetivo) {
     linhas.push(`Objetivo desta resposta: ${input.objetivo}.`);
     if (input.objetivo.includes("rápido") || input.objetivo.includes("breve")) {
-      linhas.push("PRIORIDADE ESPECIAL: Mantenha TODAS as respostas extremamente concisas (2-3 frases no máximo). Foque direto no próximo passo prático (horário, confirmação de agenda). Evite qualquer explicação longa — a cliente de 2026 reclama de 'muito texto'.");
+      linhas.push(
+        "PRIORIDADE ESPECIAL: Mantenha TODAS as respostas extremamente concisas (2-3 frases no máximo). Foque direto no próximo passo prático (horário, confirmação de agenda). Evite qualquer explicação longa — a cliente de 2026 reclama de 'muito texto'.",
+      );
     }
   }
   linhas.push(`Mensagem da cliente: "${input.mensagemCliente}"`);
@@ -146,7 +159,7 @@ export function buildRefineUser(input: RefineInput): string {
   const linhas: string[] = [];
 
   linhas.push(
-    `TAREFA: Melhore a resposta no estilo "${VARIANTE_NOME[input.variante]}" (${VARIANTE_POSTURA[input.variante]}). Gere UMA versão melhor e diferente.`
+    `TAREFA: Melhore a resposta no estilo "${VARIANTE_NOME[input.variante]}" (${VARIANTE_POSTURA[input.variante]}). Gere UMA versão melhor e diferente.`,
   );
   linhas.push(...blocoVoz(input.clinica, input.nomeCliente));
   if (proc) linhas.push(`Procedimento: ${proc.label}. ${proc.conducao}`);
@@ -194,27 +207,32 @@ export const DENYLIST_RULES: DenylistRule[] = [
   {
     // Pega "resultado garantido" e também "resultado é/está/sempre garantido".
     re: /resultados?\s+(?:\S+\s+)?garantid/i,
-    motivo: "Promessa de resultado garantido. Prefira 'o resultado varia de pessoa para pessoa'.",
+    motivo:
+      "Promessa de resultado garantido. Prefira 'o resultado varia de pessoa para pessoa'.",
     gravidade: "alta",
   },
   {
     re: /100\s*%\s*seguro/i,
-    motivo: "'100% seguro' não existe em procedimento estético. Fale em segurança com avaliação individual.",
+    motivo:
+      "'100% seguro' não existe em procedimento estético. Fale em segurança com avaliação individual.",
     gravidade: "alta",
   },
   {
     re: /sem\s+risco/i,
-    motivo: "'Sem risco' passa garantia indevida. Prefira 'feito com segurança e os devidos cuidados'.",
+    motivo:
+      "'Sem risco' passa garantia indevida. Prefira 'feito com segurança e os devidos cuidados'.",
     gravidade: "alta",
   },
   {
     re: /vai\s+ficar\s+perfeit/i,
-    motivo: "Promete perfeição. Crie expectativa realista: 'pode melhorar bastante, depende da avaliação'.",
+    motivo:
+      "Promete perfeição. Crie expectativa realista: 'pode melhorar bastante, depende da avaliação'.",
     gravidade: "media",
   },
   {
     re: /elimina\w*\s+(a\s+)?gordura\s+definitiv/i,
-    motivo: "Promete eliminar gordura definitivamente. Diga que 'auxilia' e depende de hábitos.",
+    motivo:
+      "Promete eliminar gordura definitivamente. Diga que 'auxilia' e depende de hábitos.",
     gravidade: "alta",
   },
   {
@@ -224,17 +242,20 @@ export const DENYLIST_RULES: DenylistRule[] = [
   },
   {
     re: /cura\w*\s+(o\s+|do\s+)?melasma/i,
-    motivo: "Diz 'curar o melasma'. Melasma se controla, não se cura — ajuste a promessa.",
+    motivo:
+      "Diz 'curar o melasma'. Melasma se controla, não se cura — ajuste a promessa.",
     gravidade: "alta",
   },
   {
     re: /rejuvenesc\w*\s+\d+\s*anos/i,
-    motivo: "Promete 'rejuvenescer X anos'. Expectativa irreal — prefira 'aspecto mais jovem e descansado'.",
+    motivo:
+      "Promete 'rejuvenescer X anos'. Expectativa irreal — prefira 'aspecto mais jovem e descansado'.",
     gravidade: "media",
   },
   {
     re: /\bgaranto\b/i,
-    motivo: "'Garanto' soa como promessa de resultado. Prefira 'busco', 'cuido para que'.",
+    motivo:
+      "'Garanto' soa como promessa de resultado. Prefira 'busco', 'cuido para que'.",
     gravidade: "media",
   },
   // Preço cravado como fixo (deveria depender da avaliação). Conservador: só
@@ -242,12 +263,14 @@ export const DENYLIST_RULES: DenylistRule[] = [
   // como "a partir de R$" ou "em torno de R$" não casam.
   {
     re: /\bcusta\s+R\$\s*\d/i,
-    motivo: "Crava preço fixo. O valor depende da avaliação — prefira 'a partir de' ou leve à avaliação.",
+    motivo:
+      "Crava preço fixo. O valor depende da avaliação — prefira 'a partir de' ou leve à avaliação.",
     gravidade: "media",
   },
   {
     re: /\b(fica|sai)\s+(por\s+|em\s+)?R\$\s*\d/i,
-    motivo: "Crava preço fixo. O valor depende da avaliação — prefira 'a partir de' ou leve à avaliação.",
+    motivo:
+      "Crava preço fixo. O valor depende da avaliação — prefira 'a partir de' ou leve à avaliação.",
     gravidade: "media",
   },
 ];
@@ -301,7 +324,9 @@ FORMATO DE SAÍDA — responda APENAS com um JSON válido, sem nada fora dele:
 
 export function buildAuditoriaUser(input: AuditoriaInput): string {
   const linhas: string[] = [];
-  linhas.push("TAREFA: Revise o compliance do texto abaixo e devolva a versão segura.");
+  linhas.push(
+    "TAREFA: Revise o compliance do texto abaixo e devolva a versão segura.",
+  );
   linhas.push(...blocoVoz(input.clinica));
   linhas.push(`Texto a revisar: """${input.texto}"""`);
   return linhas.join("\n");

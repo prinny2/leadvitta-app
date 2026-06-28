@@ -34,7 +34,7 @@ export function mockGerador(input: GerarInput): RespostaTripla {
   return {
     curta: `${ola} 😊 O valor de ${p} varia conforme o seu objetivo e a avaliação. Antes de te passar certinho, me conta: o que você gostaria de melhorar?`,
     consultiva: `${ola} Te explico sim 😊 ${capitalize(
-      p
+      p,
     )} não tem valor único pra todos os casos, porque depende da avaliação e do resultado que você deseja. Você busca algo mais natural ou um resultado mais marcante?`,
     persuasiva: `${ola} Pra te orientar com segurança, o ideal é uma avaliação rápida — assim indicamos o melhor caminho pra você e explicamos tudo, inclusive o valor. Quer que eu veja os horários dessa semana? 💕`,
   };
@@ -48,7 +48,7 @@ export function mockRefine(input: RefineInput): string {
       return `${ola} 😊 Posso te explicar certinho sobre ${p}! Pra eu te orientar do jeito certo, me conta rapidinho: qual é o seu maior objetivo com esse procedimento?`;
     case "consultiva":
       return `${ola} Adorei seu interesse 💕 ${capitalize(
-        p
+        p,
       )} é bem individual: o melhor caminho depende da sua avaliação e do que você deseja alcançar. Posso te explicar as opções e como funciona a avaliação?`;
     case "persuasiva":
     default:
@@ -72,17 +72,38 @@ export function mockFollowup(input: FollowUpInput): string[] {
  * de defesa quando a reescrita da IA ainda vier com algum termo proibido.
  */
 const SOFTEN_RULES: { re: RegExp; repl: string }[] = [
-  { re: /resultados?\s+(?:\S+\s+)?garantid\w*/gi, repl: "resultado que varia de pessoa para pessoa" },
+  {
+    re: /resultados?\s+(?:\S+\s+)?garantid\w*/gi,
+    repl: "resultado que varia de pessoa para pessoa",
+  },
   { re: /100\s*%\s*seguro/gi, repl: "feito com segurança" },
-  { re: /sem\s+(nenhum\s+)?risco(\s+nenhum)?/gi, repl: "com os devidos cuidados" },
+  {
+    re: /sem\s+(nenhum\s+)?risco(\s+nenhum)?/gi,
+    repl: "com os devidos cuidados",
+  },
   { re: /vai\s+ficar\s+perfeit\w*/gi, repl: "pode melhorar bastante" },
-  { re: /elimina\w*\s+(a\s+)?gordura\s+definitiv\w*/gi, repl: "ajuda a reduzir a gordura localizada" },
+  {
+    re: /elimina\w*\s+(a\s+)?gordura\s+definitiv\w*/gi,
+    repl: "ajuda a reduzir a gordura localizada",
+  },
   { re: /emagrec\w*\s+\d+\s*(quilos|kg)/gi, repl: "auxilia no emagrecimento" },
-  { re: /cura\w*\s+(o\s+|do\s+)?melasma/gi, repl: "ajuda a controlar o melasma" },
-  { re: /rejuvenesc\w*\s+\d+\s*anos/gi, repl: "deixa o aspecto mais jovem e descansado" },
+  {
+    re: /cura\w*\s+(o\s+|do\s+)?melasma/gi,
+    repl: "ajuda a controlar o melasma",
+  },
+  {
+    re: /rejuvenesc\w*\s+\d+\s*anos/gi,
+    repl: "deixa o aspecto mais jovem e descansado",
+  },
   { re: /\bgaranto\b/gi, repl: "busco" },
-  { re: /\bcusta\s+R\$\s*[\d.,]+/gi, repl: "tem o valor definido na avaliação" },
-  { re: /\b(fica|sai)\s+(por\s+|em\s+)?R\$\s*[\d.,]+/gi, repl: "tem o valor definido na avaliação" },
+  {
+    re: /\bcusta\s+R\$\s*[\d.,]+/gi,
+    repl: "tem o valor definido na avaliação",
+  },
+  {
+    re: /\b(fica|sai)\s+(por\s+|em\s+)?R\$\s*[\d.,]+/gi,
+    repl: "tem o valor definido na avaliação",
+  },
 ];
 
 export function softenText(texto: string): string {

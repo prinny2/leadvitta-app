@@ -21,13 +21,17 @@ export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
  * Selo curto (rótulo, status, gancho). Pílula com a paleta da marca.
  * Substitui a classe utilitária `.badge-pain` por uma primitiva com variantes.
  */
-export function Badge({ className, variant = "neutral", ...props }: BadgeProps) {
+export function Badge({
+  className,
+  variant = "neutral",
+  ...props
+}: BadgeProps) {
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider",
         variants[variant],
-        className
+        className,
       )}
       {...props}
     />

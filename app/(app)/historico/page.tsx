@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { History as HistoryIcon, Loader2, Star, BookOpen } from "lucide-react";
+import { History as HistoryIcon, Loader2, Star } from "lucide-react";
 import { CopyButton } from "@/components/copy-button";
 import { PrintButton } from "@/components/print-button";
 import { formatarData } from "@/lib/utils";
@@ -52,25 +52,29 @@ export default function HistoricoPage() {
     const novo = !item.favorito;
     await toggleFavorito(item.id, novo);
     setItens((prev) =>
-      prev ? prev.map((i) => (i.id === item.id ? { ...i, favorito: novo } : i)) : prev
+      prev
+        ? prev.map((i) => (i.id === item.id ? { ...i, favorito: novo } : i))
+        : prev,
     );
   }
 
   const filtrados = (itens ?? []).filter(
     (i) =>
       (filtroTipo === "todos" || i.tipo === filtroTipo) &&
-      (!soFavoritos || i.favorito)
+      (!soFavoritos || i.favorito),
   );
 
   return (
     <div className="space-y-6 animate-fade-in">
-
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="font-serif text-3xl font-semibold text-champagne-300">Histórico</h1>
+          <h1 className="font-serif text-3xl font-semibold text-champagne-300">
+            Histórico
+          </h1>
           <p className="text-sm text-navy-100 mt-1">
-            Tudo que você gerou fica salvo aqui para reaproveitar a qualquer momento.
+            Tudo que você gerou fica salvo aqui para reaproveitar a qualquer
+            momento.
           </p>
         </div>
         <PrintButton />
@@ -88,7 +92,7 @@ export default function HistoricoPage() {
                 "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                 filtroTipo === f.value
                   ? "border-brand-500 bg-navy-800 text-white"
-                  : "border-navy-500 bg-navy-700 text-navy-100 hover:bg-navy-700"
+                  : "border-navy-500 bg-navy-700 text-navy-100 hover:bg-navy-700",
               )}
             >
               {f.label}
@@ -101,10 +105,11 @@ export default function HistoricoPage() {
               "ml-1 inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               soFavoritos
                 ? "border-gold-400 bg-gold-50 text-gold-700"
-                : "border-navy-500 bg-navy-700 text-navy-100 hover:bg-navy-700"
+                : "border-navy-500 bg-navy-700 text-navy-100 hover:bg-navy-700",
             )}
           >
-            <Star size={12} fill={soFavoritos ? "currentColor" : "none"} /> Favoritos
+            <Star size={12} fill={soFavoritos ? "currentColor" : "none"} />{" "}
+            Favoritos
           </button>
         </div>
       )}
@@ -123,7 +128,9 @@ export default function HistoricoPage() {
             <HistoryIcon size={22} className="text-gold-500" />
           </div>
           <p className="text-sm font-medium text-champagne-300 mb-1">
-            {itens.length === 0 ? "Nenhuma resposta salva ainda" : "Nenhum item para esse filtro"}
+            {itens.length === 0
+              ? "Nenhuma resposta salva ainda"
+              : "Nenhum item para esse filtro"}
           </p>
           <p className="text-xs text-navy-100 max-w-xs">
             {itens.length === 0
@@ -146,7 +153,12 @@ export default function HistoricoPage() {
               >
                 {/* Cabeçalho do item */}
                 <div className="flex flex-wrap items-center gap-2 border-b border-brand-50 px-4 py-3">
-                  <span className={cn("rounded-full px-2.5 py-0.5 text-xs font-semibold", badge)}>
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-0.5 text-xs font-semibold",
+                      badge,
+                    )}
+                  >
                     {tipoLabel[item.tipo] ?? item.tipo}
                   </span>
                   {item.intent && (
@@ -155,27 +167,40 @@ export default function HistoricoPage() {
                     </span>
                   )}
                   {item.score !== undefined && (
-                    <span className={cn(
-                      "rounded-full px-2.5 py-0.5 text-xs font-bold",
-                      item.score > 70 ? "bg-green-900/30 text-green-400"
-                        : item.score > 40 ? "bg-gold-100 text-gold-700"
-                        : "bg-brand-100 text-gold-400"
-                    )}>
+                    <span
+                      className={cn(
+                        "rounded-full px-2.5 py-0.5 text-xs font-bold",
+                        item.score > 70
+                          ? "bg-green-900/30 text-green-400"
+                          : item.score > 40
+                            ? "bg-gold-100 text-gold-700"
+                            : "bg-brand-100 text-gold-400",
+                      )}
+                    >
                       Score {item.score}%
                     </span>
                   )}
-                  {resumo && <span className="text-xs text-navy-100">{resumo}</span>}
-                  <span className="ml-auto text-xs text-navy-100">{formatarData(item.created_at)}</span>
+                  {resumo && (
+                    <span className="text-xs text-navy-100">{resumo}</span>
+                  )}
+                  <span className="ml-auto text-xs text-navy-100">
+                    {formatarData(item.created_at)}
+                  </span>
                   <button
                     type="button"
                     onClick={() => favoritar(item)}
                     aria-label="Favoritar"
                     className={cn(
                       "transition-colors",
-                      item.favorito ? "text-gold-500" : "text-brand-200 hover:text-gold-400"
+                      item.favorito
+                        ? "text-gold-500"
+                        : "text-brand-200 hover:text-gold-400",
                     )}
                   >
-                    <Star size={16} fill={item.favorito ? "currentColor" : "none"} />
+                    <Star
+                      size={16}
+                      fill={item.favorito ? "currentColor" : "none"}
+                    />
                   </button>
                 </div>
 
@@ -186,7 +211,9 @@ export default function HistoricoPage() {
                       key={i}
                       className="flex items-start justify-between gap-3 rounded-xl bg-navy-800 p-3"
                     >
-                      <p className="text-sm leading-relaxed text-champagne-300">{r}</p>
+                      <p className="text-sm leading-relaxed text-champagne-300">
+                        {r}
+                      </p>
                       <CopyButton text={r} />
                     </div>
                   ))}

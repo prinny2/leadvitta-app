@@ -25,7 +25,7 @@
    - Conferir: webhook **Recent deliveries = 200** · Firestore `clinicas/{uid}.billing.status = active`
 2. [ ] **Merge da PR #16** (https://github.com/prinny2/leadvitta-app/pull/16)
 3. [ ] **Renomear conta Stripe** "LeadCare" → "LeadBellus" (Settings → Business → Public details) — é o nome que a clínica vê na fatura/extrato
-4. [ ] **Domínio `leadbellus.com.br`** — 4 registros DNS no Registro.br (Firebase Hosting → Cloud Run). *Opcional pro lançamento: o `.run.app` já vende.*
+4. [ ] **Domínio `leadbellus.com.br`** — 4 registros DNS no Registro.br (Firebase Hosting → Cloud Run). _Opcional pro lançamento: o `.run.app` já vende._
 5. [ ] **Falar com 1 clínica.** O único item que move MRR. Todo o resto desta página é suporte a este.
 
 ## 🔜 Depois do lançamento (não bloqueia)
@@ -37,14 +37,14 @@
 
 ## Diagnóstico rápido (Cloud Run)
 
-| Sintoma | Causa provável |
-|---|---|
-| Checkout retorna 503 | Env `STRIPE_*` ausente no serviço (`gcloud run services update --set-secrets/--update-env-vars`) |
-| Checkout retorna 401 | Usuário sem login — esperado; o front manda pro `/signup` |
-| Checkout retorna 403 | Chamada sem `Origin`/`Referer` válido (proteção do `api-security`) |
-| Webhook retorna 400 | `STRIPE_WEBHOOK_SECRET` errado (whsec de teste ≠ de produção) |
-| Paga mas conta não ativa | Firebase Admin sem credencial — conferir `firebase_admin_enabled` em `GET /api/config` |
-| Mudou `NEXT_PUBLIC_*` e nada aconteceu | É build-time: precisa de `gcloud builds submit`, não só `services update` |
+| Sintoma                                | Causa provável                                                                                   |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Checkout retorna 503                   | Env `STRIPE_*` ausente no serviço (`gcloud run services update --set-secrets/--update-env-vars`) |
+| Checkout retorna 401                   | Usuário sem login — esperado; o front manda pro `/signup`                                        |
+| Checkout retorna 403                   | Chamada sem `Origin`/`Referer` válido (proteção do `api-security`)                               |
+| Webhook retorna 400                    | `STRIPE_WEBHOOK_SECRET` errado (whsec de teste ≠ de produção)                                    |
+| Paga mas conta não ativa               | Firebase Admin sem credencial — conferir `firebase_admin_enabled` em `GET /api/config`           |
+| Mudou `NEXT_PUBLIC_*` e nada aconteceu | É build-time: precisa de `gcloud builds submit`, não só `services update`                        |
 
 ---
 

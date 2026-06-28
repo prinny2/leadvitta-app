@@ -4,7 +4,11 @@
 // para intent/sentiment e cai no classificador LLM em qualquer falha.
 
 import { nlpServiceUrl } from "@/lib/config";
-import { clampScore, validarIntent, validarSentiment } from "@/lib/ai/nlp-validation";
+import {
+  clampScore,
+  validarIntent,
+  validarSentiment,
+} from "@/lib/ai/nlp-validation";
 
 export type NlpClassification = {
   intent?: string;
@@ -40,7 +44,10 @@ const SCORE_BASE: Record<string, number> = {
   outro: 40,
 };
 
-function scoreFromNlp(intent: string | undefined, sentiment: string | undefined): number | undefined {
+function scoreFromNlp(
+  intent: string | undefined,
+  sentiment: string | undefined,
+): number | undefined {
   if (!intent) return undefined;
   const base = SCORE_BASE[intent] ?? SCORE_BASE.outro;
   const stars = sentiment ? Number(sentiment.charAt(0)) : 3;
@@ -56,7 +63,7 @@ type AnalisarResponse = { intencao?: unknown; sentimento?: unknown };
  * fallback LLM.
  */
 export async function classificarViaNlpService(
-  texto: string
+  texto: string,
 ): Promise<NlpClassification | null> {
   if (!nlpServiceUrl) return null;
 
@@ -72,7 +79,10 @@ export async function classificarViaNlpService(
     if (!resp.ok) return null;
 
     const data = (await resp.json()) as AnalisarResponse;
-    const rawIntent = typeof data.intencao === "string" ? data.intencao.trim().toLowerCase() : "";
+    const rawIntent =
+      typeof data.intencao === "string"
+        ? data.intencao.trim().toLowerCase()
+        : "";
     const intent = validarIntent(INTENT_MAP[rawIntent]);
     const sentiment = validarSentiment(data.sentimento);
     const score = scoreFromNlp(intent, sentiment);
@@ -81,7 +91,10 @@ export async function classificarViaNlpService(
     if (!intent && !sentiment) return null;
     return { intent, sentiment, score };
   } catch (err) {
-    console.warn("[nlp-service] falhou, usando fallback:", err instanceof Error ? err.message : err);
+    console.warn(
+      "[nlp-service] falhou, usando fallback:",
+      err instanceof Error ? err.message : err,
+    );
     return null;
   } finally {
     clearTimeout(timer);

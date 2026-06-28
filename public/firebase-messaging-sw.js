@@ -7,10 +7,10 @@
  */
 /* eslint-disable no-undef */
 importScripts(
-  "https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"
+  "https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js",
 );
 importScripts(
-  "https://www.gstatic.com/firebasejs/12.14.0/firebase-messaging-compat.js"
+  "https://www.gstatic.com/firebasejs/12.14.0/firebase-messaging-compat.js",
 );
 
 const params = new URL(self.location).searchParams;
@@ -46,7 +46,8 @@ if (firebaseConfig.projectId && firebaseConfig.apiKey) {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/dashboard";
+  const url =
+    (event.notification.data && event.notification.data.url) || "/dashboard";
   event.waitUntil(
     clients
       .matchAll({ type: "window", includeUncontrolled: true })
@@ -54,6 +55,6 @@ self.addEventListener("notificationclick", (event) => {
         const hit = wins.find((w) => w.url.includes(url));
         if (hit) return hit.focus();
         return clients.openWindow(url);
-      })
+      }),
   );
 });

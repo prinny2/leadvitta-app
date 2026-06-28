@@ -24,7 +24,7 @@ export function conversaId(clinicaId: string, numero: string): string {
  * Retorna true se é a 1ª vez (prossiga); false se já foi processada (retry).
  */
 export async function reservarProcessamento(
-  providerMessageId?: string
+  providerMessageId?: string,
 ): Promise<boolean> {
   if (!providerMessageId) return true; // sem id não dá pra deduplicar
   const db = getFirebaseAdminDb();
@@ -46,7 +46,7 @@ export async function reservarProcessamento(
  * mensagem se perderia pra sempre.
  */
 export async function liberarProcessamento(
-  providerMessageId?: string
+  providerMessageId?: string,
 ): Promise<void> {
   if (!providerMessageId) return;
   const db = getFirebaseAdminDb();
@@ -71,7 +71,7 @@ type InboundParams = {
 
 /** Registra a mensagem RECEBIDA: upsert dos metadados + append na thread. */
 export async function registrarMensagemRecebida(
-  p: InboundParams
+  p: InboundParams,
 ): Promise<string | null> {
   const db = getFirebaseAdminDb();
   if (!db) return null;
@@ -99,7 +99,7 @@ export async function registrarMensagemRecebida(
       ...(p.sentiment ? { sentiment: p.sentiment } : {}),
       ...(novo ? { created_at: agora, arquivada: false } : {}),
     },
-    { merge: true }
+    { merge: true },
   );
 
   // Id determinístico pelo providerMessageId: se a reserva foi devolvida após
@@ -110,11 +110,15 @@ export async function registrarMensagemRecebida(
     direcao: "in",
     texto: p.text,
     em: agora,
-    ...(p.providerMessageId ? { provider_message_id: p.providerMessageId } : {}),
+    ...(p.providerMessageId
+      ? { provider_message_id: p.providerMessageId }
+      : {}),
   };
   const mensagens = ref.collection("mensagens");
   if (p.providerMessageId) {
-    await mensagens.doc(p.providerMessageId.replace(/[^\w-]/g, "_")).set(dadosMensagem);
+    await mensagens
+      .doc(p.providerMessageId.replace(/[^\w-]/g, "_"))
+      .set(dadosMensagem);
   } else {
     await mensagens.add(dadosMensagem);
   }
@@ -131,7 +135,7 @@ export async function registrarMensagemEnviada(
   clinicaId: string,
   numero: string,
   texto: string,
-  opts?: { marcarLida?: boolean }
+  opts?: { marcarLida?: boolean },
 ): Promise<void> {
   const db = getFirebaseAdminDb();
   if (!db) return;
@@ -149,7 +153,7 @@ export async function registrarMensagemEnviada(
       ultima_atividade: agora,
       ...(opts?.marcarLida ? { nao_lida: false } : {}),
     },
-    { merge: true }
+    { merge: true },
   );
 
   await ref.collection("mensagens").add({
@@ -163,17 +167,20 @@ export async function registrarMensagemEnviada(
 /** Marca que a auto-resposta falhou, pra destacar no inbox que precisa atenção. */
 export async function marcarPrecisaAtencao(
   clinicaId: string,
-  numero: string
+  numero: string,
 ): Promise<void> {
   const db = getFirebaseAdminDb();
   if (!db) return;
   const id = conversaId(clinicaId, numeroDigits(numero));
-  await db.collection("conversas").doc(id).set({ precisa_atencao: true }, { merge: true });
+  await db
+    .collection("conversas")
+    .doc(id)
+    .set({ precisa_atencao: true }, { merge: true });
 }
 
 /** Lê o dono e o número de uma conversa (para checar posse na API de resposta). */
 export async function getConversaServidor(
-  id: string
+  id: string,
 ): Promise<{ clinica_id: string; cliente_numero: string } | null> {
   const db = getFirebaseAdminDb();
   if (!db) return null;
@@ -186,7 +193,7 @@ export async function getConversaServidor(
 
 /** Chave do canal de WhatsApp da clínica (Z-API). */
 export async function getCanalClinica(
-  clinicaId: string
+  clinicaId: string,
 ): Promise<string | undefined> {
   const db = getFirebaseAdminDb();
   if (!db) return undefined;

@@ -22,6 +22,6 @@ for (const doc of snap.docs) {
       nome: d.nome_clinica,
       whatsapp: d.whatsapp || "",
       billing_status: d.billing?.status || null,
-    })
+    }),
   );
 }

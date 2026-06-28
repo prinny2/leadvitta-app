@@ -18,13 +18,21 @@ export const procedimentos: Procedimento[] = [
     label: "Botox (toxina botulínica)",
     duvidas: ["Quanto tempo dura", "Quantos pontos preciso", "Fica natural?"],
     objecoes: ["Acho caro", "Tenho medo de ficar com cara congelada"],
-    medos: ["Ficar artificial", "Dor da aplicação", "Não poder fazer expressão"],
+    medos: [
+      "Ficar artificial",
+      "Dor da aplicação",
+      "Não poder fazer expressão",
+    ],
     beneficios: [
       "Suaviza linhas de expressão",
       "Previne marcas mais profundas",
       "Resultado natural quando bem indicado",
     ],
-    cuidados: ["Evitar deitar logo após", "Não massagear a região", "Avaliação prévia"],
+    cuidados: [
+      "Evitar deitar logo após",
+      "Não massagear a região",
+      "Avaliação prévia",
+    ],
     conducao:
       "A quantidade de pontos depende da avaliação da musculatura e do objetivo (suavizar testa, pés de galinha ou prevenir). Conduzir para avaliação.",
   },
@@ -38,7 +46,11 @@ export const procedimentos: Procedimento[] = [
       "Mais volume, contorno ou hidratação conforme o objetivo",
       "Resultado natural quando respeitada a anatomia",
     ],
-    cuidados: ["Edema nos primeiros dias é comum", "Evitar calor intenso", "Seguir orientações pós"],
+    cuidados: [
+      "Edema nos primeiros dias é comum",
+      "Evitar calor intenso",
+      "Seguir orientações pós",
+    ],
     conducao:
       "Não tem valor único: depende da anatomia, da quantidade de produto e do objetivo (volume x contorno x hidratação). Perguntar o objetivo e levar à avaliação.",
   },
@@ -70,7 +82,10 @@ export const procedimentos: Procedimento[] = [
     duvidas: ["Dói?", "De quanto em quanto tempo", "Fica vermelha?"],
     objecoes: ["Acho que faço em casa", "Preço"],
     medos: ["Dor da extração", "Vermelhidão depois"],
-    beneficios: ["Pele mais limpa e renovada", "Ajuda no controle de cravos/oleosidade"],
+    beneficios: [
+      "Pele mais limpa e renovada",
+      "Ajuda no controle de cravos/oleosidade",
+    ],
     cuidados: ["Usar protetor solar", "Evitar sol intenso depois"],
     conducao:
       "Frequência ideal depende do tipo de pele. Conduzir para avaliação para indicar o protocolo certo.",
@@ -103,7 +118,10 @@ export const procedimentos: Procedimento[] = [
     duvidas: ["Como age", "Quando vejo resultado", "Quantas sessões"],
     objecoes: ["Demora para aparecer", "Investimento"],
     medos: ["Não ver resultado", "Nódulos"],
-    beneficios: ["Estimula colágeno gradualmente", "Melhora firmeza e qualidade da pele"],
+    beneficios: [
+      "Estimula colágeno gradualmente",
+      "Melhora firmeza e qualidade da pele",
+    ],
     cuidados: ["Massagem conforme orientação", "Resultados progressivos"],
     conducao:
       "O resultado é gradual e o número de sessões depende da avaliação. Conduzir para avaliação para alinhar expectativa.",
@@ -114,7 +132,10 @@ export const procedimentos: Procedimento[] = [
     duvidas: ["Dói?", "Quantas sessões", "Para que serve"],
     objecoes: ["Medo de agulha", "Preço"],
     medos: ["Dor", "Vermelhidão", "Marcas"],
-    beneficios: ["Estimula renovação da pele", "Ajuda em textura, poros e cicatrizes"],
+    beneficios: [
+      "Estimula renovação da pele",
+      "Ajuda em textura, poros e cicatrizes",
+    ],
     cuidados: ["Protetor solar", "Evitar sol", "Pele pode ficar sensível"],
     conducao:
       "Indicação e número de sessões dependem do objetivo e da pele. Conduzir para avaliação.",
@@ -125,7 +146,10 @@ export const procedimentos: Procedimento[] = [
     duvidas: ["Para gordura localizada?", "Quantas sessões", "Dói?"],
     objecoes: ["Será que funciona?", "Valor"],
     medos: ["Dor", "Hematomas", "Não funcionar"],
-    beneficios: ["Auxilia no contorno corporal", "Complementa hábitos saudáveis"],
+    beneficios: [
+      "Auxilia no contorno corporal",
+      "Complementa hábitos saudáveis",
+    ],
     cuidados: ["Hematomas podem ocorrer", "Seguir orientações"],
     conducao:
       "É um auxílio que depende de avaliação e de hábitos; não é solução milagrosa. Conduzir para avaliação para indicar com segurança.",
@@ -158,7 +182,10 @@ export const procedimentos: Procedimento[] = [
     duvidas: ["Quanto perco?", "Quantas sessões", "Funciona sem dieta?"],
     objecoes: ["Já tentei de tudo", "Valor"],
     medos: ["Não funcionar", "Efeito sanfona"],
-    beneficios: ["Auxilia no contorno e na medida", "Complementa hábitos saudáveis"],
+    beneficios: [
+      "Auxilia no contorno e na medida",
+      "Complementa hábitos saudáveis",
+    ],
     cuidados: ["Não promete números", "Depende de hábitos e avaliação"],
     conducao:
       "Procedimentos estéticos são auxílio e dependem de hábitos; nunca prometa quilos. Conduzir para avaliação para um plano realista.",
@@ -191,7 +218,10 @@ export const procedimentos: Procedimento[] = [
     duvidas: ["Para que serve", "Quantas sessões", "É preenchimento?"],
     objecoes: ["Confundo com preenchimento", "Preço"],
     medos: ["Não ver diferença", "Pápulas"],
-    beneficios: ["Hidratação profunda da pele", "Mais viço e qualidade da pele"],
+    beneficios: [
+      "Hidratação profunda da pele",
+      "Mais viço e qualidade da pele",
+    ],
     cuidados: ["Pequenas pápulas iniciais", "Resultados progressivos"],
     conducao:
       "Hidrata e melhora a qualidade da pele (não dá volume como o preenchimento). Conduzir para avaliação.",
@@ -207,7 +237,11 @@ export const procedimentos: Procedimento[] = [
       "Sem cortes e sem afastamento",
       "Complementa hábitos saudáveis",
     ],
-    cuidados: ["Indicada conforme avaliação da área", "Resultados graduais", "Não substitui emagrecimento"],
+    cuidados: [
+      "Indicada conforme avaliação da área",
+      "Resultados graduais",
+      "Não substitui emagrecimento",
+    ],
     conducao:
       "É um auxílio para gordura localizada que depende de avaliação da área e de hábitos; não é emagrecimento nem solução milagrosa. Nunca prometa medidas. Conduzir para avaliação.",
   },
@@ -237,7 +271,11 @@ export const procedimentos: Procedimento[] = [
       "Praticidade no dia a dia",
       "Formato desenhado conforme o rosto",
     ],
-    cuidados: ["Evitar sol e piscina na cicatrização", "Seguir o pós", "Retoque conforme orientação"],
+    cuidados: [
+      "Evitar sol e piscina na cicatrização",
+      "Seguir o pós",
+      "Retoque conforme orientação",
+    ],
     conducao:
       "O formato e a cor são definidos por avaliação do rosto e do tom de pele, e a duração varia por pessoa. Conduzir para avaliação para desenhar o melhor formato.",
   },

@@ -53,25 +53,27 @@ export function LoadingRespostas({
     <Card
       className={cn(
         "animate-fade-in",
-        dark ? "border-white/10 bg-brand-dark" : "border-brand-200"
+        dark ? "border-white/10 bg-brand-dark" : "border-brand-200",
       )}
     >
       <CardBody className="py-8">
         <div
           className={cn(
             "mb-4 flex items-center gap-2.5",
-            dark ? "text-nude-200" : "text-brand-700"
+            dark ? "text-nude-200" : "text-brand-700",
           )}
           role="status"
           aria-live="polite"
         >
           <Sparkles size={18} className="animate-pulse" aria-hidden="true" />
-          <span className="text-sm font-semibold transition-opacity">{etapasForRun[i]}</span>
+          <span className="text-sm font-semibold transition-opacity">
+            {etapasForRun[i]}
+          </span>
         </div>
         <div
           className={cn(
             "h-1.5 w-full overflow-hidden rounded-full",
-            dark ? "bg-white/15" : "bg-nude-200"
+            dark ? "bg-white/15" : "bg-nude-200",
           )}
           role="progressbar"
           aria-label="Progresso da geração"
@@ -90,7 +92,7 @@ export function LoadingRespostas({
               key={n}
               className={cn(
                 "h-12 animate-pulse rounded-xl",
-                dark ? "bg-white/10" : "bg-nude-100"
+                dark ? "bg-white/10" : "bg-nude-100",
               )}
               style={{ animationDelay: `${n * 150}ms` }}
             />

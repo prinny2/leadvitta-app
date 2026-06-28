@@ -2,7 +2,11 @@
 import { zapiProvider } from "@/lib/whatsapp-zapi";
 import type { WhatsAppProvider, WhatsAppResult } from "@/lib/whatsapp-types";
 
-export type { WhatsAppProvider, WhatsAppResult, InboundMessage } from "@/lib/whatsapp-types";
+export type {
+  WhatsAppProvider,
+  WhatsAppResult,
+  InboundMessage,
+} from "@/lib/whatsapp-types";
 
 export function getWhatsAppProvider(): WhatsAppProvider {
   return zapiProvider;
@@ -16,7 +20,7 @@ export function isWhatsappConfigured(): boolean {
 export async function sendWhatsAppText(
   to: string,
   body: string,
-  opts?: { from?: string; channelApiKey?: string }
+  opts?: { from?: string; channelApiKey?: string },
 ): Promise<WhatsAppResult> {
   return zapiProvider.sendText(to, body, opts);
 }

@@ -17,7 +17,10 @@ import {
 function makeFirestore(seed: Record<string, any> = {}) {
   const store = new Map<string, any>(Object.entries(seed));
   const sets: Array<{ path: string; data: any; merge?: boolean }> = [];
-  const read = (path: string) => ({ exists: store.has(path), data: () => store.get(path) });
+  const read = (path: string) => ({
+    exists: store.has(path),
+    data: () => store.get(path),
+  });
   const write = (path: string, data: any, opts?: { merge?: boolean }) => {
     sets.push({ path, data, merge: opts?.merge });
     const prev = store.get(path) || {};
@@ -88,7 +91,7 @@ describe("reserveGeneration", () => {
       expect(res.paid).toBe(true);
       expect(res.allowed).toBe(true);
       expect(res.reserved).toBe(false);
-    }
+    },
   );
 
   it("status NÃO pagante (canceled) cai no caminho grátis e reserva", async () => {
@@ -145,7 +148,9 @@ describe("reserveGeneration", () => {
 
   it("não fica negativo se o uso ultrapassou o limite", async () => {
     const { db } = makeFirestore({
-      "clinicas/u1": { usage: { free_generations: FREE_GENERATION_LIMIT + 10 } },
+      "clinicas/u1": {
+        usage: { free_generations: FREE_GENERATION_LIMIT + 10 },
+      },
     });
     getDb.mockReturnValue(db);
     const res = await reserveGeneration("u1");

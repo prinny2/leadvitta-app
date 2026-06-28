@@ -1,4 +1,9 @@
-import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import {
+  jsonNoStore,
+  enforceRateLimit,
+  readJsonBody,
+  rejectCrossOriginRequest,
+} from "@/lib/api-security";
 import { gerarFollowUp } from "@/lib/ai/provider";
 import type { FollowUpInput } from "@/lib/types";
 
@@ -24,7 +29,7 @@ export async function POST(req: Request) {
     if (!body?.gatilho) {
       return jsonNoStore(
         { error: "Escolha há quanto tempo a cliente sumiu." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -41,9 +46,6 @@ export async function POST(req: Request) {
     return jsonNoStore(result);
   } catch (err: unknown) {
     console.error("[api/follow-up] erro fatal:", err);
-    return jsonNoStore(
-      { error: "Erro interno do servidor." },
-      { status: 500 }
-    );
+    return jsonNoStore({ error: "Erro interno do servidor." }, { status: 500 });
   }
 }

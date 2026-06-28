@@ -1,9 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import type {
-  GerarInput,
-  RefineInput,
-  FollowUpInput,
-} from "@/lib/types";
+import type { GerarInput, RefineInput, FollowUpInput } from "@/lib/types";
 import { violaCompliance } from "@/lib/ai/prompts";
 import { mockFollowup } from "@/lib/ai/mock";
 
@@ -144,8 +140,8 @@ describe("provider — OpenAI configurada", () => {
           resposta_curta: "curta",
           resposta_consultiva: "consultiva",
           resposta_persuasiva: "persuasiva",
-        })
-      )
+        }),
+      ),
     );
     const { gerarRespostas } = await loadProvider();
     const res = await gerarRespostas(geradorInput);
@@ -160,8 +156,8 @@ describe("provider — OpenAI configurada", () => {
   it("extrai JSON mesmo com texto ao redor (parse resiliente)", async () => {
     openaiCreate.mockResolvedValue(
       oai(
-        'Claro! Aqui vai:\n{"resposta_curta":"a","resposta_consultiva":"b","resposta_persuasiva":"c"}\nEspero ter ajudado.'
-      )
+        'Claro! Aqui vai:\n{"resposta_curta":"a","resposta_consultiva":"b","resposta_persuasiva":"c"}\nEspero ter ajudado.',
+      ),
     );
     const { gerarRespostas } = await loadProvider();
     const res = await gerarRespostas(geradorInput);
@@ -170,7 +166,9 @@ describe("provider — OpenAI configurada", () => {
   });
 
   it("faz fallback para mock (mock:false + aviso) quando não há JSON parseável", async () => {
-    openaiCreate.mockResolvedValue(oai("desculpe, não consigo responder em json"));
+    openaiCreate.mockResolvedValue(
+      oai("desculpe, não consigo responder em json"),
+    );
     const { gerarRespostas } = await loadProvider();
     const res = await gerarRespostas(geradorInput);
     expect(res.mock).toBe(false);
@@ -193,8 +191,8 @@ describe("provider — OpenAI configurada", () => {
               resposta_curta: "depende da avaliação",
               resposta_consultiva: "ok",
               resposta_persuasiva: "ok",
-            })
-          )
+            }),
+          ),
         );
       }
       // Primeira geração: viola compliance.
@@ -204,8 +202,8 @@ describe("provider — OpenAI configurada", () => {
             resposta_curta: "resultado garantido pra você",
             resposta_consultiva: "ok",
             resposta_persuasiva: "ok",
-          })
-        )
+          }),
+        ),
       );
     });
     const { gerarRespostas } = await loadProvider();
@@ -217,7 +215,13 @@ describe("provider — OpenAI configurada", () => {
 
   it("classificarMensagem retorna intent/sentiment/score", async () => {
     openaiCreate.mockResolvedValue(
-      oai(JSON.stringify({ intent: "pergunta_preco", sentiment: "3 stars", score: 72 }))
+      oai(
+        JSON.stringify({
+          intent: "pergunta_preco",
+          sentiment: "3 stars",
+          score: 72,
+        }),
+      ),
     );
     const { classificarMensagem } = await loadProvider();
     const res = await classificarMensagem("quanto custa?");
@@ -229,7 +233,9 @@ describe("provider — OpenAI configurada", () => {
   });
 
   it("refinarResposta retorna o texto parseado", async () => {
-    openaiCreate.mockResolvedValue(oai(JSON.stringify({ resposta: "versão melhor" })));
+    openaiCreate.mockResolvedValue(
+      oai(JSON.stringify({ resposta: "versão melhor" })),
+    );
     const { refinarResposta } = await loadProvider();
     const res = await refinarResposta(refineInput);
     expect(res).toEqual({ texto: "versão melhor", mock: false });
@@ -245,7 +251,7 @@ describe("provider — OpenAI configurada", () => {
 
   it("gerarFollowUp retorna mensagens filtradas e não vazias", async () => {
     openaiCreate.mockResolvedValue(
-      oai(JSON.stringify({ mensagens: ["m1", "  ", "m2"] }))
+      oai(JSON.stringify({ mensagens: ["m1", "  ", "m2"] })),
     );
     const { gerarFollowUp } = await loadProvider();
     const res = await gerarFollowUp(followInput);
@@ -274,8 +280,8 @@ describe("provider — OpenAI configurada", () => {
             resposta_curta: "resultado garantido",
             resposta_consultiva: "resultado garantido",
             resposta_persuasiva: "resultado garantido",
-          })
-        )
+          }),
+        ),
       );
     });
     const { gerarRespostas } = await loadProvider();
@@ -304,8 +310,8 @@ describe("provider — OpenAI configurada", () => {
               resposta_curta: "resultado garantido",
               resposta_consultiva: "resultado garantido",
               resposta_persuasiva: "resultado garantido",
-            })
-          )
+            }),
+          ),
         );
       }
       // Geração: só a curta viola; consultiva/persuasiva já são compliant.
@@ -313,17 +319,22 @@ describe("provider — OpenAI configurada", () => {
         oai(
           JSON.stringify({
             resposta_curta: "resultado garantido",
-            resposta_consultiva: "Depende da avaliação — me conta seu objetivo?",
+            resposta_consultiva:
+              "Depende da avaliação — me conta seu objetivo?",
             resposta_persuasiva: "Quer ver um horário pra avaliarmos juntas?",
-          })
-        )
+          }),
+        ),
       );
     });
     const { gerarRespostas } = await loadProvider();
     const res = await gerarRespostas(geradorInput);
     // As originalmente compliant são preservadas (não viram mock).
-    expect(res.respostas.consultiva).toBe("Depende da avaliação — me conta seu objetivo?");
-    expect(res.respostas.persuasiva).toBe("Quer ver um horário pra avaliarmos juntas?");
+    expect(res.respostas.consultiva).toBe(
+      "Depende da avaliação — me conta seu objetivo?",
+    );
+    expect(res.respostas.persuasiva).toBe(
+      "Quer ver um horário pra avaliarmos juntas?",
+    );
     // A que violava (e cuja reescrita também violou) é saneada.
     expect(violaCompliance(res.respostas.curta)).toBe(false);
   });
@@ -333,11 +344,17 @@ describe("provider — OpenAI configurada", () => {
       const user: string = args?.messages?.[1]?.content ?? "";
       if (user.includes("termos proibidos")) {
         return Promise.resolve(
-          oai(JSON.stringify({ mensagens: ["oi de novo", "tudo bem?", "vamos marcar?"] }))
+          oai(
+            JSON.stringify({
+              mensagens: ["oi de novo", "tudo bem?", "vamos marcar?"],
+            }),
+          ),
         );
       }
       return Promise.resolve(
-        oai(JSON.stringify({ mensagens: ["resultado garantido!", "ok", "ok"] }))
+        oai(
+          JSON.stringify({ mensagens: ["resultado garantido!", "ok", "ok"] }),
+        ),
       );
     });
     const { gerarFollowUp } = await loadProvider();
@@ -360,8 +377,8 @@ describe("provider — OpenAI configurada", () => {
             "resultado garantido de novo",
             "resultado garantido sempre",
           ],
-        })
-      )
+        }),
+      ),
     );
     const { gerarFollowUp } = await loadProvider();
     const res = await gerarFollowUp(followInput);
@@ -380,14 +397,22 @@ describe("provider — OpenAI configurada", () => {
     }
 
     it("descarta intent/sentiment fora do vocabulário e clampa score alto", async () => {
-      const res = await classificar({ intent: "xpto", sentiment: "banana", score: 9999 });
+      const res = await classificar({
+        intent: "xpto",
+        sentiment: "banana",
+        score: 9999,
+      });
       expect(res.score).toBe(100);
       expect(res.intent).toBeUndefined();
       expect(res.sentiment).toBeUndefined();
     });
 
     it("converte score em string e arredonda", async () => {
-      const res = await classificar({ intent: "objecao", sentiment: "3 stars", score: "42.7" });
+      const res = await classificar({
+        intent: "objecao",
+        sentiment: "3 stars",
+        score: "42.7",
+      });
       expect(res.score).toBe(43);
       expect(res.intent).toBe("objecao");
       expect(res.sentiment).toBe("3 stars");
@@ -409,9 +434,15 @@ describe("provider — OpenAI configurada", () => {
     });
 
     it("normaliza sentiment por espaços/caixa e descarta inválido", async () => {
-      expect((await classificar({ sentiment: " 5star " })).sentiment).toBe("5 stars");
-      expect((await classificar({ sentiment: "3 STARS" })).sentiment).toBe("3 stars");
-      expect((await classificar({ sentiment: "muito bom" })).sentiment).toBeUndefined();
+      expect((await classificar({ sentiment: " 5star " })).sentiment).toBe(
+        "5 stars",
+      );
+      expect((await classificar({ sentiment: "3 STARS" })).sentiment).toBe(
+        "3 stars",
+      );
+      expect(
+        (await classificar({ sentiment: "muito bom" })).sentiment,
+      ).toBeUndefined();
     });
   });
 });
@@ -434,7 +465,9 @@ describe("provider — cadeia customizada (LP: OpenAI → Gemini)", () => {
     openaiCreate.mockImplementation((args: any) => {
       const user: string = args?.messages?.[1]?.content ?? "";
       if (user.startsWith("MENSAGEM:")) {
-        return Promise.resolve(oai(JSON.stringify({ intent: "pergunta_preco" })));
+        return Promise.resolve(
+          oai(JSON.stringify({ intent: "pergunta_preco" })),
+        );
       }
       return Promise.reject(new Error("openai down"));
     });
@@ -444,8 +477,8 @@ describe("provider — cadeia customizada (LP: OpenAI → Gemini)", () => {
           resposta_curta: "nunca",
           resposta_consultiva: "nunca",
           resposta_persuasiva: "nunca",
-        })
-      )
+        }),
+      ),
     );
     geminiGenerate.mockResolvedValue({ text: json });
 
@@ -471,7 +504,7 @@ describe("provider — Anthropic configurada", () => {
 
   it("usa o cliente Anthropic e parseia o resultado", async () => {
     anthropicCreate.mockResolvedValue(
-      ant(JSON.stringify({ mensagens: ["a", "b", "c"] }))
+      ant(JSON.stringify({ mensagens: ["a", "b", "c"] })),
     );
     const { gerarFollowUp } = await loadProvider();
     const res = await gerarFollowUp(followInput);

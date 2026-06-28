@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Check, Save, KeyRound, CreditCard, Dna, Building2 } from "lucide-react";
+import {
+  Loader2,
+  Check,
+  Save,
+  KeyRound,
+  CreditCard,
+  Dna,
+  Building2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +31,15 @@ import { trackEvent } from "@/components/Analytics";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
 
-function SectionHeader({ icon: Icon, title, subtitle }: { icon: React.ElementType; title: string; subtitle?: string }) {
+function SectionHeader({
+  icon: Icon,
+  title,
+  subtitle,
+}: {
+  icon: React.ElementType;
+  title: string;
+  subtitle?: string;
+}) {
   return (
     <div className="flex items-center gap-3 border-b border-brand-50 bg-navy-800 px-5 py-4 sm:px-6">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-navy-700/10">
@@ -49,7 +65,10 @@ export default function ConfiguracoesPage() {
   const [abrindoCheckout, setAbrindoCheckout] = useState(false);
 
   useEffect(() => {
-    getClinica().then((v) => { setC(v); setCarregando(false); });
+    getClinica().then((v) => {
+      setC(v);
+      setCarregando(false);
+    });
 
     const params = new URLSearchParams(window.location.search);
     if (params.get("checkout") === "sucesso") {
@@ -77,7 +96,11 @@ export default function ConfiguracoesPage() {
 
     params.delete("next");
     const qs = params.toString();
-    window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
+    window.history.replaceState(
+      null,
+      "",
+      window.location.pathname + (qs ? `?${qs}` : ""),
+    );
 
     setAbrindoCheckout(true);
     let disparado = false;
@@ -92,23 +115,37 @@ export default function ConfiguracoesPage() {
         const res = await fetch("/api/stripe/checkout", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ plan, firebaseIdToken, customerEmail: user.email }),
+          body: JSON.stringify({
+            plan,
+            firebaseIdToken,
+            customerEmail: user.email,
+          }),
         });
         const data = (await res.json()) as { url?: string; error?: string };
-        if (!res.ok || !data.url) throw new Error(data.error || "Não foi possível abrir o pagamento.");
+        if (!res.ok || !data.url)
+          throw new Error(data.error || "Não foi possível abrir o pagamento.");
         window.location.assign(data.url);
       } catch (err) {
         setAbrindoCheckout(false);
-        setErro(err instanceof Error ? err.message : "Não foi possível abrir o pagamento.");
+        setErro(
+          err instanceof Error
+            ? err.message
+            : "Não foi possível abrir o pagamento.",
+        );
       }
     });
     const timeout = setTimeout(() => {
       if (disparado) return;
       unsub();
       setAbrindoCheckout(false);
-      setErro("Sua sessão ainda não carregou. Toque em \"Assinar\" no plano escolhido para continuar.");
+      setErro(
+        'Sua sessão ainda não carregou. Toque em "Assinar" no plano escolhido para continuar.',
+      );
     }, 8000);
-    return () => { clearTimeout(timeout); unsub(); };
+    return () => {
+      clearTimeout(timeout);
+      unsub();
+    };
   }, []);
 
   function set<K extends keyof Clinica>(key: K, value: Clinica[K]) {
@@ -141,8 +178,12 @@ export default function ConfiguracoesPage() {
             body: JSON.stringify({ numero: c.whatsapp, firebaseIdToken }),
           });
           if (!res.ok) {
-            const d = (await res.json().catch(() => ({}))) as { error?: string };
-            throw new Error(d.error || "Não foi possível conectar o número de WhatsApp.");
+            const d = (await res.json().catch(() => ({}))) as {
+              error?: string;
+            };
+            throw new Error(
+              d.error || "Não foi possível conectar o número de WhatsApp.",
+            );
           }
           numeroReivindicado = !!c.whatsapp.trim();
         }
@@ -162,7 +203,9 @@ export default function ConfiguracoesPage() {
               body: JSON.stringify({ numero: "", firebaseIdToken: t }),
             });
           }
-        } catch { /* rollback best-effort */ }
+        } catch {
+          /* rollback best-effort */
+        }
       }
       setErro(err instanceof Error ? err.message : "Erro ao salvar.");
     } finally {
@@ -173,7 +216,10 @@ export default function ConfiguracoesPage() {
   async function trocarSenha(e: React.FormEvent) {
     e.preventDefault();
     setSenhaMsg("");
-    if (novaSenha.length < 6) { setSenhaMsg("A senha precisa ter ao menos 6 caracteres."); return; }
+    if (novaSenha.length < 6) {
+      setSenhaMsg("A senha precisa ter ao menos 6 caracteres.");
+      return;
+    }
     try {
       const user = getFirebaseAuth().currentUser;
       if (!user) throw new Error("Não autenticado");
@@ -181,7 +227,9 @@ export default function ConfiguracoesPage() {
       setSenhaMsg("Senha atualizada com sucesso!");
       setNovaSenha("");
     } catch (err) {
-      setSenhaMsg("Erro: " + (err instanceof Error ? err.message : "Tente novamente."));
+      setSenhaMsg(
+        "Erro: " + (err instanceof Error ? err.message : "Tente novamente."),
+      );
     }
   }
 
@@ -189,7 +237,9 @@ export default function ConfiguracoesPage() {
     return (
       <div className="flex flex-col items-center gap-3 py-20">
         <Loader2 className="animate-spin text-gold-500" />
-        {abrindoCheckout && <p className="text-sm text-navy-100">Abrindo o pagamento seguro…</p>}
+        {abrindoCheckout && (
+          <p className="text-sm text-navy-100">Abrindo o pagamento seguro…</p>
+        )}
       </div>
     );
   }
@@ -203,15 +253,16 @@ export default function ConfiguracoesPage() {
     c.procedimentos.length > 0 ? "x" : "",
   ];
   const dnaPct = Math.round(
-    (dnaCampos.filter(Boolean).length / dnaCampos.length) * 100
+    (dnaCampos.filter(Boolean).length / dnaCampos.length) * 100,
   );
 
   return (
     <div className="max-w-2xl space-y-6 animate-fade-in">
-
       {/* Header */}
       <div>
-        <h1 className="font-serif text-3xl font-semibold text-champagne-300">Configurações</h1>
+        <h1 className="font-serif text-3xl font-semibold text-champagne-300">
+          Configurações
+        </h1>
         <p className="text-sm text-navy-100 mt-1">
           O DNA da sua clínica deixa todas as respostas com a sua identidade.
         </p>
@@ -220,25 +271,49 @@ export default function ConfiguracoesPage() {
       {/* ── Dados + DNA ── */}
       <form onSubmit={salvar}>
         <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
-          <SectionHeader icon={Building2} title="Dados da clínica" subtitle="Nome, cidade e WhatsApp" />
+          <SectionHeader
+            icon={Building2}
+            title="Dados da clínica"
+            subtitle="Nome, cidade e WhatsApp"
+          />
 
           <div className="space-y-4 p-5 sm:p-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="nome">Nome da clínica</Label>
-                <Input id="nome" value={c.nome_clinica} onChange={(e) => set("nome_clinica", e.target.value)} placeholder="Ex.: Espaço Beleza & Cuidado" />
+                <Input
+                  id="nome"
+                  value={c.nome_clinica}
+                  onChange={(e) => set("nome_clinica", e.target.value)}
+                  placeholder="Ex.: Espaço Beleza & Cuidado"
+                />
               </div>
               <div>
                 <Label htmlFor="cidade">Cidade</Label>
-                <Input id="cidade" value={c.cidade} onChange={(e) => set("cidade", e.target.value)} placeholder="Ex.: São Paulo - SP" />
+                <Input
+                  id="cidade"
+                  value={c.cidade}
+                  onChange={(e) => set("cidade", e.target.value)}
+                  placeholder="Ex.: São Paulo - SP"
+                />
               </div>
               <div>
                 <Label htmlFor="whats">WhatsApp</Label>
-                <Input id="whats" value={c.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} placeholder="(11) 99999-9999" />
+                <Input
+                  id="whats"
+                  value={c.whatsapp}
+                  onChange={(e) => set("whatsapp", e.target.value)}
+                  placeholder="(11) 99999-9999"
+                />
               </div>
               <div>
                 <Label htmlFor="tom">Tom de voz padrão</Label>
-                <Select id="tom" value={c.tom_padrao} onChange={(v) => set("tom_padrao", v)} options={tomOptions} />
+                <Select
+                  id="tom"
+                  value={c.tom_padrao}
+                  onChange={(v) => set("tom_padrao", v)}
+                  options={tomOptions}
+                />
               </div>
             </div>
           </div>
@@ -248,14 +323,16 @@ export default function ConfiguracoesPage() {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-3">
                 <Dna size={16} className="text-gold-500" />
-                <p className="text-xs font-semibold uppercase tracking-wider text-gold-400">DNA da Clínica</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-gold-400">
+                  DNA da Clínica
+                </p>
               </div>
               <span
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold",
                   dnaPct === 100
                     ? "bg-green-500/15 text-green-400"
-                    : "bg-gold-500/15 text-gold-400"
+                    : "bg-gold-500/15 text-gold-400",
                 )}
               >
                 DNA {dnaPct}% completo
@@ -288,7 +365,9 @@ export default function ConfiguracoesPage() {
               />
               <div className="flex justify-between text-xs text-navy-100 mt-1">
                 <span>Bem íntimo</span>
-                <span className="font-semibold text-gold-400">{formalidadeLabel(c.formalidade)}</span>
+                <span className="font-semibold text-gold-400">
+                  {formalidadeLabel(c.formalidade)}
+                </span>
                 <span>Formal</span>
               </div>
             </div>
@@ -306,7 +385,7 @@ export default function ConfiguracoesPage() {
                       "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
                       c.como_chamar === o.value
                         ? "border-brand-500 bg-navy-800 text-white"
-                        : "border-navy-500 bg-navy-700 text-champagne-300 hover:bg-navy-700"
+                        : "border-navy-500 bg-navy-700 text-champagne-300 hover:bg-navy-700",
                     )}
                   >
                     {o.label}
@@ -318,7 +397,12 @@ export default function ConfiguracoesPage() {
             {/* CTA preferido */}
             <div>
               <Label htmlFor="cta">CTA preferido</Label>
-              <Select id="cta" value={c.cta_preferido} onChange={(v) => set("cta_preferido", v)} options={ctaOptions} />
+              <Select
+                id="cta"
+                value={c.cta_preferido}
+                onChange={(v) => set("cta_preferido", v)}
+                options={ctaOptions}
+              />
             </div>
 
             {/* Procedimentos */}
@@ -327,7 +411,8 @@ export default function ConfiguracoesPage() {
                 Procedimentos que você oferece
                 {c.procedimentos.length > 0 && (
                   <span className="ml-1 font-normal text-navy-100">
-                    ({c.procedimentos.length} selecionado{c.procedimentos.length > 1 ? "s" : ""})
+                    ({c.procedimentos.length} selecionado
+                    {c.procedimentos.length > 1 ? "s" : ""})
                   </span>
                 )}
               </Label>
@@ -343,7 +428,7 @@ export default function ConfiguracoesPage() {
                         "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                         ativo
                           ? "border-brand-500 bg-navy-800 text-white"
-                          : "border-navy-500 bg-navy-700 text-navy-100 hover:bg-navy-700"
+                          : "border-navy-500 bg-navy-700 text-navy-100 hover:bg-navy-700",
                       )}
                     >
                       {p.label}
@@ -353,7 +438,11 @@ export default function ConfiguracoesPage() {
               </div>
             </div>
 
-            {erro && <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">{erro}</p>}
+            {erro && (
+              <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">
+                {erro}
+              </p>
+            )}
 
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <button
@@ -361,7 +450,11 @@ export default function ConfiguracoesPage() {
                 disabled={salvando}
                 className="flex items-center gap-2 rounded-xl bg-navy-800 px-5 py-2.5 text-sm font-bold text-gold-400 shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-cta disabled:opacity-60 disabled:translate-y-0"
               >
-                {salvando ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+                {salvando ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  <Save size={15} />
+                )}
                 Salvar DNA
               </button>
               {ok && (
@@ -376,11 +469,16 @@ export default function ConfiguracoesPage() {
 
       {/* ── Plano e pagamento ── */}
       <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
-        <SectionHeader icon={CreditCard} title="Plano e pagamento" subtitle="Stripe · cobrança segura" />
+        <SectionHeader
+          icon={CreditCard}
+          title="Plano e pagamento"
+          subtitle="Stripe · cobrança segura"
+        />
 
         <div className="space-y-4 p-5 sm:p-6">
           <p className="text-sm text-navy-100">
-            No lançamento, o Start está disponível. Os demais planos entram por lista de espera.
+            No lançamento, o Start está disponível. Os demais planos entram por
+            lista de espera.
           </p>
 
           <div className="grid gap-3 sm:grid-cols-3">
@@ -391,17 +489,25 @@ export default function ConfiguracoesPage() {
                   "rounded-2xl border p-4",
                   plano.destaque
                     ? "border-gold-500/40 bg-gradient-to-br from-navy-700 to-navy-800"
-                    : "border-navy-500 bg-navy-800"
+                    : "border-navy-500 bg-navy-800",
                 )}
               >
-                <p className="text-xs font-medium text-navy-100">Plano {plano.label}</p>
+                <p className="text-xs font-medium text-navy-100">
+                  Plano {plano.label}
+                </p>
                 <p className="font-serif text-3xl font-semibold text-champagne-300 mt-0.5">
                   {plano.priceLabel}
-                  <span className="text-sm font-normal text-navy-100">{plano.periodLabel}</span>
+                  <span className="text-sm font-normal text-navy-100">
+                    {plano.periodLabel}
+                  </span>
                 </p>
                 <p className="mt-1 text-xs text-navy-100">{plano.tagline}</p>
                 {plano.disponivel ? (
-                  <CheckoutButton plan={plano.id} variant={plano.destaque ? "primary" : "outline"} className="mt-4 w-full">
+                  <CheckoutButton
+                    plan={plano.id}
+                    variant={plano.destaque ? "primary" : "outline"}
+                    className="mt-4 w-full"
+                  >
                     Assinar {plano.label}
                   </CheckoutButton>
                 ) : (
@@ -415,8 +521,12 @@ export default function ConfiguracoesPage() {
 
           <div className="flex flex-col gap-3 rounded-2xl border border-navy-500 bg-navy-800 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-champagne-300">Já assinou?</p>
-              <p className="mt-0.5 text-xs text-navy-100">Abra o portal para atualizar cartão ou cancelar.</p>
+              <p className="text-sm font-semibold text-champagne-300">
+                Já assinou?
+              </p>
+              <p className="mt-0.5 text-xs text-navy-100">
+                Abra o portal para atualizar cartão ou cancelar.
+              </p>
             </div>
             <BillingPortalButton />
           </div>
@@ -431,7 +541,10 @@ export default function ConfiguracoesPage() {
           <SectionHeader icon={KeyRound} title="Trocar senha" />
 
           <div className="p-5 sm:p-6">
-            <form onSubmit={trocarSenha} className="flex flex-wrap items-end gap-3">
+            <form
+              onSubmit={trocarSenha}
+              className="flex flex-wrap items-end gap-3"
+            >
               <div className="flex-1">
                 <Label htmlFor="senha">Nova senha</Label>
                 <Input
@@ -442,10 +555,19 @@ export default function ConfiguracoesPage() {
                   placeholder="mínimo 6 caracteres"
                 />
               </div>
-              <Button type="submit" variant="outline">Atualizar</Button>
+              <Button type="submit" variant="outline">
+                Atualizar
+              </Button>
             </form>
             {senhaMsg && (
-              <p className={cn("mt-3 text-sm", senhaMsg.startsWith("Erro") ? "text-red-400" : "text-green-400")}>
+              <p
+                className={cn(
+                  "mt-3 text-sm",
+                  senhaMsg.startsWith("Erro")
+                    ? "text-red-400"
+                    : "text-green-400",
+                )}
+              >
                 {senhaMsg}
               </p>
             )}

@@ -47,7 +47,9 @@ describe("buildGeradorUser", () => {
     const out = buildGeradorUser(base);
     expect(out).toContain("Situação: Perguntou o preço.");
     expect(out).toContain("Tom desejado: Acolhedor.");
-    expect(out).toContain("Objetivo desta resposta: direcionar para a avaliação.");
+    expect(out).toContain(
+      "Objetivo desta resposta: direcionar para a avaliação.",
+    );
   });
 
   it("usa o id cru quando o procedimento é desconhecido", () => {
@@ -63,7 +65,9 @@ describe("buildGeradorUser", () => {
       oQueMelhorar: ["está fria ou seca", "parece robótica"],
     });
     expect(out).toContain("TAREFA: Reescreva a mensagem");
-    expect(out).toContain("Pontos a melhorar: está fria ou seca; parece robótica.");
+    expect(out).toContain(
+      "Pontos a melhorar: está fria ou seca; parece robótica.",
+    );
   });
 
   it("inclui perfil da cliente quando informado", () => {

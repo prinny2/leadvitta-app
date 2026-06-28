@@ -17,8 +17,11 @@ function parseServiceAccount(): ServiceAccount | null {
 
   if (rawJson || rawBase64) {
     try {
-      const raw = rawJson ?? Buffer.from(rawBase64 ?? "", "base64").toString("utf8");
-      const parsed = JSON.parse(raw) as ServiceAccount & { private_key?: string };
+      const raw =
+        rawJson ?? Buffer.from(rawBase64 ?? "", "base64").toString("utf8");
+      const parsed = JSON.parse(raw) as ServiceAccount & {
+        private_key?: string;
+      };
       return {
         ...parsed,
         privateKey: parsed.privateKey ?? parsed.private_key,
@@ -26,14 +29,15 @@ function parseServiceAccount(): ServiceAccount | null {
     } catch (e) {
       console.error(
         "[firebase/admin] FIREBASE_SERVICE_ACCOUNT_JSON inválido:",
-        e instanceof Error ? e.message : e
+        e instanceof Error ? e.message : e,
       );
       return null;
     }
   }
 
   const projectId =
-    process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    process.env.FIREBASE_PROJECT_ID ||
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
@@ -58,7 +62,10 @@ function getFirebaseAdminOptions(): AppOptions | null {
     process.env.GCLOUD_PROJECT ||
     process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
-  if (projectId && (process.env.K_SERVICE || process.env.GOOGLE_CLOUD_PROJECT)) {
+  if (
+    projectId &&
+    (process.env.K_SERVICE || process.env.GOOGLE_CLOUD_PROJECT)
+  ) {
     return { projectId };
   }
 
@@ -80,7 +87,7 @@ export function getFirebaseAdminApp(): App | null {
   } catch (e) {
     console.error(
       "[firebase/admin] falha ao inicializar Admin SDK:",
-      e instanceof Error ? e.message : e
+      e instanceof Error ? e.message : e,
     );
     return null;
   }
@@ -92,7 +99,7 @@ export function getFirebaseAdminDb() {
 }
 
 export async function verifyFirebaseIdToken(
-  idToken?: string
+  idToken?: string,
 ): Promise<DecodedIdToken | null> {
   if (!idToken) return null;
   const app = getFirebaseAdminApp();

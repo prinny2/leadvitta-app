@@ -100,7 +100,9 @@ export const billingPlanList: BillingPlanConfig[] = [
 ];
 
 export function parseBillingPlan(value: unknown): BillingPlan | null {
-  return value === "start" || value === "pro" || value === "premium" ? value : null;
+  return value === "start" || value === "pro" || value === "premium"
+    ? value
+    : null;
 }
 
 export function getBillingPlan(plan: BillingPlan): BillingPlanConfig {
@@ -115,7 +117,7 @@ export function parseBillingInterval(value: unknown): BillingInterval {
 /** Resolve o price id correto para o intervalo escolhido. */
 export function resolveBillingPriceId(
   config: BillingPlanConfig,
-  interval: BillingInterval
+  interval: BillingInterval,
 ): string | undefined {
   return interval === "annual" ? config.priceIdAnnual : config.priceId;
 }

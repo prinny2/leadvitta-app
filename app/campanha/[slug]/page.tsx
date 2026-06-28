@@ -29,7 +29,10 @@ function LogoMark({ size = 32 }: { size?: number }) {
         strokeLinecap="round"
       />
       <line
-        x1="40" y1="32" x2="40" y2="86"
+        x1="40"
+        y1="32"
+        x2="40"
+        y2="86"
         stroke="#C9A060"
         strokeWidth="3"
         strokeLinecap="round"
@@ -40,7 +43,13 @@ function LogoMark({ size = 32 }: { size?: number }) {
 }
 
 // ─── Section tag pill ──────────────────────────────────────────────────────────
-function TagPill({ children, light }: { children: React.ReactNode; light?: boolean }) {
+function TagPill({
+  children,
+  light,
+}: {
+  children: React.ReactNode;
+  light?: boolean;
+}) {
   return (
     <div
       style={{
@@ -113,7 +122,14 @@ function Navbar() {
           </span>
         </Link>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "auto" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            marginLeft: "auto",
+          }}
+        >
           <Link
             href="/signup?plan=start"
             style={{
@@ -149,7 +165,8 @@ function LaunchBanner() {
         letterSpacing: "0.02em",
       }}
     >
-      Oferta de lançamento: teste 5 respostas grátis e veja se o Start encaixa na rotina.
+      Oferta de lançamento: teste 5 respostas grátis e veja se o Start encaixa
+      na rotina.
     </div>
   );
 }
@@ -171,7 +188,8 @@ export default async function CampaignPage({ params }: Props) {
     </>
   );
 
-  const campaignSubtitle = "O LeadBellus transforma mensagens do WhatsApp em opções de resposta no tom da sua clínica para lidar melhor com objeções e conduzir a conversa. É só escolher, copiar e mandar.";
+  const campaignSubtitle =
+    "O LeadBellus transforma mensagens do WhatsApp em opções de resposta no tom da sua clínica para lidar melhor com objeções e conduzir a conversa. É só escolher, copiar e mandar.";
 
   const campaignBullets = [
     "Chega de 'vou ver e aviso': Tenha respostas prontas no WhatsApp para quebrar a objeção de preço com naturalidade.",
@@ -180,7 +198,13 @@ export default async function CampaignPage({ params }: Props) {
   ];
 
   return (
-    <div style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)", background: "#07101e", minHeight: "100vh" }}>
+    <div
+      style={{
+        fontFamily: "var(--font-inter, system-ui, sans-serif)",
+        background: "#07101e",
+        minHeight: "100vh",
+      }}
+    >
       <Navbar />
       <LaunchBanner />
 
@@ -206,7 +230,9 @@ export default async function CampaignPage({ params }: Props) {
           }}
         />
 
-        <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}>
+        <div
+          style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}
+        >
           <div
             style={{
               display: "grid",
@@ -227,7 +253,15 @@ export default async function CampaignPage({ params }: Props) {
             />
 
             {/* Right — animated device mockups */}
-            <div className="hero-devices-container" style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", paddingTop: "48px" }}>
+            <div
+              className="hero-devices-container"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "flex-start",
+                paddingTop: "48px",
+              }}
+            >
               <HeroDevices />
             </div>
           </div>
@@ -246,7 +280,9 @@ export default async function CampaignPage({ params }: Props) {
           borderTop: "1px solid rgba(201,160,96,0.15)",
         }}
       >
-        <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}>
+        <div
+          style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}
+        >
           <div style={{ textAlign: "center", marginBottom: "40px" }}>
             <TagPill>Escolha o seu plano</TagPill>
             <h2
@@ -261,8 +297,17 @@ export default async function CampaignPage({ params }: Props) {
             >
               Uma conversa recuperada pode pagar o investimento
             </h2>
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>
-              Se uma conversa que antes esfriaria virar agendamento, o Start já pode fazer sentido financeiro. O LeadBellus ajuda na resposta, mas não garante faturamento.
+            <p
+              style={{
+                color: "rgba(255,255,255,0.6)",
+                fontSize: "16px",
+                maxWidth: "560px",
+                margin: "0 auto",
+              }}
+            >
+              Se uma conversa que antes esfriaria virar agendamento, o Start já
+              pode fazer sentido financeiro. O LeadBellus ajuda na resposta, mas
+              não garante faturamento.
             </p>
           </div>
 
@@ -283,9 +328,16 @@ export default async function CampaignPage({ params }: Props) {
       >
         <div style={{ maxWidth: "1152px", margin: "0 auto" }}>
           <p style={{ margin: "0 0 12px" }}>
-            © {new Date().getFullYear()} LeadBellus. Todos os direitos reservados.
+            © {new Date().getFullYear()} LeadBellus. Todos os direitos
+            reservados.
           </p>
-          <p style={{ margin: 0, fontSize: "12px", color: "rgba(255,255,255,0.25)" }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "12px",
+              color: "rgba(255,255,255,0.25)",
+            }}
+          >
             LeadBellus — MEI Vinícius Paes da Serra Freire · CNPJ sob consulta.
           </p>
         </div>
@@ -313,10 +365,32 @@ export default async function CampaignPage({ params }: Props) {
         }}
       >
         <div style={{ lineHeight: 1.2 }}>
-          <p style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>
-            R$97<span style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>/mês</span>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "14px",
+              fontWeight: 700,
+              color: "#ffffff",
+            }}
+          >
+            R$97
+            <span
+              style={{
+                fontSize: "12px",
+                fontWeight: 400,
+                color: "rgba(255,255,255,0.5)",
+              }}
+            >
+              /mês
+            </span>
           </p>
-          <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: "11px",
+              color: "rgba(255,255,255,0.55)",
+            }}
+          >
             5 respostas grátis · sem cartão
           </p>
         </div>

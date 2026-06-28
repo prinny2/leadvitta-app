@@ -39,20 +39,20 @@ export interface WhatsAppProvider {
   sendText(
     to: string,
     body: string,
-    opts?: { from?: string; channelApiKey?: string }
+    opts?: { from?: string; channelApiKey?: string },
   ): Promise<WhatsAppResult>;
 
   sendImage(
     to: string,
     imageUrl: string,
     caption?: string,
-    opts?: { from?: string; channelApiKey?: string }
+    opts?: { from?: string; channelApiKey?: string },
   ): Promise<WhatsAppResult>;
 
   sendButtons(
     to: string,
     body: string,
     buttons: Array<{ id: string; label: string }>,
-    opts?: { from?: string; channelApiKey?: string }
+    opts?: { from?: string; channelApiKey?: string },
   ): Promise<WhatsAppResult>;
 }

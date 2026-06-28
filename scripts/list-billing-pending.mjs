@@ -27,6 +27,6 @@ for (const doc of snap.docs) {
       status: d.status,
       stripe_subscription_id: d.stripe_subscription_id || null,
       updated_at: d.updated_at || null,
-    })
+    }),
   );
 }

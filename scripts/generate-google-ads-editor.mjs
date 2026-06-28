@@ -325,17 +325,57 @@ const negativeKeywords = [
 ];
 
 const manualAssets = [
-  ["Sitelink", "Simulador", "/#simulador", "Veja uma resposta gerada", "Sem login e sem cartao", "", ""],
-  ["Sitelink", "Planos", "/#precos", "Start por R$97/mes", "Cancele quando quiser", "", ""],
-  ["Sitelink", "Como Funciona", "/#sinais", "Preco, medo e follow-up", "Respostas no WhatsApp", "", ""],
-  ["Sitelink", "Reembolso", "/reembolso", "Politica de reembolso", "Cancelamento claro", "", ""],
+  [
+    "Sitelink",
+    "Simulador",
+    "/#simulador",
+    "Veja uma resposta gerada",
+    "Sem login e sem cartao",
+    "",
+    "",
+  ],
+  [
+    "Sitelink",
+    "Planos",
+    "/#precos",
+    "Start por R$97/mes",
+    "Cancele quando quiser",
+    "",
+    "",
+  ],
+  [
+    "Sitelink",
+    "Como Funciona",
+    "/#sinais",
+    "Preco, medo e follow-up",
+    "Respostas no WhatsApp",
+    "",
+    "",
+  ],
+  [
+    "Sitelink",
+    "Reembolso",
+    "/reembolso",
+    "Politica de reembolso",
+    "Cancelamento claro",
+    "",
+    "",
+  ],
   ["Callout", "5 respostas gratis", "", "", "", "", ""],
   ["Callout", "Sem cartao", "", "", "", "", ""],
   ["Callout", "Cancele quando quiser", "", "", "", "", ""],
   ["Callout", "Feito para estetica", "", "", "", "", ""],
   ["Callout", "Respostas no seu tom", "", "", "", "", ""],
   ["Callout", "Copiar e mandar", "", "", "", "", ""],
-  ["Structured snippet", "", "", "", "", "Recursos", "Respostas; Objecoes; Retomadas; Roteiros; Tom da clinica"],
+  [
+    "Structured snippet",
+    "",
+    "",
+    "",
+    "",
+    "Recursos",
+    "Respostas; Objecoes; Retomadas; Roteiros; Tom da clinica",
+  ],
 ];
 
 function finalUrl(content) {
@@ -352,11 +392,20 @@ function finalUrl(content) {
 
 function csvCell(value) {
   const text = String(value ?? "");
-  return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : `"${text}"`;
+  return /[",\n\r]/.test(text)
+    ? `"${text.replaceAll('"', '""')}"`
+    : `"${text}"`;
 }
 
 function toCsv(headers, rows) {
-  return [headers.join(","), ...rows.map((row) => headers.map((header) => csvCell(row[header])).join(","))].join("\n") + "\n";
+  return (
+    [
+      headers.join(","),
+      ...rows.map((row) =>
+        headers.map((header) => csvCell(row[header])).join(","),
+      ),
+    ].join("\n") + "\n"
+  );
 }
 
 function adRows() {
@@ -391,7 +440,7 @@ function adRows() {
         row[`Description ${index + 1}`] = ad.descriptions[index] || "";
       }
       return row;
-    })
+    }),
   );
 
   return [headers, rows];
@@ -436,8 +485,8 @@ function keywordRows() {
         "Match type": matchType === "exact" ? "Exact" : "Phrase",
         Status: "Enabled",
         "Final URL": finalUrl(`kw_${group.content}`),
-      }))
-    )
+      })),
+    ),
   );
 
   return [headers, rows];
@@ -465,16 +514,18 @@ function assetRows() {
     "Header",
     "Values",
   ];
-  const rows = manualAssets.map(([type, text, assetPath, line1, line2, header, values]) => ({
-    "Asset type": type,
-    Campaign: campaign.name,
-    Text: text,
-    "Final URL": assetPath ? `${BASE_URL}${assetPath}` : "",
-    "Description line 1": line1,
-    "Description line 2": line2,
-    Header: header,
-    Values: values,
-  }));
+  const rows = manualAssets.map(
+    ([type, text, assetPath, line1, line2, header, values]) => ({
+      "Asset type": type,
+      Campaign: campaign.name,
+      Text: text,
+      "Final URL": assetPath ? `${BASE_URL}${assetPath}` : "",
+      "Description line 1": line1,
+      "Description line 2": line2,
+      Header: header,
+      Values: values,
+    }),
+  );
   return [headers, rows];
 }
 
@@ -599,19 +650,25 @@ function validate() {
 
       for (const headline of ad.headlines) {
         if (headline.length > 30) {
-          errors.push(`${group.name}/${ad.content}: headline too long (${headline.length}) "${headline}"`);
+          errors.push(
+            `${group.name}/${ad.content}: headline too long (${headline.length}) "${headline}"`,
+          );
         }
       }
       for (const description of ad.descriptions) {
         if (description.length > 90) {
-          errors.push(`${group.name}/${ad.content}: description too long (${description.length}) "${description}"`);
+          errors.push(
+            `${group.name}/${ad.content}: description too long (${description.length}) "${description}"`,
+          );
         }
       }
     }
   }
 
   if (errors.length) {
-    throw new Error(`Google Ads pack validation failed:\n- ${errors.join("\n- ")}`);
+    throw new Error(
+      `Google Ads pack validation failed:\n- ${errors.join("\n- ")}`,
+    );
   }
 }
 
@@ -628,14 +685,28 @@ async function main() {
   await writeCsv("02_responsive_search_ads.csv", adRows);
   await writeCsv("03_negative_keywords.csv", negativeRows);
   await writeCsv("04_assets_manual.csv", assetRows);
-  await writeFile(path.join(outDir, "05_launch_checklist.md"), checklistMarkdown(), "utf8");
-  await writeFile(path.join(outDir, "06_automation_rules.md"), automationMarkdown(), "utf8");
+  await writeFile(
+    path.join(outDir, "05_launch_checklist.md"),
+    checklistMarkdown(),
+    "utf8",
+  );
+  await writeFile(
+    path.join(outDir, "06_automation_rules.md"),
+    automationMarkdown(),
+    "utf8",
+  );
 
-  console.log(`Generated Google Ads Editor pack in ${path.relative(root, outDir)}`);
+  console.log(
+    `Generated Google Ads Editor pack in ${path.relative(root, outDir)}`,
+  );
   console.log(`Campaign: ${campaign.name}`);
   console.log(`Ad groups: ${campaign.groups.length}`);
-  console.log(`Responsive search ads: ${campaign.groups.reduce((sum, group) => sum + group.ads.length, 0)}`);
-  console.log(`Keywords: ${campaign.groups.reduce((sum, group) => sum + group.keywords.phrase.length + group.keywords.exact.length, 0)}`);
+  console.log(
+    `Responsive search ads: ${campaign.groups.reduce((sum, group) => sum + group.ads.length, 0)}`,
+  );
+  console.log(
+    `Keywords: ${campaign.groups.reduce((sum, group) => sum + group.keywords.phrase.length + group.keywords.exact.length, 0)}`,
+  );
   console.log(`Negatives: ${negativeKeywords.length}`);
 }
 

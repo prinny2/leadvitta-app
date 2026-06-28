@@ -1,7 +1,11 @@
 /** Host canônico de produção (Vercel + domínio real). */
 export const CANONICAL_HOST = "www.leadbellus.com.br";
 
-const LEGACY_HOST_SUFFIXES = [".run.app", ".web.app", ".firebaseapp.com"] as const;
+const LEGACY_HOST_SUFFIXES = [
+  ".run.app",
+  ".web.app",
+  ".firebaseapp.com",
+] as const;
 
 /** Rotas de API que continuam respondendo em hosts legados (webhooks / health). */
 const LEGACY_API_PREFIXES = [
@@ -11,7 +15,8 @@ const LEGACY_API_PREFIXES = [
 ] as const;
 
 function getCanonicalOrigin(): string {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const configured =
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   try {
     const parsed = new URL(configured);
     if (parsed.hostname === "leadbellus.com.br") {
@@ -33,14 +38,13 @@ export function isLegacyPublicHost(hostname: string): boolean {
 
 export function shouldKeepLegacyApiRoute(pathname: string): boolean {
   return LEGACY_API_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
 }
 
 export function buildCanonicalRedirectUrl(
-  requestUrl: URL,
   pathname: string,
-  search: string
+  search: string,
 ): URL {
   const target = new URL(pathname + search, getCanonicalOrigin());
   return target;

@@ -18,7 +18,7 @@ export function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const protegida = ROTAS_PROTEGIDAS.some(
-    (r) => pathname === r || pathname.startsWith(r + "/")
+    (r) => pathname === r || pathname.startsWith(r + "/"),
   );
   if (!protegida) return NextResponse.next({ request });
 

@@ -31,24 +31,42 @@ export type LimitCheck = {
 export async function reserveGeneration(uid: string): Promise<LimitCheck> {
   const db = getFirebaseAdminDb();
   if (!db) {
-    return { allowed: true, paid: true, used: 0, remaining: Number.POSITIVE_INFINITY, reserved: false };
+    return {
+      allowed: true,
+      paid: true,
+      used: 0,
+      remaining: Number.POSITIVE_INFINITY,
+      reserved: false,
+    };
   }
 
   const ref = db.collection("clinicas").doc(uid);
   return db.runTransaction(async (tx) => {
     const snap = await tx.get(ref);
-    const data = snap.exists ? snap.data() ?? {} : {};
+    const data = snap.exists ? (snap.data() ?? {}) : {};
     const status = data?.billing?.status;
     const paid = typeof status === "string" && PAID_STATUSES.has(status);
 
     if (paid) {
-      return { allowed: true, paid: true, used: 0, remaining: Number.POSITIVE_INFINITY, reserved: false };
+      return {
+        allowed: true,
+        paid: true,
+        used: 0,
+        remaining: Number.POSITIVE_INFINITY,
+        reserved: false,
+      };
     }
 
     const used = Number(data?.usage?.free_generations ?? 0);
     const remaining = Math.max(0, FREE_GENERATION_LIMIT - used);
     if (remaining <= 0) {
-      return { allowed: false, paid: false, used, remaining: 0, reserved: false };
+      return {
+        allowed: false,
+        paid: false,
+        used,
+        remaining: 0,
+        reserved: false,
+      };
     }
 
     tx.set(
@@ -57,7 +75,7 @@ export async function reserveGeneration(uid: string): Promise<LimitCheck> {
         usage: { free_generations: FieldValue.increment(1) },
         updated_at: new Date().toISOString(),
       },
-      { merge: true }
+      { merge: true },
     );
     return { allowed: true, paid: false, used, remaining, reserved: true };
   });
@@ -71,13 +89,16 @@ export async function releaseGeneration(uid: string): Promise<void> {
   const db = getFirebaseAdminDb();
   if (!db) return;
   try {
-    await db.collection("clinicas").doc(uid).set(
-      {
-        usage: { free_generations: FieldValue.increment(-1) },
-        updated_at: new Date().toISOString(),
-      },
-      { merge: true }
-    );
+    await db
+      .collection("clinicas")
+      .doc(uid)
+      .set(
+        {
+          usage: { free_generations: FieldValue.increment(-1) },
+          updated_at: new Date().toISOString(),
+        },
+        { merge: true },
+      );
   } catch (err) {
     console.error("[usage-limit] falha ao liberar slot grátis", err);
   }

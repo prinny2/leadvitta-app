@@ -1,7 +1,15 @@
-import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import {
+  jsonNoStore,
+  enforceRateLimit,
+  readJsonBody,
+  rejectCrossOriginRequest,
+} from "@/lib/api-security";
 import { gerarRespostas, refinarResposta } from "@/lib/ai/provider";
 import type { GerarInput, RefineInput } from "@/lib/types";
-import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
+import {
+  verifyFirebaseIdToken,
+  isFirebaseAdminConfigured,
+} from "@/lib/firebase/admin";
 import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
 
 export const runtime = "nodejs";
@@ -30,7 +38,7 @@ export async function POST(req: Request) {
       if (!body.respostaAtual || !body.variante) {
         return jsonNoStore(
           { error: "Resposta atual e variante são obrigatórias." },
-          { status: 400 }
+          { status: 400 },
         );
       }
       const r = await refinarResposta({
@@ -51,7 +59,7 @@ export async function POST(req: Request) {
     if (!body?.mensagemCliente || !String(body.mensagemCliente).trim()) {
       return jsonNoStore(
         { error: "Informe a mensagem da cliente." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -66,8 +74,11 @@ export async function POST(req: Request) {
     // SDK existe — sem credencial, verify falha por config, não por token ruim.
     if (token && !decoded?.uid && isFirebaseAdminConfigured()) {
       return jsonNoStore(
-        { error: "Sessão expirada. Entre novamente para continuar.", reauth: true },
-        { status: 401 }
+        {
+          error: "Sessão expirada. Entre novamente para continuar.",
+          reauth: true,
+        },
+        { status: 401 },
       );
     }
 
@@ -85,7 +96,7 @@ export async function POST(req: Request) {
             limitReached: true,
             freeRemaining: 0,
           },
-          { status: 402 }
+          { status: 402 },
         );
       }
     }
@@ -93,7 +104,7 @@ export async function POST(req: Request) {
     const providerChain = Array.isArray(body.providerChain)
       ? body.providerChain.filter(
           (p): p is "openai" | "anthropic" | "gemini" =>
-            p === "openai" || p === "anthropic" || p === "gemini"
+            p === "openai" || p === "anthropic" || p === "gemini",
         )
       : undefined;
 
@@ -124,13 +135,10 @@ export async function POST(req: Request) {
       : undefined;
 
     return jsonNoStore(
-      freeRemaining === undefined ? result : { ...result, freeRemaining }
+      freeRemaining === undefined ? result : { ...result, freeRemaining },
     );
   } catch (err: unknown) {
     console.error("[api/generate] erro fatal:", err);
-    return jsonNoStore(
-      { error: "Erro interno do servidor." },
-      { status: 500 }
-    );
+    return jsonNoStore({ error: "Erro interno do servidor." }, { status: 500 });
   }
 }

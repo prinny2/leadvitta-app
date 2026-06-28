@@ -78,8 +78,12 @@ describe("mockRefine", () => {
 
   it("retorna uma string para cada variante conhecida", () => {
     expect(typeof mockRefine({ ...base, variante: "curta" })).toBe("string");
-    expect(typeof mockRefine({ ...base, variante: "consultiva" })).toBe("string");
-    expect(typeof mockRefine({ ...base, variante: "persuasiva" })).toBe("string");
+    expect(typeof mockRefine({ ...base, variante: "consultiva" })).toBe(
+      "string",
+    );
+    expect(typeof mockRefine({ ...base, variante: "persuasiva" })).toBe(
+      "string",
+    );
   });
 
   it("a variante consultiva capitaliza o procedimento", () => {
@@ -88,7 +92,10 @@ describe("mockRefine", () => {
   });
 
   it("variante desconhecida cai no caminho persuasivo (default)", () => {
-    const out = mockRefine({ ...base, variante: "inexistente" as RefineInput["variante"] });
+    const out = mockRefine({
+      ...base,
+      variante: "inexistente" as RefineInput["variante"],
+    });
     expect(out).toContain("horário de avaliação");
   });
 });

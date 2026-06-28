@@ -1,4 +1,9 @@
-import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import {
+  enforceRateLimit,
+  jsonNoStore,
+  readJsonBody,
+  rejectCrossOriginRequest,
+} from "@/lib/api-security";
 import Stripe from "stripe";
 import type { BillingInterval } from "@/lib/billing";
 import {
@@ -52,8 +57,11 @@ export async function POST(request: Request) {
   const planConfig = getBillingPlan(plan);
   if (!planConfig.disponivel) {
     return jsonNoStore(
-      { error: "Esse plano ainda não está disponível — entre na lista de espera." },
-      { status: 400 }
+      {
+        error:
+          "Esse plano ainda não está disponível — entre na lista de espera.",
+      },
+      { status: 400 },
     );
   }
   const interval: BillingInterval =
@@ -63,14 +71,14 @@ export async function POST(request: Request) {
   if (!priceId) {
     const envSuffix = interval === "annual" ? "_ANNUAL" : "";
     console.error(
-      `[stripe.checkout] STRIPE_PRICE_ID_${plan.toUpperCase()}${envSuffix} não configurado.`
+      `[stripe.checkout] STRIPE_PRICE_ID_${plan.toUpperCase()}${envSuffix} não configurado.`,
     );
     return jsonNoStore(
       {
         error:
           "Checkout indisponível para este plano no momento. Fale com o suporte.",
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -78,7 +86,7 @@ export async function POST(request: Request) {
     console.error("[stripe.checkout] Stripe não configurado neste ambiente.");
     return jsonNoStore(
       { error: "Checkout indisponível no momento. Fale com o suporte." },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -136,7 +144,7 @@ export async function POST(request: Request) {
     console.error("[stripe.checkout] erro ao criar sessão", err);
     return jsonNoStore(
       { error: "Não foi possível iniciar o checkout." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -8,7 +8,6 @@ export const metadata = { title: "Scripts de Atendimento — LeadBellus" };
 export default function ScriptsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
-
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -16,8 +15,8 @@ export default function ScriptsPage() {
             Scripts de Atendimento
           </h1>
           <p className="text-sm text-navy-100 mt-1">
-            Fluxos prontos que conduzem a conversa até o agendamento.
-            A cliente não compra uma resposta — ela compra um caminho.
+            Fluxos prontos que conduzem a conversa até o agendamento. A cliente
+            não compra uma resposta — ela compra um caminho.
           </p>
         </div>
         <PrintButton label="Exportar tudo" />
@@ -25,7 +24,7 @@ export default function ScriptsPage() {
 
       {/* Scripts */}
       <div className="space-y-5">
-        {scripts.map((s, sIdx) => (
+        {scripts.map((s) => (
           <div
             key={s.id}
             className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card"
@@ -45,7 +44,9 @@ export default function ScriptsPage() {
               </div>
               <CopyButton
                 label="Copiar fluxo"
-                text={s.passos.map((p, i) => `${i + 1}. ${p.mensagem}`).join("\n\n")}
+                text={s.passos
+                  .map((p, i) => `${i + 1}. ${p.mensagem}`)
+                  .join("\n\n")}
               />
             </div>
 
@@ -77,7 +78,9 @@ export default function ScriptsPage() {
                           <CopyButton text={p.mensagem} />
                         </div>
                       </div>
-                      <p className="text-sm leading-relaxed text-champagne-300">{p.mensagem}</p>
+                      <p className="text-sm leading-relaxed text-champagne-300">
+                        {p.mensagem}
+                      </p>
                     </div>
                   </li>
                 ))}

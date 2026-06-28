@@ -56,11 +56,27 @@ export function MarketingMobileMenu() {
           cursor: "pointer",
         }}
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
           {open ? (
-            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path
+              d="M6 6l12 12M18 6L6 18"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           ) : (
-            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path
+              d="M4 7h16M4 12h16M4 17h16"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
           )}
         </svg>
       </button>
@@ -70,7 +86,12 @@ export function MarketingMobileMenu() {
           <div
             aria-hidden="true"
             onClick={close}
-            style={{ position: "fixed", inset: "64px 0 0 0", background: "rgba(16,35,59,0.35)", zIndex: 49 }}
+            style={{
+              position: "fixed",
+              inset: "64px 0 0 0",
+              background: "rgba(16,35,59,0.35)",
+              zIndex: 49,
+            }}
           />
           <div
             id="lp-mobile-menu"
@@ -111,7 +132,12 @@ export function MarketingMobileMenu() {
             <Link
               href="/login"
               onClick={close}
-              style={{ color: "#10233B", fontSize: "16px", textDecoration: "none", padding: "12px 4px" }}
+              style={{
+                color: "#10233B",
+                fontSize: "16px",
+                textDecoration: "none",
+                padding: "12px 4px",
+              }}
             >
               Entrar
             </Link>

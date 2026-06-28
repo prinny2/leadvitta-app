@@ -19,7 +19,6 @@ Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore
 - **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
 - **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID, número +55 91 8515-6690). Auto-resposta (webhook) em rollout.
 
-
 ## Rodar local
 
 ```bash
@@ -89,6 +88,7 @@ STRIPE_PRICE_ID_PREMIUM=
 O app suporta múltiplos provedores. Defina `WHATSAPP_PROVIDER` como `twilio`, `dialog360` ou `zapi`.
 
 #### Z-API (Recomendado para mensagens ricas)
+
 ```env
 WHATSAPP_PROVIDER=zapi
 ZAPI_INSTANCE_ID=
@@ -96,12 +96,15 @@ ZAPI_TOKEN=
 ZAPI_CLIENT_TOKEN=
 ZAPI_SECURITY_TOKEN=
 ```
+
 Para configurar os webhooks automaticamente na Z-API, rode:
+
 ```bash
 node scripts/setup-zapi-webhook.mjs
 ```
 
 #### 360dialog
+
 ```env
 WHATSAPP_PROVIDER=dialog360
 D360_API_KEY=
@@ -109,6 +112,7 @@ D360_WEBHOOK_TOKEN=
 ```
 
 #### Twilio
+
 ```env
 WHATSAPP_PROVIDER=twilio
 TWILIO_ACCOUNT_SID=

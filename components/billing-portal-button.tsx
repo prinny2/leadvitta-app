@@ -43,7 +43,7 @@ export function BillingPortalButton() {
       setErro(
         error instanceof Error
           ? error.message
-          : "Erro ao abrir o portal de assinatura."
+          : "Erro ao abrir o portal de assinatura.",
       );
       setLoading(false);
     }

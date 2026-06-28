@@ -93,7 +93,8 @@ const secretPatterns = [
   },
   {
     label: "GitHub token",
-    regex: /\b(?:(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{50,})\b/,
+    regex:
+      /\b(?:(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{50,})\b/,
   },
   {
     label: "Slack token",

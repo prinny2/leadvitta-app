@@ -10,10 +10,29 @@ const GUARANTEES = [
     description: "Sem cobrança automática.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <rect x="2" y="6" width="16" height="11" rx="2" stroke="#C9A060" strokeWidth="1.4" />
+        <rect
+          x="2"
+          y="6"
+          width="16"
+          height="11"
+          rx="2"
+          stroke="#C9A060"
+          strokeWidth="1.4"
+        />
         <path d="M2 10h16" stroke="#C9A060" strokeWidth="1.4" />
-        <path d="M6 14h4" stroke="#C9A060" strokeWidth="1.4" strokeLinecap="round" />
-        <path d="M15 3l-3 3-1.5-1.5" stroke="#C9A060" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M6 14h4"
+          stroke="#C9A060"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+        <path
+          d="M15 3l-3 3-1.5-1.5"
+          stroke="#C9A060"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     ),
   },
@@ -22,8 +41,19 @@ const GUARANTEES = [
     description: "Não sentiu diferença? Peça reembolso.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M10 2L4 5v5c0 3.87 2.57 7.5 6 8.5 3.43-1 6-4.63 6-8.5V5l-6-3z" stroke="#C9A060" strokeWidth="1.4" strokeLinejoin="round" />
-        <path d="M7.5 10.5l2 2 3-3" stroke="#C9A060" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M10 2L4 5v5c0 3.87 2.57 7.5 6 8.5 3.43-1 6-4.63 6-8.5V5l-6-3z"
+          stroke="#C9A060"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M7.5 10.5l2 2 3-3"
+          stroke="#C9A060"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
     ),
   },
@@ -33,8 +63,20 @@ const GUARANTEES = [
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <circle cx="10" cy="10" r="7.5" stroke="#C9A060" strokeWidth="1.4" />
-        <path d="M10 6v4.5l3 1.5" stroke="#C9A060" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M4 4l12 12" stroke="#C9A060" strokeWidth="1.4" strokeLinecap="round" opacity="0.4" />
+        <path
+          d="M10 6v4.5l3 1.5"
+          stroke="#C9A060"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M4 4l12 12"
+          stroke="#C9A060"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          opacity="0.4"
+        />
       </svg>
     ),
   },
@@ -54,7 +96,11 @@ function GuaranteeItem({
       initial={{ opacity: 0, x: -16 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.5, delay: 0.55 + index * 0.12, ease: [0.22, 1, 0.36, 1] }}
+      transition={{
+        duration: 0.5,
+        delay: 0.55 + index * 0.12,
+        ease: [0.22, 1, 0.36, 1],
+      }}
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
       style={{
@@ -73,7 +119,12 @@ function GuaranteeItem({
         initial={{ scale: 0, opacity: 0 }}
         whileInView={{ scale: 1, opacity: 1 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.35, delay: 0.6 + index * 0.12, type: "spring", stiffness: 280 }}
+        transition={{
+          duration: 0.35,
+          delay: 0.6 + index * 0.12,
+          type: "spring",
+          stiffness: 280,
+        }}
         style={{
           width: 38,
           height: 38,
@@ -93,7 +144,15 @@ function GuaranteeItem({
 
       {/* Text */}
       <div>
-        <p style={{ fontSize: "15px", color: "#0A1628", fontWeight: 600, margin: "0 0 2px", lineHeight: 1.4 }}>
+        <p
+          style={{
+            fontSize: "15px",
+            color: "#0A1628",
+            fontWeight: 600,
+            margin: "0 0 2px",
+            lineHeight: 1.4,
+          }}
+        >
           {item.title}
         </p>
         <AnimatePresence>
@@ -103,7 +162,13 @@ function GuaranteeItem({
               animate={{ opacity: 1, height: "auto", marginTop: 4 }}
               exit={{ opacity: 0, height: 0, marginTop: 0 }}
               transition={{ duration: 0.22, ease: "easeOut" }}
-              style={{ fontSize: "13px", color: "#6b7280", margin: 0, lineHeight: 1.55, overflow: "hidden" }}
+              style={{
+                fontSize: "13px",
+                color: "#6b7280",
+                margin: 0,
+                lineHeight: 1.55,
+                overflow: "hidden",
+              }}
             >
               {item.description}
             </motion.p>
@@ -126,7 +191,9 @@ function AnimatedShield() {
       <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
         {/* Glow circle */}
         <motion.circle
-          cx="36" cy="36" r="34"
+          cx="36"
+          cy="36"
+          r="34"
           fill="rgba(201,160,96,0.07)"
           initial={{ scale: 0.8, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
@@ -163,13 +230,22 @@ function AnimatedShield() {
   );
 }
 
-export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string }) {
+export function RiskFreeSection({
+  funilHref = "/signup",
+}: {
+  funilHref?: string;
+}) {
   const [ctaHovered, setCtaHovered] = useState(false);
 
   return (
     <section
       id="garantia"
-      style={{ background: "#F5F0E6", padding: "96px 24px", position: "relative", overflow: "hidden" }}
+      style={{
+        background: "#F5F0E6",
+        padding: "96px 24px",
+        position: "relative",
+        overflow: "hidden",
+      }}
     >
       {/* Subtle background aura */}
       <div
@@ -180,13 +256,15 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
           transform: "translate(-50%, -50%)",
           width: "600px",
           height: "400px",
-          background: "radial-gradient(ellipse, rgba(201,160,96,0.07) 0%, transparent 70%)",
+          background:
+            "radial-gradient(ellipse, rgba(201,160,96,0.07) 0%, transparent 70%)",
           pointerEvents: "none",
         }}
       />
 
-      <div style={{ maxWidth: "700px", margin: "0 auto", position: "relative" }}>
-
+      <div
+        style={{ maxWidth: "700px", margin: "0 auto", position: "relative" }}
+      >
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 14, scale: 0.96 }}
@@ -195,22 +273,29 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           style={{ textAlign: "center", marginBottom: "32px" }}
         >
-          <span style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "7px",
-            border: "1px solid rgba(201,160,96,0.5)",
-            background: "rgba(201,160,96,0.07)",
-            borderRadius: "9999px",
-            padding: "6px 18px",
-            fontSize: "10px",
-            fontWeight: 800,
-            letterSpacing: "0.1em",
-            color: "#92610A",
-            textTransform: "uppercase",
-          }}>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "7px",
+              border: "1px solid rgba(201,160,96,0.5)",
+              background: "rgba(201,160,96,0.07)",
+              borderRadius: "9999px",
+              padding: "6px 18px",
+              fontSize: "10px",
+              fontWeight: 800,
+              letterSpacing: "0.1em",
+              color: "#92610A",
+              textTransform: "uppercase",
+            }}
+          >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M6 1L2 3v4c0 2.76 1.87 5.35 4 5.94C8.13 12.35 10 9.76 10 7V3L6 1z" stroke="#92610A" strokeWidth="1.2" strokeLinejoin="round" />
+              <path
+                d="M6 1L2 3v4c0 2.76 1.87 5.35 4 5.94C8.13 12.35 10 9.76 10 7V3L6 1z"
+                stroke="#92610A"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
             </svg>
             Risco zero — literalmente
           </span>
@@ -227,7 +312,8 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
             border: "1.5px solid #E8E4DC",
             borderRadius: "28px",
             padding: "52px 44px",
-            boxShadow: "0 12px 48px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
+            boxShadow:
+              "0 12px 48px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
             textAlign: "center",
             position: "relative",
             overflow: "hidden",
@@ -245,7 +331,8 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               left: 0,
               width: "50%",
               height: "100%",
-              background: "linear-gradient(90deg, transparent, rgba(201,160,96,0.3), transparent)",
+              background:
+                "linear-gradient(90deg, transparent, rgba(201,160,96,0.3), transparent)",
               pointerEvents: "none",
               zIndex: 1,
             }}
@@ -260,7 +347,11 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                duration: 0.5,
+                delay: 0.3,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               style={{
                 fontFamily: "var(--font-fraunces, Georgia, serif)",
                 fontSize: "clamp(24px, 3.5vw, 32px)",
@@ -278,8 +369,17 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
-              style={{ fontSize: "15px", color: "#4a5568", lineHeight: 1.8, marginBottom: "12px" }}
+              transition={{
+                duration: 0.45,
+                delay: 0.38,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              style={{
+                fontSize: "15px",
+                color: "#4a5568",
+                lineHeight: 1.8,
+                marginBottom: "12px",
+              }}
             >
               Sem cartão pra começar. Você testa de graça e só assina se gostar.
             </motion.p>
@@ -289,11 +389,23 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: 0.46, ease: [0.22, 1, 0.36, 1] }}
-              style={{ fontSize: "15px", color: "#4a5568", lineHeight: 1.8, marginBottom: "28px" }}
+              transition={{
+                duration: 0.45,
+                delay: 0.46,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              style={{
+                fontSize: "15px",
+                color: "#4a5568",
+                lineHeight: 1.8,
+                marginBottom: "28px",
+              }}
             >
               Assinou e em 30 dias não sentiu diferença? Devolvemos{" "}
-              <strong style={{ color: "#0A1628" }}>100% do que você pagou</strong>.
+              <strong style={{ color: "#0A1628" }}>
+                100% do que você pagou
+              </strong>
+              .
             </motion.p>
 
             {/* Stamp phrase */}
@@ -301,22 +413,34 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               initial={{ opacity: 0, y: 8 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: 0.52, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                duration: 0.45,
+                delay: 0.52,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               style={{ marginBottom: "36px" }}
             >
-              <p style={{
-                fontSize: "16px",
-                fontWeight: 700,
-                color: "#0A1628",
-                fontStyle: "italic",
-                margin: "0 0 8px",
-                lineHeight: 1.4,
-              }}>
+              <p
+                style={{
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  color: "#0A1628",
+                  fontStyle: "italic",
+                  margin: "0 0 8px",
+                  lineHeight: 1.4,
+                }}
+              >
                 Sem questionamento. Sem explicação necessária.
               </p>
               {/* Underline drawn */}
               <div style={{ display: "flex", justifyContent: "center" }}>
-                <svg width="260" height="8" viewBox="0 0 260 8" preserveAspectRatio="none" style={{ overflow: "visible" }}>
+                <svg
+                  width="260"
+                  height="8"
+                  viewBox="0 0 260 8"
+                  preserveAspectRatio="none"
+                  style={{ overflow: "visible" }}
+                >
                   <motion.path
                     d="M 2 5 Q 65 1 130 5 Q 195 9 258 4"
                     fill="none"
@@ -333,13 +457,15 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
             </motion.div>
 
             {/* Guarantee items */}
-            <div style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "4px",
-              textAlign: "left",
-              marginBottom: "32px",
-            }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "4px",
+                textAlign: "left",
+                marginBottom: "32px",
+              }}
+            >
               {GUARANTEES.map((item, i) => (
                 <GuaranteeItem key={item.title} item={item} index={i} />
               ))}
@@ -353,7 +479,8 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               transition={{ duration: 0.5, delay: 0.9, ease: "easeOut" }}
               style={{
                 height: "1px",
-                background: "linear-gradient(90deg, transparent, #E8E4DC, transparent)",
+                background:
+                  "linear-gradient(90deg, transparent, #E8E4DC, transparent)",
                 marginBottom: "24px",
                 transformOrigin: "center",
               }}
@@ -365,12 +492,18 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 1.0 }}
-              style={{ fontSize: "14px", color: "#6b7280", lineHeight: 1.75, marginBottom: "28px" }}
+              style={{
+                fontSize: "14px",
+                color: "#6b7280",
+                lineHeight: 1.75,
+                marginBottom: "28px",
+              }}
             >
               O único risco é{" "}
               <span style={{ color: "#0A1628", fontWeight: 600 }}>
                 continuar perdendo clientes no WhatsApp
-              </span>.
+              </span>
+              .
             </motion.p>
 
             {/* CTA */}
@@ -378,7 +511,11 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
               initial={{ opacity: 0, y: 8 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                duration: 0.45,
+                delay: 1.1,
+                ease: [0.22, 1, 0.36, 1],
+              }}
             >
               <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
                 <Link
@@ -412,7 +549,13 @@ export function RiskFreeSection({ funilHref = "/signup" }: { funilHref?: string 
                   </motion.span>
                 </Link>
               </motion.div>
-              <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "12px" }}>
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: "#9ca3af",
+                  marginTop: "12px",
+                }}
+              >
                 5 respostas grátis · Sem cartão · Acesso imediato
               </p>
             </motion.div>

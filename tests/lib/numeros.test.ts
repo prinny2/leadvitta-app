@@ -81,7 +81,9 @@ describe("reivindicarNumero", () => {
     const res = await reivindicarNumero("c1", "5511999998888");
     expect(res).toEqual({ ok: false, motivo: "em_uso" });
     // não sobrescreve o dono original
-    expect(store.get("numeros_whatsapp/5511999998888")?.clinica_id).toBe("outra");
+    expect(store.get("numeros_whatsapp/5511999998888")?.clinica_id).toBe(
+      "outra",
+    );
   });
 
   it("é idempotente: reivindicar o mesmo número pela MESMA clínica funciona", async () => {

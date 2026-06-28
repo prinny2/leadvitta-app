@@ -52,7 +52,11 @@ const CARDS = [
   },
 ];
 
-export function IndicadoCards({ funilHref = "/signup" }: { funilHref?: string }) {
+export function IndicadoCards({
+  funilHref = "/signup",
+}: {
+  funilHref?: string;
+}) {
   return (
     <>
       <div
@@ -69,7 +73,11 @@ export function IndicadoCards({ funilHref = "/signup" }: { funilHref?: string })
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.15 }}
-            transition={{ duration: 0.55, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: 0.55,
+              delay: i * 0.08,
+              ease: [0.22, 1, 0.36, 1],
+            }}
             whileHover={{ y: -4 }}
             style={{
               background: "#0f1b2f",
@@ -77,15 +85,20 @@ export function IndicadoCards({ funilHref = "/signup" }: { funilHref?: string })
               borderRadius: "20px",
               padding: "28px 24px",
               cursor: "default",
-              transition: "background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
+              transition:
+                "background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
             }}
             onMouseEnter={(e) => {
               const el = e.currentTarget as HTMLDivElement;
               el.style.background = "#F5F0E6";
               el.style.borderColor = "#C9A060";
               el.style.boxShadow = "0 12px 40px rgba(201,160,96,0.15)";
-              el.querySelectorAll("[data-title]").forEach((t) => ((t as HTMLElement).style.color = "#0A1628"));
-              el.querySelectorAll("[data-body]").forEach((t) => ((t as HTMLElement).style.color = "#4a5568"));
+              el.querySelectorAll("[data-title]").forEach(
+                (t) => ((t as HTMLElement).style.color = "#0A1628"),
+              );
+              el.querySelectorAll("[data-body]").forEach(
+                (t) => ((t as HTMLElement).style.color = "#4a5568"),
+              );
               el.querySelectorAll("[data-icon]").forEach((t) => {
                 (t as HTMLElement).style.background = "rgba(201,160,96,0.15)";
                 (t as HTMLElement).style.color = "#C9A060";
@@ -96,8 +109,13 @@ export function IndicadoCards({ funilHref = "/signup" }: { funilHref?: string })
               el.style.background = "#0f1b2f";
               el.style.borderColor = "rgba(201,160,96,0.15)";
               el.style.boxShadow = "none";
-              el.querySelectorAll("[data-title]").forEach((t) => ((t as HTMLElement).style.color = "#ffffff"));
-              el.querySelectorAll("[data-body]").forEach((t) => ((t as HTMLElement).style.color = "rgba(255,255,255,0.6)"));
+              el.querySelectorAll("[data-title]").forEach(
+                (t) => ((t as HTMLElement).style.color = "#ffffff"),
+              );
+              el.querySelectorAll("[data-body]").forEach(
+                (t) =>
+                  ((t as HTMLElement).style.color = "rgba(255,255,255,0.6)"),
+              );
               el.querySelectorAll("[data-icon]").forEach((t) => {
                 (t as HTMLElement).style.background = "rgba(201,160,96,0.1)";
                 (t as HTMLElement).style.color = "#C9A060";
@@ -153,8 +171,15 @@ export function IndicadoCards({ funilHref = "/signup" }: { funilHref?: string })
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)", marginBottom: "24px" }}>
-          Se o seu negócio de estética vive de agendamentos, esse sistema foi construído pra você.
+        <p
+          style={{
+            fontSize: "14px",
+            color: "rgba(255,255,255,0.5)",
+            marginBottom: "24px",
+          }}
+        >
+          Se o seu negócio de estética vive de agendamentos, esse sistema foi
+          construído pra você.
         </p>
         <Link
           href={funilHref}
@@ -173,7 +198,13 @@ export function IndicadoCards({ funilHref = "/signup" }: { funilHref?: string })
         >
           Quero gerar 5 respostas grátis →
         </Link>
-        <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
+        <p
+          style={{
+            fontSize: "12px",
+            color: "rgba(255,255,255,0.35)",
+            marginTop: "10px",
+          }}
+        >
           Sem cartão · Acesso imediato · Pronto em 2 minutos
         </p>
       </div>

@@ -18,7 +18,7 @@ if (java.error || java.status !== 0) {
       "",
       "Sem Java, o Firebase CLI não consegue iniciar o Firestore emulator",
       "para carregar e validar firestore.rules dinamicamente.",
-    ].join("\n")
+    ].join("\n"),
   );
   process.exit(1);
 }

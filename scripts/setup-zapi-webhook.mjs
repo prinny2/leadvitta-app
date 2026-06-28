@@ -1,7 +1,7 @@
 /**
  * Script para configurar automaticamente os webhooks da Z-API.
  * Uso: node scripts/setup-zapi-webhook.mjs [URL_DO_WEBHOOK]
- * 
+ *
  * Se URL_DO_WEBHOOK não for passado, usa a variável NEXT_PUBLIC_SITE_URL + /api/whatsapp/webhook
  */
 import "dotenv/config";
@@ -19,7 +19,7 @@ async function setup() {
   }
 
   let webhookUrl = process.argv[2] || `${SITE_URL}/api/whatsapp/webhook`;
-  
+
   // Adiciona o token de segurança se existir
   if (SECURITY_TOKEN) {
     const url = new URL(webhookUrl);
@@ -34,10 +34,7 @@ async function setup() {
   };
   if (CLIENT_TOKEN) headers["Client-Token"] = CLIENT_TOKEN;
 
-  const endpoints = [
-    "update-webhook-received",
-    "update-every-webhooks",
-  ];
+  const endpoints = ["update-webhook-received", "update-every-webhooks"];
   const methods = ["PUT", "POST"];
 
   try {
@@ -49,7 +46,7 @@ async function setup() {
             method,
             headers,
             body: JSON.stringify({ value: webhookUrl }),
-          }
+          },
         );
         const data = await res.json().catch(() => ({}));
         if (res.ok) {
@@ -57,10 +54,15 @@ async function setup() {
           console.log(data);
           return;
         }
-        console.warn(`↻ ${method} ${endpoint} → ${res.status}`, data?.error || data?.code || "");
+        console.warn(
+          `↻ ${method} ${endpoint} → ${res.status}`,
+          data?.error || data?.code || "",
+        );
       }
     }
-    console.error("❌ Nenhum endpoint/método aceitou a atualização do webhook.");
+    console.error(
+      "❌ Nenhum endpoint/método aceitou a atualização do webhook.",
+    );
   } catch (e) {
     console.error("❌ Erro na requisição:", e.message);
   }
