@@ -1,12 +1,10 @@
 // Detecta o que está configurado para alternar entre "modo real" e
 // "modo demonstração" (sem nenhuma chave o app ainda roda).
 
-// Config do Firebase web é PÚBLICA por design (vai no bundle do cliente). Os defaults
-// garantem que o login real funcione mesmo sem as env vars na Vercel; se a env existir, ela vence.
+// Config do Firebase web é PÚBLICA por design (vai no bundle do cliente), mas
+// a API key deve vir do ambiente para não ficar committed no repo.
 export const firebaseConfig = {
-  apiKey:
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
-    "AIzaSyBMlo174XZFQUdvPE1JBJJLt4R6DUk2hls",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
   authDomain:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
     "leadvitta-app.firebaseapp.com",
