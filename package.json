@@ -22,6 +22,7 @@
     "@google/genai": "^2.8.0",
     "@supabase/supabase-js": "^2.108.2",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "botid": "^1.5.11",
     "clsx": "^2.1.1",
     "firebase": "^12.14.0",
