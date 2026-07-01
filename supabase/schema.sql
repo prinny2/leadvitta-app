@@ -80,6 +80,17 @@ create policy "hist_delete_own" on public.historico_respostas
 create index if not exists hist_user_created_idx
   on public.historico_respostas (user_id, created_at desc);
 
+alter table public.historico_respostas
+  add column if not exists firestore_id text,
+  add column if not exists firebase_uid text;
+
+create unique index if not exists hist_firestore_id_idx
+  on public.historico_respostas (firestore_id)
+  where firestore_id is not null;
+
+create index if not exists hist_firebase_uid_idx
+  on public.historico_respostas (firebase_uid, created_at desc);
+
 -- ============================================================
 -- LeadBellus v1 — espelho aditivo Firebase -> Supabase
 -- ============================================================

@@ -6,6 +6,14 @@ import {
 } from "@/lib/canonical-host";
 import { updateSession } from "@/lib/firebase/middleware";
 
+// CLERK_MIGRATION NOTE:
+// When migrating to Clerk:
+// 1. Switch to clerkMiddleware + createRouteMatcher
+// 2. Explicitly exclude public webhook paths:
+//    - /api/stripe/webhook
+//    - /api/whatsapp/webhook
+// 3. Keep the canonical host redirect logic before auth checks.
+
 export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname;
   const pathname = request.nextUrl.pathname;

@@ -1,6 +1,6 @@
 # DEPLOY_STRIPE_VERCEL.md — Checkout recorrente + Webhook (arquitetura híbrida)
 
-> Última revisão: 2026-06-15. Fonte da verdade de estado vivo: **COORDINATION.md**.
+> Última revisão: 2026-07-01. Fonte da verdade de estado vivo: **COORDINATION.md**.
 > Fonte única de planos/preços na UI: **lib/billing.ts**. Não comitar segredos.
 
 ## 0. A verdade da arquitetura (leia primeiro — quase tudo aqui depende disso)
@@ -12,17 +12,16 @@ LeadBellus é **híbrido**:
 - **TODAS** as rotas `/api/*` são reescritas (proxy server-side) para o **Cloud Run**
   em `https://leadbellus-87102725202.southamerica-east1.run.app`.
 
-Motivo no código (`next.config.mjs:10-11,25-36`):
+Motivo no código (`next.config.mjs:10-11,51-61`):
 
 ```js
-const enableApiProxy =
-  process.env.ENABLE_API_PROXY === "true" || process.env.VERCEL === "1";
+const enableApiProxy = process.env.ENABLE_API_PROXY === "true";
 // rewrites().beforeFiles: { source: "/api/:path*", destination: `${apiProxyOrigin}/api/:path*` }
 ```
 
-Na Vercel `process.env.VERCEL === "1"` é **sempre** verdadeiro, então o proxy está
-**SEMPRE LIGADO**. Um destino de URL absoluta vira proxy server-side (URL-masking, body
-encaminhado byte-a-byte) que dispara em `beforeFiles`, **antes** dos handlers em `app/api/`.
+O proxy é **opt-in**: na Vercel de produção defina **`ENABLE_API_PROXY=true` no build**
+(sem isso, `/api/*` roda na edge da Vercel **sem** os segredos do Cloud Run). O rewrite
+dispara em `beforeFiles`, **antes** dos handlers em `app/api/`.
 
 **Consequência que muda tudo:**
 `app/api/stripe/checkout/route.ts` e `app/api/stripe/webhook/route.ts`
@@ -44,6 +43,8 @@ encaminhado byte-a-byte) que dispara em `beforeFiles`, **antes** dos handlers em
 | `STRIPE_PRICE_ID_START` | ❌ | ✅ | `isStripeConfigured` (`config.ts:54`). |
 | `STRIPE_PRICE_ID_PRO` | ❌ | ✅ | manter **VAZIO** até liberar Pro. |
 | `STRIPE_PRICE_ID_PREMIUM` | ❌ | ✅ | manter **VAZIO** até liberar Premium. |
+| `STRIPE_PRICE_ID_*_ANNUAL` | ❌ | ✅ | checkout anual (`lib/billing.ts`). |
+| `STRIPE_ALLOWED_PRICE_IDS` | ❌ | ✅ | opcional; guard extra (`lib/stripe/price-guard.ts`). |
 | `FIREBASE_SERVICE_ACCOUNT_JSON` / `_BASE64` | ❌ | ✅ | Admin SDK; prefira service account anexada (ADC) e deixe vazio. |
 | `FIREBASE_PROJECT_ID` / `_CLIENT_EMAIL` / `_PRIVATE_KEY` | ❌ | ✅ | Admin (server). **Não confundir** `FIREBASE_PROJECT_ID` com `NEXT_PUBLIC_FIREBASE_PROJECT_ID`. |
 | `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` | ❌ | ✅ | IA primária + fallbacks. |
@@ -53,7 +54,7 @@ encaminhado byte-a-byte) que dispara em `beforeFiles`, **antes** dos handlers em
 | `NEXT_PUBLIC_SITE_URL` | ✅ | ✅ | **única var nos dois lados**: bundle Vercel (`config.ts:48`) **e** URLs success/cancel do Stripe no Cloud Run. |
 | `NEXT_PUBLIC_FIREBASE_*` (6 vars) | ✅ | ❌ | config cliente, baked no build (`config.ts:5-10`). **Rebuild** p/ mudar. |
 | `NEXT_PUBLIC_GA4_ID` / `NEXT_PUBLIC_META_PIXEL_ID` | ✅ | ❌ | analytics baked no build. Pixel hoje vazio. |
-| `ENABLE_API_PROXY` | build-only | **não setar** | redundante na Vercel (`VERCEL=1` já liga). **No Cloud Run = loop.** |
+| `ENABLE_API_PROXY` | ✅ **obrigatório** (`=true`) | **não setar** | opt-in explícito (`next.config.mjs:10` — **não** usa `VERCEL=1`). Sem `true`, `/api/*` roda na edge Vercel sem segredos. **No Cloud Run = loop.** |
 | `API_PROXY_ORIGIN` | build-only | **não setar** | **nunca** apontar p/ `leadbellus.com.br` → `next.config.mjs:13-17` **quebra o build**. Deixe vazio (default Cloud Run) ou a URL `.run.app`. |
 
 > `NEXT_PUBLIC_*` são **build-time** — mudar exige **rebuild** da Vercel, não só redeploy.
@@ -165,13 +166,12 @@ node scripts/setup-zapi-webhook.mjs \
   os três, é preciso expor a disponibilidade ao cliente (flag `NEXT_PUBLIC_*` ou via `/api/config`).
 - **Preço**: `lib/billing.ts` R$97/197/347 vs docs R$197/297/397 — reconciliar com os valores
   reais em `acct_1TeQMX` antes de vender (fonte única = `lib/billing.ts`).
-- **Prod canônica**: Vercel (`www.leadbellus.com.br`) e Cloud Run estão **ambos no ar**; decisão de
-  host canônico **pendente** (ver COORDINATION.md). Independente da escolha, `/api` roda no Cloud Run.
+- **Prod canônica (2026-06-30):** Vercel (`www.leadbellus.com.br`) é o host público; Cloud Run é o
+  **API tier** (`/api/*` via proxy + webhooks diretos `.run.app`). Não há conflito pendente.
 
 ## 9. Docs relacionados (estado)
 
-- ✅ Canônicos: **README §Deploy/§Stripe** (webhook na URL `.run.app`), **GO_LIVE_BILLING.md**
-  (segredos no Cloud Run), **PR #29** (descreve o híbrido corretamente).
-- ⚠️ A corrigir (afirmam "whsec na Vercel" / "Vercel é leftover" / WhatsApp via Twilio — todos
-  desatualizados): COORDINATION.md (linha ~142), LAUNCH_NOW.md, README §WhatsApp. Z-API é o único
-  provedor (commit `3753681b`).
+- ✅ Canônicos: **COORDINATION.md** (estado vivo), **README §Deploy/§Stripe/§WhatsApp** (Z-API only,
+  webhook na URL `.run.app`), **GO_LIVE_BILLING.md** (segredos no Cloud Run), este arquivo.
+- ✅ Corrigido (2026-07-01): `ENABLE_API_PROXY=true` obrigatório na Vercel (não `VERCEL=1`);
+  COORDINATION.md, LAUNCH_NOW.md e README §WhatsApp reconciliados com Z-API como único provedor.

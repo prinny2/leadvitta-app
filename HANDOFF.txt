@@ -23,7 +23,7 @@ e a nova Landing Page de Campanha.
 - O webhook está utilizando a versão de API v1 (Dahlia) da Stripe, o que garante
   o envio de payloads completos (Snapshot), atendendo ao esperado pelo backend.
 - O segredo da assinatura foi rotacionado para corrigir o vazamento:
-  * Novo segredo ativo: whsec_bpn4FP73Ibc2CdZSuyeqUpvI0qklwnP0
+  * Novo segredo ativo: <rotated-secret-redacted>
 - O segredo 'stripe-webhook-secret' no GCP Secret Manager do projeto
   'leadvitta-app' foi atualizado (Criada versão [3]).
 - O serviço do Cloud Run 'leadbellus' foi atualizado e uma nova revisão foi

@@ -17,6 +17,11 @@ details. Standard dev commands live in `package.json` (`dev`, `build`, `start`,
 - **Smoke checks:** `GET /api/health` and `GET /api/config` return JSON readiness
   flags (all integrations report `false` in demo mode, except `firebase` which
   may report `true` from baked public defaults — this does not require secrets).
+
+**Auth note (critical):** Current auth is Firebase client + cookie middleware.
+Clerk is planned future migration only. Full details + checklist in
+`docs/clerk-auth-migration.md`. Do not add Clerk packages without following
+that plan and using a dedicated branch + new claim.
 - **Exercising the core AI flow without auth:** the protected app routes under
   `app/(app)/*` (e.g. `/gerador`, `/dashboard`) redirect to `/login` when there
   is no real Firebase session. To test the "message → 3 response variants" core

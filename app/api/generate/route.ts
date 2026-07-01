@@ -118,7 +118,8 @@ export async function POST(req: Request) {
 
     // Plano grátis: usuário LOGADO grátis tem limite; pagante é ilimitado.
     // Sem token (ex.: demo pública da landing) não conta nem bloqueia.
-    const token = body.firebaseIdToken;
+    // CLERK_MIGRATION: this firebaseIdToken pattern is used across many routes.
+    const token = (body as { firebaseIdToken?: string }).firebaseIdToken;
     const decoded = await verifyFirebaseIdToken(token);
 
     // Token ENVIADO mas inválido/expirado não pode rebaixar para "anônimo

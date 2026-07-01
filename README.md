@@ -15,7 +15,7 @@ Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore
 ## Status (produção) — atualizado 2026-06-15
 
 - **LIVE:** `https://leadbellus.com.br` em arquitetura **híbrida** — Vercel serve o frontend, Cloud Run processa `/api/*` (proxy). Modo demonstração desligado (config Firebase real no bundle).
-- **Auth:** Firebase Auth (e-mail/senha + Google). **Billing:** Stripe LIVE com webhook configurado.
+- **Auth:** Firebase Auth (client) + cookie-based guard no middleware. **Clerk está em planejamento** (migração futura, não aplicado neste checkout). **Auth0** não faz parte do fluxo (`feat/auth0` parado).
 - **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
 - **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID, número +55 91 8515-6690). Auto-resposta (webhook) em rollout.
 
@@ -30,14 +30,17 @@ npm run dev
 Abra `http://localhost:3000`. Sem chaves, o app roda em **modo demonstração**:
 login dispensado, dados no `localStorage` e respostas mockadas.
 
-## Estratégia de autenticação (v1)
+## Estratégia de autenticação (atual)
 
-- **Firebase Auth** é a autenticação oficial do produto no v1.
-- `/login` e `/signup` usam Firebase Auth com Email/Senha e Google opcional.
-- Rotas server-side autenticadas validam **Firebase ID token**.
-- Billing, Firestore e eventos autenticados do Zapier continuam vinculados à
-  identidade atual do Firebase.
-- **Auth0 não faz parte do fluxo atual**.
+- **Firebase Auth** (client-side via `firebase` + `getFirebaseAuth()`) + proteção leve por cookie (`firebase_auth`) no `middleware.ts` (ver `lib/firebase/middleware.ts`).
+- `/login` e `/signup` usam `VisualAuthPanel` (Firebase).
+- Muitas rotas internas e APIs de negócio recebem `firebaseIdToken` (do `user.getIdToken()`) e o verificam server-side (`verifyFirebaseIdToken`).
+- Firebase também é usado para Firestore.
+- **Clerk (@clerk/nextjs)**: **planejado como migração futura**. Não instalado nem integrado neste checkout. Qualquer migração deve ser feita em branch separado e deve:
+  - Manter webhooks públicos (Stripe, Z-API) sem proteção de auth middleware.
+  - Mapear identidade (Clerk user → Firestore/UID ou custom claims).
+  - Adaptar todos os callers de `firebaseIdToken`.
+- **Auth0** (`feat/auth0`) está intencionalmente parado — não confundir com Clerk.
 
 ## Variáveis de ambiente
 
@@ -82,41 +85,31 @@ STRIPE_WEBHOOK_SECRET=
 STRIPE_PRICE_ID_START=
 STRIPE_PRICE_ID_PRO=
 STRIPE_PRICE_ID_PREMIUM=
+STRIPE_PRICE_ID_START_ANNUAL=
+STRIPE_PRICE_ID_PRO_ANNUAL=
+STRIPE_PRICE_ID_PREMIUM_ANNUAL=
+# Opcional: guard extra no checkout (comma-separated price_...)
+STRIPE_ALLOWED_PRICE_IDS=
 ```
 
-### WhatsApp (Multi-provedor)
+### WhatsApp (Z-API — único provedor)
 
-O app suporta múltiplos provedores. Defina `WHATSAPP_PROVIDER` como `twilio`, `dialog360` ou `zapi`.
-
-#### Z-API (Recomendado para mensagens ricas)
 ```env
-WHATSAPP_PROVIDER=zapi
 ZAPI_INSTANCE_ID=
 ZAPI_TOKEN=
 ZAPI_CLIENT_TOKEN=
 ZAPI_SECURITY_TOKEN=
 ```
-Para configurar os webhooks automaticamente na Z-API, rode:
+
+Para configurar os webhooks automaticamente na Z-API:
+
 ```bash
-node scripts/setup-zapi-webhook.mjs
+node scripts/setup-zapi-webhook.mjs \
+  https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook
 ```
 
-#### 360dialog
-```env
-WHATSAPP_PROVIDER=dialog360
-D360_API_KEY=
-D360_WEBHOOK_TOKEN=
-```
-
-#### Twilio
-```env
-WHATSAPP_PROVIDER=twilio
-TWILIO_ACCOUNT_SID=
-TWILIO_API_KEY_SID=
-TWILIO_API_KEY_SECRET=
-TWILIO_WHATSAPP_FROM=
-TWILIO_AUTH_TOKEN=
-```
+Webhook inbound recomendado: URL **direta** do Cloud Run (`.run.app`) com `?token=<ZAPI_SECURITY_TOKEN>`.
+Ver **DEPLOY_STRIPE_VERCEL.md** §6.
 
 ### Zapier
 
