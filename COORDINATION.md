@@ -59,7 +59,7 @@
 - ⛔ **Auth0**: Branch `feat/auth0` parada de propósito. Auth atual = **Clerk**. Não reativar Auth0 sem decisão estratégica.
 - ⛔ **Segredos**: Nunca commitar. Usar Secret Manager.
 - ⛔ **Mesa/cockpit**: antes de editar arquivo compartilhado, respeitar `C:\Users\vpaes\Mesa\lock.py status`.
-- **MEI vs Inova Simples**: LeadBellus = MEI (Vinicius). ResonAnza = Inova Simples (com José). Confirmado em todos os docs.
+- **MEI vs Inova Simples**: LeadBellus = MEI (Vinícius). ResonAnza = Inova Simples (com José). Confirmado em todos os docs.
 
 ## 📅 Próximo Passo (HOJE — Launch Pack Completo)
 - **Decisão:** Stabilize no Vercel hoje (já live com tráfego real). Rode pre-flight Mesa → deploy atualizações (MEI + brevidade + novo objetivo) → configure webhooks/DNS/Google Ads → valide → envie msg para clínica em Belém.
