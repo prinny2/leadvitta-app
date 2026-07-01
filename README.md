@@ -15,7 +15,7 @@ Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore
 ## Status (produção) — atualizado 2026-06-15
 
 - **LIVE:** `https://leadbellus.com.br` em arquitetura **híbrida** — Vercel serve o frontend, Cloud Run processa `/api/*` (proxy). Modo demonstração desligado (config Firebase real no bundle).
-- **Auth:** Clerk (`@clerk/nextjs`). Firebase mantido para Firestore/dados. **Auth0** não faz parte do fluxo (`feat/auth0` parado).
+- **Auth:** Firebase Auth (client) + cookie-based guard no middleware. **Clerk está em planejamento** (migração futura, não aplicado neste checkout). **Auth0** não faz parte do fluxo (`feat/auth0` parado).
 - **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
 - **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID, número +55 91 8515-6690). Auto-resposta (webhook) em rollout.
 
@@ -30,12 +30,16 @@ npm run dev
 Abra `http://localhost:3000`. Sem chaves, o app roda em **modo demonstração**:
 login dispensado, dados no `localStorage` e respostas mockadas.
 
-## Estratégia de autenticação (v1)
+## Estratégia de autenticação (atual)
 
-- **Clerk** é a autenticação oficial do produto (migrado 2026-06-30).
-- `/login` e `/signup` usam componentes Clerk (`<SignIn />` / `<SignUp />`).
-- `middleware.ts` usa `clerkMiddleware` + `auth.protect()` nas rotas do app e APIs protegidas.
-- Firebase permanece para Firestore/dados; billing e webhooks usam Admin SDK no Cloud Run.
+- **Firebase Auth** (client-side via `firebase` + `getFirebaseAuth()`) + proteção leve por cookie (`firebase_auth`) no `middleware.ts` (ver `lib/firebase/middleware.ts`).
+- `/login` e `/signup` usam `VisualAuthPanel` (Firebase).
+- Muitas rotas internas e APIs de negócio recebem `firebaseIdToken` (do `user.getIdToken()`) e o verificam server-side (`verifyFirebaseIdToken`).
+- Firebase também é usado para Firestore.
+- **Clerk (@clerk/nextjs)**: **planejado como migração futura**. Não instalado nem integrado neste checkout. Qualquer migração deve ser feita em branch separado e deve:
+  - Manter webhooks públicos (Stripe, Z-API) sem proteção de auth middleware.
+  - Mapear identidade (Clerk user → Firestore/UID ou custom claims).
+  - Adaptar todos os callers de `firebaseIdToken`.
 - **Auth0** (`feat/auth0`) está intencionalmente parado — não confundir com Clerk.
 
 ## Variáveis de ambiente
