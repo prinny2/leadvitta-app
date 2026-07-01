@@ -10,12 +10,12 @@ cliente até o agendamento com guardrails de compliance.
 
 **Nota:** A Inova Simples (RESONANZA INOVA SIMPLES I S, CNPJ 67.046.121/0001-45) é exclusiva para o projeto ResonAnza (com José). O LeadBellus opera sob o MEI pessoal.
 
-Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore + OpenAI/Anthropic/Gemini + Stripe + Zapier + Cloud Run/Vercel (Híbrido)**.
+Stack: **Next.js App Router + TypeScript + TailwindCSS + Clerk + Firebase/Firestore + OpenAI/Anthropic/Gemini + Stripe + Zapier + Cloud Run/Vercel (Híbrido)**.
 
 ## Status (produção) — atualizado 2026-06-15
 
 - **LIVE:** `https://leadbellus.com.br` em arquitetura **híbrida** — Vercel serve o frontend, Cloud Run processa `/api/*` (proxy). Modo demonstração desligado (config Firebase real no bundle).
-- **Auth:** Firebase Auth (client) + cookie-based guard no middleware. **Clerk está em planejamento** (migração futura, não aplicado neste checkout). **Auth0** não faz parte do fluxo (`feat/auth0` parado).
+- **Auth:** Clerk para login/cadastro com ponte Firebase interna. **Billing:** Stripe LIVE com webhook configurado.
 - **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
 - **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID, número +55 91 8515-6690). Auto-resposta (webhook) em rollout.
 
@@ -32,19 +32,26 @@ login dispensado, dados no `localStorage` e respostas mockadas.
 
 ## Estratégia de autenticação (atual)
 
-- **Firebase Auth** (client-side via `firebase` + `getFirebaseAuth()`) + proteção leve por cookie (`firebase_auth`) no `middleware.ts` (ver `lib/firebase/middleware.ts`).
-- `/login` e `/signup` usam `VisualAuthPanel` (Firebase).
-- Muitas rotas internas e APIs de negócio recebem `firebaseIdToken` (do `user.getIdToken()`) e o verificam server-side (`verifyFirebaseIdToken`).
-- Firebase também é usado para Firestore.
-- **Clerk (@clerk/nextjs)**: **planejado como migração futura**. Não instalado nem integrado neste checkout. Qualquer migração deve ser feita em branch separado e deve:
-  - Manter webhooks públicos (Stripe, Z-API) sem proteção de auth middleware.
-  - Mapear identidade (Clerk user → Firestore/UID ou custom claims).
-  - Adaptar todos os callers de `firebaseIdToken`.
-- **Auth0** (`feat/auth0`) está intencionalmente parado — não confundir com Clerk.
+- **Clerk** é a sessão pública oficial do produto.
+- `/login` e `/signup` usam os componentes Clerk.
+- Após login Clerk, o app cria uma sessão Firebase interna por custom token para
+  preservar Firestore, checkout e APIs que ainda validam **Firebase ID token**.
+- Webhooks públicos (`/api/stripe/webhook`, `/api/whatsapp/webhook` e Clerk) não
+  ficam atrás de `auth.protect()`.
+- **Auth0 não faz parte do fluxo atual**.
 
 ## Variáveis de ambiente
 
 Copie `.env.local.example` para `.env.local` e preencha conforme o ambiente.
+
+### Clerk
+
+No Clerk Dashboard:
+
+1. Crie/configure a aplicação de produção.
+2. Configure `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` e `CLERK_SECRET_KEY`.
+3. Crie webhook para `POST /api/clerk/webhook` com evento `user.created` e salve
+   o segredo em `CLERK_WEBHOOK_SIGNING_SECRET`.
 
 ### Firebase
 
@@ -53,7 +60,8 @@ No Firebase Console:
 1. Crie um projeto e um Web App.
 2. Habilite **Authentication** e **Firestore Database**.
 3. Copie as variáveis `NEXT_PUBLIC_FIREBASE_*`.
-4. Para APIs server-side, prefira a identidade do próprio serviço no Cloud Run (ADC).
+4. Para APIs server-side, configure Firebase Admin; ele cria os custom tokens da
+   ponte Clerk -> Firebase.
 
 ### IA
 

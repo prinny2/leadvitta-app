@@ -2,7 +2,7 @@
 // - Com Firebase configurado: lê/escreve no Firestore (regras isolam por usuário).
 // - Sem Firebase (modo demonstração): usa o localStorage do navegador.
 
-import { isFirebaseConfigured } from "@/lib/config";
+import { isClerkClientConfigured, isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth, getFirebaseDb } from "@/lib/firebase/client";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import {
@@ -35,7 +35,7 @@ const LS_HISTORICO = "re_historico";
 // ---------------- Clínica (configurações / DNA) ----------------
 export async function getClinica(): Promise<Clinica> {
   if (isFirebaseConfigured) {
-    const user = getFirebaseAuth().currentUser;
+    const user = await waitForAuthUser();
     if (!user) return clinicaVazia;
     const snap = await getDoc(doc(getFirebaseDb(), "clinicas", user.uid));
     if (!snap.exists()) return clinicaVazia;
@@ -59,7 +59,7 @@ export async function getClinica(): Promise<Clinica> {
 
 export async function saveClinica(c: Clinica): Promise<void> {
   if (isFirebaseConfigured) {
-    const user = getFirebaseAuth().currentUser;
+    const user = await waitForAuthUser();
     if (!user) throw new Error("Não autenticado");
     // `whatsapp` e `whatsapp_channel_key` são só-servidor (conexão do número é
     // pela API /api/clinica/whatsapp, com unicidade). O cliente não os grava.
@@ -87,11 +87,25 @@ export async function saveClinica(c: Clinica): Promise<void> {
 function waitForAuthUser(): Promise<User | null> {
   const auth = getFirebaseAuth();
   if (auth.currentUser) return Promise.resolve(auth.currentUser);
+  const timeoutMs = isClerkClientConfigured ? 4000 : 0;
+
   return new Promise((resolve) => {
-    const unsub = onAuthStateChanged(auth, (u) => {
-      unsub();
-      resolve(u);
+    let done = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let unsub: (() => void) | null = null;
+    const finish = (user: User | null) => {
+      if (done) return;
+      done = true;
+      if (timer) clearTimeout(timer);
+      if (unsub) unsub();
+      resolve(user);
+    };
+    unsub = onAuthStateChanged(auth, (u) => {
+      if (u || timeoutMs === 0) finish(u);
     });
+    if (timeoutMs > 0) {
+      timer = setTimeout(() => finish(auth.currentUser), timeoutMs);
+    }
   });
 }
 
@@ -119,7 +133,7 @@ export async function getBillingPlan(): Promise<"start" | "pro" | "premium"> {
  */
 export async function saveFcmToken(token: string): Promise<void> {
   if (!isFirebaseConfigured) return;
-  const user = getFirebaseAuth().currentUser;
+  const user = await waitForAuthUser();
   if (!user || !token) return;
   await setDoc(
     doc(getFirebaseDb(), "clinicas", user.uid),
@@ -131,7 +145,7 @@ export async function saveFcmToken(token: string): Promise<void> {
 // ---------------- Histórico ----------------
 export async function listHistorico(): Promise<HistoricoItem[]> {
   if (isFirebaseConfigured) {
-    const user = getFirebaseAuth().currentUser;
+    const user = await waitForAuthUser();
     if (!user) return [];
     const q = query(
       collection(getFirebaseDb(), "historico"),
@@ -151,7 +165,7 @@ export async function addHistorico(
   item: Pick<HistoricoItem, "tipo" | "contexto" | "respostas" | "intent" | "sentiment" | "score">
 ): Promise<void> {
   if (isFirebaseConfigured) {
-    const user = getFirebaseAuth().currentUser;
+    const user = await waitForAuthUser();
     if (!user) return;
 
     const firebaseData = {
@@ -200,7 +214,7 @@ export async function toggleFavorito(
   favorito: boolean
 ): Promise<void> {
   if (isFirebaseConfigured) {
-    const user = getFirebaseAuth().currentUser;
+    const user = await waitForAuthUser();
     if (!user) return;
     await updateDoc(doc(getFirebaseDb(), "historico", id), { favorito });
 
@@ -225,7 +239,7 @@ export async function toggleFavorito(
 
 export async function listConversas(): Promise<Conversa[]> {
   if (!isFirebaseConfigured) return [];
-  const user = getFirebaseAuth().currentUser;
+  const user = await waitForAuthUser();
   if (!user) return [];
   const q = query(
     collection(getFirebaseDb(), "conversas"),
@@ -239,7 +253,7 @@ export async function listConversas(): Promise<Conversa[]> {
 
 export async function getConversa(id: string): Promise<Conversa | null> {
   if (!isFirebaseConfigured) return null;
-  if (!getFirebaseAuth().currentUser) return null;
+  if (!(await waitForAuthUser())) return null;
   const snap = await getDoc(doc(getFirebaseDb(), "conversas", id));
   if (!snap.exists()) return null;
   return { id: snap.id, ...snap.data() } as Conversa;
@@ -247,7 +261,7 @@ export async function getConversa(id: string): Promise<Conversa | null> {
 
 export async function getMensagens(conversaId: string): Promise<MensagemConversa[]> {
   if (!isFirebaseConfigured) return [];
-  const user = getFirebaseAuth().currentUser;
+  const user = await waitForAuthUser();
   if (!user) return [];
   const q = query(
     collection(getFirebaseDb(), "conversas", conversaId, "mensagens"),
@@ -268,7 +282,7 @@ export async function getMensagens(conversaId: string): Promise<MensagemConversa
 
 export async function marcarConversaLida(conversaId: string): Promise<void> {
   if (!isFirebaseConfigured) return;
-  if (!getFirebaseAuth().currentUser) return;
+  if (!(await waitForAuthUser())) return;
   await updateDoc(doc(getFirebaseDb(), "conversas", conversaId), { nao_lida: false });
 }
 
@@ -277,6 +291,6 @@ export async function arquivarConversa(
   arquivada: boolean
 ): Promise<void> {
   if (!isFirebaseConfigured) return;
-  if (!getFirebaseAuth().currentUser) return;
+  if (!(await waitForAuthUser())) return;
   await updateDoc(doc(getFirebaseDb(), "conversas", conversaId), { arquivada });
 }

@@ -24,12 +24,32 @@ describe("lib/config", () => {
     expect(isFirebaseConfigured).toBe(true);
   });
 
-  it("usa o Firebase real por fallback quando env pública está ausente", async () => {
+  it("usa projectId Firebase por fallback, mas exige apiKey vinda do ambiente", async () => {
     vi.stubEnv("NEXT_PUBLIC_FIREBASE_API_KEY", "abc");
     vi.stubEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID", "");
     const { firebaseConfig, isFirebaseConfigured } = await loadConfig();
     expect(firebaseConfig.projectId).toBe("leadvitta-app");
     expect(isFirebaseConfigured).toBe(true);
+  });
+
+  it("não configura Firebase sem NEXT_PUBLIC_FIREBASE_API_KEY", async () => {
+    vi.stubEnv("NEXT_PUBLIC_FIREBASE_API_KEY", "");
+    vi.stubEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID", "proj");
+    const { isFirebaseConfigured } = await loadConfig();
+    expect(isFirebaseConfigured).toBe(false);
+  });
+
+  it("expõe flags Clerk somente quando public key e secret estão presentes", async () => {
+    vi.stubEnv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", " pk_test_123 ");
+    vi.stubEnv("CLERK_SECRET_KEY", "");
+    const clientOnly = await loadConfig();
+    expect(clientOnly.clerkPublishableKey).toBe("pk_test_123");
+    expect(clientOnly.isClerkClientConfigured).toBe(true);
+    expect(clientOnly.isClerkServerConfigured).toBe(false);
+
+    vi.stubEnv("CLERK_SECRET_KEY", "sk_test_123");
+    const serverReady = await loadConfig();
+    expect(serverReady.isClerkServerConfigured).toBe(true);
   });
 
   it("não configura NLP quando NLP_SERVICE_URL está ausente ou vazio", async () => {
