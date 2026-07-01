@@ -11,6 +11,7 @@
     "test:coverage": "vitest run --coverage",
     "ads:generate": "node scripts/generate-google-ads-editor.mjs",
     "firebase:check": "node scripts/check-firestore-contracts.mjs",
+    "preflight:check": "node scripts/preflight-leadbellus.mjs",
     "firebase:emulator:check": "node scripts/check-firestore-emulator.mjs",
     "firebase:verify": "node scripts/verify-firebase.mjs",
     "whatsapp:simulate": "node scripts/simulate-whatsapp-webhook.mjs"

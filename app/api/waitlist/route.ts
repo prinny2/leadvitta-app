@@ -2,6 +2,7 @@ import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest }
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { parseBillingPlan } from "@/lib/billing";
 import { sendOpsNotify } from "@/lib/ops-notify";
+import { upsertWaitlist } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -32,7 +33,8 @@ export async function POST(request: Request) {
   if (!EMAIL_RE.test(email) || email.length > 200) {
     return jsonNoStore({ error: "Informe um e-mail válido." }, { status: 400 });
   }
-  const plan = parseBillingPlan(parsed.data?.plan) ?? "pro";
+  const rawPlan = parseBillingPlan(parsed.data?.plan) ?? "pro";
+  const plan: "pro" | "premium" = rawPlan === "premium" ? "premium" : "pro";
 
   const db = getFirebaseAdminDb();
   if (!db) {
@@ -51,6 +53,9 @@ export async function POST(request: Request) {
   );
 
   await sendOpsNotify("waitlist.joined", { email, plan }).catch(() => {});
+
+  // Best-effort Supabase mirror (additive, non-blocking)
+  upsertWaitlist({ email, plan }).catch(() => {});
 
   return jsonNoStore({ ok: true });
 }

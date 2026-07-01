@@ -9,13 +9,13 @@ This pack is intentionally separate from the landing page work. It prepares a Se
 
 ## Regenerate
 
-Run this from the project root whenever campaign copy, keywords, negatives, budget, or UTM structure changes:
+Run this from the project root whenever campaign copy, keywords, negatives, budget, UTM structure, or GA4 conversion needs change:
 
 ```bash
 npm run ads:generate
 ```
 
-The generator validates responsive search ad limits before writing the CSVs, then creates the import files plus `06_automation_rules.md`.
+The generator validates responsive search ad limits before writing the CSVs, then creates the import files plus GA4 conversion docs (`07_ga4_conversions.md`). This is the central automation for Ads + GA4 in Google Ads Editor.
 
 ## Files
 
@@ -25,6 +25,7 @@ The generator validates responsive search ad limits before writing the CSVs, the
 - `04_assets_manual.csv`: sitelinks, callouts, and structured snippet values to add manually or map in Editor.
 - `05_launch_checklist.md`: what to check before posting changes.
 - `06_automation_rules.md`: rules to configure in Google Ads after conversion tracking is confirmed.
+- `07_ga4_conversions.md`: full instructions to link GA4 property `G-223KR63TS8` and import conversions (sign_up, begin_checkout, purchase, generate) for bidding/optimization.
 
 ## Campaign Structure
 
@@ -33,15 +34,23 @@ The generator validates responsive search ad limits before writing the CSVs, the
 - `Automacao E IA`: software/AI discovery intent.
 - `Roteiros E Conversao`: Grok-expanded scripts, templates, and conversion keywords.
 
-## How To Import
+## How To Import (Ads Structure)
 
 1. Open Google Ads Editor.
 2. Click `Get recent changes` first.
 3. Use `Account > Import > From file...` or `Paste text`.
-4. Import one CSV at a time.
-5. Review column mappings. If Editor marks a column as `Not importing`, map it manually.
-6. Keep all imported changes as `Paused` until conversion tracking is confirmed.
+4. Import one CSV at a time (start with 01_search_keywords.csv).
+5. Review column mappings.
+6. Keep all imported changes as `Paused`.
 7. Review policy warnings before posting.
+
+## GA4 + Conversions (separate from structure import)
+
+After structure import:
+- Follow `07_ga4_conversions.md` exactly.
+- Link GA4 property and import the listed conversions.
+- Set the primary conversion (purchase) for the campaign bidding.
+- This enables GA4-driven optimization and automated rules.
 
 Google's own Editor flow supports CSV import, header review, import, and keeping/rejecting proposed changes. See:
 

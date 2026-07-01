@@ -75,3 +75,92 @@ create policy "hist_delete_own" on public.historico_respostas
 
 create index if not exists hist_user_created_idx
   on public.historico_respostas (user_id, created_at desc);
+
+-- ============================================================
+-- HÍBRIDO: Firebase é fonte da verdade.
+-- Adiciona suporte a espelho aditivo usando firebase_uid + firestore_id.
+-- Rode no SQL Editor do Supabase.
+-- ============================================================
+
+-- Adiciona colunas para espelho (idempotente)
+alter table public.historico_respostas
+  add column if not exists firestore_id text,
+  add column if not exists firebase_uid text;
+
+-- Índice único por firestore_id para permitir upsert estável a partir do client
+create unique index if not exists hist_firestore_id_idx
+  on public.historico_respostas (firestore_id)
+  where firestore_id is not null;
+
+create index if not exists hist_firebase_uid_idx
+  on public.historico_respostas (firebase_uid, created_at desc);
+
+-- Tabela app_historico_respostas (espelho separado, recomendado para Fase 1)
+create table if not exists public.app_historico_respostas (
+  id            uuid primary key default gen_random_uuid(),
+  firestore_id  text unique,
+  firebase_uid  text not null,
+  tipo          text not null default 'gerador',
+  contexto      jsonb not null default '{}'::jsonb,
+  respostas     jsonb not null default '[]'::jsonb,
+  favorito      boolean not null default false,
+  intent        text,
+  sentiment     text,
+  score         numeric,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+
+alter table public.app_historico_respostas enable row level security;
+
+-- Exemplo de políticas (ajuste conforme necessário; atualmente espelho é best-effort)
+drop policy if exists "app_hist_select_own" on public.app_historico_respostas;
+create policy "app_hist_select_own" on public.app_historico_respostas
+  for select using (auth.uid()::text = firebase_uid OR firebase_uid is not null); -- relaxado para mirror
+
+drop policy if exists "app_hist_insert" on public.app_historico_respostas;
+create policy "app_hist_insert" on public.app_historico_respostas
+  for insert with check (true); -- servidor/edge functions controlam
+
+drop policy if exists "app_hist_update_own" on public.app_historico_respostas;
+create policy "app_hist_update_own" on public.app_historico_respostas
+  for update using (auth.uid()::text = firebase_uid) with check (auth.uid()::text = firebase_uid);
+
+create unique index if not exists app_hist_firestore_id_idx
+  on public.app_historico_respostas (firestore_id) where firestore_id is not null;
+
+create index if not exists app_hist_firebase_created_idx
+  on public.app_historico_respostas (firebase_uid, created_at desc);
+
+-- Tabela app_waitlist (espelho)
+create table if not exists public.app_waitlist (
+  id uuid primary key default gen_random_uuid(),
+  email text unique not null,
+  plan text not null check (plan in ('pro','premium')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.app_waitlist enable row level security;
+
+drop policy if exists "app_waitlist_insert_public" on public.app_waitlist;
+create policy "app_waitlist_insert_public" on public.app_waitlist
+  for insert with check (true);
+
+-- Tabela app_clinicas (espelho opcional)
+create table if not exists public.app_clinicas (
+  id uuid primary key default gen_random_uuid(),
+  firebase_uid text unique not null,
+  nome_clinica text,
+  cidade text,
+  tom_padrao text,
+  procedimentos text[],
+  formalidade int,
+  como_chamar text,
+  cta_preferido text,
+  onboarded boolean,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table public.app_clinicas enable row level security;

@@ -6,13 +6,19 @@ Status: automated Google Ads Editor pack, paused by default
 
 This file is the source of truth for the first Google Ads launch. Treat the Gemini/Grok result files as inputs, not as launch instructions. If another file conflicts with this one, follow this file.
 
-Regenerate the import pack with:
+Regenerate the full Ads + GA4 automation pack with:
 
 ```bash
 npm run ads:generate
 ```
 
-Do not hand-edit the generated CSVs for campaign structure changes. Put the change in `scripts/generate-google-ads-editor.mjs`, run the generator, then review the diff.
+This now produces:
+- Search keywords + RSAs + negatives + assets (Editor import CSVs)
+- Launch checklist
+- Automated rules
+- **GA4 conversions import guide** (`07_ga4_conversions.md`) for `G-223KR63TS8`
+
+Do not hand-edit the generated CSVs. Change source in the script, regenerate, review diff.
 
 ## Launch Decision
 

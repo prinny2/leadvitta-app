@@ -11,8 +11,11 @@ Set-Location (Split-Path $PSScriptRoot -Parent)
 $shortSha = (git rev-parse --short HEAD).Trim()
 if (-not $shortSha) { throw "git rev-parse falhou — rode na raiz do repo." }
 
+$firebaseApiKey = $env:NEXT_PUBLIC_FIREBASE_API_KEY
+if (-not $firebaseApiKey) { throw "Defina NEXT_PUBLIC_FIREBASE_API_KEY no ambiente antes do deploy." }
+
 $subs = @(
-  "_NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyBMlo174XZFQUdvPE1JBJJLt4R6DUk2hls"
+  "_NEXT_PUBLIC_FIREBASE_API_KEY=$firebaseApiKey"
   "_NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=leadvitta-app.firebaseapp.com"
   "_NEXT_PUBLIC_FIREBASE_PROJECT_ID=leadvitta-app"
   "_NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=leadvitta-app.firebasestorage.app"
