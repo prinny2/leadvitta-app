@@ -2,22 +2,35 @@
 
 > **Regra de Ouro:** Leia ao entrar, atualize ao sair. O que está aqui vale mais que qualquer outro log.
 
-## 🏁 Estado Real (2026-06-14) — PRONTO PARA LANÇAR HOJE
+**Atualização Ultracode 2026-06-30 (após screenshots /api/health e /api/config):**
+- **Produção canônica:** Vercel (`www.leadbellus.com.br`) + proxy condicional para Cloud Run (backend /api).
+- Proxy está **funcionando** (health e config respondem no domínio público).
+- Gaps em produção (backend):
+  - ga4_server_enabled: false (falta GA4_API_SECRET no Cloud Run)
+  - nlp_enabled: false
+  - ops_notify_enabled: false
+  - anthropic provider: false (sem chave)
+- Ver `docs/analise_ambientes_desconexos.md` (seção 5) para snapshot exato do JSON live + plano reconciliado.
+- Decisão mantida: **Vercel como host principal**. Cloud Run = API tier quando proxy ligado. Não fazer full migration.
+- **Auth atual:** Clerk (`@clerk/nextjs`, `middleware.ts`). Firebase Auth legado removido da UI. **Auth0** (`feat/auth0`) intencionalmente **parado** — não confundir com Clerk.
+- **WhatsApp atual:** Z-API only (+55 91 8515-6690). Twilio/360dialog são histórico (ver Log de Handoff).
+
+## 🏁 Estado Real (2026-06-14) — PRONTO PARA LANÇAR HOJE (histórico — ver nota acima para estado atual)
 - **Produção (Vercel):** `leadbellus.com.br` + `www` AGORA servem produção REAL no projeto Vercel `leadvitta-app` (time `vini1`). **Modo demo DESLIGADO** — `/api/config` retorna firebase/firebase_admin/stripe/openai = true. 22 env vars de produção setadas (inclui `FIREBASE_SERVICE_ACCOUNT_JSON_BASE64` da SA `firebase-adminsdk-fbsvc@leadvitta-app`). Feito por instrução direta do Vinícius (override da regra "Vercel proibido" — ver Bloqueios).
 - **Produção (Cloud Run / Firebase Hosting):** segue LIVE em `leadbellus` (southamerica-east1) e `https://leadvitta-app.web.app`. Agora há DUAS produções no ar → decisão estratégica pendente (qual é a canônica). **Recomendação para hoje:** Stabilize no Vercel (já live) + prepare Cloud Run como backup.
 - **Entidade legal:** LeadBellus opera 100% sob MEI pessoal do Vinícius Paes da Serra Freire (NÃO misturar com Inova Simples ResonAnza com José — CNPJ 67.046.121/0001-45 só para o projeto principal). Footer, README e metadata já atualizados com MEI (sem Inova Simples).
 - **IA:** OpenAI (GPT-4o-mini) + Fallback Anthropic (Haiku). OpenAI ativa; ANTHROPIC_API_KEY ainda vazia (adicionar para ativar fallback).
 - **X Market Pulse + adaptações LeadBellus (Grok 2026-06-14):** Análise de tendências reais em X (clientes reclamam "muito texto", demora faz sumir, odeiam robô burro mas também enrolação). **Implementado e pronto para deploy hoje:** brevidade obrigatória nos prompts (2-4 frases), novo objetivo "Agendamento rápido (respostas concisas)" no gerador, lógica condicional no prompt builder. Footer com entidade legal correta (MEI). Ver Mesa/blackboard/X_MARKET_PULSE.md para detalhes completos + recomendações.
-- **WhatsApp:** Twilio (sandbox +14155238886). Webhook: https://leadbellus.com.br/api/whatsapp/webhook — configurar no Twilio Console após deploy. (Meta Cloud API adiado — burocrático sem time dedicado; Twilio é o caminho rápido agora.)
+- **WhatsApp:** Z-API (+55 91 8515-6690). Webhook inbound: `https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>` (direto no Cloud Run; ver DEPLOY_STRIPE_VERCEL.md §6).
 - **Billing:** Stripe LIVE ativo com Webhook `whsec` configurado (apontando para o host canônico atual e com o segredo rotacionado para conter o vazamento).
-- **Auth:** Firebase Auth (oficial). Branch `feat/auth0` está PARADA.
+- **Auth:** Migrated to Clerk (Vercel native, per /auth skill). Firebase kept for Firestore/data only. Branch `feat/auth0` parked. Login at /login, /signup using Clerk <SignIn /> / <SignUp />. Middleware uses clerkMiddleware + protect for /dashboard, /configuracoes, /gerador, /historico, protected /api. VisualAuthPanel deprecated (Firebase auth logic removed).
 - **Infra delegation (Grok + agentes — o que você consegue configurar AGORA):** 
   - Vercel: Token API limitado só pro projeto leadbellus (scope deployments + logs).
   - GCP/Cloud Run: Service Account com roles/run.developer + iam.serviceAccountUser (least privilege, sem acesso a secrets — use Secret Manager).
-  - Twilio: API keys (já funcionando).
+  - Z-API: credenciais no Cloud Run (`ZAPI_*`; ver `.env.local.example`).
   - Registro.br DNS: Manual no painel (sem API boa) + scripts de verificação.
   - Audit/Error tracking: Cloud Logging (GCP) + Vercel logs + structured logging no código (já em Nucleo core + hybrid_scorer; adicione no LeadBellus provider/webhooks).
-  - Meta/WhatsApp: Ainda não (fique no Twilio).
+  - WhatsApp: Z-API (único provedor ativo).
   - Isso permite: pre-flight/deploy automatizado, coletar logs de erro/audit, rodar hybrid scores, ajudar no loop completo (dados clínicas → scores → launch next vertical).
 - **Hybrid Loop (visão do Vinícius — implementado base):** Gather info from clinics (LeadBellus historico + NLP scores + conversões) → Agentes (Grok = X/market + hybrid scores, Gemini = pesquisa/copy, Codex = código/features) → Hybrid scores (market/tech/data) → DB/ML (Nucleo + notebook) → Launch/refine automático (adapt Nucleo por nicho via Mesa pre-flight). Sempre refinando. Nucleo como core adaptável. Mesa como cockpit de coordenação (blackboards, pre-flight, launch scripts).
 - **Marketing da página:** Atualizado hoje (Grok) com base no X Pulse: dores mais reais ("muito texto que estressa", "demora faz cliente sumir"), CTAs mais fortes ("Teste grátis e agende mais em minutos"), hooks de gancho ("Responda em segundos, sem enrolação"). Pronto para Google Ads (adicione tracking se não tiver).
@@ -42,8 +55,8 @@
 - `curl https://leadbellus.com.br/api/config` → agora retorna tudo `true` (produção real no Vercel).
 
 ## 🚨 Bloqueios & Armadilhas
-- ⚠️ **Vercel** (regra revista 2026-06-11): a regra antiga era "proibido/aposentar". O Vinícius reverteu por instrução direta e o Vercel é hoje a produção que `leadbellus.com.br` serve. CONFLITO PENDENTE com o plano Cloud Run — **não desconectar nem desfazer sem decisão explícita do Vinícius**. Se a escolha for Vercel, aposentar Cloud Run; se for Cloud Run, repontar DNS e remover envs do Vercel.
-- ⛔ **Auth0**: Não reativar sem decisão estratégica.
+- ✅ **Vercel + Cloud Run (resolvido 2026-06-30):** Vercel = host canônico (`www.leadbellus.com.br`); Cloud Run = API tier (`/api/*` via `ENABLE_API_PROXY=true` + webhooks diretos `.run.app`). Não aposentar Cloud Run — ele processa billing, IA e WhatsApp.
+- ⛔ **Auth0**: Branch `feat/auth0` parada de propósito. Auth atual = **Clerk**. Não reativar Auth0 sem decisão estratégica.
 - ⛔ **Segredos**: Nunca commitar. Usar Secret Manager.
 - ⛔ **Mesa/cockpit**: antes de editar arquivo compartilhado, respeitar `C:\Users\vpaes\Mesa\lock.py status`.
 - **MEI vs Inova Simples**: LeadBellus = MEI (Vinicius). ResonAnza = Inova Simples (com José). Confirmado em todos os docs.
@@ -53,7 +66,7 @@
 - **Infra delegation (o que você consegue configurar AGORA — rode esses comandos hoje):** 
   1. Vercel: Crie token limitado (Account > Tokens > scope só leadbellus project, permissions Deploy + Read). Guarde em Credenciais. Use no launch script: `vercel --prod --token $VERCEL_TOKEN`.
   2. GCP: `gcloud iam service-accounts create mesa-grok-deploy --display-name="Mesa Grok Deployer"` + add roles `roles/run.developer` + `roles/iam.serviceAccountUser` + (se build) `roles/cloudbuild.builds.builder`. Gere key JSON e guarde local. Use na cloudbuild ou scripts.
-  3. Twilio: Crie API Key no console (limitada ao número). Atualize envs.
+  3. Z-API: Confirme `ZAPI_*` no Cloud Run e webhook inbound (DEPLOY_STRIPE_VERCEL.md §6).
   4. Registro.br: Manual no painel (DNS para Vercel IPs/CNAME) + rode script de verificação (eu gero se pedir).
   5. Audit/Error: No GCP console ative Cloud Logging no serviço. No código (já parcial): use structured logs. Para Vercel: logs nativos acessíveis via token.
   6. Google Ads: Crie conta, linke GA4 (já no código), crie campanha com keywords do X Pulse (veja abaixo).
@@ -76,7 +89,7 @@
   Quer um demo grátis com as mensagens da sua clínica? Em 5 min você vê a diferença. 
   Link: [link do onboarding ou demo]. 
   Abraço, Vinícius (MEI LeadBellus)."
-  Envie via WhatsApp manual ou Twilio. Personalize com o gerador.
+  Envie via WhatsApp manual ou Z-API. Personalize com o gerador.
 - **Deploy hoje (checklist completo):**
   1. Rode pre-flight Mesa (cockpit ou leadbellus_check.ps1). Fixe se bloqueado.
   2. Atualize blackboards (já fiz base — leia e confirme).
@@ -85,7 +98,7 @@
   5. Pós-deploy: 
      - Firebase Auth authorized domains: adicione leadbellus.com.br + www.
      - Stripe webhook: `https://leadbellus.com.br/api/stripe/webhook`.
-     - Twilio webhook: `https://leadbellus.com.br/api/whatsapp/webhook` (faça join no sandbox).
+     - Z-API webhook: `https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>`.
   6. Valide: curl health + config. Teste gerador com "agendamento rápido". Rode demo WhatsApp.
   7. Google Ads: Crie conta + campanha básica (hoje).
   8. Outreach: Envie msg para 1-2 clínicas em Belém (draft acima).
@@ -130,17 +143,17 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 - `curl https://leadbellus.com.br/api/config` → agora retorna tudo `true` (produção real no Vercel).
 
 ## 🚨 Bloqueios & Armadilhas
-- ⚠️ **Vercel** (regra revista 2026-06-11): a regra antiga era "proibido/aposentar". O Vinícius reverteu por instrução direta e o Vercel é hoje a produção que `leadbellus.com.br` serve. CONFLITO PENDENTE com o plano Cloud Run — **não desconectar nem desfazer sem decisão explícita do Vinícius**. Se a escolha for Vercel, aposentar Cloud Run; se for Cloud Run, repontar DNS e remover envs do Vercel.
-- ⛔ **Auth0**: Não reativar sem decisão estratégica.
+- ✅ **Vercel + Cloud Run (resolvido 2026-06-30):** Vercel = host canônico (`www.leadbellus.com.br`); Cloud Run = API tier (`/api/*` via `ENABLE_API_PROXY=true` + webhooks diretos `.run.app`). Não aposentar Cloud Run — ele processa billing, IA e WhatsApp.
+- ⛔ **Auth0**: Branch `feat/auth0` parada de propósito. Auth atual = **Clerk**. Não reativar Auth0 sem decisão estratégica.
 - ⛔ **Segredos**: Nunca commitar. Usar Secret Manager.
 - ⛔ **Mesa/cockpit**: antes de editar arquivo compartilhado, respeitar `C:\Users\vpaes\Mesa\lock.py status`.
 
 ## 📅 Próximo Passo
-- **DECISÃO (Vinícius):** definir produção canônica → Vercel (`leadbellus.com.br` já live) OU Cloud Run. Hoje as duas estão no ar.
+- **Produção canônica (2026-06-30):** Vercel (`www.leadbellus.com.br`) + Cloud Run (API tier). Decisão tomada — ver nota no topo.
 - **Para o Vercel funcionar 100% (manuais, só o Vinícius/console):**
-  1. **Firebase Auth → Authorized domains:** garantir `leadbellus.com.br` e `www.leadbellus.com.br` na lista (Console Firebase → Authentication → Settings) senão o login Google falha.
-  2. **Stripe → Webhook endpoint:** apontar diretamente para `https://leadbellus.com.br/api/stripe/webhook` (o `STRIPE_WEBHOOK_SECRET` setado no Secret Manager precisa corresponder a esse endpoint).
-  3. **Twilio sandbox:** enviar `join <código>` para +14155238886 e setar o webhook do sandbox para `https://leadbellus.com.br/api/whatsapp/webhook`.
+  1. **Clerk:** domínios `leadbellus.com.br` / `www` no dashboard Clerk; `ENABLE_API_PROXY=true` na Vercel.
+  2. **Stripe → Webhook endpoint:** apontar diretamente para `https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook` (whsec no Cloud Run).
+  3. **Z-API:** webhook inbound na URL `.run.app` com `?token=<ZAPI_SECURITY_TOKEN>` (DEPLOY_STRIPE_VERCEL.md §6).
 
 ---
 ### Log de Handoff
@@ -151,3 +164,12 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 - 2026-06-11 (Codex): Firebase Hosting publicado e validado; domínio público segue em Vercel e bloqueia pre-flight.
 - 2026-06-11 (Claude): Integração Twilio WhatsApp implementada (substituiu Meta Cloud API). lib/whatsapp.ts + webhook reescritos. Env vars Twilio aplicados no Cloud Run (revs 00023/00024). Build 2fdd5d97 em andamento — quando deployar, configurar webhook Twilio para: https://leadbellus.com.br/api/whatsapp/webhook
 - 2026-06-11 (Claude): **LeadBellus tirado do modo demo e lançado em produção no Vercel** por instrução direta do Vinícius. Autenticado Vercel CLI (device flow); gerada SA do Firebase Admin (`firebase-adminsdk-fbsvc`); 22 env vars setadas em scope production no projeto `leadvitta-app`; `vercel --prod` (deploy `dpl_6P6Sf6S...`, build 43s); aliases `leadbellus.com.br`+`www` repontados do deploy antigo `dpl_Epe2E3x...` para o novo. Verificação multi-agente: APROVADO (config tudo true, banner sumiu, Firebase no bundle, zero vazamento de segredo). Override da regra "Vercel proibido" → ver Bloqueios/Próximo Passo. SA key temporária apagada do disco.
+
+**2026-06-30 Clerk Migration Complete (steps 1-7):**
+- vercel integration add clerk + npm i @clerk/nextjs done.
+- middleware + ClerkProvider + SignIn/SignUp pages active.
+- VisualAuthPanel usage replaced (component deprecated, 0 imports).
+- 4 Clerk envs + custom /login /signup URLs set locally + Vercel.
+- Build clean (32/32), preflight crit=0.
+- Protected: clerkMiddleware + auth.protect() for (app) routes and APIs.
+- Reminder: Firebase client auth still used in app internals for idTokens → follow-up to adapt to Clerk (useUser + getToken()).
