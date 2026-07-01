@@ -52,6 +52,23 @@ export const nlpServiceUrl = process.env.NLP_SERVICE_URL?.trim() || "";
 /** True quando o serviço externo de NLP (leadvitta-nlp) está configurado. */
 export const isNlpServiceConfigured = !!nlpServiceUrl;
 
+/** Measurement ID público do GA4 para o bundle client. Sem fallback hardcoded. */
+export const publicGa4MeasurementId =
+  process.env.NEXT_PUBLIC_GA4_ID?.trim() || "";
+
+/** Measurement ID usado pelo servidor; pode usar env server-only ou a pública. */
+export const ga4MeasurementId =
+  process.env.GA4_MEASUREMENT_ID?.trim() || publicGa4MeasurementId;
+
+/** True quando a tag GA4 client-side deve carregar. */
+export const isGA4Configured = !!publicGa4MeasurementId;
+
+/** Secret do Measurement Protocol. Nunca use NEXT_PUBLIC_. */
+export const ga4ApiSecret = process.env.GA4_API_SECRET?.trim() || "";
+
+/** True quando o espelho server-side do GA4 está pronto. */
+export const isGa4ServerConfigured = !!ga4MeasurementId && !!ga4ApiSecret;
+
 /** Modelo legado/compatível. Prefira os modelos específicos por provedor. */
 export const aiModel = process.env.AI_MODEL || "gpt-4o-mini";
 

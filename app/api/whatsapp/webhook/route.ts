@@ -102,7 +102,9 @@ async function processarMensagem(msg: InboundMessage) {
   const respostaFinal = nlp.respostas.consultiva;
 
   const envio = await getWhatsAppProvider().sendText(msg.from, respostaFinal, {
-    channelApiKey: clinica.whatsapp_channel_key,
+    instanceId: clinica.zapi_instance_id,
+    token: clinica.zapi_token,
+    clientToken: clinica.zapi_client_token,
   });
   if (envio.ok) {
     // Auto-resposta NÃO marca como lida — fica na triagem até um humano abrir.

@@ -2,6 +2,7 @@ import type {
   WhatsAppProvider,
   WhatsAppResult,
   InboundMessage,
+  WhatsAppSendOptions,
 } from "@/lib/whatsapp-types";
 import { isProductionRuntime } from "@/lib/runtime";
 
@@ -61,20 +62,24 @@ export const zapiProvider: WhatsAppProvider = {
     }
   },
 
-  async sendText(to, body): Promise<WhatsAppResult> {
-    const instance = INSTANCE();
-    const token = TOKEN();
+  async sendText(
+    to: string, 
+    body: string, 
+    opts?: WhatsAppSendOptions
+  ): Promise<WhatsAppResult> {
+    // Per-clinic support: prefer creds from opts (from clinica.zapi_*) over global env
+    const instance = opts?.instanceId || INSTANCE();
+    const token = opts?.token || TOKEN();
     
     if (!instance || !token) {
-      return { ok: false, status: 0, data: { error: "Z-API não configurado (ZAPI_INSTANCE_ID/ZAPI_TOKEN)." } };
+      return { ok: false, status: 0, data: { error: "Z-API não configurado." } };
     }
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
 
-    // Client-Token é opcional dependendo da configuração da instância no painel Z-API.
-    const clientToken = CLIENT_TOKEN();
+    const clientToken = opts?.clientToken || CLIENT_TOKEN();
     if (clientToken) {
       headers["Client-Token"] = clientToken;
     }

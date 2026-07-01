@@ -2,6 +2,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_SECRET_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   '';
@@ -9,7 +11,7 @@ const supabaseKey =
 let supabaseServer: SupabaseClient | null = null;
 
 if (supabaseUrl && supabaseKey) {
-  // Server-side client (still anon/publishable for now — mirror is additive)
+  // Server-side mirror client. Prefer service credentials so upserts are not blocked by RLS.
   supabaseServer = createClient(supabaseUrl, supabaseKey, {
     auth: {
       persistSession: false,

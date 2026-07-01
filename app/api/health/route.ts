@@ -3,7 +3,9 @@ import {
   isAnyAIConfigured,
   isAnthropicConfigured,
   isFirebaseConfigured,
+  isGa4ServerConfigured,
   isGeminiConfigured,
+  isNlpServiceConfigured,
   isOpenAIConfigured,
   isStripeConfigured,
 } from "@/lib/config";
@@ -22,6 +24,8 @@ export async function GET() {
       ai: isAnyAIConfigured,
       firebase: isFirebaseConfigured,
       firebase_admin: isFirebaseAdminConfigured(),
+      ga4_server: isGa4ServerConfigured,
+      nlp: isNlpServiceConfigured,
       stripe: isStripeConfigured,
       whatsapp: isWhatsappConfigured(),
       whatsapp_provider: "zapi",

@@ -102,6 +102,20 @@ describe("lib/config", () => {
     expect(isWhatsappConfigured).toBe(true);
   });
 
+  it("isGa4ServerConfigured exige GA4_API_SECRET e usa Measurement ID público como fallback", async () => {
+    vi.stubEnv("GA4_API_SECRET", "");
+    vi.stubEnv("GA4_MEASUREMENT_ID", "");
+    vi.stubEnv("NEXT_PUBLIC_GA4_ID", "G-PUBLIC123");
+    const cfgWithoutSecret = await loadConfig();
+    expect(cfgWithoutSecret.ga4MeasurementId).toBe("G-PUBLIC123");
+    expect(cfgWithoutSecret.isGa4ServerConfigured).toBe(false);
+
+    vi.stubEnv("GA4_API_SECRET", "  mp_secret  ");
+    const cfgWithSecret = await loadConfig();
+    expect(cfgWithSecret.ga4ApiSecret).toBe("mp_secret");
+    expect(cfgWithSecret.isGa4ServerConfigured).toBe(true);
+  });
+
   it("siteUrl usa o default localhost quando não configurado", async () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
     const { siteUrl } = await loadConfig();
