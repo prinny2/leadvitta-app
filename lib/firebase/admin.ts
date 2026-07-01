@@ -110,3 +110,21 @@ export async function verifyFirebaseIdToken(
     return null;
   }
 }
+
+export async function createFirebaseCustomToken(
+  uid: string,
+  claims?: Record<string, unknown>
+): Promise<string | null> {
+  const app = getFirebaseAdminApp();
+  if (!app) return null;
+
+  try {
+    return await getAuth(app).createCustomToken(uid, claims);
+  } catch (e) {
+    console.error(
+      "[firebase/admin] falha ao criar custom token:",
+      e instanceof Error ? e.message : e
+    );
+    return null;
+  }
+}

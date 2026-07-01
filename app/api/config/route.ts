@@ -2,6 +2,8 @@ import { jsonNoStore } from "@/lib/api-security";
 import {
   isAnyAIConfigured,
   isAnthropicConfigured,
+  isClerkClientConfigured,
+  isClerkServerConfigured,
   isFirebaseConfigured,
   isGa4ServerConfigured,
   isGeminiConfigured,
@@ -26,6 +28,8 @@ export const runtime = "nodejs";
 export async function GET() {
   return jsonNoStore({
     stripe_enabled: isStripeConfigured,
+    clerk_enabled: isClerkClientConfigured,
+    clerk_server_enabled: isClerkServerConfigured,
     firebase_enabled: isFirebaseConfigured,
     firebase_admin_enabled: isFirebaseAdminConfigured(),
     ai_enabled: isAnyAIConfigured,

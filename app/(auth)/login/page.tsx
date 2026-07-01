@@ -1,6 +1,8 @@
+import { SignIn } from "@clerk/nextjs";
 import { parseBillingPlan } from "@/lib/billing";
 import { VisualAuthPanel } from "@/components/visual-auth-panel";
 import { Card, CardBody } from "@/components/ui/card";
+import { isClerkClientConfigured } from "@/lib/config";
 
 // Só aceita caminhos internos ("/rota"), nunca URLs absolutas ("//host" ou
 // "http://"), pra evitar open redirect via ?next=.
@@ -23,17 +25,37 @@ export default async function LoginPage({
   // Mantém o funil de checkout ao vir de /signup -> "Entrar".
   const plan = parseBillingPlan(planRaw ?? null);
   const checkoutAfter = next === "checkout";
+  const redirectAfterAuth =
+    checkoutAfter && plan
+      ? `/configuracoes?plan=${encodeURIComponent(plan)}&next=checkout`
+      : safeNext(next);
+  const signUpParams = new URLSearchParams();
+  if (plan) signUpParams.set("plan", plan);
+  if (checkoutAfter) signUpParams.set("next", "checkout");
+  const signUpUrl = `/signup${
+    signUpParams.size ? `?${signUpParams.toString()}` : ""
+  }`;
 
   return (
     <Card className="w-full max-w-md">
       <CardBody className="p-6 sm:p-8">
-        <VisualAuthPanel
-          mode="login"
-          plan={plan ?? undefined}
-          checkoutAfter={checkoutAfter}
-          next={safeNext(next)}
-          compact
-        />
+        {isClerkClientConfigured ? (
+          <SignIn
+            routing="path"
+            path="/login"
+            signUpUrl={signUpUrl}
+            forceRedirectUrl={redirectAfterAuth}
+            fallbackRedirectUrl={redirectAfterAuth}
+          />
+        ) : (
+          <VisualAuthPanel
+            mode="login"
+            plan={plan ?? undefined}
+            checkoutAfter={checkoutAfter}
+            next={redirectAfterAuth}
+            compact
+          />
+        )}
       </CardBody>
     </Card>
   );
