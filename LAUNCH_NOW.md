@@ -1,4 +1,5 @@
-> ⚠️ DESATUALIZADO — fonte da verdade: **ESTADO.md**
+> ⚠️ DESATUALIZADO — fontes da verdade atuais: **COORDINATION.md** + **DEPLOY_STRIPE_VERCEL.md**
+> (ESTADO.md é externo/gitignored; não usar como referência no repo).
 
 # LeadBellus — Checklist de Lançamento MVP
 

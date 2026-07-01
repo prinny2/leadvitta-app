@@ -15,12 +15,16 @@ service cloud.firestore {
       // O cliente pode criar/editar o próprio doc, MAS nunca o campo `billing`
       // (status de assinatura). Isso impede o usuário de se auto-conceder plano.
       // Só o webhook do Stripe (Admin SDK, que ignora regras) grava `billing`.
+      // `usage` (contador de gerações grátis) também é só-servidor: gravado pela
+      // API /api/generate via Admin SDK. Sem essa proteção o usuário poderia
+      // zerar o próprio contador no cliente e burlar o limite do plano grátis.
       // `whatsapp` e `whatsapp_channel_key` também são só-servidor: o vínculo
       // número→clínica é feito pela API /api/clinica/whatsapp (com unicidade),
       // senão uma clínica poderia "sequestrar" o número de outra.
       allow create: if request.auth != null
                     && request.auth.uid == uid
                     && !("billing" in request.resource.data)
+                    && !("usage" in request.resource.data)
                     && !("whatsapp_channel_key" in request.resource.data)
                     && (!("whatsapp" in request.resource.data)
                         || request.resource.data.whatsapp == "");
@@ -30,6 +34,10 @@ service cloud.firestore {
                     && (
                       !("billing" in request.resource.data)
                       || request.resource.data.billing == resource.data.billing
+                    )
+                    && (
+                      !("usage" in request.resource.data)
+                      || request.resource.data.usage == resource.data.usage
                     )
                     && (
                       !("whatsapp" in request.resource.data)

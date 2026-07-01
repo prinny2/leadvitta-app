@@ -3,31 +3,30 @@
 import { useEffect, useRef, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
+import { ga4MeasurementId } from "@/lib/config";
 
-// ID do Meta Pixel também é público (aparece no HTML). O default evita deploy
-// sem Pixel quando a env pública não foi assada no build da Vercel.
-const META_PIXEL_ID =
-  process.env.NEXT_PUBLIC_META_PIXEL_ID || "917448661312985";
-// ID de medição GA4 é PÚBLICO (aparece no HTML de qualquer site). O default garante
-// que o analytics carregue mesmo sem a env var na Vercel; se a env existir, ela vence.
-const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "G-223KR63TS8";
-// Tag do Google Ads (conversão/remarketing). Pública. Convive com o GA4 no
-// MESMO gtag.js — uma carga só, vários gtag('config', ...).
-const GOOGLE_ADS_ID =
-  process.env.NEXT_PUBLIC_GOOGLE_ADS_ID || "G-LNBEL8GQ11";
+// Meta Pixel: só carrega quando há um ID REAL configurado via env
+// (NEXT_PUBLIC_META_PIXEL_ID). Sem fallback fixo.
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "";
+
+// GA4 agora vem do config (sem fallback mágico).
+// Defina NEXT_PUBLIC_GA4_ID no Vercel para ativar analytics.
+const GA4_ID = ga4MeasurementId;
+
+// Google Ads: as conversões agora entram pelo vínculo GA4/Google Ads.
 
 function AnalyticsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const didHandleInitialRender = useRef(false);
 
-  // PageView a cada mudança de rota (App Router não recarrega a página)
+  // PageView a cada mudança de rota (App Router não recarrega a página).
   useEffect(() => {
     if (!pathname) return;
     const isInitialRender = !didHandleInitialRender.current;
     didHandleInitialRender.current = true;
 
-    // O pageview inicial e disparado no script base, quando o gtag/fbq ja existe.
+    // O pageview inicial é disparado no script base, quando o gtag/fbq já existe.
     if (isInitialRender) return;
 
     const url =
@@ -47,7 +46,7 @@ function AnalyticsContent() {
 export default function Analytics() {
   return (
     <>
-      {/* Google Analytics 4 — só carrega se houver Measurement ID */}
+      {/* Google Analytics 4 — só carrega se GA4 estiver configurado via env */}
       {GA4_ID && (
         <>
           <Script
@@ -62,13 +61,12 @@ export default function Analytics() {
               gtag('config', '${GA4_ID}', {
                 page_path: window.location.pathname + window.location.search
               });
-              gtag('config', '${GOOGLE_ADS_ID}');
             `}
           </Script>
         </>
       )}
 
-      {/* Meta Pixel — só carrega se houver Pixel ID (gancho p/ quando o Eduardo subir os ads) */}
+      {/* Meta Pixel — só carrega se houver Pixel ID */}
       {META_PIXEL_ID && (
         <>
           <Script id="meta-pixel" strategy="afterInteractive">
@@ -105,7 +103,18 @@ export default function Analytics() {
   );
 }
 
-// Helper p/ disparar eventos customizados do client (mapeia p/ eventos padrão do Meta)
+export function getGaClientId() {
+  if (typeof document === "undefined") return undefined;
+  const cookie = document.cookie
+    .split("; ")
+    .find((part) => part.startsWith("_ga="));
+  const value = cookie?.split("=")[1];
+  const parts = value?.split(".");
+  if (!parts || parts.length < 4) return undefined;
+  return `${parts[2]}.${parts[3]}`;
+}
+
+// Helper p/ disparar eventos customizados do client (mapeia p/ eventos padrão do Meta).
 export const trackEvent = (
   eventName: string,
   params?: Record<string, any>
@@ -119,7 +128,7 @@ export const trackEvent = (
   if ((window as any).fbq && META_PIXEL_ID) {
     const standardEvents: Record<string, string> = {
       sign_up: "Lead",
-      initiate_checkout: "InitiateCheckout",
+      checkout_click: "InitiateCheckout",
       purchase: "Purchase",
     };
     const metaEvent = standardEvents[eventName] || eventName;

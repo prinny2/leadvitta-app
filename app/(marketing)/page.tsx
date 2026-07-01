@@ -1,18 +1,39 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import {
+  ArrowRight,
+  PlayCircle,
+  MessageCircle,
+  Sparkles,
+  Copy,
+  ShieldCheck,
+  Lock,
+  Smartphone,
+  Clock,
+  Check,
+} from "lucide-react";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
-import { HeroDevices } from "@/components/hero-devices";
-import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
-import { AppBenefitsSection } from "@/components/app-benefits-section";
-import { SimuladorFadeUp, SimuladorUnderline, SimuladorScenarioBtn } from "@/components/simulador-ui";
-import { FaqSection } from "@/components/faq-section";
-import { FinalCTASection } from "@/components/final-cta-section";
 import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
+import { MarketingMobileMenu } from "@/components/marketing-mobile-menu";
 
-const funilHref = "/signup";
+const SIGNUP = "/signup?plan=start";
+
+// Paleta (on-brand: creme do logo + tinta navy + dourado) ----------------------
+const INK = "#10233B";
+const INK_SOFT = "#46566B";
+const CREAM = "#FBF6EC";
+const CREAM_2 = "#F2E9D8";
+const NAVY = "#0B1A2E";
+const GOLD = "#C9A060";
+const GOLD_DEEP = "#8A6312";
+
+/** Depoimentos reais entram aqui. Vazio = a seção mostra prova honesta, sem inventar. */
+const DEPOIMENTOS: { nome: string; clinica: string; texto: string }[] = [
+  // { nome: "Dra. Fulana", clinica: "Clínica X — Curitiba", texto: "..." },
+];
 
 function StructuredDataTags() {
   const data = {
@@ -23,7 +44,7 @@ function StructuredDataTags() {
     operatingSystem: "Web",
     url: "https://www.leadbellus.com.br",
     description:
-      "Copiloto de WhatsApp para clínicas de estética cria respostas curtas para preço, objeções e follow-up.",
+      "Copiloto de WhatsApp para clínicas de estética cria respostas prontas para preço, objeções e follow-up — para clientes mulheres e homens.",
     inLanguage: "pt-BR",
     offers: {
       "@type": "Offer",
@@ -37,69 +58,38 @@ function StructuredDataTags() {
       audienceType: "Clínicas de estética e profissionais de beleza",
     },
   };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
-  );
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
 }
 
-// ─── Logo SVG inline ───────────────────────────────────────────────────────────
-function LogoMark({ size = 32 }: { size?: number }) {
+// ── Logo ───────────────────────────────────────────────────────────────────────
+function LogoMark({ size = 30, stroke = GOLD }: { size?: number; stroke?: string }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 80 96"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <path
-        d="M40 6 C26 14, 10 32, 10 54 C10 70, 22 82, 40 90"
-        stroke="#C9A060"
-        strokeWidth="4"
-        fill="none"
-        strokeLinecap="round"
-      />
-      <path
-        d="M40 6 C54 14, 70 32, 70 54 C70 70, 58 82, 40 90"
-        stroke="#C9A060"
-        strokeWidth="4"
-        fill="none"
-        strokeLinecap="round"
-      />
-      <line
-        x1="40" y1="32" x2="40" y2="86"
-        stroke="#C9A060"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      <circle cx="40" cy="27" r="5.5" fill="#C9A060" />
+    <svg width={size} height={size} viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M40 6 C26 14, 10 32, 10 54 C10 70, 22 82, 40 90" stroke={stroke} strokeWidth="4" fill="none" strokeLinecap="round" />
+      <path d="M40 6 C54 14, 70 32, 70 54 C70 70, 58 82, 40 90" stroke={stroke} strokeWidth="4" fill="none" strokeLinecap="round" />
+      <line x1="40" y1="32" x2="40" y2="86" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
+      <circle cx="40" cy="27" r="5.5" fill={stroke} />
     </svg>
   );
 }
 
-// ─── Section tag pill ──────────────────────────────────────────────────────────
-function TagPill({ children, light }: { children: React.ReactNode; light?: boolean }) {
+function Eyebrow({ children, onNavy }: { children: React.ReactNode; onNavy?: boolean }) {
   return (
     <div
       style={{
         display: "inline-flex",
         alignItems: "center",
-        gap: "6px",
-        border: `1px solid ${light ? "rgba(201,160,96,0.5)" : "#C9A060"}`,
-        color: light ? "#7A5108" : "#C9A060",
-        background: light ? "rgba(201,160,96,0.1)" : "transparent",
+        gap: "8px",
+        border: `1px solid ${onNavy ? "rgba(201,160,96,0.45)" : "rgba(138,99,18,0.35)"}`,
+        background: onNavy ? "rgba(201,160,96,0.1)" : "rgba(201,160,96,0.14)",
+        color: onNavy ? GOLD : GOLD_DEEP,
         borderRadius: "9999px",
-        padding: "4px 14px",
-        fontSize: "11px",
+        padding: "6px 14px",
+        fontSize: "12px",
         fontWeight: 700,
-        letterSpacing: 0,
+        letterSpacing: "0.04em",
         textTransform: "uppercase",
-        marginBottom: "20px",
+        marginBottom: "18px",
       }}
     >
       {children}
@@ -107,17 +97,40 @@ function TagPill({ children, light }: { children: React.ReactNode; light?: boole
   );
 }
 
-// ─── Nav ───────────────────────────────────────────────────────────────────────
+function SectionTitle({ children, onNavy }: { children: React.ReactNode; onNavy?: boolean }) {
+  return (
+    <h2
+      style={{
+        fontFamily: "var(--font-fraunces, Georgia, serif)",
+        fontSize: "clamp(28px, 4vw, 44px)",
+        fontWeight: 700,
+        lineHeight: 1.12,
+        color: onNavy ? "#FBF6EC" : INK,
+        margin: "0 0 14px",
+      }}
+    >
+      {children}
+    </h2>
+  );
+}
+
+// ── Navbar ───────────────────────────────────────────────────────────────────
 function Navbar() {
+  const links = [
+    { label: "Como funciona", href: "#como-funciona" },
+    { label: "Para quem é", href: "#para-quem" },
+    { label: "Demo", href: "#demo" },
+    { label: "Preços", href: "#precos" },
+  ];
   return (
     <nav
       style={{
         position: "sticky",
         top: 0,
         zIndex: 50,
-        background: "rgba(7,16,30,0.92)",
+        background: "rgba(251,246,236,0.85)",
         backdropFilter: "blur(12px)",
-        borderBottom: "1px solid rgba(201,160,96,0.15)",
+        borderBottom: "1px solid rgba(16,35,59,0.08)",
       }}
     >
       <div
@@ -132,442 +145,644 @@ function Navbar() {
           gap: "24px",
         }}
       >
-        <Link
-          href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            textDecoration: "none",
-            flexShrink: 0,
-          }}
-        >
-          <LogoMark size={28} />
-          <span
-            style={{
-              fontFamily: "var(--font-fraunces, Georgia, serif)",
-              fontSize: "18px",
-              fontWeight: 600,
-              color: "#ffffff",
-              letterSpacing: "-0.01em",
-            }}
-          >
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", flexShrink: 0 }}>
+          <LogoMark size={28} stroke={GOLD_DEEP} />
+          <span style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: "19px", fontWeight: 600, color: INK }}>
             LeadBellus
           </span>
         </Link>
 
-        <div className="hidden md:flex" style={{ gap: "32px", alignItems: "center" }}>
-          {[
-            { label: "Sinais", href: "#sinais" },
-            { label: "Demo", href: "#simulador" },
-            { label: "Preços", href: "#precos" },
-          ].map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              style={{ color: "rgba(255,255,255,0.65)", fontSize: "14px", textDecoration: "none" }}
-              className="hover:text-[#C9A060] transition-colors"
-            >
+        <div className="hidden md:flex" style={{ gap: "30px", alignItems: "center" }}>
+          {links.map((l) => (
+            <a key={l.href} href={l.href} style={{ color: INK_SOFT, fontSize: "14px", fontWeight: 500, textDecoration: "none" }}>
               {l.label}
             </a>
           ))}
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <Link
-            href="/login"
-            style={{ color: "rgba(255,255,255,0.65)", fontSize: "14px", textDecoration: "none" }}
-            className="hidden md:block"
-          >
+          <Link href="/login" className="hidden md:block" style={{ color: INK_SOFT, fontSize: "14px", textDecoration: "none" }}>
             Entrar
           </Link>
           <Link
-            href="/signup?plan=start"
+            href={SIGNUP}
+            className="hidden md:inline-flex"
             style={{
-              background: "#C9A060",
-              color: "#07101e",
+              background: INK,
+              color: "#F7C96B",
               borderRadius: "9999px",
-              padding: "8px 20px",
+              padding: "9px 20px",
               fontSize: "14px",
               fontWeight: 700,
               textDecoration: "none",
               whiteSpace: "nowrap",
             }}
           >
-            Gerar 5 respostas
+            Testar grátis
           </Link>
+          <MarketingMobileMenu />
         </div>
       </div>
     </nav>
   );
 }
 
-// ─── Launch banner ─────────────────────────────────────────────────────────────
-function LaunchBanner() {
+// ── Mini prova WhatsApp (visível no mobile e desktop) ──────────────────────────
+function ChatProof() {
   return (
     <div
       style={{
-        background: "linear-gradient(90deg, #92610A, #C9A060, #92610A)",
-        color: "#07101e",
-        textAlign: "center",
-        padding: "10px 24px",
-        fontSize: "13px",
-        fontWeight: 700,
-        letterSpacing: "0.02em",
+        background: "#ffffff",
+        border: "1px solid rgba(16,35,59,0.08)",
+        borderRadius: "22px",
+        padding: "18px",
+        boxSizing: "border-box",
+        width: "100%",
+        boxShadow: "0 30px 60px rgba(16,35,59,0.12)",
+        maxWidth: "420px",
       }}
     >
-      Plantão de lançamento: 5 respostas grátis para testar no WhatsApp da sua clínica.
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingBottom: "12px", borderBottom: "1px solid rgba(16,35,59,0.07)" }}>
+        <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: "#E9F7EF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <MessageCircle size={18} style={{ color: "#1FA855" }} />
+        </div>
+        <div style={{ lineHeight: 1.2 }}>
+          <p style={{ margin: 0, fontSize: "13px", fontWeight: 700, color: INK }}>Cliente · WhatsApp</p>
+          <p style={{ margin: 0, fontSize: "11px", color: "#1FA855", fontWeight: 700 }}>quase fechando</p>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gap: "8px", margin: "14px 0" }}>
+        <div style={{ alignSelf: "flex-start", maxWidth: "85%", background: "#F1EEE7", color: INK, borderRadius: "14px 14px 14px 4px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.4 }}>
+          Quanto fica o botox? 😬 Tenho medo de ficar com cara artificial…
+        </div>
+        <div style={{ alignSelf: "flex-end", maxWidth: "88%", background: "#DCF6E6", color: "#0B3D2A", borderRadius: "14px 14px 4px 14px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.45 }}>
+          Oi! 😊 O valor depende da avaliação e do que você busca — o resultado é sempre natural quando bem indicado. Quer que eu veja um horário essa semana?
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+        {["Suave", "Consultiva", "Fechamento"].map((t, i) => (
+          <span
+            key={t}
+            style={{
+              fontSize: "11px",
+              fontWeight: 700,
+              padding: "5px 10px",
+              borderRadius: "9999px",
+              border: `1px solid ${i === 2 ? GOLD : "rgba(16,35,59,0.14)"}`,
+              background: i === 2 ? "rgba(201,160,96,0.16)" : "transparent",
+              color: i === 2 ? GOLD_DEEP : INK_SOFT,
+            }}
+          >
+            {t}
+          </span>
+        ))}
+        <span style={{ fontSize: "11px", color: INK_SOFT, alignSelf: "center" }}>3 respostas prontas pra copiar</span>
+      </div>
     </div>
   );
 }
 
-function CompactProblemSection() {
-  const cards = [
-    {
-      title: "Preço seco",
-      copy: "Transforme pedido de valor em resposta com contexto, segurança e convite para agenda.",
-      tags: ["Preço", "Avaliação"],
-    },
-    {
-      title: "Objeção de caro",
-      copy: "Responda sem desconto automático e mostre valor antes de perder a conversa.",
-      tags: ["Valor", "Sem desconto"],
-    },
-    {
-      title: "Cliente sumiu",
-      copy: "Retome o contato com follow-up educado, direto e com próximo passo claro.",
-      tags: ["Follow-up", "Retomar"],
-    },
-  ];
-
+// ── PAGE ───────────────────────────────────────────────────────────────────────
+export default function LandingPage() {
   return (
-    <section id="sinais" style={{ background: "#F6F0E6", padding: "72px 24px" }}>
-      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-        <div style={{ maxWidth: "640px", marginBottom: "32px" }}>
-          <TagPill light>Sinais que ele lê</TagPill>
-          <h2
+    <div className="landing-root" style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)", background: CREAM, color: INK, overflowX: "hidden" }}>
+      <StructuredDataTags />
+      <Navbar />
+
+      {/* Faixa de lançamento */}
+      <div className="launch-strip" style={{ background: INK, color: "#F7C96B", textAlign: "center", padding: "9px 24px", fontSize: "13px", fontWeight: 600 }}>
+        Preço de lançamento · teste grátis, sem cartão
+      </div>
+
+      <main>
+        {/* ── HERO ─────────────────────────────────────────────────────────── */}
+        <section className="landing-hero" style={{ padding: "64px 24px 72px", overflowX: "hidden" }}>
+          <div
+            className="hero-grid"
             style={{
-              fontFamily: "var(--font-fraunces, Georgia, serif)",
-              fontSize: "clamp(28px, 4vw, 42px)",
-              fontWeight: 700,
-              color: "#07101e",
-              margin: "0 0 12px",
-              lineHeight: 1.16,
+              maxWidth: "1152px",
+              width: "100%",
+              minWidth: 0,
+              margin: "0 auto",
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: "44px",
+              alignItems: "center",
             }}
           >
-            O WhatsApp mostra a intenção. O LeadBellus transforma em resposta.
-          </h2>
-          <p style={{ color: "#475569", fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-            Tags curtas guiam a resposta sem virar script engessado.
-          </p>
-        </div>
+            <div className="hero-copy-col" style={{ minWidth: 0 }}>
+              <Eyebrow>Conversão na estética · WhatsApp</Eyebrow>
+              <h1
+                className="hero-title"
+                style={{
+                  fontFamily: "var(--font-fraunces, Georgia, serif)",
+                  fontSize: "clamp(38px, 5.2vw, 64px)",
+                  fontWeight: 700,
+                  lineHeight: 1.04,
+                  margin: "0 0 18px",
+                  color: INK,
+                  overflowWrap: "break-word",
+                }}
+              >
+                Pare de perder cliente no{" "}
+                <span className="hero-title-highlight" style={{ color: GOLD_DEEP, fontStyle: "italic" }}>“quanto custa?”</span>
+              </h1>
+              <p className="hero-subtitle" style={{ fontSize: "18px", lineHeight: 1.6, color: INK_SOFT, maxWidth: "480px", margin: "0 0 26px" }}>
+                Recebeu mensagem e travou? Cola aqui e saem <strong>3 respostas no jeitinho da sua clínica</strong>, prontas
+                pra colar no WhatsApp. Sem prometer o impossível, sem soar robô.
+              </p>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "16px",
-          }}
-        >
-          {cards.map((card) => (
-            <article
-              key={card.title}
-              style={{
-                background: "#ffffff",
-                border: "1px solid rgba(7,16,30,0.08)",
-                borderRadius: "8px",
-                padding: "24px",
-              }}
-            >
-              <h3 style={{ color: "#07101e", fontSize: "18px", fontWeight: 700, margin: "0 0 10px" }}>
-                {card.title}
-              </h3>
-              <p style={{ color: "#475569", fontSize: "14px", lineHeight: 1.65, margin: 0 }}>{card.copy}</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "18px" }}>
-                {card.tags.map((tag) => (
+              <div className="hero-cta-row" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
+                <Link
+                  href={SIGNUP}
+                  className="hero-cta"
+                  style={{
+                    background: INK,
+                    color: "#F7C96B",
+                    borderRadius: "9999px",
+                    padding: "15px 28px",
+                    fontSize: "15px",
+                    fontWeight: 700,
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    boxShadow: "0 16px 38px rgba(16,35,59,0.22)",
+                  }}
+                >
+                  Testar grátis (sem cartão) <ArrowRight size={17} />
+                </Link>
+                <a
+                  href="#demo"
+                  className="hero-cta"
+                  style={{
+                    border: `1.5px solid rgba(16,35,59,0.2)`,
+                    color: INK,
+                    borderRadius: "9999px",
+                    padding: "15px 24px",
+                    fontSize: "15px",
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <PlayCircle size={17} /> Ver demo
+                </a>
+              </div>
+              <p style={{ fontSize: "13px", color: INK_SOFT, margin: "0 0 26px" }}>
+                Atende <strong>mulheres e homens</strong> · funciona no celular · cancele quando quiser
+              </p>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                {["Preço sem susto", "“Achou caro”", "Cliente sumiu", "Medo do procedimento"].map((t) => (
                   <span
-                    key={tag}
+                    key={t}
                     style={{
-                      border: "1px solid rgba(122,81,8,0.18)",
-                      background: "rgba(201,160,96,0.1)",
+                      background: "rgba(16,35,59,0.04)",
+                      border: "1px solid rgba(16,35,59,0.1)",
                       borderRadius: "9999px",
-                      color: "#7A5108",
+                      padding: "7px 13px",
                       fontSize: "12px",
-                      fontWeight: 700,
-                      padding: "6px 10px",
+                      fontWeight: 600,
+                      color: INK_SOFT,
                     }}
                   >
-                    {tag}
+                    {t}
                   </span>
                 ))}
               </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+            </div>
 
-// ─── PAGE ──────────────────────────────────────────────────────────────────────
-export default function LandingPage() {
-  return (
-    <div style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)" }}>
-      <StructuredDataTags />
-      <Navbar />
-      <LaunchBanner />
-      <main>
-
-      {/* ── HERO ─────────────────────────────────────────────────────────────── */}
-      <section
-        id="hero"
-        style={{
-          background: "#07101e",
-          color: "#ffffff",
-          padding: "78px 24px 84px",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(118deg, transparent 0 45%, rgba(255,122,89,0.10) 45% 46%, transparent 46% 68%, rgba(94,224,160,0.08) 68% 69%, transparent 69% 100%), repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 76px), repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 76px)",
-            opacity: 0.72,
-          }}
-        />
-
-        <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative" }}>
-          <div className="hero-grid grid grid-cols-1 md:grid-cols-[410px_1fr] gap-10 items-start">
-            <HeroTextContent />
-
-            <div className="hidden md:flex justify-center items-start pt-12">
-              <HeroDevices />
+            <div className="hero-proof-col" style={{ display: "flex", justifyContent: "center", minWidth: 0, width: "100%" }}>
+              <ChatProof />
             </div>
           </div>
-        </div>
+        </section>
 
-        <style>{`
-          @media (max-width: 768px) {
-            .hero-grid {
-              grid-template-columns: 1fr !important;
-              text-align: center;
-            }
-            .hero-grid > div:first-child > p { margin-left: auto; margin-right: auto; }
-            .hero-grid > div:first-child > div { justify-content: center; }
-          }
-        `}</style>
-      </section>
+        {/* ── Faixa de confiança ───────────────────────────────────────────── */}
+        <section style={{ background: CREAM_2, padding: "20px 24px" }}>
+          <div
+            style={{
+              maxWidth: "1000px",
+              margin: "0 auto",
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: "14px 28px",
+              fontSize: "13px",
+              fontWeight: 600,
+              color: INK_SOFT,
+            }}
+          >
+            {[
+              { icon: <Lock size={15} />, t: "Pagamento seguro" },
+              { icon: <ShieldCheck size={15} />, t: "Você revisa antes de enviar" },
+              { icon: <Smartphone size={15} />, t: "Funciona no celular" },
+              { icon: <Check size={15} />, t: "Sem cartão pra testar" },
+            ].map((s) => (
+              <span key={s.t} style={{ display: "inline-flex", alignItems: "center", gap: "7px" }}>
+                <span style={{ color: GOLD_DEEP }}>{s.icon}</span> {s.t}
+              </span>
+            ))}
+          </div>
+        </section>
 
-      {/* ── PROBLEMA E SOLUÇÃO ───────────────────────────────────────────────── */}
-      <CompactProblemSection />
-
-      <AppBenefitsSection funilHref={funilHref} />
-
-      {/* ── SIMULADOR INTERATIVO ─────────────────────────────────────────────── */}
-      <section id="simulador" style={{ background: "#07101e", padding: "96px 24px" }}>
-        <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-
-          {/* ── Header animado ── */}
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            {/* Badge */}
-            <SimuladorFadeUp delay={0}>
-              <TagPill>✦ Experimente agora</TagPill>
-            </SimuladorFadeUp>
-
-            {/* Título */}
-            <SimuladorFadeUp delay={0.1}>
-              <h2
-                style={{
-                  fontFamily: "var(--font-fraunces, Georgia, serif)",
-                  fontSize: "clamp(28px, 4vw, 42px)",
-                  fontWeight: 700,
-                  color: "#ffffff",
-                  margin: "0 0 16px",
-                  lineHeight: 1.2,
-                }}
-              >
-                Veja como ficaria{" "}
-                <span style={{ position: "relative", display: "inline-block" }}>
-                  <span style={{ color: "#C9A060" }}>uma resposta da sua clínica</span>
-                  <SimuladorUnderline />
-                </span>{" "}
-                — agora
-              </h2>
-            </SimuladorFadeUp>
-
-            <SimuladorFadeUp delay={0.2}>
-              <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "15px", maxWidth: "520px", margin: "0 auto 20px" }}>
-                Escolha uma situação e veja a resposta personalizada.
+        {/* ── DOR / SINAIS ─────────────────────────────────────────────────── */}
+        <section style={{ padding: "76px 24px" }}>
+          <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+            <div style={{ maxWidth: "640px", marginBottom: "34px" }}>
+              <Eyebrow>O que trava o seu WhatsApp</Eyebrow>
+              <SectionTitle>Você lê a mensagem. A gente já te entrega a resposta.</SectionTitle>
+              <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
+                Sem decoreba e sem parecer robô — no tom da sua clínica.
               </p>
-            </SimuladorFadeUp>
+            </div>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
               {[
-                { id: "preco", label: "Perguntou preço" },
-                { id: "achou_caro", label: "Achou caro" },
-                { id: "sumiu", label: "Sumiu" },
-                { id: "medo", label: "Medo do procedimento" },
-              ].map((d, i) => (
-                <SimuladorFadeUp key={d.id} delay={0.28 + i * 0.07}>
-                  <SimuladorScenarioBtn href={`/?demo=${d.id}#simulador`} active={false}>
-                    {d.label}
-                  </SimuladorScenarioBtn>
-                </SimuladorFadeUp>
+                { t: "Perguntou o preço", c: "Você responde com jeitinho, passa segurança e convida pra avaliação — sem jogar só o valor." },
+                { t: "Achou caro", c: "Mostra o valor do seu trabalho antes de sair dando desconto." },
+                { t: "Sumiu", c: "Você chama de volta com leveza e um próximo passo claro — sem parecer chata." },
+              ].map((card) => (
+                <article
+                  key={card.t}
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid rgba(16,35,59,0.07)",
+                    borderRadius: "18px",
+                    padding: "26px",
+                    boxShadow: "0 10px 30px rgba(16,35,59,0.05)",
+                  }}
+                >
+                  <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: GOLD, marginBottom: "14px" }} />
+                  <h3 style={{ color: INK, fontSize: "18px", fontWeight: 700, margin: "0 0 8px" }}>{card.t}</h3>
+                  <p style={{ color: INK_SOFT, fontSize: "14px", lineHeight: 1.65, margin: 0 }}>{card.c}</p>
+                </article>
               ))}
             </div>
           </div>
+        </section>
 
-          <Suspense fallback={<LoadingRespostas etapas={["Carregando a demo…"]} />}>
-            <LandingWhatsAppDemo />
-          </Suspense>
-
-          {/* ── CTA card ── */}
-          <SimuladorFadeUp delay={0.1}>
-          <div
-            style={{
-              background: "#0f1b2f",
-              border: "1px solid rgba(201,160,96,0.2)",
-              borderRadius: "16px",
-              padding: "24px 28px",
-              marginTop: "32px",
-              textAlign: "center",
-            }}
-          >
-            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", lineHeight: 1.75, marginBottom: "20px" }}>
-              A demo libera 5 respostas para testar. O Start é o plano pago para usar no atendimento real.
-            </p>
-            <Link
-              href="/signup?plan=start"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                background: "#C9A060",
-                color: "#07101e",
-                borderRadius: "9999px",
-                padding: "14px 32px",
-                fontSize: "15px",
-                fontWeight: 700,
-                textDecoration: "none",
-              }}
-            >
-              Criar conta grátis →
-            </Link>
-            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "10px" }}>
-              Demo: 5 respostas · Start: R$97/mês · cancele quando quiser
-            </p>
-            <div style={{ maxWidth: "430px", margin: "10px auto 0" }}>
-              <LegalConsentLinks tone="light" />
+        {/* ── COMO FUNCIONA ────────────────────────────────────────────────── */}
+        <section id="como-funciona" style={{ background: CREAM_2, padding: "76px 24px" }}>
+          <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+            <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 40px" }}>
+              <Eyebrow>Como funciona</Eyebrow>
+              <SectionTitle>Em 3 passos, sem complicação</SectionTitle>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
+              {[
+                { n: "01", icon: <MessageCircle size={20} />, t: "Cole a mensagem", c: "Copie o que a pessoa mandou no WhatsApp e cole no LeadBellus." },
+                { n: "02", icon: <Sparkles size={20} />, t: "Receba 3 respostas", c: "No tom da sua clínica: uma suave, uma consultiva e uma de fechamento." },
+                { n: "03", icon: <Copy size={20} />, t: "Copie e mande", c: "Revisa, ajusta se quiser e cola na conversa. Você no controle, sempre." },
+              ].map((s) => (
+                <div key={s.n} style={{ background: "#ffffff", border: "1px solid rgba(16,35,59,0.07)", borderRadius: "18px", padding: "26px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+                    <span style={{ width: "42px", height: "42px", borderRadius: "12px", background: INK, color: GOLD, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {s.icon}
+                    </span>
+                    <span style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: "26px", fontWeight: 700, color: "rgba(16,35,59,0.14)" }}>{s.n}</span>
+                  </div>
+                  <h3 style={{ color: INK, fontSize: "18px", fontWeight: 700, margin: "0 0 8px" }}>{s.t}</h3>
+                  <p style={{ color: INK_SOFT, fontSize: "14px", lineHeight: 1.65, margin: 0 }}>{s.c}</p>
+                </div>
+              ))}
             </div>
           </div>
-          </SimuladorFadeUp>
-        </div>
-      </section>
+        </section>
 
-      {/* ── OFERTA / PREÇOS ──────────────────────────────────────────────────── */}
-      <section
-        id="precos"
-        style={{ background: "#07101e", padding: "96px 24px" }}
-      >
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "40px" }}>
-            <TagPill>Escolha o seu plano</TagPill>
+        {/* ── PARA QUEM É (elas e eles) ────────────────────────────────────── */}
+        <section id="para-quem" style={{ padding: "78px 24px" }}>
+          <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+            <div style={{ textAlign: "center", maxWidth: "660px", margin: "0 auto 40px" }}>
+              <Eyebrow>Para quem é</Eyebrow>
+              <SectionTitle>Estética não tem só um público</SectionTitle>
+              <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
+                Seu WhatsApp atende mulheres e homens — e cada conversa tem o seu tom. O LeadBellus responde os dois do jeito certo.
+              </p>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>
+              {[
+                {
+                  tag: "Para elas",
+                  bg: "#ffffff",
+                  titulo: "A estética que elas já procuram",
+                  itens: ["Botox e preenchimento", "Harmonização facial", "Limpeza de pele e peeling", "Bioestimulador e skinbooster", "Corporal: drenagem, gordura localizada"],
+                },
+                {
+                  tag: "Para eles",
+                  bg: INK,
+                  titulo: "O público masculino que mais cresce",
+                  itens: ["Botox masculino (testa, bruxismo)", "Design de barba e sobrancelha", "Queda capilar e calvície", "Skincare e limpeza de pele", "Depilação a laser"],
+                },
+              ].map((col) => {
+                const dark = col.bg === INK;
+                return (
+                  <div
+                    key={col.tag}
+                    style={{
+                      background: col.bg,
+                      border: dark ? "1px solid rgba(201,160,96,0.25)" : "1px solid rgba(16,35,59,0.08)",
+                      borderRadius: "22px",
+                      padding: "30px",
+                      boxShadow: dark ? "none" : "0 10px 30px rgba(16,35,59,0.05)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        display: "inline-block",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        letterSpacing: "0.04em",
+                        textTransform: "uppercase",
+                        color: dark ? GOLD : GOLD_DEEP,
+                        border: `1px solid ${dark ? "rgba(201,160,96,0.4)" : "rgba(138,99,18,0.3)"}`,
+                        borderRadius: "9999px",
+                        padding: "5px 12px",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      {col.tag}
+                    </span>
+                    <h3 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: "22px", fontWeight: 700, color: dark ? "#FBF6EC" : INK, margin: "0 0 16px" }}>
+                      {col.titulo}
+                    </h3>
+                    <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "10px" }}>
+                      {col.itens.map((it) => (
+                        <li key={it} style={{ display: "flex", gap: "10px", alignItems: "flex-start", fontSize: "14.5px", color: dark ? "rgba(251,246,236,0.85)" : INK_SOFT }}>
+                          <Check size={17} style={{ color: GOLD, flexShrink: 0, marginTop: "2px" }} />
+                          {it}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ── DEMO ─────────────────────────────────────────────────────────── */}
+        <section id="demo" style={{ background: CREAM_2, padding: "78px 24px" }}>
+          <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+            <div style={{ textAlign: "center", maxWidth: "600px", margin: "0 auto 36px" }}>
+              <Eyebrow>Experimente agora</Eyebrow>
+              <SectionTitle>Veja uma resposta da sua clínica — de graça</SectionTitle>
+              <p style={{ color: INK_SOFT, fontSize: "15px", margin: 0 }}>
+                Escolha uma situação e veja como ficaria. Gostou? É só criar a conta e usar no atendimento real.
+              </p>
+            </div>
+
+            <Suspense fallback={<LoadingRespostas etapas={["Carregando a demo…"]} />}>
+              <LandingWhatsAppDemo />
+            </Suspense>
+
+            <div
+              style={{
+                background: "#ffffff",
+                border: `1px solid rgba(201,160,96,0.4)`,
+                borderRadius: "18px",
+                padding: "26px",
+                marginTop: "28px",
+                textAlign: "center",
+              }}
+            >
+              <p style={{ fontSize: "15px", color: INK, lineHeight: 1.6, margin: "0 0 18px", fontWeight: 600 }}>
+                Esta é a demonstração. Crie sua conta grátis pra usar no WhatsApp de verdade.
+              </p>
+              <Link
+                href={SIGNUP}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  background: INK,
+                  color: "#F7C96B",
+                  borderRadius: "9999px",
+                  padding: "14px 30px",
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                }}
+              >
+                Criar conta grátis <ArrowRight size={16} />
+              </Link>
+              <p style={{ fontSize: "12px", color: INK_SOFT, marginTop: "10px" }}>Start R$97/mês · sem cartão pra testar · cancele quando quiser</p>
+              <div style={{ maxWidth: "430px", margin: "10px auto 0" }}>
+                <LegalConsentLinks />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── PREÇOS ───────────────────────────────────────────────────────── */}
+        <section id="precos" style={{ background: NAVY, padding: "84px 24px" }}>
+          <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: "40px" }}>
+              <Eyebrow onNavy>Escolha o seu plano</Eyebrow>
+              <SectionTitle onNavy>Comece pelo plano que resolve hoje</SectionTitle>
+              <p style={{ color: "rgba(251,246,236,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
+                Teste grátis e assine só se fizer sentido pra sua rotina.
+              </p>
+            </div>
+            <PricingSection />
+          </div>
+        </section>
+
+        {/* ── CONFIANÇA ────────────────────────────────────────────────────── */}
+        <section style={{ padding: "78px 24px" }}>
+          <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+            <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
+              <Eyebrow>Por que confiar</Eyebrow>
+              <SectionTitle>Feito pra estética brasileira — não parece resposta pronta</SectionTitle>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
+              {[
+                { icon: <ShieldCheck size={20} />, t: "Respeita as regras", c: "Nunca promete resultado, cura ou preço fixo. Suas respostas saem dentro do que pode." },
+                { icon: <MessageCircle size={20} />, t: "No seu tom", c: "Você define o jeito da clínica. As respostas saem com cara de gente, não de robô." },
+                { icon: <Lock size={20} />, t: "Seus dados protegidos", c: "Cada conta vê só os próprios dados. Pagamento seguro." },
+                { icon: <Clock size={20} />, t: "Risco zero pra testar", c: "Sem cartão pra começar e cancele quando quiser, sem multa." },
+              ].map((s) => (
+                <div key={s.t} style={{ background: "#ffffff", border: "1px solid rgba(16,35,59,0.07)", borderRadius: "16px", padding: "22px" }}>
+                  <span style={{ display: "inline-flex", color: GOLD_DEEP, marginBottom: "12px" }}>{s.icon}</span>
+                  <h3 style={{ fontSize: "16px", fontWeight: 700, color: INK, margin: "0 0 6px" }}>{s.t}</h3>
+                  <p style={{ fontSize: "13.5px", lineHeight: 1.6, color: INK_SOFT, margin: 0 }}>{s.c}</p>
+                </div>
+              ))}
+            </div>
+
+            {DEPOIMENTOS.length > 0 && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px", marginTop: "20px" }}>
+                {DEPOIMENTOS.map((d) => (
+                  <figure key={d.nome} style={{ background: CREAM_2, borderRadius: "16px", padding: "22px", margin: 0 }}>
+                    <blockquote style={{ margin: "0 0 12px", fontSize: "14.5px", lineHeight: 1.6, color: INK }}>“{d.texto}”</blockquote>
+                    <figcaption style={{ fontSize: "13px", color: INK_SOFT }}>
+                      <strong style={{ color: INK }}>{d.nome}</strong> · {d.clinica}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ── FAQ ──────────────────────────────────────────────────────────── */}
+        <section id="faq" style={{ background: CREAM_2, padding: "78px 24px" }}>
+          <div style={{ maxWidth: "720px", margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: "36px" }}>
+              <Eyebrow>Dúvidas frequentes</Eyebrow>
+              <SectionTitle>Antes de começar</SectionTitle>
+            </div>
+            <div style={{ display: "grid", gap: "10px" }}>
+              {[
+                { q: "Tem risco de banir meu WhatsApp?", a: "Não 🙂 Ele não envia nada sozinho nem se conecta no seu WhatsApp. Só escreve a resposta — você lê, ajusta e cola na conversa. Seu número fica seguro." },
+                { q: "É um robô que responde sozinho?", a: "Não. Quem responde é você. A IA só te entrega o texto pronto e você decide o que mandar. O controle é todo seu." },
+                { q: "Serve pra público masculino também?", a: "Sim. Botox masculino, barba, sobrancelha, queda capilar, skincare… o tom se ajusta pra cada cliente, homem ou mulher." },
+                { q: "Funciona no celular?", a: "Sim! No celular, tablet ou computador, direto no navegador. Dá pra gerar a resposta e colar no WhatsApp na mesma tela." },
+                { q: "Preciso de cartão pra testar?", a: "Não. Testa de graça e só assina o Start (R$97/mês) se curtir." },
+                { q: "Como cancelo?", a: "Pelo painel, quando quiser. Sem multa e sem ligação." },
+              ].map((item, i) => (
+                <details key={item.q} open={i === 0} style={{ borderRadius: "14px", border: "1px solid rgba(16,35,59,0.1)", background: "#ffffff", overflow: "hidden" }}>
+                  <summary style={{ padding: "18px 22px", cursor: "pointer", fontWeight: 700, fontSize: "15px", color: INK }}>{item.q}</summary>
+                  <p style={{ padding: "0 22px 20px", fontSize: "14px", color: INK_SOFT, lineHeight: 1.7, margin: 0, borderTop: "1px solid rgba(16,35,59,0.06)", paddingTop: "14px" }}>
+                    {item.a}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA FINAL ────────────────────────────────────────────────────── */}
+        <section style={{ background: NAVY, padding: "84px 24px" }}>
+          <div style={{ maxWidth: "720px", margin: "0 auto", textAlign: "center" }}>
+            <LogoMark size={42} stroke={GOLD} />
             <h2
               style={{
                 fontFamily: "var(--font-fraunces, Georgia, serif)",
                 fontSize: "clamp(28px, 4vw, 44px)",
                 fontWeight: 700,
-                color: "#ffffff",
-                margin: "0 0 16px",
-                lineHeight: 1.2,
+                color: "#FBF6EC",
+                margin: "18px 0 14px",
+                lineHeight: 1.12,
               }}
             >
-              Comece pelo plano que resolve hoje
+              Sua próxima cliente não vai esperar
             </h2>
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", maxWidth: "560px", margin: "0 auto" }}>
-              Teste grátis e assine só se fizer sentido para sua rotina.
+            <p style={{ color: "rgba(251,246,236,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
+              Toda semana mais gente pergunta o preço e some. Não é falta de talento — é falta da resposta certa na hora certa.
             </p>
+            <Link
+              href={SIGNUP}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                background: GOLD,
+                color: NAVY,
+                borderRadius: "9999px",
+                padding: "16px 34px",
+                fontSize: "16px",
+                fontWeight: 700,
+                textDecoration: "none",
+                boxShadow: "0 18px 44px rgba(201,160,96,0.32)",
+              }}
+            >
+              Testar grátis agora <ArrowRight size={18} />
+            </Link>
+            <p style={{ fontSize: "13px", color: "rgba(251,246,236,0.5)", marginTop: "14px" }}>Sem cartão · cancele quando quiser</p>
           </div>
-
-          <PricingSection />
-        </div>
-      </section>
-
-      {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
-      <FaqSection />
-
-      {/* ── CTA FINAL ────────────────────────────────────────────────────────── */}
-      <FinalCTASection funilHref={funilHref} />
-
-      {/* ── FOOTER ───────────────────────────────────────────────────────────── */}
+        </section>
       </main>
+
       <FooterSection />
 
+      {/* Espaço + barra fixa mobile */}
       <style>{`
-        .mobile-sales-spacer,
-        .mobile-sales-bar {
-          display: none;
-        }
-
+        @media (min-width: 768px) { .hero-grid { grid-template-columns: 1.05fr 0.95fr !important; } }
+        .lp-mobile-bar { display: none; }
         @media (max-width: 767px) {
-          .mobile-sales-spacer {
-            display: block;
-            height: 76px;
+          .landing-root { max-width: 100vw; overflow-x: hidden; }
+          .launch-strip { padding: 8px 12px !important; font-size: 12px !important; line-height: 1.25; }
+          .landing-hero { padding: 52px 20px 58px !important; }
+          .hero-grid,
+          .hero-copy-col,
+          .hero-proof-col { min-width: 0; width: 100%; }
+          .hero-title { max-width: 340px !important; font-size: clamp(34px, 10.7vw, 42px) !important; line-height: 1.06 !important; }
+          .hero-title-highlight { display: block; max-width: 100%; }
+          .hero-subtitle { max-width: 340px !important; font-size: 17px !important; line-height: 1.55 !important; }
+          .hero-cta-row { display: grid !important; grid-template-columns: 1fr; gap: 10px !important; }
+          .hero-cta { box-sizing: border-box; width: 100%; justify-content: center; }
+          .lp-mobile-bar-cta { min-width: 122px !important; padding: 12px 14px !important; font-size: 13px !important; }
+          .lp-mobile-spacer { height: 92px; }
+          .lp-mobile-bar { display: flex; }
+          .lp-mobile-bar-copy { min-width: 0; }
+          .lp-mobile-bar-title,
+          .lp-mobile-bar-subtitle {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
-
-          .mobile-sales-bar {
-            display: flex;
-          }
+        }
+        @media (max-width: 374px) {
+          .lp-mobile-bar { gap: 8px !important; padding-left: 12px !important; }
+          .lp-mobile-bar-cta { padding: 11px 14px !important; font-size: 13px !important; min-width: 112px !important; }
         }
       `}</style>
-
-      {/* Espaço pra barra fixa no mobile */}
-      <div className="mobile-sales-spacer" />
-
-      {/* Barra de venda fixa — só mobile */}
+      <div className="lp-mobile-spacer" />
       <div
-        className="mobile-sales-bar"
+        className="lp-mobile-bar"
         style={{
           position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 60,
+          left: "12px",
+          right: "12px",
+          bottom: "calc(10px + env(safe-area-inset-bottom))",
+          zIndex: 58,
           alignItems: "center",
           gap: "12px",
-          background: "rgba(7,16,30,0.97)",
-          backdropFilter: "blur(12px)",
-          borderTop: "1px solid rgba(201,160,96,0.28)",
-          padding: "10px 16px calc(10px + env(safe-area-inset-bottom))",
+          boxSizing: "border-box",
+          maxWidth: "520px",
+          minHeight: "66px",
+          margin: "0 auto",
+          background: "rgba(251,246,236,0.96)",
+          backdropFilter: "blur(14px)",
+          border: "1px solid rgba(201,160,96,0.24)",
+          borderRadius: "20px",
+          boxShadow: "0 18px 48px rgba(11,26,46,0.22)",
+          padding: "10px 10px 10px 14px",
         }}
       >
-        <div style={{ lineHeight: 1.2 }}>
-          <p style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: "#ffffff" }}>
-            Start R$97<span style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>/mês</span>
+        <div className="lp-mobile-bar-copy" style={{ lineHeight: 1.2 }}>
+          <p className="lp-mobile-bar-title" style={{ margin: 0, fontSize: "14px", fontWeight: 800, color: INK }}>
+            Teste grátis
           </p>
-          <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>
-            Demo grátis: 5 respostas
+          <p className="lp-mobile-bar-subtitle" style={{ margin: "3px 0 0", fontSize: "11px", color: INK_SOFT }}>
+            Sem cartão · depois R$97/mês
           </p>
         </div>
         <Link
-          href="#precos"
+          href={SIGNUP}
+          className="lp-mobile-bar-cta"
           style={{
             marginLeft: "auto",
-            background: "#C9A060",
-            color: "#07101e",
+            background: INK,
+            color: "#F7C96B",
             fontWeight: 700,
-            fontSize: "15px",
-            borderRadius: "12px",
-            padding: "13px 22px",
+            fontSize: "14px",
+            borderRadius: "14px",
+            padding: "12px 18px",
+            minWidth: "132px",
             textDecoration: "none",
+            textAlign: "center",
             whiteSpace: "nowrap",
           }}
         >
-          Ver Start →
+          Começar grátis
         </Link>
       </div>
     </div>

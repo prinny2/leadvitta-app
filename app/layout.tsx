@@ -1,7 +1,11 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter, Fraunces } from "next/font/google";
-import Analytics from "@/components/Analytics";
+import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
+import Ga4Analytics from "@/components/Analytics";
+import { FirebaseSessionSync } from "@/components/firebase-session-sync";
+import { isClerkClientConfigured } from "@/lib/config";
 
 // next/font: self-host + fallback com métricas ajustadas (size-adjust), o que
 // zera o layout shift quando a webfont chega (CLS era 0,20 só por causa disso).
@@ -76,11 +80,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const app = (
+    <>
+      {isClerkClientConfigured && <FirebaseSessionSync />}
+      {children}
+      <Ga4Analytics />
+      <VercelAnalytics />
+    </>
+  );
+
   return (
     <html lang="pt-BR" className={`${inter.variable} ${fraunces.variable}`}>
       <body className="min-h-screen bg-nude-50 font-sans text-ink antialiased">
-        {children}
-        <Analytics />
+        {isClerkClientConfigured ? <ClerkProvider>{app}</ClerkProvider> : app}
       </body>
     </html>
   );

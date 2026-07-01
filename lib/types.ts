@@ -4,6 +4,10 @@ export type Clinica = {
   nome_clinica: string;
   cidade: string;
   whatsapp: string;
+  /** Z-API credentials for this clinic's WhatsApp number (provided by user). */
+  zapi_instance_id?: string;
+  zapi_token?: string;
+  zapi_client_token?: string;
   tom_padrao: string;
   procedimentos: string[];
   /** 0 = bem íntimo, 100 = formal. */
@@ -22,6 +26,9 @@ export const clinicaVazia: Clinica = {
   nome_clinica: "",
   cidade: "",
   whatsapp: "",
+  zapi_instance_id: "",
+  zapi_token: "",
+  zapi_client_token: "",
   tom_padrao: "acolhedor",
   procedimentos: [],
   formalidade: 40,
@@ -95,6 +102,37 @@ export type FollowUpInput = {
   tom: string;
   nomeCliente?: string;
   clinica?: Partial<Clinica>;
+};
+
+/** Entrada do Auditor de Compliance (revisar um texto escrito pela própria clínica). */
+export type AuditoriaInput = {
+  texto: string;
+  clinica?: Partial<Clinica>;
+  /** Ordem de provedores de IA; padrão: OpenAI → Anthropic → Gemini. */
+  providerChain?: AIProviderId[];
+};
+
+export type GravidadeRisco = "alta" | "media" | "baixa";
+
+/** Um risco de compliance encontrado no texto. */
+export type AuditoriaRisco = {
+  /** Trecho problemático (ou termo) encontrado. */
+  trecho: string;
+  /** Por que é um risco e como contornar. */
+  motivo: string;
+  gravidade: GravidadeRisco;
+};
+
+/** Status geral do texto auditado. */
+export type AuditoriaStatus = "ok" | "ajustes" | "risco";
+
+export type AuditoriaResultado = {
+  status: AuditoriaStatus;
+  riscos: AuditoriaRisco[];
+  /** Versão reescrita segura (sempre compliant). */
+  reescrita: string;
+  mock: boolean;
+  aviso?: string;
 };
 
 // ---------------- Inbox / Conversas (Fase 1) ----------------
