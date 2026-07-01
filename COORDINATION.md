@@ -56,7 +56,7 @@
 
 ## 🚨 Bloqueios & Armadilhas
 - ✅ **Vercel + Cloud Run (resolvido 2026-06-30):** Vercel = host canônico (`www.leadbellus.com.br`); Cloud Run = API tier (`/api/*` via `ENABLE_API_PROXY=true` + webhooks diretos `.run.app`). Não aposentar Cloud Run — ele processa billing, IA e WhatsApp.
-- ⛔ **Auth0**: Branch `feat/auth0` parada de propósito. Auth atual = **Clerk**. Não reativar Auth0 sem decisão estratégica.
+- ⛔ **Auth0**: Branch `feat/auth0` parada de propósito. Auth atual = **Firebase Auth**; Clerk é migração futura planejada. Não reativar Auth0 sem decisão estratégica.
 - ⛔ **Segredos**: Nunca commitar. Usar Secret Manager.
 - ⛔ **Mesa/cockpit**: antes de editar arquivo compartilhado, respeitar `C:\Users\vpaes\Mesa\lock.py status`.
 - **MEI vs Inova Simples**: LeadBellus = MEI (Vinícius). ResonAnza = Inova Simples (com José). Confirmado em todos os docs.
@@ -144,7 +144,7 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 
 ## 🚨 Bloqueios & Armadilhas
 - ✅ **Vercel + Cloud Run (resolvido 2026-06-30):** Vercel = host canônico (`www.leadbellus.com.br`); Cloud Run = API tier (`/api/*` via `ENABLE_API_PROXY=true` + webhooks diretos `.run.app`). Não aposentar Cloud Run — ele processa billing, IA e WhatsApp.
-- ⛔ **Auth0**: Branch `feat/auth0` parada de propósito. Auth atual = **Clerk**. Não reativar Auth0 sem decisão estratégica.
+- ⛔ **Auth0**: Branch `feat/auth0` parada de propósito. Auth atual = **Firebase Auth**; Clerk é migração futura planejada. Não reativar Auth0 sem decisão estratégica.
 - ⛔ **Segredos**: Nunca commitar. Usar Secret Manager.
 - ⛔ **Mesa/cockpit**: antes de editar arquivo compartilhado, respeitar `C:\Users\vpaes\Mesa\lock.py status`.
 
