@@ -119,6 +119,9 @@ export async function POST(request: Request) {
     );
   }
 
+  // CLERK_MIGRATION NOTE
+  // firebaseIdToken + decodedToken.uid is used for customer association and quotas.
+  // Clerk migration must provide equivalent (usually Clerk user id or verified email).
   const decodedToken = await verifyFirebaseIdToken(body.firebaseIdToken);
   const customerEmail =
     decodedToken?.email ||

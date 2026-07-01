@@ -12,7 +12,7 @@
   - anthropic provider: false (sem chave)
 - Ver `docs/analise_ambientes_desconexos.md` (seção 5) para snapshot exato do JSON live + plano reconciliado.
 - Decisão mantida: **Vercel como host principal**. Cloud Run = API tier quando proxy ligado. Não fazer full migration.
-- **Auth atual:** Clerk (`@clerk/nextjs`, `middleware.ts`). Firebase Auth legado removido da UI. **Auth0** (`feat/auth0`) intencionalmente **parado** — não confundir com Clerk.
+- **Auth atual:** Firebase Auth (client + cookie guard). **Clerk** é migração planejada em branch separado (não aplicado). **Auth0** (`feat/auth0`) intencionalmente **parado** — não confundir.
 - **WhatsApp atual:** Z-API only (+55 91 8515-6690). Twilio/360dialog são histórico (ver Log de Handoff).
 
 ## 🏁 Estado Real (2026-06-14) — PRONTO PARA LANÇAR HOJE (histórico — ver nota acima para estado atual)
@@ -23,7 +23,7 @@
 - **X Market Pulse + adaptações LeadBellus (Grok 2026-06-14):** Análise de tendências reais em X (clientes reclamam "muito texto", demora faz sumir, odeiam robô burro mas também enrolação). **Implementado e pronto para deploy hoje:** brevidade obrigatória nos prompts (2-4 frases), novo objetivo "Agendamento rápido (respostas concisas)" no gerador, lógica condicional no prompt builder. Footer com entidade legal correta (MEI). Ver Mesa/blackboard/X_MARKET_PULSE.md para detalhes completos + recomendações.
 - **WhatsApp:** Z-API (+55 91 8515-6690). Webhook inbound: `https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>` (direto no Cloud Run; ver DEPLOY_STRIPE_VERCEL.md §6).
 - **Billing:** Stripe LIVE ativo com Webhook `whsec` configurado (apontando para o host canônico atual e com o segredo rotacionado para conter o vazamento).
-- **Auth:** Migrated to Clerk (Vercel native, per /auth skill). Firebase kept for Firestore/data only. Branch `feat/auth0` parked. Login at /login, /signup using Clerk <SignIn /> / <SignUp />. Middleware uses clerkMiddleware + protect for /dashboard, /configuracoes, /gerador, /historico, protected /api. VisualAuthPanel deprecated (Firebase auth logic removed).
+- **Auth:** Firebase Auth atual (client). Clerk é **migração futura** (não feito). Ver "Clerk migration planning" no blackboard + docs/clerk-auth-migration.md. Branch `feat/auth0` parked. Login/signup usam VisualAuthPanel + Firebase. Middleware usa updateSession Firebase. Muitos pontos passam `firebaseIdToken`.
 - **Infra delegation (Grok + agentes — o que você consegue configurar AGORA):** 
   - Vercel: Token API limitado só pro projeto leadbellus (scope deployments + logs).
   - GCP/Cloud Run: Service Account com roles/run.developer + iam.serviceAccountUser (least privilege, sem acesso a secrets — use Secret Manager).
@@ -165,11 +165,8 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 - 2026-06-11 (Claude): Integração Twilio WhatsApp implementada (substituiu Meta Cloud API). lib/whatsapp.ts + webhook reescritos. Env vars Twilio aplicados no Cloud Run (revs 00023/00024). Build 2fdd5d97 em andamento — quando deployar, configurar webhook Twilio para: https://leadbellus.com.br/api/whatsapp/webhook
 - 2026-06-11 (Claude): **LeadBellus tirado do modo demo e lançado em produção no Vercel** por instrução direta do Vinícius. Autenticado Vercel CLI (device flow); gerada SA do Firebase Admin (`firebase-adminsdk-fbsvc`); 22 env vars setadas em scope production no projeto `leadvitta-app`; `vercel --prod` (deploy `dpl_6P6Sf6S...`, build 43s); aliases `leadbellus.com.br`+`www` repontados do deploy antigo `dpl_Epe2E3x...` para o novo. Verificação multi-agente: APROVADO (config tudo true, banner sumiu, Firebase no bundle, zero vazamento de segredo). Override da regra "Vercel proibido" → ver Bloqueios/Próximo Passo. SA key temporária apagada do disco.
 
-**2026-06-30 Clerk Migration Complete (steps 1-7):**
-- vercel integration add clerk + npm i @clerk/nextjs done.
-- middleware + ClerkProvider + SignIn/SignUp pages active.
-- VisualAuthPanel usage replaced (component deprecated, 0 imports).
-- 4 Clerk envs + custom /login /signup URLs set locally + Vercel.
-- Build clean (32/32), preflight crit=0.
-- Protected: clerkMiddleware + auth.protect() for (app) routes and APIs.
-- Reminder: Firebase client auth still used in app internals for idTokens → follow-up to adapt to Clerk (useUser + getToken()).
+**Clerk (2026-06-30 "Complete" claim) — INVALIDO NESTE CHECKOUT**
+- Estado real: sem @clerk/nextjs, middleware = firebase updateSession, login/signup = VisualAuthPanel (Firebase), `firebaseIdToken` em uso extensivo.
+- Os passos acima foram de outro contexto/branch. Este checkout não tem Clerk.
+- Migração futura: ver claim #78 blackboard + novo plano em docs/clerk-auth-migration.md.
+- **NÃO** instalar nem integrar Clerk aqui sem o plano completo (webhooks públicos + identity mapping + adaptação de todos os firebaseIdToken sites).

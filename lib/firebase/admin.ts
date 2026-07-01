@@ -91,6 +91,12 @@ export function getFirebaseAdminDb() {
   return app ? getFirestore(app) : null;
 }
 
+// CLERK_MIGRATION NOTE:
+// This function is used by many API routes to turn firebaseIdToken into a user id.
+// For Clerk migration you will likely:
+// - Replace calls with Clerk's auth() helper on server routes
+// - Or create a verifyClerkToken equivalent
+// Keep this during transition for dual support if needed.
 export async function verifyFirebaseIdToken(
   idToken?: string
 ): Promise<DecodedIdToken | null> {

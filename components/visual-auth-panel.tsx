@@ -12,6 +12,10 @@ import {
 } from "firebase/auth";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
+
+// CLERK_MIGRATION NOTE: This entire component is the current Firebase login UI.
+// It will be replaced by Clerk <SignIn /> and <SignUp /> components.
+// The cookie setting (`firebase_auth=1`) is used by the current middleware.
 import { saveClinica } from "@/lib/store";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import type { BillingPlan } from "@/lib/billing";
