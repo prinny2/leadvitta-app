@@ -62,3 +62,6 @@ scripts/.ga-*.json
 # Cursor / Codex / agent local state (if any slips)
 .cursor/rules.local*
 /.cursor/
+
+# Clerk local dev (keyless mode writes secretKey here — never commit)
+.clerk/
