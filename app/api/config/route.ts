@@ -2,12 +2,19 @@ import { jsonNoStore } from "@/lib/api-security";
 import {
   isAnyAIConfigured,
   isAnthropicConfigured,
+  isClerkClientConfigured,
+  isClerkServerConfigured,
   isFirebaseConfigured,
+  isGa4ServerConfigured,
   isGeminiConfigured,
+  isNlpServiceConfigured,
   isOpenAIConfigured,
   isStripeConfigured,
   isZApiConfigured,
   isOpsNotifyConfigured,
+  openaiModel,
+  anthropicModel,
+  geminiModel,
 } from "@/lib/config";
 import { getWhatsAppProvider } from "@/lib/whatsapp";
 import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
@@ -21,6 +28,8 @@ export const runtime = "nodejs";
 export async function GET() {
   return jsonNoStore({
     stripe_enabled: isStripeConfigured,
+    clerk_enabled: isClerkClientConfigured,
+    clerk_server_enabled: isClerkServerConfigured,
     firebase_enabled: isFirebaseConfigured,
     firebase_admin_enabled: isFirebaseAdminConfigured(),
     ai_enabled: isAnyAIConfigured,
@@ -29,6 +38,13 @@ export async function GET() {
       anthropic: isAnthropicConfigured,
       gemini: isGeminiConfigured,
     },
+    ai_models: {
+      openai: openaiModel,
+      anthropic: anthropicModel,
+      gemini: geminiModel,
+    },
+    nlp_enabled: isNlpServiceConfigured,
+    ga4_server_enabled: isGa4ServerConfigured,
     ops_notify_enabled: isOpsNotifyConfigured,
     zapi_enabled: isZApiConfigured,
     whatsapp_provider: getWhatsAppProvider().name,

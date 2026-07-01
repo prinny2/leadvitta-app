@@ -7,14 +7,15 @@ const cfg = vi.hoisted(() => ({
   siteUrl: "http://localhost:3000",
 }));
 const billingState = vi.hoisted(() => ({
-  priceId: "price_pro",
+  priceId: "price_1Tj5j8RTJ7iCFKxkiXFVTyx1",
   mode: "payment",
   disponivel: true,
 }));
-const { verifyToken, sessionsCreate, sendOps } = vi.hoisted(() => ({
+const { verifyToken, sessionsCreate, sendOps, sendGa4 } = vi.hoisted(() => ({
   verifyToken: vi.fn(),
   sessionsCreate: vi.fn(),
   sendOps: vi.fn(),
+  sendGa4: vi.fn(),
 }));
 
 vi.mock("@/lib/config", () => cfg);
@@ -44,6 +45,14 @@ vi.mock("@/lib/ops-notify", () => ({
   sendOpsNotify: sendOps,
 }));
 
+vi.mock("@/lib/analytics/ga4-server", () => ({
+  ga4ValueFromCents: (amount?: number | null) =>
+    typeof amount === "number" && Number.isFinite(amount)
+      ? Math.max(0, amount) / 100
+      : undefined,
+  sendGa4Event: sendGa4,
+}));
+
 import { POST } from "@/app/api/stripe/checkout/route";
 
 function checkoutRequest(body: unknown, headers: Record<string, string> = {}) {
@@ -62,12 +71,18 @@ beforeEach(() => {
   cfg.isFirebaseConfigured = false;
   cfg.isStripeConfigured = true;
   cfg.siteUrl = "http://localhost:3000";
-  billingState.priceId = "price_pro";
+  billingState.priceId = "price_1Tj5j8RTJ7iCFKxkiXFVTyx1";
   billingState.mode = "payment";
   billingState.disponivel = true;
   verifyToken.mockReset().mockResolvedValue(null);
-  sessionsCreate.mockReset().mockResolvedValue({ id: "cs_new", url: "https://stripe/checkout/cs_new" });
+  sessionsCreate.mockReset().mockResolvedValue({
+    id: "cs_new",
+    url: "https://stripe/checkout/cs_new",
+    amount_total: 9700,
+    currency: "brl",
+  });
   sendOps.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
+  sendGa4.mockReset().mockResolvedValue({ sent: false, reason: "not_configured" });
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -94,6 +109,13 @@ describe("Stripe checkout — validações", () => {
     expect(res.status).toBe(503);
   });
 
+  it("retorna 503 quando o price id não é da conta LeadBellus esperada", async () => {
+    billingState.priceId = "price_1ThIde6Qz7MOnODLInHcArD4";
+    const res = await POST(checkoutRequest({ plan: "pro" }));
+    expect(res.status).toBe(503);
+    expect(sessionsCreate).not.toHaveBeenCalled();
+  });
+
   it("retorna 400 quando o plano ainda não está disponível", async () => {
     billingState.disponivel = false;
     const res = await POST(checkoutRequest({ plan: "premium" }));
@@ -108,7 +130,11 @@ describe("Stripe checkout — criação da sessão", () => {
     verifyToken.mockResolvedValue({ uid: "uid_1", email: "ana@exemplo.com" });
 
     const res = await POST(
-      checkoutRequest({ plan: "pro", firebaseIdToken: "tok" })
+      checkoutRequest({
+        plan: "pro",
+        firebaseIdToken: "tok",
+        gaClientId: "123.456",
+      })
     );
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({
@@ -122,13 +148,36 @@ describe("Stripe checkout — criação da sessão", () => {
       plan: "pro",
       firebase_uid: "uid_1",
       firebase_email: "ana@exemplo.com",
+      ga_client_id: "123.456",
+      stripe_price_id: "price_1Tj5j8RTJ7iCFKxkiXFVTyx1",
     });
+    expect(params.custom_text.submit.message).toContain("mesmo e-mail");
+    expect(params.locale).toBe("pt-BR");
+    expect(params.phone_number_collection.enabled).toBe(true);
+    expect(params.wallet_options.link.display).toBe("never");
     // Modo payment embute metadata no payment_intent.
     expect(params.payment_intent_data.metadata.firebase_uid).toBe("uid_1");
+    expect(params.payment_intent_data.description).toContain("LeadBellus");
 
     expect(sendOps).toHaveBeenCalledWith(
       "checkout.started",
       expect.objectContaining({ firebase_uid: "uid_1", plan: "pro" })
+    );
+    expect(sendGa4).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "begin_checkout",
+        clientId: "123.456",
+        userId: "uid_1",
+        params: expect.objectContaining({
+          checkout_session_id: "cs_new",
+          currency: "BRL",
+          plan: "pro",
+          value: 97,
+        }),
+      })
+    );
+    expect(JSON.stringify(sendGa4.mock.calls[0][0])).not.toContain(
+      "ana@exemplo.com"
     );
   });
 
@@ -156,6 +205,8 @@ describe("Stripe checkout — criação da sessão", () => {
     const params = sessionsCreate.mock.calls[0][0];
     expect(params.mode).toBe("subscription");
     expect(params.subscription_data.metadata.plan).toBe("premium");
+    expect(params.subscription_data.description).toContain("LeadBellus");
+    expect(params.custom_text.after_submit.message).toContain("Pagamento recebido");
     expect(params.payment_intent_data).toBeUndefined();
   });
 

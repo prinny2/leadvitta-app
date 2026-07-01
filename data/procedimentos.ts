@@ -1,4 +1,4 @@
-// Os 16 procedimentos com a "inteligência" de cada um (Módulo 4).
+// Os procedimentos com a "inteligência" de cada um (Módulo 4).
 // Esses dados são injetados no prompt para deixar as respostas específicas.
 
 export type Procedimento = {
@@ -195,6 +195,51 @@ export const procedimentos: Procedimento[] = [
     cuidados: ["Pequenas pápulas iniciais", "Resultados progressivos"],
     conducao:
       "Hidrata e melhora a qualidade da pele (não dá volume como o preenchimento). Conduzir para avaliação.",
+  },
+  {
+    id: "criolipolise",
+    label: "Criolipólise",
+    duvidas: ["Quantas sessões", "Dói?", "Some a barriga?"],
+    objecoes: ["Será que funciona?", "Acho caro"],
+    medos: ["Não ver resultado", "Sentir muito frio/dor", "Flacidez depois"],
+    beneficios: [
+      "Auxilia na redução de gordura localizada",
+      "Sem cortes e sem afastamento",
+      "Complementa hábitos saudáveis",
+    ],
+    cuidados: ["Indicada conforme avaliação da área", "Resultados graduais", "Não substitui emagrecimento"],
+    conducao:
+      "É um auxílio para gordura localizada que depende de avaliação da área e de hábitos; não é emagrecimento nem solução milagrosa. Nunca prometa medidas. Conduzir para avaliação.",
+  },
+  {
+    id: "radiofrequencia",
+    label: "Radiofrequência",
+    duvidas: ["Para que serve", "Quantas sessões", "Dói?"],
+    objecoes: ["Será que firma mesmo?", "Preço"],
+    medos: ["Não ver diferença", "Calor / queimadura"],
+    beneficios: [
+      "Estimula colágeno e ajuda na firmeza da pele",
+      "Sensação de pele mais tonificada",
+      "Resultados graduais",
+    ],
+    cuidados: ["Hidratação", "Protetor solar", "Protocolo conforme avaliação"],
+    conducao:
+      "Atua na flacidez e na firmeza de forma gradual; o número de sessões depende da avaliação da pele. Conduzir para avaliação para alinhar expectativa.",
+  },
+  {
+    id: "micropigmentacao_sobrancelhas",
+    label: "Micropigmentação de sobrancelhas",
+    duvidas: ["Fica natural?", "Quanto tempo dura", "Dói?"],
+    objecoes: ["Medo de ficar artificial", "E se eu não gostar do formato?"],
+    medos: ["Ficar marcada / artificial", "Cor errada", "Assimetria"],
+    beneficios: [
+      "Sobrancelhas mais definidas e simétricas",
+      "Praticidade no dia a dia",
+      "Formato desenhado conforme o rosto",
+    ],
+    cuidados: ["Evitar sol e piscina na cicatrização", "Seguir o pós", "Retoque conforme orientação"],
+    conducao:
+      "O formato e a cor são definidos por avaliação do rosto e do tom de pele, e a duração varia por pessoa. Conduzir para avaliação para desenhar o melhor formato.",
   },
 ];
 

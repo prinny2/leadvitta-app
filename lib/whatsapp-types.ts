@@ -4,6 +4,14 @@
 
 export type WhatsAppResult = { ok: boolean; status: number; data: unknown };
 
+export type WhatsAppSendOptions = {
+  from?: string;
+  channelApiKey?: string;
+  instanceId?: string;
+  token?: string;
+  clientToken?: string;
+};
+
 /** Mensagem recebida, já normalizada (independe do formato do provedor). */
 export type InboundMessage = {
   /** Número de quem enviou (a cliente). Sem prefixo, ex.: "5591985156690". */
@@ -39,20 +47,20 @@ export interface WhatsAppProvider {
   sendText(
     to: string,
     body: string,
-    opts?: { from?: string; channelApiKey?: string }
+    opts?: WhatsAppSendOptions
   ): Promise<WhatsAppResult>;
 
   sendImage(
     to: string,
     imageUrl: string,
     caption?: string,
-    opts?: { from?: string; channelApiKey?: string }
+    opts?: WhatsAppSendOptions
   ): Promise<WhatsAppResult>;
 
   sendButtons(
     to: string,
     body: string,
     buttons: Array<{ id: string; label: string }>,
-    opts?: { from?: string; channelApiKey?: string }
+    opts?: WhatsAppSendOptions
   ): Promise<WhatsAppResult>;
 }

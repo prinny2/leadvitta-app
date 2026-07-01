@@ -10,12 +10,12 @@ cliente até o agendamento com guardrails de compliance.
 
 **Nota:** A Inova Simples (RESONANZA INOVA SIMPLES I S, CNPJ 67.046.121/0001-45) é exclusiva para o projeto ResonAnza (com José). O LeadBellus opera sob o MEI pessoal.
 
-Stack: **Next.js App Router + TypeScript + TailwindCSS + Firebase Auth/Firestore + OpenAI/Anthropic/Gemini + Stripe + Zapier + Cloud Run/Vercel (Híbrido)**.
+Stack: **Next.js App Router + TypeScript + TailwindCSS + Clerk + Firebase/Firestore + OpenAI/Anthropic/Gemini + Stripe + Zapier + Cloud Run/Vercel (Híbrido)**.
 
 ## Status (produção) — atualizado 2026-06-15
 
 - **LIVE:** `https://leadbellus.com.br` em arquitetura **híbrida** — Vercel serve o frontend, Cloud Run processa `/api/*` (proxy). Modo demonstração desligado (config Firebase real no bundle).
-- **Auth:** Firebase Auth (e-mail/senha + Google). **Billing:** Stripe LIVE com webhook configurado.
+- **Auth:** Clerk para login/cadastro com ponte Firebase interna. **Billing:** Stripe LIVE com webhook configurado.
 - **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
 - **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID, número +55 91 8515-6690). Auto-resposta (webhook) em rollout.
 
@@ -30,18 +30,28 @@ npm run dev
 Abra `http://localhost:3000`. Sem chaves, o app roda em **modo demonstração**:
 login dispensado, dados no `localStorage` e respostas mockadas.
 
-## Estratégia de autenticação (v1)
+## Estratégia de autenticação (atual)
 
-- **Firebase Auth** é a autenticação oficial do produto no v1.
-- `/login` e `/signup` usam Firebase Auth com Email/Senha e Google opcional.
-- Rotas server-side autenticadas validam **Firebase ID token**.
-- Billing, Firestore e eventos autenticados do Zapier continuam vinculados à
-  identidade atual do Firebase.
+- **Clerk** é a sessão pública oficial do produto.
+- `/login` e `/signup` usam os componentes Clerk.
+- Após login Clerk, o app cria uma sessão Firebase interna por custom token para
+  preservar Firestore, checkout e APIs que ainda validam **Firebase ID token**.
+- Webhooks públicos (`/api/stripe/webhook`, `/api/whatsapp/webhook` e Clerk) não
+  ficam atrás de `auth.protect()`.
 - **Auth0 não faz parte do fluxo atual**.
 
 ## Variáveis de ambiente
 
 Copie `.env.local.example` para `.env.local` e preencha conforme o ambiente.
+
+### Clerk
+
+No Clerk Dashboard:
+
+1. Crie/configure a aplicação de produção.
+2. Configure `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` e `CLERK_SECRET_KEY`.
+3. Crie webhook para `POST /api/clerk/webhook` com evento `user.created` e salve
+   o segredo em `CLERK_WEBHOOK_SIGNING_SECRET`.
 
 ### Firebase
 
@@ -50,7 +60,8 @@ No Firebase Console:
 1. Crie um projeto e um Web App.
 2. Habilite **Authentication** e **Firestore Database**.
 3. Copie as variáveis `NEXT_PUBLIC_FIREBASE_*`.
-4. Para APIs server-side, prefira a identidade do próprio serviço no Cloud Run (ADC).
+4. Para APIs server-side, configure Firebase Admin; ele cria os custom tokens da
+   ponte Clerk -> Firebase.
 
 ### IA
 
@@ -82,41 +93,31 @@ STRIPE_WEBHOOK_SECRET=
 STRIPE_PRICE_ID_START=
 STRIPE_PRICE_ID_PRO=
 STRIPE_PRICE_ID_PREMIUM=
+STRIPE_PRICE_ID_START_ANNUAL=
+STRIPE_PRICE_ID_PRO_ANNUAL=
+STRIPE_PRICE_ID_PREMIUM_ANNUAL=
+# Opcional: guard extra no checkout (comma-separated price_...)
+STRIPE_ALLOWED_PRICE_IDS=
 ```
 
-### WhatsApp (Multi-provedor)
+### WhatsApp (Z-API — único provedor)
 
-O app suporta múltiplos provedores. Defina `WHATSAPP_PROVIDER` como `twilio`, `dialog360` ou `zapi`.
-
-#### Z-API (Recomendado para mensagens ricas)
 ```env
-WHATSAPP_PROVIDER=zapi
 ZAPI_INSTANCE_ID=
 ZAPI_TOKEN=
 ZAPI_CLIENT_TOKEN=
 ZAPI_SECURITY_TOKEN=
 ```
-Para configurar os webhooks automaticamente na Z-API, rode:
+
+Para configurar os webhooks automaticamente na Z-API:
+
 ```bash
-node scripts/setup-zapi-webhook.mjs
+node scripts/setup-zapi-webhook.mjs \
+  https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook
 ```
 
-#### 360dialog
-```env
-WHATSAPP_PROVIDER=dialog360
-D360_API_KEY=
-D360_WEBHOOK_TOKEN=
-```
-
-#### Twilio
-```env
-WHATSAPP_PROVIDER=twilio
-TWILIO_ACCOUNT_SID=
-TWILIO_API_KEY_SID=
-TWILIO_API_KEY_SECRET=
-TWILIO_WHATSAPP_FROM=
-TWILIO_AUTH_TOKEN=
-```
+Webhook inbound recomendado: URL **direta** do Cloud Run (`.run.app`) com `?token=<ZAPI_SECURITY_TOKEN>`.
+Ver **DEPLOY_STRIPE_VERCEL.md** §6.
 
 ### Zapier
 

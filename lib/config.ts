@@ -1,12 +1,10 @@
 // Detecta o que está configurado para alternar entre "modo real" e
 // "modo demonstração" (sem nenhuma chave o app ainda roda).
 
-// Config do Firebase web é PÚBLICA por design (vai no bundle do cliente). Os defaults
-// garantem que o login real funcione mesmo sem as env vars na Vercel; se a env existir, ela vence.
+// Config do Firebase web é PÚBLICA por design (vai no bundle do cliente), mas
+// a API key deve vir do ambiente para não ficar committed no repo.
 export const firebaseConfig = {
-  apiKey:
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
-    "AIzaSyBMlo174XZFQUdvPE1JBJJLt4R6DUk2hls",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
   authDomain:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
     "leadvitta-app.firebaseapp.com",
@@ -25,6 +23,17 @@ export const firebaseConfig = {
 /** True quando há projeto Firebase configurado (login + banco). */
 export const isFirebaseConfigured =
   !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
+
+/** Chave pública do Clerk para a sessão do navegador. */
+export const clerkPublishableKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim() || "";
+
+/** True quando a UI pode usar Clerk no cliente. */
+export const isClerkClientConfigured = !!clerkPublishableKey;
+
+/** True quando middleware/server actions podem validar sessão Clerk. */
+export const isClerkServerConfigured =
+  isClerkClientConfigured && !!process.env.CLERK_SECRET_KEY?.trim();
 
 /** Chave pública VAPID para Web Push (FCM). Pública por design — vai no frontend. */
 export const firebaseVapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
@@ -45,6 +54,29 @@ export const isGeminiConfigured =
 /** True quando pelo menos um provedor real de IA está configurado. */
 export const isAnyAIConfigured =
   isOpenAIConfigured || isAnthropicConfigured || isGeminiConfigured;
+
+/** URL do microserviço leadvitta-nlp (classificação por ML). Apenas no servidor. */
+export const nlpServiceUrl = process.env.NLP_SERVICE_URL?.trim() || "";
+
+/** True quando o serviço externo de NLP (leadvitta-nlp) está configurado. */
+export const isNlpServiceConfigured = !!nlpServiceUrl;
+
+/** Measurement ID público do GA4 para o bundle client. Sem fallback hardcoded. */
+export const publicGa4MeasurementId =
+  process.env.NEXT_PUBLIC_GA4_ID?.trim() || "";
+
+/** Measurement ID usado pelo servidor; pode usar env server-only ou a pública. */
+export const ga4MeasurementId =
+  process.env.GA4_MEASUREMENT_ID?.trim() || publicGa4MeasurementId;
+
+/** True quando a tag GA4 client-side deve carregar. */
+export const isGA4Configured = !!publicGa4MeasurementId;
+
+/** Secret do Measurement Protocol. Nunca use NEXT_PUBLIC_. */
+export const ga4ApiSecret = process.env.GA4_API_SECRET?.trim() || "";
+
+/** True quando o espelho server-side do GA4 está pronto. */
+export const isGa4ServerConfigured = !!ga4MeasurementId && !!ga4ApiSecret;
 
 /** Modelo legado/compatível. Prefira os modelos específicos por provedor. */
 export const aiModel = process.env.AI_MODEL || "gpt-4o-mini";

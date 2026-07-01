@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import type { BillingInterval, BillingPlan } from "@/lib/billing";
-import { trackEvent } from "@/components/Analytics";
+import { getGaClientId, trackEvent } from "@/components/Analytics";
 
 type PlanCheckoutButtonProps = {
   plan: BillingPlan;
@@ -35,7 +35,7 @@ export function PlanCheckoutButton({
 
     setLoading(true);
     try {
-      trackEvent("initiate_checkout", { plan, interval });
+      trackEvent("checkout_click", { plan, interval });
       const user = getFirebaseAuth().currentUser;
       const firebaseIdToken = user ? await user.getIdToken() : undefined;
 
@@ -47,6 +47,7 @@ export function PlanCheckoutButton({
           interval,
           firebaseIdToken,
           customerEmail: user?.email,
+          gaClientId: getGaClientId(),
         }),
       });
       const data = (await response.json()) as { url?: string; error?: string };

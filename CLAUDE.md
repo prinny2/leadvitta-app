@@ -48,7 +48,7 @@ env vars are set.
   Firebase Admin SDK for server-side webhook writes.
 - **Billing:** Stripe (subscription mode), reconciled into Firestore via webhook.
 - **Integrations:** **WhatsApp via Z-API** (`ZAPI_INSTANCE_ID` / `ZAPI_TOKEN`;
-  see `lib/whatsapp-zapi.ts`, `lib/whatsapp-types.ts` where `provider.name ===
+  see `lib/whatsapp-zapi.ts`, `lib/whatsapp-types.ts` where `getWhatsAppProvider().name ===
   "zapi"`). Z-API **also replaced Zapier** for operational alerts
   (`lib/ops-notify.ts`). The old Meta WhatsApp Cloud API path is **legacy** — not
   the active provider. Verified live 2026-06-23: `GET /api/health` →
@@ -58,10 +58,7 @@ env vars are set.
   `output: "standalone"`) → Cloud Build → Cloud Run (region `southamerica-east1`,
   service `leadbellus`) — is **legacy** (redirects + old webhooks only); the
   Dockerfile/`cloudbuild.yaml` are kept for it.
-- **Analytics gotcha:** `components/Analytics.tsx` hardcodes a GA4 fallback
-  `G-223KR63TS8` (`NEXT_PUBLIC_GA4_ID || "G-223KR63TS8"`), so the tag loads even
-  without the env var. To point analytics elsewhere you must change that fallback
-  or set `NEXT_PUBLIC_GA4_ID`.
+- **Analytics:** GA4 via NEXT_PUBLIC_GA4_ID (see `lib/config.ts` `isGA4Configured` and `components/Analytics.tsx`). No longer a hardcoded fallback — only loads when the env var is explicitly set on Vercel.
 
 > **Use Node 20** to match the Dockerfile. If the VM ships Node 22:
 > `export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 20`.
@@ -98,7 +95,7 @@ lib/
   billing.ts                  # Stripe plan config (start/pro/premium)
   store.ts                    # data abstraction: Firestore OR localStorage
   api-security.ts             # CORS/origin check, rate limit, body parse, jsonNoStore
-  whatsapp-zapi.ts whatsapp-types.ts ops-notify.ts  # Z-API client + provider contract + ops alerts
+  whatsapp.ts, whatsapp-zapi.ts, whatsapp-types.ts, ops-notify.ts  # WhatsApp facade + Z-API client + ops alerts
   ai/ provider.ts prompts.ts mock.ts   # OpenAI>Anthropic orchestration + compliance denylist
   firebase/ client.ts admin.ts middleware.ts
   stripe/server.ts
@@ -180,8 +177,9 @@ or `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY`),
 **AI** (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `AI_MODEL`),
 **Stripe** (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CHECKOUT_MODE`,
 `STRIPE_PRICE_ID_{START,PRO,PREMIUM}`),
-**WhatsApp via Z-API** (`ZAPI_INSTANCE_ID`, `ZAPI_TOKEN`, + alert number for ops;
-see `lib/config.ts` `isZApiConfigured`). The Meta WhatsApp Cloud API vars
+**WhatsApp via Z-API** (`ZAPI_INSTANCE_ID`, `ZAPI_TOKEN`, `ZAPI_SECURITY_TOKEN`;
+see `lib/config.ts` `isZApiConfigured`), **Ops Alerts** (`OPS_WHATSAPP_NUMBER`;
+see `isOpsNotifyConfigured`). The Meta WhatsApp Cloud API vars
 (`WHATSAPP_TOKEN`/`WHATSAPP_PHONE_NUMBER_ID`/`WHATSAPP_VERIFY_TOKEN`/`WHATSAPP_APP_SECRET`)
 and Zapier vars (`ZAPIER_*`) are **legacy** — Z-API is the active provider
 (`.env.local.example` remains the source of truth for current names),
@@ -214,3 +212,25 @@ plus `NEXT_PUBLIC_SITE_URL`.
 
 Develop on branch `claude/claude-md-docs-yydjie`, commit with clear messages,
 push with `git push -u origin claude/claude-md-docs-yydjie`, and open a draft PR.
+
+## Current Authentication (as of 2026-07-01 — IMPORTANT)
+
+**This checkout uses Firebase Auth (client-side), NOT Clerk.**
+
+- `middleware.ts` → `lib/firebase/middleware.ts` (simple cookie `firebase_auth` guard for protected routes)
+- Login/Signup pages use `<VisualAuthPanel>` (Firebase)
+- Most protected flows pass `firebaseIdToken = await user.getIdToken()` from client to APIs
+- Server verifies with `verifyFirebaseIdToken` (lib/firebase/admin.ts)
+- Firebase is also the data backend (Firestore)
+
+**Clerk (@clerk/nextjs) is a PLANNED migration only.**
+
+See:
+- `docs/clerk-auth-migration.md` (full plan + checklist + all files that touch tokens)
+- Blackboard claim #78 + Decision D-007
+
+**Hard rules:**
+- Never run `npm install @clerk/nextjs` or `vercel integration add clerk` on main.
+- Webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`) must remain completely public.
+- Any real Clerk work must happen on a dedicated branch after the prerequisites in the plan are implemented.
+- Current Firebase flows must stay working until the migration branch is proven.

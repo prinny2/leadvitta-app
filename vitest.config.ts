@@ -19,8 +19,9 @@ export default defineConfig({
       include: [
         "lib/**/*.ts",
         "data/**/*.ts",
-        // Caminho de billing (assinatura/ativação) coberto pelos testes de rota.
-        "app/api/stripe/**/*.ts",
+        // Todas as rotas de API entram na cobertura (antes só o caminho de
+        // billing/Stripe era medido, escondendo as demais rotas do relatório).
+        "app/api/**/*.ts",
       ],
       exclude: [
         // Módulos que só inicializam SDKs externos (Firebase/Stripe) e

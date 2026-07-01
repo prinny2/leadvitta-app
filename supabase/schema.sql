@@ -1,7 +1,11 @@
 -- ============================================================
--- RespondeEstética IA — schema + Row Level Security
+-- LeadBellus — schema Supabase
 -- Rode este arquivo no SQL Editor do seu projeto Supabase.
 -- Pode rodar novamente com segurança (idempotente).
+--
+-- Importante: o v1 usa Firebase Auth + Firestore como fonte da verdade.
+-- As tabelas `app_*` abaixo são um espelho aditivo por `firebase_uid`.
+-- As tabelas antigas com `auth.users` ficam preservadas por compatibilidade.
 -- ============================================================
 
 create extension if not exists "pgcrypto";
@@ -75,3 +79,101 @@ create policy "hist_delete_own" on public.historico_respostas
 
 create index if not exists hist_user_created_idx
   on public.historico_respostas (user_id, created_at desc);
+
+alter table public.historico_respostas
+  add column if not exists firestore_id text,
+  add column if not exists firebase_uid text;
+
+create unique index if not exists hist_firestore_id_idx
+  on public.historico_respostas (firestore_id)
+  where firestore_id is not null;
+
+create index if not exists hist_firebase_uid_idx
+  on public.historico_respostas (firebase_uid, created_at desc);
+
+-- ============================================================
+-- LeadBellus v1 — espelho aditivo Firebase -> Supabase
+-- ============================================================
+
+create table if not exists public.app_clinicas (
+  id              uuid primary key default gen_random_uuid(),
+  firebase_uid    text not null unique,
+  nome_clinica    text not null default '',
+  cidade          text not null default '',
+  tom_padrao      text not null default 'acolhedor',
+  procedimentos   text[] not null default '{}',
+  formalidade     int not null default 40,
+  como_chamar     text not null default 'linda',
+  cta_preferido   text not null default 'marcar uma avaliação',
+  onboarded       boolean not null default false,
+  created_at      timestamptz not null default now(),
+  updated_at      timestamptz not null default now()
+);
+
+alter table public.app_clinicas add column if not exists firebase_uid text;
+alter table public.app_clinicas add column if not exists nome_clinica text not null default '';
+alter table public.app_clinicas add column if not exists cidade text not null default '';
+alter table public.app_clinicas add column if not exists tom_padrao text not null default 'acolhedor';
+alter table public.app_clinicas add column if not exists procedimentos text[] not null default '{}';
+alter table public.app_clinicas add column if not exists formalidade int not null default 40;
+alter table public.app_clinicas add column if not exists como_chamar text not null default 'linda';
+alter table public.app_clinicas add column if not exists cta_preferido text not null default 'marcar uma avaliação';
+alter table public.app_clinicas add column if not exists onboarded boolean not null default false;
+alter table public.app_clinicas add column if not exists updated_at timestamptz not null default now();
+
+create unique index if not exists app_clinicas_firebase_uid_idx
+  on public.app_clinicas (firebase_uid);
+
+alter table public.app_clinicas enable row level security;
+
+create table if not exists public.app_historico_respostas (
+  id            uuid primary key default gen_random_uuid(),
+  firestore_id  text,
+  firebase_uid  text not null,
+  tipo          text not null default 'gerador',
+  contexto      jsonb not null default '{}'::jsonb,
+  respostas     jsonb not null default '[]'::jsonb,
+  favorito      boolean not null default false,
+  intent        text,
+  sentiment     text,
+  score         numeric,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+
+alter table public.app_historico_respostas add column if not exists firestore_id text;
+alter table public.app_historico_respostas add column if not exists firebase_uid text;
+alter table public.app_historico_respostas add column if not exists tipo text not null default 'gerador';
+alter table public.app_historico_respostas add column if not exists contexto jsonb not null default '{}'::jsonb;
+alter table public.app_historico_respostas add column if not exists respostas jsonb not null default '[]'::jsonb;
+alter table public.app_historico_respostas add column if not exists favorito boolean not null default false;
+alter table public.app_historico_respostas add column if not exists intent text;
+alter table public.app_historico_respostas add column if not exists sentiment text;
+alter table public.app_historico_respostas add column if not exists score numeric;
+alter table public.app_historico_respostas add column if not exists updated_at timestamptz not null default now();
+
+create unique index if not exists app_hist_firestore_id_idx
+  on public.app_historico_respostas (firestore_id)
+  where firestore_id is not null;
+
+create index if not exists app_hist_firebase_created_idx
+  on public.app_historico_respostas (firebase_uid, created_at desc);
+
+alter table public.app_historico_respostas enable row level security;
+
+create table if not exists public.app_waitlist (
+  id          text primary key,
+  email       text not null,
+  plan        text not null check (plan in ('pro', 'premium')),
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+alter table public.app_waitlist add column if not exists email text;
+alter table public.app_waitlist add column if not exists plan text;
+alter table public.app_waitlist add column if not exists updated_at timestamptz not null default now();
+
+create unique index if not exists app_waitlist_email_idx
+  on public.app_waitlist (email);
+
+alter table public.app_waitlist enable row level security;
