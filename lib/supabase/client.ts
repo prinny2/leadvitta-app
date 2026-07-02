@@ -11,7 +11,7 @@ let supabaseClient: SupabaseClient | null = null;
 if (supabaseUrl && supabaseKey) {
   supabaseClient = createClient(supabaseUrl, supabaseKey, {
     auth: {
-      persistSession: false, // We don't use Supabase Auth — Firebase is source
+      persistSession: false, // We don't use Supabase Auth — Clerk is the app auth provider
     },
   });
 }
