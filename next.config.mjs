@@ -31,10 +31,8 @@ const nextConfig = {
   outputFileTracingRoot: __dirname,
   allowedDevOrigins: ["127.0.0.1"],
   eslint: { ignoreDuringBuilds: true },
-  // Type checking is done via `npx tsc --noEmit` (which passes cleanly).
-  // The internal Next.js build type checker can be flaky with .next cache on this setup;
-  // we ignore it here and rely on the explicit tsc step for validation.
-  typescript: { ignoreBuildErrors: true },
+  // Keep Next.js build type checking enabled; CI does not run a separate `tsc --noEmit` step.
+  // (If needed, add an explicit typecheck step rather than setting `ignoreBuildErrors: true`.)
   async redirects() {
     return LEGACY_PUBLIC_HOSTS.flatMap((host) => [
       {
