@@ -1,5 +1,5 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Suspense } from "react";
 import {
   ArrowRight,
   PlayCircle,
@@ -12,12 +12,21 @@ import {
   Clock,
   Check,
 } from "lucide-react";
-import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 import { PricingSection } from "@/components/pricing-section";
 import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MarketingMobileMenu } from "@/components/marketing-mobile-menu";
+
+const LandingWhatsAppDemo = dynamic(
+  () =>
+    import("@/components/landing-whatsapp-demo").then(
+      (module) => module.LandingWhatsAppDemo
+    ),
+  {
+    loading: () => <LoadingRespostas etapas={["Carregando a demo…"]} />,
+  }
+);
 
 const SIGNUP = "/signup?plan=start";
 
@@ -538,9 +547,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <Suspense fallback={<LoadingRespostas etapas={["Carregando a demo…"]} />}>
-              <LandingWhatsAppDemo />
-            </Suspense>
+            <LandingWhatsAppDemo />
 
             <div
               style={{
