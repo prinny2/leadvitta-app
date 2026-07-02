@@ -124,7 +124,7 @@ create policy "app_hist_insert" on public.app_historico_respostas
 
 drop policy if exists "app_hist_update_own" on public.app_historico_respostas;
 create policy "app_hist_update_own" on public.app_historico_respostas
-  for update using (auth.uid()::text = firebase_uid) with check (auth.uid()::text = firebase_uid);
+  for update using (false) with check (false); -- server/service_role only (service_role bypasses RLS)
 
 create unique index if not exists app_hist_firestore_id_idx
   on public.app_historico_respostas (firestore_id) where firestore_id is not null;
