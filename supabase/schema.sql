@@ -120,7 +120,7 @@ create policy "app_hist_select_own" on public.app_historico_respostas
 
 drop policy if exists "app_hist_insert" on public.app_historico_respostas;
 create policy "app_hist_insert" on public.app_historico_respostas
-  for insert with check (true); -- servidor/edge functions controlam
+  for insert with check (false); -- server/service_role only (service_role bypasses RLS)
 
 drop policy if exists "app_hist_update_own" on public.app_historico_respostas;
 create policy "app_hist_update_own" on public.app_historico_respostas
