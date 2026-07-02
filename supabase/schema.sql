@@ -116,7 +116,7 @@ alter table public.app_historico_respostas enable row level security;
 -- Exemplo de políticas (ajuste conforme necessário; atualmente espelho é best-effort)
 drop policy if exists "app_hist_select_own" on public.app_historico_respostas;
 create policy "app_hist_select_own" on public.app_historico_respostas
-  for select using (auth.uid()::text = firebase_uid OR firebase_uid is not null); -- relaxado para mirror
+  for select using (auth.uid()::text = firebase_uid); -- remove public access; requires Supabase Auth if client reads are needed
 
 drop policy if exists "app_hist_insert" on public.app_historico_respostas;
 create policy "app_hist_insert" on public.app_historico_respostas
