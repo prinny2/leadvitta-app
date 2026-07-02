@@ -145,7 +145,7 @@ alter table public.app_waitlist enable row level security;
 
 drop policy if exists "app_waitlist_insert_public" on public.app_waitlist;
 create policy "app_waitlist_insert_public" on public.app_waitlist
-  for insert with check (true);
+  for insert with check (auth.uid() is not null);
 
 -- Tabela app_clinicas (espelho opcional)
 create table if not exists public.app_clinicas (
