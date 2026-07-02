@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import {
   isAnyAIConfigured,
   isAnthropicConfigured,
+  isClerkClientConfigured,
+  isClerkServerConfigured,
   isFirebaseConfigured,
   isGa4ServerConfigured,
   isGeminiConfigured,
@@ -22,6 +24,8 @@ export async function GET() {
     time: new Date().toISOString(),
     readiness: {
       ai: isAnyAIConfigured,
+      clerk: isClerkClientConfigured,
+      clerk_server: isClerkServerConfigured,
       firebase: isFirebaseConfigured,
       firebase_admin: isFirebaseAdminConfigured(),
       ga4_server: isGa4ServerConfigured,

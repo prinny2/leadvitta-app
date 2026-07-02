@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useClerk } from "@clerk/nextjs";
 import {
   Home, Sparkles, MessagesSquare, Send, ListChecks, History, Settings, LogOut, Brain, ShieldCheck,
 } from "lucide-react";
-import { signOut } from "firebase/auth";
-import { isFirebaseConfigured } from "@/lib/config";
+import { signOut as firebaseSignOut } from "firebase/auth";
+import { isClerkClientConfigured, isFirebaseConfigured } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -38,18 +39,52 @@ function LogoMark({ size = 32 }: { size?: number }) {
   );
 }
 
-function useLogout() {
+async function clearFirebaseSession() {
+  if (!isFirebaseConfigured) return;
+
+  try {
+    await firebaseSignOut(getFirebaseAuth());
+    document.cookie = "firebase_auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+  } catch {
+    // ignora
+  }
+}
+
+function FirebaseLogoutButton() {
   const router = useRouter();
-  return async () => {
-    if (isFirebaseConfigured) {
-      try {
-        await signOut(getFirebaseAuth());
-        document.cookie = "firebase_auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-      } catch { /* ignora */ }
-    }
-    router.push("/");
-    router.refresh();
-  };
+
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        await clearFirebaseSession();
+        router.push("/");
+        router.refresh();
+      }}
+      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-navy-100 transition-colors hover:bg-navy-600/50 hover:text-champagne-400"
+    >
+      <LogOut size={17} />
+      Sair
+    </button>
+  );
+}
+
+function ClerkLogoutButton() {
+  const { signOut } = useClerk();
+
+  return (
+    <button
+      type="button"
+      onClick={async () => {
+        await clearFirebaseSession();
+        await signOut({ redirectUrl: "/" });
+      }}
+      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-navy-100 transition-colors hover:bg-navy-600/50 hover:text-champagne-400"
+    >
+      <LogOut size={17} />
+      Sair
+    </button>
+  );
 }
 
 function isActive(pathname: string, href: string) {
@@ -58,7 +93,6 @@ function isActive(pathname: string, href: string) {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const logout = useLogout();
 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col bg-navy-800 px-3 py-6 md:flex border-r border-navy-500/50">
@@ -108,14 +142,7 @@ export function Sidebar() {
         <ThemeToggle />
       </div>
 
-      <button
-        type="button"
-        onClick={logout}
-        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-navy-100 transition-colors hover:bg-navy-600/50 hover:text-champagne-400"
-      >
-        <LogOut size={17} />
-        Sair
-      </button>
+      {isClerkClientConfigured ? <ClerkLogoutButton /> : <FirebaseLogoutButton />}
     </aside>
   );
 }

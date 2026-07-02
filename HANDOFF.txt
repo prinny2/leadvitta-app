@@ -23,7 +23,7 @@ e a nova Landing Page de Campanha.
 - O webhook está utilizando a versão de API v1 (Dahlia) da Stripe, o que garante
   o envio de payloads completos (Snapshot), atendendo ao esperado pelo backend.
 - O segredo da assinatura foi rotacionado para corrigir o vazamento:
-  * Novo segredo ativo: <rotated-secret-redacted>
+  * Novo segredo ativo: <REDACTED_STRIPE_WEBHOOK_SECRET>
 - O segredo 'stripe-webhook-secret' no GCP Secret Manager do projeto
   'leadvitta-app' foi atualizado (Criada versão [3]).
 - O serviço do Cloud Run 'leadbellus' foi atualizado e uma nova revisão foi
@@ -39,7 +39,7 @@ e a nova Landing Page de Campanha.
   (Z-API) com o token de segurança em produção.
 - O webhook de mensagens recebidas (ReceivedMessage) foi gravado com sucesso no
   painel Z-API apontando para:
-  https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook?token=91214c9c056841afbcf1c073d1efa8c1
+  https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>
 - Teste de Simulação: O script de simulação rodou com o token de segurança
   correto e retornou "status = 200" da nossa API, confirmando que a rota
   Z-API está totalmente operacional no Cloud Run.

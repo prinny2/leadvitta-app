@@ -11,7 +11,11 @@ import { tons } from "@/data/tons";
 import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { getClinica, saveClinica } from "@/lib/store";
 import { onAuthStateChanged, updatePassword } from "firebase/auth";
-import { isFirebaseConfigured, isWebPushConfigured } from "@/lib/config";
+import {
+  isClerkClientConfigured,
+  isFirebaseConfigured,
+  isWebPushConfigured,
+} from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -480,8 +484,20 @@ export default function ConfiguracoesPage() {
 
       {isWebPushConfigured && <NotificacoesToggle />}
 
-      {/* ── Trocar senha ── */}
-      {isFirebaseConfigured && (
+      {/* ── Conta e senha ── */}
+      {isClerkClientConfigured ? (
+        <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
+          <SectionHeader icon={KeyRound} title="Conta e senha" />
+
+          <div className="p-5 sm:p-6">
+            <p className="text-sm text-navy-100">
+              Sua conta agora é gerenciada pelo Clerk. Use os fluxos de login,
+              recuperação de acesso e provedores sociais do Clerk para alterar
+              credenciais.
+            </p>
+          </div>
+        </div>
+      ) : isFirebaseConfigured ? (
         <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
           <SectionHeader icon={KeyRound} title="Trocar senha" />
 
@@ -506,7 +522,7 @@ export default function ConfiguracoesPage() {
             )}
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

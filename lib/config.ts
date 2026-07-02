@@ -24,6 +24,17 @@ export const firebaseConfig = {
 export const isFirebaseConfigured =
   !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
 
+/** Chave pública do Clerk para a sessão do navegador. */
+export const clerkPublishableKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim() || "";
+
+/** True quando a UI pode usar Clerk no cliente. */
+export const isClerkClientConfigured = !!clerkPublishableKey;
+
+/** True quando middleware/server actions podem validar sessão Clerk. */
+export const isClerkServerConfigured =
+  isClerkClientConfigured && !!process.env.CLERK_SECRET_KEY?.trim();
+
 /** Chave pública VAPID para Web Push (FCM). Pública por design — vai no frontend. */
 export const firebaseVapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
 

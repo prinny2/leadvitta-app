@@ -12,7 +12,7 @@
   - anthropic provider: false (sem chave)
 - Ver `docs/analise_ambientes_desconexos.md` (seção 5) para snapshot exato do JSON live + plano reconciliado.
 - Decisão mantida: **Vercel como host principal**. Cloud Run = API tier quando proxy ligado. Não fazer full migration.
-- **Auth atual:** Clerk (`@clerk/nextjs`, `middleware.ts`). Firebase Auth legado removido da UI. **Auth0** (`feat/auth0`) intencionalmente **parado** — não confundir com Clerk.
+- **Auth atual:** Clerk (`@clerk/nextjs`) é a sessão pública oficial; Firebase continua como sessão interna/ponte para Firestore e APIs legadas. **Auth0** (`feat/auth0`) intencionalmente **parado** — não confundir.
 - **WhatsApp atual:** Z-API only (+55 91 8515-6690). Twilio/360dialog são histórico (ver Log de Handoff).
 
 ## 🏁 Estado Real (2026-06-14) — PRONTO PARA LANÇAR HOJE (histórico — ver nota acima para estado atual)
@@ -23,7 +23,7 @@
 - **X Market Pulse + adaptações LeadBellus (Grok 2026-06-14):** Análise de tendências reais em X (clientes reclamam "muito texto", demora faz sumir, odeiam robô burro mas também enrolação). **Implementado e pronto para deploy hoje:** brevidade obrigatória nos prompts (2-4 frases), novo objetivo "Agendamento rápido (respostas concisas)" no gerador, lógica condicional no prompt builder. Footer com entidade legal correta (MEI). Ver Mesa/blackboard/X_MARKET_PULSE.md para detalhes completos + recomendações.
 - **WhatsApp:** Z-API (+55 91 8515-6690). Webhook inbound: `https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>` (direto no Cloud Run; ver DEPLOY_STRIPE_VERCEL.md §6).
 - **Billing:** Stripe LIVE ativo com Webhook `whsec` configurado (apontando para o host canônico atual e com o segredo rotacionado para conter o vazamento).
-- **Auth:** Migrated to Clerk (Vercel native, per /auth skill). Firebase kept for Firestore/data only. Branch `feat/auth0` parked. Login at /login, /signup using Clerk <SignIn /> / <SignUp />. Middleware uses clerkMiddleware + protect for /dashboard, /configuracoes, /gerador, /historico, protected /api. VisualAuthPanel deprecated (Firebase auth logic removed).
+- **Auth:** Clerk é a sessão pública oficial; Firebase Auth continua como sessão interna por custom token para preservar Firestore/checkout/APIs. Branch `feat/auth0` está PARADA.
 - **Infra delegation (Grok + agentes — o que você consegue configurar AGORA):** 
   - Vercel: Token API limitado só pro projeto leadbellus (scope deployments + logs).
   - GCP/Cloud Run: Service Account com roles/run.developer + iam.serviceAccountUser (least privilege, sem acesso a secrets — use Secret Manager).
@@ -96,7 +96,7 @@
   3. Configure infra delegation acima (tokens/SAs).
   4. Deploy Vercel: `vercel --prod` (após pre-flight).
   5. Pós-deploy: 
-     - Firebase Auth authorized domains: adicione leadbellus.com.br + www.
+     - Clerk Domains + Firebase Auth authorized domains: garantir leadbellus.com.br + www.
      - Stripe webhook: `https://leadbellus.com.br/api/stripe/webhook`.
      - Z-API webhook: `https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>`.
   6. Valide: curl health + config. Teste gerador com "agendamento rápido". Rode demo WhatsApp.
@@ -157,19 +157,15 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 
 ---
 ### Log de Handoff
-- 2026-06-18 (Antigravity): Configuração e validação final de Stripe Webhook, WhatsApp (Z-API), GA4 e Landing de Campanha. Excluído webhook do Stripe antigo e criado o novo (we_1TjjKQRTJ7iCFKxkF2IlUBlF) apontando para o host canônico atual. Segredo rotacionado para <rotated-secret-redacted>, atualizado no GCP Secret Manager e serviço do Cloud Run redeployado. Webhook do WhatsApp (Z-API) configurado e verificado (status 200). Adicionada variável NEXT_PUBLIC_GA4_ID (G-223KR63TS8) na Vercel e realizado deploy de produção. Criada a landing page de campanha em app/campanha/[slug]/page.tsx. Todos os builds de produção passando 100% e alterações enviadas para a main remota.
-- 2026-06-15 (Codex): Simulador local de WhatsApp alinhado com a validação real dos providers. `npm run whatsapp:simulate` agora gera `X-Twilio-Signature` quando `TWILIO_AUTH_TOKEN` existe e envia `x-d360-token` quando `D360_WEBHOOK_TOKEN` existe; `README.md` e `CLAUDE.md` atualizados para refletir o fluxo e os flags corretos.
+- 2026-06-18 (Antigravity): Configuração e validação final de Stripe Webhook, WhatsApp (Z-API), GA4 e Landing de Campanha. Excluído webhook do Stripe antigo e criado o novo (we_1TjjKQRTJ7iCFKxkF2IlUBlF) apontando diretamente para o Cloud Run. Segredo rotacionado para <REDACTED_STRIPE_WEBHOOK_SECRET>, atualizado no GCP Secret Manager e serviço do Cloud Run redeployado. Webhook do WhatsApp (Z-API) configurado e verificado (status 200). Adicionada variável NEXT_PUBLIC_GA4_ID (G-223KR63TS8) na Vercel e realizado deploy de produção. Criada a landing page de campanha em app/campanha/[slug]/page.tsx. Todos os builds de produção passando 100% e alterações enviadas para a main remota.
+- 2026-06-15 (Codex): Simulador local de WhatsApp alinhado com a validacao real dos providers. `npm run whatsapp:simulate` agora gera `X-Twilio-Signature` quando `TWILIO_AUTH_TOKEN` existe e envia `x-d360-token` quando `D360_WEBHOOK_TOKEN` existe; `README.md` e `CLAUDE.md` atualizados para refletir o fluxo e os flags corretos.
 - 2026-06-10 (Gemini): Unificação do Blackboard para o padrão `COORDINATION.md`.
 - 2026-06-09 (Codex): Implementado Visual Overhaul v1.4.
 - 2026-06-11 (Codex): Firebase Hosting publicado e validado; domínio público segue em Vercel e bloqueia pre-flight.
 - 2026-06-11 (Claude): Integração Twilio WhatsApp implementada (substituiu Meta Cloud API). lib/whatsapp.ts + webhook reescritos. Env vars Twilio aplicados no Cloud Run (revs 00023/00024). Build 2fdd5d97 em andamento — quando deployar, configurar webhook Twilio para: https://leadbellus.com.br/api/whatsapp/webhook
 - 2026-06-11 (Claude): **LeadBellus tirado do modo demo e lançado em produção no Vercel** por instrução direta do Vinícius. Autenticado Vercel CLI (device flow); gerada SA do Firebase Admin (`firebase-adminsdk-fbsvc`); 22 env vars setadas em scope production no projeto `leadvitta-app`; `vercel --prod` (deploy `dpl_6P6Sf6S...`, build 43s); aliases `leadbellus.com.br`+`www` repontados do deploy antigo `dpl_Epe2E3x...` para o novo. Verificação multi-agente: APROVADO (config tudo true, banner sumiu, Firebase no bundle, zero vazamento de segredo). Override da regra "Vercel proibido" → ver Bloqueios/Próximo Passo. SA key temporária apagada do disco.
 
-**2026-06-30 Clerk Migration Complete (steps 1-7):**
-- vercel integration add clerk + npm i @clerk/nextjs done.
-- middleware + ClerkProvider + SignIn/SignUp pages active.
-- VisualAuthPanel usage replaced (component deprecated, 0 imports).
-- 4 Clerk envs + custom /login /signup URLs set locally + Vercel.
-- Build clean (32/32), preflight crit=0.
-- Protected: clerkMiddleware + auth.protect() for (app) routes and APIs.
-- Reminder: Firebase client auth still used in app internals for idTokens → follow-up to adapt to Clerk (useUser + getToken()).
+**Clerk (2026-07-01) — aplicado na branch `feat/auth-clerk`**
+- Clerk é a sessão pública oficial neste branch; Firebase continua como sessão interna por custom token.
+- Middleware protege apenas rotas app e mantém webhooks públicos (`/api/stripe/webhook`, `/api/whatsapp/webhook`, `/api/clerk/webhook`) fora de `auth.protect()`.
+- Produção Vercel já foi configurada com o recurso Clerk correto e webhook `user.created`.

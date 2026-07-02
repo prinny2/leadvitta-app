@@ -1,10 +1,73 @@
 import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
-import { gerarRespostas, refinarResposta } from "@/lib/ai/provider";
-import type { GerarInput, RefineInput } from "@/lib/types";
+import { gerarRespostas, refinarResposta, type GerarResultado } from "@/lib/ai/provider";
+import type { GerarInput, RefineInput, RespostaTripla } from "@/lib/types";
 import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
+import { upsertClinica, upsertHistorico } from "@/lib/supabase/server";
 import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
 
 export const runtime = "nodejs";
+
+type GenerateBody = Partial<GerarInput & RefineInput & {
+  acao?: string;
+  firebaseIdToken?: string;
+}>;
+
+function respostasToArray(respostas: GerarResultado["respostas"]): string[] {
+  if (Array.isArray(respostas)) return respostas.map(String).filter(Boolean);
+  const r = respostas as RespostaTripla;
+  return [r.curta, r.consultiva, r.persuasiva].map(String).filter(Boolean);
+}
+
+function clinicaMirrorPayload(firebaseUid: string, clinica: GenerateBody["clinica"]) {
+  return {
+    firebase_uid: firebaseUid,
+    nome_clinica: clinica?.nome_clinica,
+    cidade: clinica?.cidade,
+    tom_padrao: clinica?.tom_padrao,
+    procedimentos: clinica?.procedimentos,
+    formalidade: clinica?.formalidade,
+    como_chamar: clinica?.como_chamar,
+    cta_preferido: clinica?.cta_preferido,
+    onboarded: clinica?.onboarded,
+  };
+}
+
+async function mirrorGeneration(
+  firebaseUid: string,
+  body: GenerateBody,
+  result: GerarResultado
+) {
+  const contexto = {
+    canal: "web",
+    modo: body.modo === "reescrever" ? "reescrever" : "gerar",
+    procedimento: body.procedimento ?? "",
+    situacao: body.situacao ?? "",
+    tom: body.tom ?? "acolhedor",
+    objetivo: body.objetivo ?? "",
+    perfilCliente: body.perfilCliente ?? "",
+    nomeCliente: body.nomeCliente ?? "",
+    mensagemCliente: String(body.mensagemCliente ?? ""),
+  };
+
+  const writes: Promise<unknown>[] = [
+    upsertHistorico({
+      firebase_uid: firebaseUid,
+      tipo: contexto.modo === "reescrever" ? "reescrever" : "gerador",
+      contexto,
+      respostas: respostasToArray(result.respostas),
+      favorito: false,
+      intent: result.intent ?? null,
+      sentiment: result.sentiment ?? null,
+      score: result.score ?? null,
+    }),
+  ];
+
+  if (body.clinica) {
+    writes.push(upsertClinica(clinicaMirrorPayload(firebaseUid, body.clinica)));
+  }
+
+  await Promise.allSettled(writes);
+}
 
 export async function POST(req: Request) {
   const originError = rejectCrossOriginRequest(req);
@@ -18,9 +81,7 @@ export async function POST(req: Request) {
   if (rateLimitError) return rateLimitError;
 
   try {
-    const parsed = await readJsonBody<
-      Partial<GerarInput & RefineInput & { acao?: string }>
-    >(req, 32_768);
+    const parsed = await readJsonBody<GenerateBody>(req, 32_768);
     if (parsed.error) return parsed.error;
 
     const body = parsed.data ?? {};
@@ -57,6 +118,7 @@ export async function POST(req: Request) {
 
     // Plano grátis: usuário LOGADO grátis tem limite; pagante é ilimitado.
     // Sem token (ex.: demo pública da landing) não conta nem bloqueia.
+    // CLERK_MIGRATION: this firebaseIdToken pattern is used across many routes.
     const token = (body as { firebaseIdToken?: string }).firebaseIdToken;
     const decoded = await verifyFirebaseIdToken(token);
 
@@ -122,6 +184,14 @@ export async function POST(req: Request) {
     const freeRemaining = limit?.reserved
       ? Math.max(0, limit.remaining - 1)
       : undefined;
+
+    if (decoded?.uid) {
+      try {
+        await mirrorGeneration(decoded.uid, body, result);
+      } catch {
+        // Supabase é espelho aditivo; geração não pode falhar por causa dele.
+      }
+    }
 
     return jsonNoStore(
       freeRemaining === undefined ? result : { ...result, freeRemaining }
