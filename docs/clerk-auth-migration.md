@@ -1,6 +1,23 @@
 # Clerk Auth Migration Plan — LeadBellus
 
-**Status:** Planned / Not started in this checkout.  
+**Status (2026-07-02): ✅ EXECUTADA — mergeada na `main` (PR #98, commit `fbf64dc`, 2026-07-01) e LIVE em produção.**
+
+Evidência (2026-07-02): login em `www.leadbellus.com.br` serve ClerkJS v6 via `clerk.leadbellus.com.br`
+(pk_live); `/api/config` retorna `clerk_enabled:true` + `clerk_server_enabled:true`.
+
+Arquitetura implementada (claims #82–#85 no blackboard do cockpit):
+- **Clerk = auth público** (login/signup, middleware `clerkMiddleware` protege só rotas do app).
+- **Firebase = ponte interna + data layer**: `/api/auth/firebase-token` emite custom token
+  (Clerk → Firebase) e `FirebaseSessionSync` mantém a sessão; Firestore continua o banco.
+- **Webhooks continuam públicos** (`/api/stripe/webhook`, `/api/whatsapp/webhook`, `/api/clerk/webhook`).
+- ⚠️ **NÃO setar `ENABLE_API_PROXY=true`** — quebra `/api/auth/firebase-token` (envs Clerk só na Vercel).
+
+> O plano abaixo fica como **registro histórico** dos pré-requisitos que guiaram a migração
+> (útil como referência do que foi feito e por quê).
+
+---
+
+**Status original:** Planned / Not started in this checkout.  
 **Current reality (2026-07-01):** Firebase Auth (client) + lightweight cookie guard.  
 **Risk if rushed:** Webhooks broken, auth failures on checkout/API, identity loss, launch blocker.
 
