@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { siteUrl } from "@/lib/config";
+import type { AIProviderId } from "@/lib/types";
 
 type RateLimitOptions = {
   bucket: string;
@@ -197,4 +198,30 @@ export function jsonNoStore(body: unknown, init?: ResponseInit) {
   const response = NextResponse.json(body, init);
   response.headers.set("Cache-Control", "no-store");
   return response;
+}
+
+export function getBearerToken(request: Request): string | undefined {
+  const header = request.headers.get("authorization") || "";
+  const [scheme, token] = header.split(" ");
+  return scheme?.toLowerCase() === "bearer" ? token : undefined;
+}
+
+export function getBaseUrl(request: Request): string {
+  return (
+    request.headers.get("origin") ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    siteUrl
+  ).replace(/\/$/, "");
+}
+
+const VALID_PROVIDERS = new Set<AIProviderId>(["openai", "anthropic", "gemini"]);
+
+export function parseProviderChain(
+  raw: unknown
+): AIProviderId[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const filtered = raw.filter(
+    (p): p is AIProviderId => typeof p === "string" && VALID_PROVIDERS.has(p as AIProviderId)
+  );
+  return filtered.length ? filtered : undefined;
 }

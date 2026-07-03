@@ -1,26 +1,18 @@
 import {
   enforceRateLimit,
+  getBaseUrl,
   jsonNoStore,
   readJsonBody,
   rejectCrossOriginRequest,
 } from "@/lib/api-security";
 import { getFirebaseAdminDb, verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { getStripe } from "@/lib/stripe/server";
-import { siteUrl } from "@/lib/config";
 
 export const runtime = "nodejs";
 
 type PortalBody = {
   firebaseIdToken?: string;
 };
-
-function getBaseUrl(request: Request) {
-  return (
-    request.headers.get("origin") ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    siteUrl
-  ).replace(/\/$/, "");
-}
 
 export async function POST(request: Request) {
   const originError = rejectCrossOriginRequest(request);

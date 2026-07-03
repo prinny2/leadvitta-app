@@ -14,7 +14,10 @@ import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/copy-button";
 import { AvisoIA } from "@/components/aviso-ia";
 import { LoadingRespostas } from "@/components/loading-respostas";
-import { useClinica } from "@/lib/hooks/use-clinica";
+import { useClinica, buildClinicaDnaPayload } from "@/lib/hooks/use-clinica";
+import { useApiAction } from "@/lib/hooks/use-api-action";
+import { FormSection } from "@/components/form-section";
+import { ErrorBanner } from "@/components/error-banner";
 import { cn } from "@/lib/utils";
 import type { AuditoriaResultado, GravidadeRisco } from "@/lib/types";
 
@@ -57,9 +60,7 @@ const GRAVIDADE_META: Record<GravidadeRisco, { label: string; cor: string; bg: s
 export default function CompliancePage() {
   const { clinica } = useClinica();
   const [texto, setTexto] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [erro, setErro] = useState("");
-  const [aviso, setAviso] = useState("");
+  const { loading, erro, aviso, call, setErro } = useApiAction();
   const [resultado, setResultado] = useState<AuditoriaResultado | null>(null);
 
   async function revisar() {
@@ -67,46 +68,13 @@ export default function CompliancePage() {
       setErro("Cole o texto que você quer revisar.");
       return;
     }
-    setLoading(true);
-    setErro("");
-    setAviso("");
     setResultado(null);
-    try {
-      const res = await fetch("/api/compliance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          texto,
-          clinica: clinica
-            ? {
-                nome_clinica: clinica.nome_clinica,
-                cidade: clinica.cidade,
-                como_chamar: clinica.como_chamar,
-                formalidade: clinica.formalidade,
-                cta_preferido: clinica.cta_preferido,
-              }
-            : undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setErro(data.error || "Não foi possível revisar agora.");
-        return;
-      }
-      setResultado(data);
-      if (data.mock) {
-        setAviso(
-          data.aviso ||
-            "Modo demonstração — usando a checagem automática. A revisão com IA entra quando a clínica está ativa."
-        );
-      } else if (data.aviso) {
-        setAviso(data.aviso);
-      }
-    } catch {
-      setErro("Falha de conexão. Tente novamente.");
-    } finally {
-      setLoading(false);
-    }
+    await call<AuditoriaResultado>({
+      url: "/api/compliance",
+      body: { texto, clinica: buildClinicaDnaPayload(clinica) },
+      onSuccess: setResultado,
+      demoAviso: "Modo demonstração — usando a checagem automática. A revisão com IA entra quando a clínica está ativa.",
+    });
   }
 
   const status = resultado ? STATUS_META[resultado.status] : null;
@@ -128,14 +96,7 @@ export default function CompliancePage() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
         {/* Formulário */}
-        <div className="rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
-          <div className="border-b border-brand-50 px-5 py-4 sm:px-6">
-            <p className="text-xs font-semibold uppercase tracking-wider text-navy-100">
-              Seu texto
-            </p>
-          </div>
-
-          <div className="space-y-4 p-5 sm:p-6">
+        <FormSection titulo="Seu texto">
             <div>
               <div className="mb-1 flex items-center justify-between">
                 <Label htmlFor="texto">Texto a revisar</Label>
@@ -159,9 +120,7 @@ export default function CompliancePage() {
               </p>
             </div>
 
-            {erro && (
-              <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">{erro}</p>
-            )}
+            <ErrorBanner message={erro} />
 
             <button
               type="button"
@@ -172,8 +131,7 @@ export default function CompliancePage() {
               {loading ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={18} />}
               Revisar compliance
             </button>
-          </div>
-        </div>
+        </FormSection>
 
         {/* Resultados */}
         <div className="space-y-4">
