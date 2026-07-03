@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import Ga4Analytics from "@/components/Analytics";
 import { FirebaseSessionSync } from "@/components/firebase-session-sync";
 import { isClerkClientConfigured } from "@/lib/config";
@@ -86,6 +87,7 @@ export default function RootLayout({
       {children}
       <Ga4Analytics />
       <VercelAnalytics />
+      <SpeedInsights />
     </>
   );
 
