@@ -1,4 +1,5 @@
 # LeadBellus - FULL CAMPAIGN AUTOMATION (as much as possible)
+# Convenience variant: also tries to open Google Ads Editor; canonical full workflow is scripts/full-ads-automation.ps1.
 # This script:
 # - Regenerates the Ads + GA4 pack
 # - Copies to Desktop
@@ -40,7 +41,7 @@ if (-not (Test-Path $source)) {
     Write-Error "Source pack folder '$source' not found. Make sure 'ads\google_ads_editor' exists and the pack regeneration step completed successfully."
     exit 1
 }
-New-Item -ItemType Directory -Path $dest | Out-Null
+New-Item -ItemType Directory -Path $dest -Force | Out-Null
 Copy-Item (Join-Path $source "*") $dest -Recurse -Force
 Write-Host "Pack ready at $dest" -ForegroundColor Green
 

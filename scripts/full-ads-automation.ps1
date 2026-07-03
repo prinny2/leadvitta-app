@@ -1,4 +1,5 @@
 # ============================================================
+# Canonical entry point for refreshing and launching the Ads + GA4 pack.
 # LEAD BELLUS - FULL ADS + GA4 AUTOMATION (ONE CLICK)
 # ============================================================
 # This script does EVERYTHING:
@@ -51,7 +52,7 @@ while (Test-Path $dest) {
     $suffix++
 }
 Write-Host "[2/6] Copying fresh pack to Desktop..." -ForegroundColor Yellow
-New-Item -ItemType Directory -Path $dest | Out-Null
+New-Item -ItemType Directory -Path $dest -Force | Out-Null
 Copy-Item -Path (Join-Path $source "*") -Destination $dest -Recurse -Force
 Write-Host "    Copied to: $dest" -ForegroundColor Green
 

@@ -1,5 +1,6 @@
-# LeadBellus Ads + GA4 Full Automation Launcher
+# LeadBellus Ads + GA4 Quick Pack Launcher
 # Run this to regenerate pack, copy to Desktop, open folder, and get import instructions.
+# Canonical full workflow: scripts/full-ads-automation.ps1.
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -30,7 +31,7 @@ if (-not (Test-Path $packDir)) {
     exit 1
 }
 
-New-Item -ItemType Directory -Path $dest | Out-Null
+New-Item -ItemType Directory -Path $dest -Force | Out-Null
 Copy-Item -Path (Join-Path $packDir "*") -Destination $dest -Recurse -Force
 
 # Create auto-instructions file
