@@ -102,11 +102,11 @@ explícito = a URL `.run.app`). Lembre: mudar `NEXT_PUBLIC_*` exige **novo build
 https://www.leadbellus.com.br/api/stripe/webhook
 ```
 
-- O `STRIPE_WEBHOOK_SECRET` vive **onde o handler roda** (hoje: **Vercel**; no modo híbrido:
-  Cloud Run) — é lá que o `constructEvent` roda (`webhook/route.ts` lê
-  `rawBody = await request.text()` e verifica com o `whsec`). O `whsec` precisa ser **o signing
-  secret desse endpoint** registrado em **`acct_1TemHuRTJ7iCFKxk` (LeadBellus)** — a
-  `acct_1TeQMX...` está aposentada (D-004).
+- O `STRIPE_WEBHOOK_SECRET` precisa estar **no runtime que serve `/api/stripe/webhook`**:
+  **Vercel** no modo full-Vercel atual; **Cloud Run** somente no modo híbrido/legado. É esse
+  runtime que roda o `constructEvent` (`webhook/route.ts` lê `rawBody = await request.text()` e
+  verifica com o `whsec`). O `whsec` precisa ser **o signing secret desse endpoint** registrado em
+  **`acct_1TemHuRTJ7iCFKxk` (LeadBellus)** — a `acct_1TeQMX...` está aposentada (D-004).
 - **Modo híbrido/legado:** se o proxy `/api/*` voltar a ser ativado deliberadamente e o handler
   voltar a rodar no Cloud Run, registre o endpoint `.run.app` direto para evitar o hop pelo proxy
   da Vercel:
@@ -131,12 +131,12 @@ em `clinicas/{uid}.billing` via Admin SDK (escrita **server-only**). `invoice.pa
 
 | Sintoma | Causa provável | Onde olhar / corrigir |
 |---|---|---|
-| Webhook **400** "No signatures found"/"signature mismatch" | `STRIPE_WEBHOOK_SECRET` errado/ausente **no Cloud Run** (ou whsec de outro endpoint) | `webhook/route.ts:122,142`; `gcloud run services describe leadbellus`. **Não** é problema de bytes do proxy. |
-| Webhook nunca chega / entregas falham no Stripe | endpoint registrado no **apex** (307→www, Stripe não segue) | repointar p/ a URL `.run.app` ou `www`. |
-| Cliente paga e conta **não ativa** | segredos Stripe/Firebase setados **só na Vercel** (inertes) | mover `STRIPE_*`/`FIREBASE_*` p/ Cloud Run. |
-| Checkout **503** | `STRIPE_PRICE_ID_<PLANO>` ausente ou Stripe não configurado no Cloud Run | `checkout/route.ts:57-76`; `config.ts:53-56`. |
+| Webhook **400** "No signatures found"/"signature mismatch" | `STRIPE_WEBHOOK_SECRET` errado/ausente no runtime que serve o webhook (Vercel atual; Cloud Run híbrido/legado) | `webhook/route.ts:122,142`; conferir env do runtime correspondente. **Não** é problema de bytes do proxy. |
+| Webhook nunca chega / entregas falham no Stripe | endpoint registrado no **apex** (307→www, Stripe não segue) | repointar para `www` no modo atual ou `.run.app` no modo híbrido/legado. |
+| Cliente paga e conta **não ativa** | segredos Stripe/Firebase ausentes no runtime que serve checkout/webhook | configurar `STRIPE_*`/`FIREBASE_*` na Vercel atual ou no Cloud Run híbrido/legado. |
+| Checkout **503** | `STRIPE_PRICE_ID_<PLANO>` ausente ou Stripe não configurado no runtime atual | `checkout/route.ts:57-76`; `config.ts:53-56`. |
 | Checkout **400** "Plano inválido" / "ainda não disponível" | `plan` ≠ start/pro/premium, ou Price ID do plano vazio (`disponivel=false`) | `checkout/route.ts:45-56`; `billing.ts:56,74`. |
-| `/api/config` mostra `stripe_enabled=false` | env do **Cloud Run** (o `/api/config` no domínio é respondido pelo Cloud Run via proxy) | corrigir env no Cloud Run, não na Vercel. |
+| `/api/config` mostra `stripe_enabled=false` | env ausente no runtime que responde `/api/config` | corrigir env na Vercel atual ou no Cloud Run híbrido/legado. |
 | Build da Vercel **falha** ("API proxy loop") | `API_PROXY_ORIGIN` aponta p/ `leadbellus.com.br` | `next.config.mjs:13-17`; deixar vazio ou usar `.run.app`. |
 | Mudei `NEXT_PUBLIC_*` e nada mudou | é **build-time**; precisa rebuild na Vercel | redeploy não basta — refazer o build. |
 
