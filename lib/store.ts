@@ -118,8 +118,8 @@ export async function getBillingPlan(): Promise<"start" | "pro" | "premium"> {
       if (!snap.exists()) return "start";
       const plan = snap.data()?.billing?.plan;
       if (plan === "pro" || plan === "premium") return plan;
-    } catch {
-      // Permissão/rede/offline: degrada para "start" em vez de quebrar a UI.
+    } catch (err) {
+      console.warn("[store] falha ao ler plano de billing:", err instanceof Error ? err.message : err);
       return "start";
     }
   }
@@ -190,7 +190,9 @@ export async function addHistorico(
       score: item.score ?? null,
       created_at: firebaseData.created_at,
     };
-    mirrorHistoricoClient(mirrorItem).catch(() => {});
+    mirrorHistoricoClient(mirrorItem).catch((err) => {
+      console.warn("[store] supabase historico mirror falhou:", err instanceof Error ? err.message : err);
+    });
 
     return;
   }
@@ -224,7 +226,9 @@ export async function toggleFavorito(
         .from("app_historico_respostas")
         .update({ favorito })
         .eq("firestore_id", id)
-        .then(() => {}, () => {});
+        .then(() => {}, (err) => {
+          console.warn("[store] supabase favorito mirror falhou:", err instanceof Error ? err.message : err);
+        });
     }
     return;
   }

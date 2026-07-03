@@ -45,8 +45,8 @@ async function clearFirebaseSession() {
   try {
     await firebaseSignOut(getFirebaseAuth());
     document.cookie = "firebase_auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-  } catch {
-    // ignora
+  } catch (err) {
+    console.warn("[nav] falha ao encerrar sessão Firebase:", err instanceof Error ? err.message : err);
   }
 }
 
