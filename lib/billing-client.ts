@@ -3,5 +3,7 @@ export async function reconcileBillingClient(idToken: string): Promise<void> {
   await fetch("/api/billing/reconcile", {
     method: "POST",
     headers: { authorization: `Bearer ${idToken}` },
-  }).catch(() => {});
+  }).catch((err) => {
+    console.warn("[billing-client] reconcile falhou:", err instanceof Error ? err.message : err);
+  });
 }

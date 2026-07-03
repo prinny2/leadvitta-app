@@ -106,7 +106,8 @@ export async function verifyFirebaseIdToken(
 
   try {
     return await getAuth(app).verifyIdToken(idToken);
-  } catch {
+  } catch (e) {
+    console.warn("[firebase/admin] falha ao verificar ID token:", e instanceof Error ? e.message : e);
     return null;
   }
 }

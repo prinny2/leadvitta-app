@@ -180,7 +180,8 @@ export async function POST(req: Request) {
       ? await aiAnalysis(mensagem)
       : mockAnalysis(mensagem);
     return jsonNoStore(result);
-  } catch {
+  } catch (err) {
+    console.warn("[api/lead-intelligence] IA falhou, usando mock:", err instanceof Error ? err.message : err);
     return jsonNoStore(mockAnalysis(mensagem));
   }
 }
