@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
@@ -97,11 +97,15 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
     if (draft) setClinic((prev) => ({ ...prev, ...draft }));
   }, []);
 
+  const urlStepApplied = useRef(false);
   useEffect(() => {
-    if (step !== "clinica") return;
+    if (urlStepApplied.current) return;
     const nextStep = getStepFromUrl(tabFromUrl, clinic.nome_clinica);
-    if (nextStep !== "clinica") setStep(nextStep);
-  }, [tabFromUrl, clinic.nome_clinica, step]);
+    if (nextStep !== "clinica") {
+      urlStepApplied.current = true;
+      setStep(nextStep);
+    }
+  }, [tabFromUrl, clinic.nome_clinica]);
 
   useEffect(() => {
     saveDraft(clinic);
