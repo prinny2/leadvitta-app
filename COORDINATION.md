@@ -147,29 +147,6 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 
 (Entidade MEI confirmada em todos os lugares.)
 
-## 🤖 Divisão de Agentes
-| Agente | Papel | Permissões |
-|---|---|---|
-| **Claude** | Comandante | Deploy, Revisão, Segredos, Infra (gcloud) |
-| **Codex** | Implementador | Features, UI, Lógica (branch própria) |
-| **Gemini** | Analista | Pesquisa, Copy, Documentação. Não mexe em código/infra. |
-
-## 🛠️ Comandos de Verificação
-- `npm run dev` (Local: 3000)
-- `curl http://localhost:3000/api/health`
-- `gcloud run services describe leadbellus`
-- `curl https://leadvitta-app.web.app/api/config` deve mostrar Firebase/Stripe/IA ligados.
-- `curl https://leadbellus.com.br/api/config` → agora retorna tudo `true` (produção real no Vercel).
-
-## 🚨 Bloqueios & Armadilhas
-- ✅ **Vercel + Cloud Run (atualizado 2026-07-02):** Vercel = host canônico (`www.leadbellus.com.br`) **e
-  também o runtime de `/api/*`** — o proxy está DESLIGADO desde a migração Clerk (PR #98). ⚠️ Não ligar
-  `ENABLE_API_PROXY` (quebra `/api/auth/firebase-token`). Cloud Run = legacy/backup (a nota 06-30 "API
-  tier via proxy" ficou histórica).
-- ⛔ **Auth0**: Branch `feat/auth0` parada de propósito. Auth atual = **Clerk**. Não reativar Auth0 sem decisão estratégica.
-- ⛔ **Segredos**: Nunca commitar. Usar Secret Manager.
-- ⛔ **Mesa/cockpit**: antes de editar arquivo compartilhado, respeitar `C:\Users\vpaes\Mesa\lock.py status`.
-
 ## 📅 Próximo Passo
 - **Produção canônica (2026-07-02):** Vercel (`www.leadbellus.com.br`) hospeda frontend **e** `/api/*`
   (proxy desligado). Cloud Run = legacy/backup — ver atualização no topo.
