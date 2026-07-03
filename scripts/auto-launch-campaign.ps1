@@ -25,8 +25,14 @@ if ($LASTEXITCODE -ne 0) { throw "Generation failed" }
 Write-Host "Pack regenerated." -ForegroundColor Green
 
 $source = Join-Path "ads" "google_ads_editor"
-$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss-fff"
 $dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Ads_Pack_$timestamp"
+$destBase = $dest
+$suffix = 1
+while (Test-Path $dest) {
+    $dest = "${destBase}_$suffix"
+    $suffix++
+}
 
 # 2. Prepare clean folder
 Write-Host "`n[2/7] Preparing pack on Desktop..." -ForegroundColor Yellow
@@ -83,7 +89,7 @@ if ($editorExe) {
 
 # 5. Open the pack folder
 Write-Host "`n[5/7] Opening the pack folder..." -ForegroundColor Yellow
-Start-Process $dest
+Invoke-Item -LiteralPath $dest
 
 # 6. Open the live site
 Write-Host "`n[6/7] Opening the live production site..." -ForegroundColor Yellow

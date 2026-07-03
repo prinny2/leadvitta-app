@@ -42,8 +42,14 @@ if (-not (Test-Path $source)) {
 }
 
 # 2. Copy to Desktop (timestamped)
-$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss-fff"
 $dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Campaign_$timestamp"
+$destBase = $dest
+$suffix = 1
+while (Test-Path $dest) {
+    $dest = "${destBase}_$suffix"
+    $suffix++
+}
 Write-Host "[2/6] Copying fresh pack to Desktop..." -ForegroundColor Yellow
 New-Item -ItemType Directory -Path $dest | Out-Null
 Copy-Item -Path (Join-Path $source "*") -Destination $dest -Recurse -Force
