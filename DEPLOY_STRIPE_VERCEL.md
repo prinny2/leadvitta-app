@@ -19,8 +19,8 @@
 >   de 2026-06-28 foi aplicado no `jaxpniltorjryfibnfkg`, que o código não lê (envs `leadbellusreal_*`) —
 >   rodar `supabase/schema.sql` no projeto vivo antes de confiar no espelho.
 > - Cloud Run = **legacy/backup**. As seções antigas sobre Cloud Run descrevem o modo híbrido (proxy ligado) e valem
->   **apenas** se esse modo voltar a ser ativado deliberadamente. No modo atual, leia "Cloud Run" como
->   "runtime da Vercel" ao aplicar §4–§7 (whsec/envs na Vercel; webhook em `www`, nunca apex).
+>   **apenas** se esse modo voltar a ser ativado deliberadamente. No modo atual, envs/whsec vivem na
+>   Vercel, webhooks usam `www`, e comandos/segredos do Cloud Run são legado-only.
 
 ## 0. A verdade da arquitetura atual (leia primeiro — quase tudo aqui depende disso)
 

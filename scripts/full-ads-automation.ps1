@@ -45,7 +45,6 @@ if (-not (Test-Path $source)) {
 $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 $dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Campaign_$timestamp"
 Write-Host "[2/6] Copying fresh pack to Desktop..." -ForegroundColor Yellow
-if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
 New-Item -ItemType Directory -Path $dest | Out-Null
 Copy-Item -Path (Join-Path $source "*") -Destination $dest -Recurse -Force
 Write-Host "    Copied to: $dest" -ForegroundColor Green

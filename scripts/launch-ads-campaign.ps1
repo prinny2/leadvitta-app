@@ -16,14 +16,14 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $packDir = Join-Path "ads" "google_ads_editor"
-$dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Ads_Pack_Auto"
+$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+$dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Ads_Pack_$timestamp"
 
 if (-not (Test-Path $packDir)) {
     Write-Error "Source pack folder '$packDir' not found. Make sure 'ads\google_ads_editor' exists and the pack regeneration step completed successfully."
     exit 1
 }
 
-if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
 New-Item -ItemType Directory -Path $dest | Out-Null
 Copy-Item -Path (Join-Path $packDir "*") -Destination $dest -Recurse -Force
 
