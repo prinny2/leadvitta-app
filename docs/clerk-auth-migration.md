@@ -38,7 +38,7 @@ Arquitetura implementada (claims #82–#85 no blackboard do cockpit):
 > on server. The checklist below documents the prerequisites that guided the
 > migration.
 
-## Hard Requirements for Any Clerk Migration
+## Hard Requirements for the Migration (Historical Reference)
 
 **1. Public webhooks MUST stay public (no auth middleware)**
 

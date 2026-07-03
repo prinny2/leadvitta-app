@@ -147,7 +147,7 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 
 (Entidade MEI confirmada em todos os lugares.)
 
-## 📅 Próximo Passo
+## 📅 Checklist Vercel (Configuração Produção)
 - **Produção canônica (2026-07-02):** Vercel (`www.leadbellus.com.br`) hospeda frontend **e** `/api/*`
   (proxy desligado). Cloud Run = legacy/backup — ver atualização no topo.
 - **Para o Vercel funcionar 100% (atualizado 2026-07-02):**
