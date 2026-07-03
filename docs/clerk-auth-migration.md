@@ -144,7 +144,7 @@ Only after code is ready:
 - Assuming `auth.protect()` can be global (it will break inbound webhooks).
 - Setting `ENABLE_API_PROXY=true` — it routes `/api/auth/firebase-token` to Cloud Run which lacks Clerk env vars.
 
-## Next Steps (when pilot decides to start)
+## Next Steps (historical — pre-PR #98)
 
 - Open dedicated claim + branch.
 - Map every `verifyFirebaseIdToken` call + Firestore write that assumes UID.
