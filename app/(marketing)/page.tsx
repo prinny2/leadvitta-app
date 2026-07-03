@@ -20,7 +20,7 @@ import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MarketingMobileMenu } from "@/components/marketing-mobile-menu";
 
-const SIGNUP = "/signup?plan=start";
+const SIGNUP = "/onboarding";
 
 // Paleta (on-brand: creme do logo + tinta navy + dourado) ----------------------
 const INK = "#10233B";

@@ -151,8 +151,7 @@ export async function POST(request: Request) {
     custom_text: getCheckoutCustomText(planConfig, interval),
     locale: "pt-BR",
     metadata,
-    phone_number_collection: { enabled: true },
-    wallet_options: { link: { display: "never" } },
+    phone_number_collection: { enabled: false },
   };
 
   if (checkoutMode === "subscription") {

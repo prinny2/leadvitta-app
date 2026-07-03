@@ -16,6 +16,7 @@ export function WaitlistForm({ plan, className }: WaitlistFormProps) {
   const [loading, setLoading] = useState(false);
   const [ok, setOk] = useState(false);
   const [erro, setErro] = useState("");
+  const inputId = `waitlist-email-${plan}`;
 
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
@@ -53,7 +54,11 @@ export function WaitlistForm({ plan, className }: WaitlistFormProps) {
     <form onSubmit={entrar} className={className}>
       <div className="flex gap-2">
         <input
+          id={inputId}
+          name="email"
           type="email"
+          aria-label={`E-mail para lista de espera do plano ${plan}`}
+          autoComplete="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
