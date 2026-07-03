@@ -118,9 +118,10 @@ explícito = a URL `.run.app`). Lembre: mudar `NEXT_PUBLIC_*` exige **novo build
 https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook
 ```
 
-- O `STRIPE_WEBHOOK_SECRET` **vive no Cloud Run** — é lá que o `constructEvent` roda
-  (`webhook/route.ts` lê `rawBody = await request.text()` e verifica com o `whsec`). O `whsec`
-  precisa ser **o signing secret desse endpoint** registrado em **`acct_1TemHuRTJ7iCFKxk` (LeadBellus)**.
+- O `STRIPE_WEBHOOK_SECRET` vive **onde o handler roda** (hoje: **Vercel**; no modo híbrido: Cloud Run) —
+  é lá que o `constructEvent` roda (`webhook/route.ts` lê `rawBody = await request.text()` e verifica com
+  o `whsec`). O `whsec` precisa ser **o signing secret desse endpoint** registrado em
+  **`acct_1TemHuRTJ7iCFKxk` (LeadBellus)** — a `acct_1TeQMX...` está aposentada (D-004).
 - Por que direto no Cloud Run (zero desvantagem): o handler roda no Cloud Run de qualquer
   forma; ir direto remove o edge proxy, os limites 4,5MB/120s, qualquer normalização futura de
   header/body, **e** a armadilha do apex.
