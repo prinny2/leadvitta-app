@@ -25,7 +25,8 @@ if ($LASTEXITCODE -ne 0) { throw "Generation failed" }
 Write-Host "Pack regenerated." -ForegroundColor Green
 
 $source = Join-Path "ads" "google_ads_editor"
-$dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Ads_Pack_Latest"
+$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+$dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Ads_Pack_$timestamp"
 
 # 2. Prepare clean folder
 Write-Host "`n[2/7] Preparing pack on Desktop..." -ForegroundColor Yellow
@@ -33,12 +34,12 @@ if (-not (Test-Path $source)) {
     Write-Error "Source pack folder '$source' not found. Make sure 'ads\google_ads_editor' exists and the pack regeneration step completed successfully."
     exit 1
 }
-if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
 New-Item -ItemType Directory -Path $dest | Out-Null
 Copy-Item (Join-Path $source "*") $dest -Recurse -Force
 Write-Host "Pack ready at $dest" -ForegroundColor Green
 
 # 3. Create a ready-to-import "batch" note
+Write-Host "`n[3/7] Creating import instructions..." -ForegroundColor Yellow
 $batchNote = @"
 LEAD BELLUS CAMPAIGN - READY FOR GOOGLE ADS EDITOR
 
@@ -62,7 +63,7 @@ Domain: leadbellus.com.br (live)
 $batchNote | Out-File (Join-Path $dest "READY_TO_IMPORT.txt") -Encoding UTF8
 
 # 4. Find and launch Google Ads Editor
-Write-Host "`n[3/7] Looking for Google Ads Editor..." -ForegroundColor Yellow
+Write-Host "`n[4/7] Looking for Google Ads Editor..." -ForegroundColor Yellow
 $editorExe = $null
 $possiblePaths = @(
     "C:\Program Files (x86)\Google\Google Ads Editor\Google Ads Editor.exe",
@@ -70,21 +71,6 @@ $possiblePaths = @(
 )
 foreach ($p in $possiblePaths) {
     if (Test-Path $p) { $editorExe = $p; break }
-}
-if (-not $editorExe) {
-    # Search only likely Google install roots to avoid scanning all Program Files.
-    $searchRoots = @(
-        "C:\Program Files\Google",
-        "C:\Program Files (x86)\Google"
-    )
-    foreach ($root in $searchRoots) {
-        if (-not (Test-Path $root)) { continue }
-        $found = Get-ChildItem $root -Recurse -Filter "*Google Ads Editor*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($found) {
-            $editorExe = $found.FullName
-            break
-        }
-    }
 }
 
 if ($editorExe) {

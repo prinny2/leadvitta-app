@@ -18,6 +18,11 @@ if ($LASTEXITCODE -ne 0) {
 $packDir = Join-Path "ads" "google_ads_editor"
 $dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Ads_Pack_Auto"
 
+if (-not (Test-Path $packDir)) {
+    Write-Error "Source pack folder '$packDir' not found. Make sure 'ads\google_ads_editor' exists and the pack regeneration step completed successfully."
+    exit 1
+}
+
 if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
 New-Item -ItemType Directory -Path $dest | Out-Null
 Copy-Item -Path (Join-Path $packDir "*") -Destination $dest -Recurse -Force
@@ -36,7 +41,7 @@ LEAD BELLUS ADS CAMPAIGN - IMPORT TO GOOGLE ADS EDITOR (AUTOMATED PREP)
    - 04_assets_manual.csv
 5. Review everything. Post changes ONLY as Paused first.
 6. After import, go to Google Ads web and run the GA4 setup from 07_ga4_conversions.md
-7. Domain is leadbellus.com.br (already aliased to this prod deploy).
+7. Domain is leadbellus.com.br.
 
 Pack generated for production: https://leadbellus.com.br
 "@

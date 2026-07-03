@@ -116,11 +116,6 @@ Support: Check ADS_COMMAND_CENTER.md for overall strategy.
 
 $instructions | Out-File -FilePath (Join-Path $dest "00_LAUNCH_CAMPAIGN_NOW.txt") -Encoding UTF8
 
-# Also copy the main instructions
-Copy-Item (Join-Path $source "README.md") -Destination $dest -Force
-Copy-Item (Join-Path $source "05_launch_checklist.md") -Destination $dest -Force
-Copy-Item (Join-Path $source "06_automation_rules.md") -Destination $dest -Force
-Copy-Item (Join-Path $source "07_ga4_conversions.md") -Destination $dest -Force
 
 # 4. Open folder
 Write-Host "[4/6] Opening pack folder..." -ForegroundColor Yellow

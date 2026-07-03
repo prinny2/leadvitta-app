@@ -1,4 +1,4 @@
-# DEPLOY_STRIPE_VERCEL.md — Checkout recorrente + Webhook (arquitetura híbrida)
+# DEPLOY_STRIPE_VERCEL.md — Checkout recorrente + Webhook (Vercel atual + legado híbrido)
 
 > Última revisão: 2026-07-02. Fonte da verdade de estado vivo: **COORDINATION.md**.
 > Fonte única de planos/preços na UI: **lib/billing.ts**. Não comitar segredos.
@@ -18,41 +18,25 @@
 > - **Supabase (espelho): projeto vivo = `imlroxezgshrybizdnyy`** (embutido no bundle de prod). O schema
 >   de 2026-06-28 foi aplicado no `jaxpniltorjryfibnfkg`, que o código não lê (envs `leadbellusreal_*`) —
 >   rodar `supabase/schema.sql` no projeto vivo antes de confiar no espelho.
-> - Cloud Run = **legacy/backup**. As seções §0–§6 abaixo descrevem o modo híbrido (proxy ligado) e valem
+> - Cloud Run = **legacy/backup**. As seções antigas sobre Cloud Run descrevem o modo híbrido (proxy ligado) e valem
 >   **apenas** se esse modo voltar a ser ativado deliberadamente. No modo atual, leia "Cloud Run" como
 >   "runtime da Vercel" ao aplicar §4–§7 (whsec/envs na Vercel; webhook em `www`, nunca apex).
 
-## 0. A verdade da arquitetura (leia primeiro — quase tudo aqui depende disso)
+## 0. A verdade da arquitetura atual (leia primeiro — quase tudo aqui depende disso)
 
-LeadBellus é **híbrido**:
+LeadBellus roda **full-Vercel** em produção:
 
-- **Vercel** (`www.leadbellus.com.br`) serve **apenas o frontend** e as variáveis
-  `NEXT_PUBLIC_*` **embutidas no build**.
-- **TODAS** as rotas `/api/*` são reescritas (proxy server-side) para o **Cloud Run**
-  em `https://leadbellus-87102725202.southamerica-east1.run.app`.
+- **Vercel** (`www.leadbellus.com.br`) serve o frontend **e** executa os handlers em `app/api/*`.
+- `ENABLE_API_PROXY` **não** está setado em produção e **não deve ser ativado** sem uma migração deliberada.
+- Segredos de runtime usados pelos handlers atuais (`STRIPE_*`, `FIREBASE_*`, `CLERK_*`, `ZAPI_*`, `GA4_API_SECRET`) vivem na **Vercel**.
 
-Motivo no código (`next.config.mjs:10-11,51-61`):
+**Modo híbrido/legado (desligado):** se `ENABLE_API_PROXY=true` voltar a ser ativado deliberadamente,
+as rotas `/api/*` passam a ser reescritas para o Cloud Run em
+`https://leadbellus-87102725202.southamerica-east1.run.app`. Nesse modo legado, os segredos de
+runtime dessas rotas precisam viver no Cloud Run/Secret Manager e as seções antigas sobre Cloud Run
+voltam a se aplicar.
 
-```js
-const enableApiProxy = process.env.ENABLE_API_PROXY === "true";
-// rewrites().beforeFiles: { source: "/api/:path*", destination: `${apiProxyOrigin}/api/:path*` }
-```
-
-O proxy é **opt-in**: na Vercel de produção defina **`ENABLE_API_PROXY=true` no build**
-(sem isso, `/api/*` roda na edge da Vercel **sem** os segredos do Cloud Run). O rewrite
-dispara em `beforeFiles`, **antes** dos handlers em `app/api/`.
-
-**Consequência que muda tudo:**
-`app/api/stripe/checkout/route.ts` e `app/api/stripe/webhook/route.ts`
-**NUNCA executam na Vercel** — rodam no **Cloud Run**, lendo `process.env.STRIPE_*` /
-`FIREBASE_*` **do ambiente do Cloud Run**, não da Vercel.
-
-> **Regra de ouro:** todo segredo de **runtime** de `/api/*` (`STRIPE_*`, `FIREBASE_*`,
-> `OPENAI/ANTHROPIC`, `ZAPI_*`) vai no **Cloud Run** (Secret Manager). Na **Vercel** só
-> ficam `NEXT_PUBLIC_*` (build-time) e as vars de proxy. Segredo de Stripe/Firebase setado
-> **só na Vercel é INERTE** — o cliente paga e a conta nunca ativa.
-
-## 1. Onde cada variável vive
+## 1. Onde cada variável vive no modo híbrido legado
 
 | Variável | Vercel (build) | Cloud Run (runtime) | Observação |
 |---|:--:|:--:|---|
