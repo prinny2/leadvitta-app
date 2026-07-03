@@ -1,4 +1,4 @@
-import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import { jsonNoStore, enforceRateLimit, parseProviderChain, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { auditarCompliance } from "@/lib/ai/provider";
 import type { AuditoriaInput } from "@/lib/types";
 
@@ -29,12 +29,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const providerChain = Array.isArray(body.providerChain)
-      ? body.providerChain.filter(
-          (p): p is "openai" | "anthropic" | "gemini" =>
-            p === "openai" || p === "anthropic" || p === "gemini"
-        )
-      : undefined;
+    const providerChain = parseProviderChain(body.providerChain);
 
     const result = await auditarCompliance({
       texto,

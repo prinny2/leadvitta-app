@@ -15,6 +15,7 @@ import {
 } from "@/lib/store";
 import { PRIO } from "@/lib/prioridade-ui";
 import type { Clinica, Conversa, MensagemConversa } from "@/lib/types";
+import { buildClinicaDnaPayload } from "@/lib/hooks/use-clinica";
 
 export default function ConversaThreadPage() {
   const params = useParams();
@@ -122,17 +123,7 @@ export default function ConversaThreadPage() {
           objetivo: "direcionar para a avaliação",
           nomeCliente: conversa?.cliente_nome,
           mensagemCliente: ultimaMsg.texto,
-          // Usa o DNA salvo da clínica (nome, formalidade, CTA, procedimentos).
-          clinica: clinica
-            ? {
-                nome_clinica: clinica.nome_clinica,
-                cidade: clinica.cidade,
-                procedimentos: clinica.procedimentos,
-                formalidade: clinica.formalidade,
-                como_chamar: clinica.como_chamar,
-                cta_preferido: clinica.cta_preferido,
-              }
-            : undefined,
+          clinica: buildClinicaDnaPayload(clinica),
         }),
       });
       const data = await res.json();
