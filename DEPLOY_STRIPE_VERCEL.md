@@ -145,27 +145,27 @@ em `clinicas/{uid}.billing` via Admin SDK (escrita **server-only**). `invoice.pa
 Provedor **Z-API only** (número **+55 91 8515-6690**). Painel Z-API → Webhooks:
 
 - **Ao receber** (`ReceivedMessage`):
-  `https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>`
+  `https://www.leadbellus.com.br/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>`
 - **Receber status da mensagem** e **todos os demais campos**: **DEIXAR VAZIO**
   (`route.ts` só processa inbound de mensagem; o resto é no-op).
-- `ZAPI_SECURITY_TOKEN` deve existir no **runtime do Cloud Run** e ser **igual** ao `?token=`.
-  Token ausente/errado ⇒ **403** e 100% das mensagens inbound caem (fail-closed). Auto-resposta
+- `ZAPI_SECURITY_TOKEN` deve existir no runtime que serve o webhook (**Vercel** no modo atual;
+  **Cloud Run** só no modo híbrido/legado) e ser **igual** ao `?token=`. Token ausente/errado ⇒ **403** e 100% das mensagens inbound caem (fail-closed). Auto-resposta
   só dispara para clínica com `billing.status` em `active|paid|trialing`.
 
-Registro alternativo via script (passe a URL Cloud Run para evitar o hop de proxy):
+Registro alternativo via script (passe a URL canônica atual; `.run.app` só no modo híbrido/legado):
 
 ```bash
 node scripts/setup-zapi-webhook.mjs \
-  https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook
-# o script anexa ?token automaticamente. Sem argv[2] ele usa NEXT_PUBLIC_SITE_URL (= www), que proxia.
+  https://www.leadbellus.com.br/api/whatsapp/webhook
+# o script anexa ?token automaticamente. Sem argv[2] ele usa NEXT_PUBLIC_SITE_URL (= www).
 ```
 
 ## 7. Aceitação
 
 1. `curl -L https://www.leadbellus.com.br/api/config` → `stripe_enabled`, `firebase_admin_enabled`,
-   `ai_enabled` = `true`, `whatsapp_provider:"zapi"` (respondido pelo Cloud Run via proxy).
-2. Stripe **"Send test webhook"** no endpoint `.run.app` → **200 `{"received":true}`**.
-   (400 = whsec/endpoint divergente no Cloud Run, não bytes do proxy.)
+   `ai_enabled` = `true`, `whatsapp_provider:"zapi"` (respondido pela Vercel no modo atual).
+2. Stripe **"Send test webhook"** no endpoint `www` → **200 `{"received":true}`**.
+   (400 = whsec/endpoint divergente no runtime que serve o webhook, não bytes do proxy.)
 3. Checkout real do **Start** conclui e `clinicas/{uid}.billing` é gravado pelo webhook (Admin SDK);
    o usuário volta para `/configuracoes?checkout=sucesso`.
 4. WhatsApp: `node scripts/simulate-whatsapp-webhook.mjs` → **200**; sem token → **403**.
