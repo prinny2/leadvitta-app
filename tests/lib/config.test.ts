@@ -24,12 +24,12 @@ describe("lib/config", () => {
     expect(isFirebaseConfigured).toBe(true);
   });
 
-  it("sem projectId explícito, Firebase fica desconfigurado mesmo com apiKey", async () => {
+  it("sem projectId explícito, usa o fallback público de produção", async () => {
     vi.stubEnv("NEXT_PUBLIC_FIREBASE_API_KEY", "abc");
     vi.stubEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID", "");
     const { firebaseConfig, isFirebaseConfigured } = await loadConfig();
-    expect(firebaseConfig.projectId).toBe("");
-    expect(isFirebaseConfigured).toBe(false);
+    expect(firebaseConfig.projectId).toBe("leadvitta-app");
+    expect(isFirebaseConfigured).toBe(true);
   });
 
   it("não configura Firebase sem NEXT_PUBLIC_FIREBASE_API_KEY", async () => {

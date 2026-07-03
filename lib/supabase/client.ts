@@ -28,7 +28,7 @@ export async function mirrorHistoricoClient(item: {
   tipo: string;
   contexto: any;
   respostas: any;
-  favorito: boolean;
+  favorito?: boolean;
   intent?: string | null;
   sentiment?: string | null;
   score?: number | null;

@@ -22,7 +22,7 @@ describe("GET /api/config", () => {
     expect(body.whatsapp_provider).toBe("zapi");
   });
 
-  it("includes ai_providers and ai_models", async () => {
+  it("includes ai_providers and omits ai_models (info disclosure)", async () => {
     const res = await GET();
     const body = await res.json();
 
@@ -31,7 +31,7 @@ describe("GET /api/config", () => {
     expect(typeof body.ai_providers.anthropic).toBe("boolean");
     expect(typeof body.ai_providers.gemini).toBe("boolean");
 
-    expect(body.ai_models).toBeDefined();
+    expect(body.ai_models).toBeUndefined();
   });
 
   it("uses Cache-Control: no-store header", async () => {

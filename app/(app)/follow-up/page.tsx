@@ -48,7 +48,7 @@ export default function FollowUpPage() {
 
   async function gerar() {
     setMensagens(null);
-    await call<{ mensagens: string[] }>({
+    await call<{ mensagens: string[]; mock?: boolean; aviso?: string }>({
       url: "/api/follow-up",
       body: {
         gatilho, contexto, detalhe, procedimento, tom, nomeCliente,
