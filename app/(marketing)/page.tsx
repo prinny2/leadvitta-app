@@ -24,8 +24,8 @@ const SIGNUP = "/signup?plan=start";
 // Paleta (on-brand: creme do logo + tinta navy + dourado) ----------------------
 const INK = "#10233B";
 const INK_SOFT = "#46566B";
-const CREAM = "#FBF6EC";
-const CREAM_2 = "#F2E9D8";
+const CREAM = "#FFFFFF";
+const CREAM_2 = "#F4F6FA";
 const NAVY = "#0B1A2E";
 const GOLD = "#C9A060";
 const GOLD_DEEP = "#8A6312";
@@ -101,11 +101,12 @@ function SectionTitle({ children, onNavy }: { children: React.ReactNode; onNavy?
   return (
     <h2
       style={{
-        fontFamily: "var(--font-fraunces, Georgia, serif)",
-        fontSize: "clamp(28px, 4vw, 44px)",
-        fontWeight: 700,
+        fontFamily: "var(--font-inter, system-ui, sans-serif)",
+        fontSize: "clamp(28px, 4vw, 42px)",
+        fontWeight: 800,
+        letterSpacing: "-0.02em",
         lineHeight: 1.12,
-        color: onNavy ? "#FBF6EC" : INK,
+        color: onNavy ? "#FFFFFF" : INK,
         margin: "0 0 14px",
       }}
     >
@@ -128,7 +129,7 @@ function Navbar() {
         position: "sticky",
         top: 0,
         zIndex: 50,
-        background: "rgba(251,246,236,0.85)",
+        background: "rgba(255,255,255,0.86)",
         backdropFilter: "blur(12px)",
         borderBottom: "1px solid rgba(16,35,59,0.08)",
       }}
@@ -169,7 +170,7 @@ function Navbar() {
             className="hidden md:inline-flex"
             style={{
               background: INK,
-              color: "#F7C96B",
+              color: "#FFFFFF",
               borderRadius: "9999px",
               padding: "9px 20px",
               fontSize: "14px",
@@ -213,7 +214,7 @@ function ChatProof() {
       </div>
 
       <div style={{ display: "grid", gap: "8px", margin: "14px 0" }}>
-        <div style={{ alignSelf: "flex-start", maxWidth: "85%", background: "#F1EEE7", color: INK, borderRadius: "14px 14px 14px 4px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.4 }}>
+        <div style={{ alignSelf: "flex-start", maxWidth: "85%", background: "#F1F4F8", color: INK, borderRadius: "14px 14px 14px 4px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.4 }}>
           Quanto fica o botox? 😬 Tenho medo de ficar com cara artificial…
         </div>
         <div style={{ alignSelf: "flex-end", maxWidth: "88%", background: "#DCF6E6", color: "#0B3D2A", borderRadius: "14px 14px 4px 14px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.45 }}>
@@ -277,10 +278,11 @@ export default function LandingPage() {
               <h1
                 className="hero-title"
                 style={{
-                  fontFamily: "var(--font-fraunces, Georgia, serif)",
-                  fontSize: "clamp(38px, 5.2vw, 64px)",
-                  fontWeight: 700,
-                  lineHeight: 1.04,
+                  fontFamily: "var(--font-inter, system-ui, sans-serif)",
+                  fontSize: "clamp(36px, 5vw, 60px)",
+                  fontWeight: 800,
+                  letterSpacing: "-0.025em",
+                  lineHeight: 1.06,
                   margin: "0 0 18px",
                   color: INK,
                   overflowWrap: "break-word",
@@ -300,7 +302,7 @@ export default function LandingPage() {
                   className="hero-cta"
                   style={{
                     background: INK,
-                    color: "#F7C96B",
+                    color: "#FFFFFF",
                     borderRadius: "9999px",
                     padding: "15px 28px",
                     fontSize: "15px",
@@ -445,7 +447,7 @@ export default function LandingPage() {
                     <span style={{ width: "42px", height: "42px", borderRadius: "12px", background: INK, color: GOLD, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {s.icon}
                     </span>
-                    <span style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: "26px", fontWeight: 700, color: "rgba(16,35,59,0.14)" }}>{s.n}</span>
+                    <span style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)", fontSize: "26px", fontWeight: 700, color: "rgba(16,35,59,0.14)" }}>{s.n}</span>
                   </div>
                   <h3 style={{ color: INK, fontSize: "18px", fontWeight: 700, margin: "0 0 8px" }}>{s.t}</h3>
                   <p style={{ color: INK_SOFT, fontSize: "14px", lineHeight: 1.65, margin: 0 }}>{s.c}</p>
@@ -509,12 +511,12 @@ export default function LandingPage() {
                     >
                       {col.tag}
                     </span>
-                    <h3 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: "22px", fontWeight: 700, color: dark ? "#FBF6EC" : INK, margin: "0 0 16px" }}>
+                    <h3 style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)", fontSize: "22px", fontWeight: 700, color: dark ? "#FFFFFF" : INK, margin: "0 0 16px" }}>
                       {col.titulo}
                     </h3>
                     <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "10px" }}>
                       {col.itens.map((it) => (
-                        <li key={it} style={{ display: "flex", gap: "10px", alignItems: "flex-start", fontSize: "14.5px", color: dark ? "rgba(251,246,236,0.85)" : INK_SOFT }}>
+                        <li key={it} style={{ display: "flex", gap: "10px", alignItems: "flex-start", fontSize: "14.5px", color: dark ? "rgba(255,255,255,0.85)" : INK_SOFT }}>
                           <Check size={17} style={{ color: GOLD, flexShrink: 0, marginTop: "2px" }} />
                           {it}
                         </li>
@@ -562,7 +564,7 @@ export default function LandingPage() {
                   alignItems: "center",
                   gap: "8px",
                   background: INK,
-                  color: "#F7C96B",
+                  color: "#FFFFFF",
                   borderRadius: "9999px",
                   padding: "14px 30px",
                   fontSize: "15px",
@@ -586,7 +588,7 @@ export default function LandingPage() {
             <div style={{ textAlign: "center", marginBottom: "40px" }}>
               <Eyebrow onNavy>Escolha o seu plano</Eyebrow>
               <SectionTitle onNavy>Comece pelo plano que resolve hoje</SectionTitle>
-              <p style={{ color: "rgba(251,246,236,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
+              <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
                 Teste grátis e assine só se fizer sentido pra sua rotina.
               </p>
             </div>
@@ -664,17 +666,18 @@ export default function LandingPage() {
             <LogoMark size={42} stroke={GOLD} />
             <h2
               style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "clamp(28px, 4vw, 44px)",
-                fontWeight: 700,
-                color: "#FBF6EC",
+                fontFamily: "var(--font-inter, system-ui, sans-serif)",
+                fontSize: "clamp(28px, 4vw, 42px)",
+                fontWeight: 800,
+                letterSpacing: "-0.02em",
+                color: "#FFFFFF",
                 margin: "18px 0 14px",
                 lineHeight: 1.12,
               }}
             >
               Sua próxima cliente não vai esperar
             </h2>
-            <p style={{ color: "rgba(251,246,236,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
+            <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
               Toda semana mais gente pergunta o preço e some. Não é falta de talento — é falta da resposta certa na hora certa.
             </p>
             <Link
@@ -695,7 +698,7 @@ export default function LandingPage() {
             >
               Testar grátis agora <ArrowRight size={18} />
             </Link>
-            <p style={{ fontSize: "13px", color: "rgba(251,246,236,0.5)", marginTop: "14px" }}>Sem cartão · cancele quando quiser</p>
+            <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginTop: "14px" }}>Sem cartão · cancele quando quiser</p>
           </div>
         </section>
       </main>
@@ -749,7 +752,7 @@ export default function LandingPage() {
           maxWidth: "520px",
           minHeight: "66px",
           margin: "0 auto",
-          background: "rgba(251,246,236,0.96)",
+          background: "rgba(255,255,255,0.97)",
           backdropFilter: "blur(14px)",
           border: "1px solid rgba(201,160,96,0.24)",
           borderRadius: "20px",
@@ -771,7 +774,7 @@ export default function LandingPage() {
           style={{
             marginLeft: "auto",
             background: INK,
-            color: "#F7C96B",
+            color: "#FFFFFF",
             fontWeight: 700,
             fontSize: "14px",
             borderRadius: "14px",

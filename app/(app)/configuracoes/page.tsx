@@ -19,6 +19,7 @@ import {
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { AnaOnboarding } from "@/components/ana-onboarding";
 import { CheckoutButton } from "@/components/checkout-button";
 import { BillingPortalButton } from "@/components/billing-portal-button";
 import { NotificacoesToggle } from "@/components/notificacoes-toggle";
@@ -233,11 +234,18 @@ export default function ConfiguracoesPage() {
 
       {/* Header */}
       <div>
-        <h1 className="font-serif text-3xl font-semibold text-champagne-300">Configurações</h1>
+        <h1 className="font-serif text-3xl font-semibold text-champagne-300">
+          {c.onboarded ? "Configurações" : "Bem-vinda ao LeadBellus"}
+        </h1>
         <p className="text-sm text-navy-100 mt-1">
           O DNA da sua clínica deixa todas as respostas com a sua identidade.
         </p>
       </div>
+
+      {/* Ana — guia de onboarding até o DNA ser salvo */}
+      {!c.onboarded && (
+        <AnaOnboarding dnaPct={dnaPct} nomeClinica={c.nome_clinica.trim() || undefined} />
+      )}
 
       {checkoutNotice === "sucesso" && (
         <div className="rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3">

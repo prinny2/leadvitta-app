@@ -1,4 +1,5 @@
 import { SignIn } from "@clerk/nextjs";
+import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { parseBillingPlan } from "@/lib/billing";
 import { VisualAuthPanel } from "@/components/visual-auth-panel";
 import { Card, CardBody } from "@/components/ui/card";
@@ -56,6 +57,7 @@ export default async function LoginPage({
             compact
           />
         )}
+        <LegalConsentLinks tone="light" className="mt-4" />
       </CardBody>
     </Card>
   );
