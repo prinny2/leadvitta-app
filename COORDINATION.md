@@ -2,21 +2,6 @@
 
 > **Regra de Ouro:** Leia ao entrar, atualize ao sair. O que está aqui vale mais que qualquer outro log.
 
-**Atualização 2026-07-02 (🟣 Claude, evidência live — supersede o bloco 06-30 abaixo onde conflitar):**
-- **Auth público = CLERK em produção** desde 2026-07-01 (PR #98 `fbf64dc`; login serve ClerkJS via
-  `clerk.leadbellus.com.br`, pk_live). Firebase = ponte interna (`/api/auth/firebase-token`) + data
-  layer Firestore. Detalhes: `docs/clerk-auth-migration.md`.
-- **Produção roda full-Vercel**: `/api/*` executa na Vercel (proxy DESLIGADO). ⚠️ **Não setar
-  `ENABLE_API_PROXY=true`** — quebraria a ponte Clerk→Firebase (audit 2026-07-02, blackboard claim #92).
-  Cloud Run = legacy/backup.
-- **Supabase — projeto VIVO = `imlroxezgshrybizdnyy`** (URL embutida no bundle de produção via
-  `NEXT_PUBLIC_SUPABASE_URL`). O schema aplicado em 2026-06-28 foi no projeto `jaxpniltorjryfibnfkg`
-  ("supabase-cyan-fountain"), que só existe nas envs `leadbellusreal_*` que o código **não lê** →
-  por isso o espelho pode dar 404 em `app_historico_respostas`. Pendência: rodar `supabase/schema.sql`
-  no projeto `imlrox` (ou decisão explícita de repontar as envs para `jaxpn`).
-- Gaps 06-30 resolvidos: `/api/config` live agora mostra `ga4_server_enabled:true`, `zapi_enabled:true`,
-  `clerk_server_enabled:true`. Ainda false: `nlp_enabled`, `ops_notify_enabled`, provider `anthropic`.
-
 **Atualização Ultracode 2026-06-30 (após screenshots /api/health e /api/config):**
 - **Produção canônica:** Vercel (`www.leadbellus.com.br`) + proxy condicional para Cloud Run (backend /api).
 - Proxy está **funcionando** (health e config respondem no domínio público).
@@ -27,8 +12,7 @@
   - anthropic provider: false (sem chave)
 - Ver `docs/analise_ambientes_desconexos.md` (seção 5) para snapshot exato do JSON live + plano reconciliado.
 - Decisão mantida: **Vercel como host principal**. Cloud Run = API tier quando proxy ligado. Não fazer full migration.
-- **Auth atual:** ~~Firebase Auth (client + cookie guard); Clerk = migração planejada~~ **← superado em
-  2026-07-01: Clerk foi aplicado (ver atualização 07-02 acima).** **Auth0** (`feat/auth0`) intencionalmente **parado** — não confundir.
+- **Auth atual:** Firebase Auth (client + cookie guard). **Clerk** é migração planejada em branch separado (não aplicado). **Auth0** (`feat/auth0`) intencionalmente **parado** — não confundir.
 - **WhatsApp atual:** Z-API only (+55 91 8515-6690). Twilio/360dialog são histórico (ver Log de Handoff).
 
 ## 🏁 Estado Real (2026-06-14) — PRONTO PARA LANÇAR HOJE (histórico — ver nota acima para estado atual)
@@ -71,10 +55,7 @@
 - `curl https://leadbellus.com.br/api/config` → agora retorna tudo `true` (produção real no Vercel).
 
 ## 🚨 Bloqueios & Armadilhas
-- ✅ **Vercel + Cloud Run (atualizado 2026-07-02):** Vercel = host canônico (`www.leadbellus.com.br`) **e
-  também o runtime de `/api/*`** — o proxy está DESLIGADO desde a migração Clerk (PR #98). ⚠️ Não ligar
-  `ENABLE_API_PROXY` (quebra `/api/auth/firebase-token`). Cloud Run = legacy/backup (a nota 06-30 "API
-  tier via proxy" ficou histórica).
+- ✅ **Vercel + Cloud Run (resolvido 2026-06-30):** Vercel = host canônico (`www.leadbellus.com.br`); Cloud Run = API tier (`/api/*` via `ENABLE_API_PROXY=true` + webhooks diretos `.run.app`). Não aposentar Cloud Run — ele processa billing, IA e WhatsApp.
 - ⛔ **Auth0**: Branch `feat/auth0` parada de propósito. Auth atual = **Clerk**. Não reativar Auth0 sem decisão estratégica.
 - ⛔ **Segredos**: Nunca commitar. Usar Secret Manager.
 - ⛔ **Mesa/cockpit**: antes de editar arquivo compartilhado, respeitar `C:\Users\vpaes\Mesa\lock.py status`.
@@ -162,28 +143,17 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 - `curl https://leadbellus.com.br/api/config` → agora retorna tudo `true` (produção real no Vercel).
 
 ## 🚨 Bloqueios & Armadilhas
-- ✅ **Vercel + Cloud Run (atualizado 2026-07-02):** Vercel = host canônico (`www.leadbellus.com.br`) **e
-  também o runtime de `/api/*`** — o proxy está DESLIGADO desde a migração Clerk (PR #98). ⚠️ Não ligar
-  `ENABLE_API_PROXY` (quebra `/api/auth/firebase-token`). Cloud Run = legacy/backup (a nota 06-30 "API
-  tier via proxy" ficou histórica).
+- ✅ **Vercel + Cloud Run (resolvido 2026-06-30):** Vercel = host canônico (`www.leadbellus.com.br`); Cloud Run = API tier (`/api/*` via `ENABLE_API_PROXY=true` + webhooks diretos `.run.app`). Não aposentar Cloud Run — ele processa billing, IA e WhatsApp.
 - ⛔ **Auth0**: Branch `feat/auth0` parada de propósito. Auth atual = **Clerk**. Não reativar Auth0 sem decisão estratégica.
 - ⛔ **Segredos**: Nunca commitar. Usar Secret Manager.
 - ⛔ **Mesa/cockpit**: antes de editar arquivo compartilhado, respeitar `C:\Users\vpaes\Mesa\lock.py status`.
 
 ## 📅 Próximo Passo
-- **Produção canônica (2026-07-02):** Vercel (`www.leadbellus.com.br`) hospeda frontend **e** `/api/*`
-  (proxy desligado). Cloud Run = legacy/backup — ver atualização no topo.
-- **Para o Vercel funcionar 100% (atualizado 2026-07-02):**
-  1. **Clerk:** domínios/DNS OK (integração `clerk-bisque-field` + 5 CNAMEs verificados — claims #83/#92).
-     ⚠️ **NÃO** setar `ENABLE_API_PROXY` (quebra a ponte Clerk→Firebase).
-  2. **Stripe → Webhook endpoint:** com o runtime na Vercel, o endpoint deve ser
-     `https://www.leadbellus.com.br/api/stripe/webhook` (sempre `www`, nunca apex — Stripe não segue
-     redirect) com `whsec` nas envs da **Vercel**. Conferir no Dashboard qual endpoint/conta está
-     registrado — conta correta = `acct_1TemHuRTJ7iCFKxk` (rotação D-004/W-005 aguarda OK do piloto).
-  3. **Z-API:** o webhook inbound registrado aponta p/ a URL `.run.app` (config antiga; ver D-002
-     NEEDS PILOT). Com o runtime na Vercel, repontar p/
-     `https://www.leadbellus.com.br/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>` quando o piloto
-     decidir — `ZAPI_SECURITY_TOKEN` já existe no runtime Vercel (`zapi_enabled:true` no `/api/config`).
+- **Produção canônica (2026-06-30):** Vercel (`www.leadbellus.com.br`) + Cloud Run (API tier). Decisão tomada — ver nota no topo.
+- **Para o Vercel funcionar 100% (manuais, só o Vinícius/console):**
+  1. **Clerk:** domínios `leadbellus.com.br` / `www` no dashboard Clerk; `ENABLE_API_PROXY=true` na Vercel.
+  2. **Stripe → Webhook endpoint:** apontar diretamente para `https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook` (whsec no Cloud Run).
+  3. **Z-API:** webhook inbound na URL `.run.app` com `?token=<ZAPI_SECURITY_TOKEN>` (DEPLOY_STRIPE_VERCEL.md §6).
 
 ---
 ### Log de Handoff
@@ -199,6 +169,3 @@ Blackboards atualizados com tudo. Leiam antes de mexer.
 - Clerk é a sessão pública oficial neste branch; Firebase continua como sessão interna por custom token.
 - Middleware protege apenas rotas app e mantém webhooks públicos (`/api/stripe/webhook`, `/api/whatsapp/webhook`, `/api/clerk/webhook`) fora de `auth.protect()`.
 - Produção Vercel já foi configurada com o recurso Clerk correto e webhook `user.created`.
-- **UPDATE 2026-07-02:** mergeado na `main` via PR #98 (`fbf64dc`) e **LIVE em produção** — não é mais
-  "neste branch". Evidência: login serve ClerkJS via `clerk.leadbellus.com.br`; `/api/config` retorna
-  `clerk_enabled` + `clerk_server_enabled` = true.
