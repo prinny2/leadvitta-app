@@ -153,8 +153,8 @@ describe("Stripe checkout — criação da sessão", () => {
     });
     expect(params.custom_text.submit.message).toContain("mesmo e-mail");
     expect(params.locale).toBe("pt-BR");
-    expect(params.phone_number_collection.enabled).toBe(true);
-    expect(params.wallet_options.link.display).toBe("never");
+    expect(params.phone_number_collection.enabled).toBe(false);
+    expect(params.wallet_options).toBeUndefined();
     // Modo payment embute metadata no payment_intent.
     expect(params.payment_intent_data.metadata.firebase_uid).toBe("uid_1");
     expect(params.payment_intent_data.description).toContain("LeadBellus");
