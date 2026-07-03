@@ -1,6 +1,8 @@
 # LeadBellus Ads + GA4 Full Automation Launcher
 # Run this to regenerate pack, copy to Desktop, open folder, and get import instructions.
 
+$ErrorActionPreference = "Stop"
+
 Write-Host "=== LEAD BELLUS ADS + GA4 AUTOMATION ===" -ForegroundColor Green
 Write-Host "Regenerating pack..." -ForegroundColor Yellow
 npm run ads:generate

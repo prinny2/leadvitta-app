@@ -26,6 +26,10 @@ $dest = "$env:USERPROFILE\Desktop\LeadBellus_Ads_Pack_Latest"
 
 # 2. Prepare clean folder
 Write-Host "`n[2/7] Preparing pack on Desktop..." -ForegroundColor Yellow
+if (-not (Test-Path $source)) {
+    Write-Error "Source pack folder '$source' not found. Make sure 'ads\google_ads_editor' exists and the pack regeneration step completed successfully."
+    exit 1
+}
 if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
 New-Item -ItemType Directory -Path $dest | Out-Null
 Copy-Item "$source\*" $dest -Recurse -Force
