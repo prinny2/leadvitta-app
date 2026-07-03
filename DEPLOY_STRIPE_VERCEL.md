@@ -178,13 +178,13 @@ node scripts/setup-zapi-webhook.mjs \
   os três, é preciso expor a disponibilidade ao cliente (flag `NEXT_PUBLIC_*` ou via `/api/config`).
 - **Preço**: `lib/billing.ts` R$97/197/347 vs docs R$197/297/397 — reconciliar com os valores
   reais na conta `acct_1TemHu` (LeadBellus) antes de vender (fonte única = `lib/billing.ts`).
-- **Prod canônica (2026-06-30):** Vercel (`www.leadbellus.com.br`) é o host público; Cloud Run é o
-  **API tier** (`/api/*` via proxy + webhooks diretos `.run.app`). Não há conflito pendente.
+- **Prod canônica (2026-07-03):** Vercel (`www.leadbellus.com.br`) é o host público e runtime de
+  `/api/*`; Cloud Run é legado/backup e só volta se o proxy for reativado deliberadamente.
 
 ## 9. Docs relacionados (estado)
 
 - ✅ Canônicos: **COORDINATION.md** (estado vivo), **README §Deploy/§Stripe/§WhatsApp** (Z-API only,
-  webhook na URL `.run.app`), **GO_LIVE_BILLING.md** (segredos no Cloud Run), este arquivo.
-- ✅ Corrigido (2026-07-01): `ENABLE_API_PROXY=true` obrigatório na Vercel (não `VERCEL=1`);
-  COORDINATION.md, LAUNCH_NOW.md e README §WhatsApp reconciliados com Z-API como único provedor.
-  **← válido só no modo híbrido; desde 2026-07-02 o proxy fica DESLIGADO (ver atualização no topo).**
+  webhooks no host `www` atual), **GO_LIVE_BILLING.md** (histórico; revisar antes de uso), este arquivo.
+- ✅ Histórico (2026-07-01): `ENABLE_API_PROXY=true` foi obrigatório apenas no modo híbrido legado;
+  desde 2026-07-02 o proxy fica DESLIGADO para preservar a ponte Clerk -> Firebase.
+  Z-API permanece o único provedor WhatsApp.

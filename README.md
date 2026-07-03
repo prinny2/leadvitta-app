@@ -10,11 +10,11 @@ cliente até o agendamento com guardrails de compliance.
 
 **Nota:** A Inova Simples (RESONANZA INOVA SIMPLES I S, CNPJ 67.046.121/0001-45) é exclusiva para o projeto ResonAnza (com José). O LeadBellus opera sob o MEI pessoal.
 
-Stack: **Next.js App Router + TypeScript + TailwindCSS + Clerk + Firebase/Firestore + OpenAI/Anthropic/Gemini + Stripe + Zapier + Cloud Run/Vercel (Híbrido)**.
+Stack: **Next.js App Router + TypeScript + TailwindCSS + Clerk + Firebase/Firestore + OpenAI/Anthropic/Gemini + Stripe + Zapier + Vercel (produção) + Cloud Run (legado/backup)**.
 
-## Status (produção) — atualizado 2026-06-15
+## Status (produção) — atualizado 2026-07-03
 
-- **LIVE:** `https://leadbellus.com.br` em arquitetura **híbrida** — Vercel serve o frontend, Cloud Run processa `/api/*` (proxy). Modo demonstração desligado (config Firebase real no bundle).
+- **LIVE:** `https://leadbellus.com.br` em arquitetura **full-Vercel** — Vercel serve o frontend e executa `/api/*`; Cloud Run fica como legado/backup. `ENABLE_API_PROXY` deve permanecer desligado.
 - **Auth:** Clerk para login/cadastro com ponte Firebase interna. **Billing:** Stripe LIVE com webhook configurado.
 - **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
 - **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID, número +55 91 8515-6690). Auto-resposta (webhook) em rollout.
@@ -83,7 +83,7 @@ O backend tenta os provedores na ordem: **OpenAI -> Anthropic -> Gemini**.
 
 A configuração de webhooks deve seguir o **ADR-001**:
 
-- **URL:** `https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook` (Cloud Run direto).
+- **URL:** `https://www.leadbellus.com.br/api/stripe/webhook` (host canônico atual; `.run.app` só no modo híbrido/legado).
 - **Modo:** Snapshot (Instantâneo).
 - **Eventos:** `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
 
@@ -113,10 +113,10 @@ Para configurar os webhooks automaticamente na Z-API:
 
 ```bash
 node scripts/setup-zapi-webhook.mjs \
-  https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook
+  https://www.leadbellus.com.br/api/whatsapp/webhook
 ```
 
-Webhook inbound recomendado: URL **direta** do Cloud Run (`.run.app`) com `?token=<ZAPI_SECURITY_TOKEN>`.
+Webhook inbound recomendado: host canônico **`www.leadbellus.com.br`** com `?token=<ZAPI_SECURITY_TOKEN>`; use `.run.app` apenas no modo híbrido/legado.
 Ver **DEPLOY_STRIPE_VERCEL.md** §6.
 
 ### Zapier
@@ -126,12 +126,12 @@ ZAPIER_WEBHOOK_URL=
 ZAPIER_SHARED_SECRET=
 ```
 
-## Deploy (Arquitetura Híbrida)
+## Deploy (Vercel atual)
 
-- **Vercel:** Serve o frontend e domínio principal (`leadbellus.com.br`).
-- **Cloud Run:** Processa todas as rotas `/api/*` via proxy, gerencia segredos e integrações pesadas.
+- **Vercel:** Serve o frontend, domínio principal (`leadbellus.com.br`) e handlers `app/api/*`.
+- **Cloud Run:** Legado/backup. Use apenas se o modo híbrido/proxy for reativado deliberadamente.
 
-1. Configure `ENABLE_API_PROXY=true` e `API_PROXY_ORIGIN` na Vercel apontando para o Cloud Run.
+1. Mantenha `ENABLE_API_PROXY=false`/ausente em produção para preservar a ponte Clerk -> Firebase.
 2. Refaça o build sempre que mudar qualquer `NEXT_PUBLIC_*`.
 3. Valide `GET /api/health` e `GET /api/config` após o deploy.
 

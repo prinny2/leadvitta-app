@@ -42,7 +42,7 @@ if (-not (Test-Path $source)) {
 }
 
 # 2. Copy to Desktop (timestamped)
-$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
+$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 $dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Campaign_$timestamp"
 Write-Host "[2/6] Copying fresh pack to Desktop..." -ForegroundColor Yellow
 if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
@@ -77,7 +77,7 @@ STEP 2: GA4 CONVERSIONS (IMPORTANT!)
 After import:
 - Open 07_ga4_conversions.md
 - Follow steps to link GA4 property G-223KR63TS8
-- Import conversions: sign_up, begin_checkout, purchase
+- Import conversions: sign_up, begin_checkout, purchase, generate
 - Set "purchase" as primary conversion for bidding.
 
 STEP 3: LAUNCH (AFTER REVIEW)
