@@ -112,23 +112,31 @@ explícito = a URL `.run.app`). Lembre: mudar `NEXT_PUBLIC_*` exige **novo build
 
 ## 4. Webhook do Stripe — endpoint e segredo
 
-**Recomendado: apontar o endpoint DIRETO para o Cloud Run**, pulando o proxy da Vercel:
+**Produção atual (full-Vercel):** apontar o endpoint para o host canônico com `www`:
 
 ```
-https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook
+https://www.leadbellus.com.br/api/stripe/webhook
 ```
 
-- O `STRIPE_WEBHOOK_SECRET` vive **onde o handler roda** (hoje: **Vercel**; no modo híbrido: Cloud Run) —
-  é lá que o `constructEvent` roda (`webhook/route.ts` lê `rawBody = await request.text()` e verifica com
-  o `whsec`). O `whsec` precisa ser **o signing secret desse endpoint** registrado em
-  **`acct_1TemHuRTJ7iCFKxk` (LeadBellus)** — a `acct_1TeQMX...` está aposentada (D-004).
-- Por que direto no Cloud Run (zero desvantagem): o handler roda no Cloud Run de qualquer
-  forma; ir direto remove o edge proxy, os limites 4,5MB/120s, qualquer normalização futura de
-  header/body, **e** a armadilha do apex.
+- O `STRIPE_WEBHOOK_SECRET` vive **onde o handler roda** (hoje: **Vercel**; no modo híbrido:
+  Cloud Run) — é lá que o `constructEvent` roda (`webhook/route.ts` lê
+  `rawBody = await request.text()` e verifica com o `whsec`). O `whsec` precisa ser **o signing
+  secret desse endpoint** registrado em **`acct_1TemHuRTJ7iCFKxk` (LeadBellus)** — a
+  `acct_1TeQMX...` está aposentada (D-004).
+- **Modo híbrido/legado:** se o proxy `/api/*` voltar a ser ativado deliberadamente e o handler
+  voltar a rodar no Cloud Run, registre o endpoint `.run.app` direto para evitar o hop pelo proxy
+  da Vercel:
+
+  ```
+  https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook
+  ```
+
+  Nesse cenário legado, o `STRIPE_WEBHOOK_SECRET` correspondente a esse endpoint `.run.app` fica
+  no Cloud Run.
 
 **Armadilha do apex (307):** `leadbellus.com.br` (apex) faz **307 → www**, e o **Stripe não
-segue redirect**. Se mantiver o endpoint no domínio Vercel por branding, use **`www`** (nunca
-o apex) — e **ainda assim** ponha o `whsec` no Cloud Run.
+segue redirect**. No modo atual use **`www`** (nunca o apex); no modo híbrido/legado use o
+endpoint `.run.app` direto.
 
 **Eventos a assinar:** `checkout.session.completed`, `customer.subscription.created`,
 `customer.subscription.updated`, `customer.subscription.deleted` — esses 4 o handler reconcilia
