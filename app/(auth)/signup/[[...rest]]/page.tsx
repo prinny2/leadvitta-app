@@ -2,10 +2,13 @@
 
 import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { SignUp } from "@clerk/nextjs";
 import { parseBillingPlan } from "@/lib/billing";
 import { VisualAuthPanel } from "@/components/visual-auth-panel";
 import { Card, CardBody } from "@/components/ui/card";
 import { trackEvent } from "@/components/Analytics";
+import { LegalConsentLinks } from "@/components/legal-consent-links";
+import { isClerkClientConfigured } from "@/lib/config";
 
 function SignupInner() {
   const params = useSearchParams();
@@ -24,6 +27,16 @@ function SignupInner() {
       : rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//")
       ? rawNext
       : "/configuracoes?onboarding=1";
+  const redirectAfterAuth =
+    checkoutAfter && plan
+      ? `/configuracoes?plan=${encodeURIComponent(plan)}&next=checkout`
+      : nextPath;
+  const signInParams = new URLSearchParams();
+  if (plan) signInParams.set("plan", plan);
+  if (checkoutAfter) signInParams.set("next", "checkout");
+  const signInUrl = `/login${
+    signInParams.size ? `?${signInParams.toString()}` : ""
+  }`;
 
   // Guest checkout: o pagamento acontece antes da conta existir e o Stripe
   // devolve aqui. O purchase real vem do webhook assinado; aqui só marcamos
@@ -54,13 +67,24 @@ function SignupInner() {
             </p>
           </div>
         )}
-        <VisualAuthPanel
-          mode="signup"
-          plan={plan ?? undefined}
-          checkoutAfter={checkoutAfter}
-          next={nextPath}
-          compact
-        />
+        {isClerkClientConfigured ? (
+          <SignUp
+            routing="path"
+            path="/signup"
+            signInUrl={signInUrl}
+            forceRedirectUrl={redirectAfterAuth}
+            fallbackRedirectUrl={redirectAfterAuth}
+          />
+        ) : (
+          <VisualAuthPanel
+            mode="signup"
+            plan={plan ?? undefined}
+            checkoutAfter={checkoutAfter}
+            next={redirectAfterAuth}
+            compact
+          />
+        )}
+        <LegalConsentLinks tone="light" className="mt-4" />
       </CardBody>
     </Card>
   );

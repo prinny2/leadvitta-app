@@ -121,7 +121,11 @@ export function resolveBillingPriceId(
 }
 
 export function getStripeCheckoutMode(): CheckoutMode {
-  return process.env.STRIPE_CHECKOUT_MODE === "subscription"
-    ? "subscription"
-    : "payment";
+  // O produto é assinatura mensal/anual (prices recorrentes no Stripe).
+  // "payment" só aceita price one-time — se STRIPE_CHECKOUT_MODE não estiver
+  // setado no ambiente, o default precisa ser "subscription", senão o
+  // checkout quebra na API do Stripe com price recorrente.
+  return process.env.STRIPE_CHECKOUT_MODE === "payment"
+    ? "payment"
+    : "subscription";
 }

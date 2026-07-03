@@ -1,7 +1,26 @@
 # DEPLOY_STRIPE_VERCEL.md — Checkout recorrente + Webhook (arquitetura híbrida)
 
-> Última revisão: 2026-07-01. Fonte da verdade de estado vivo: **COORDINATION.md**.
+> Última revisão: 2026-07-02. Fonte da verdade de estado vivo: **COORDINATION.md**.
 > Fonte única de planos/preços na UI: **lib/billing.ts**. Não comitar segredos.
+
+> ## ⚠️ ATUALIZAÇÃO 2026-07-02 — produção NÃO está mais no modo híbrido descrito abaixo
+>
+> Desde o merge da migração Clerk (PR #98, `fbf64dc`, 2026-07-01), a produção roda **full-Vercel**:
+>
+> - **`/api/*` executa NA VERCEL** (sem proxy). `ENABLE_API_PROXY` **não** está setado — e **NÃO deve ser
+>   setado**: ligá-lo mandaria `/api/auth/firebase-token` (ponte Clerk→Firebase) para o Cloud Run, que
+>   **não tem** as envs do Clerk → login quebra (audit 2026-07-02, blackboard claim #92).
+> - **Segredos de runtime** (`STRIPE_*`, `FIREBASE_*`, `CLERK_*`, `ZAPI_*`, `GA4_API_SECRET`) vivem na
+>   **Vercel**. Evidência live: `/api/config` retorna `clerk_server_enabled:true`, `firebase_admin_enabled:true`,
+>   `ga4_server_enabled:true`, `zapi_enabled:true`.
+> - **Auth público = Clerk** (`clerk.leadbellus.com.br`, pk_live). Firebase segue como ponte interna
+>   (custom token via `/api/auth/firebase-token`) + data layer Firestore. Ver `docs/clerk-auth-migration.md`.
+> - **Supabase (espelho): projeto vivo = `imlroxezgshrybizdnyy`** (embutido no bundle de prod). O schema
+>   de 2026-06-28 foi aplicado no `jaxpniltorjryfibnfkg`, que o código não lê (envs `leadbellusreal_*`) —
+>   rodar `supabase/schema.sql` no projeto vivo antes de confiar no espelho.
+> - Cloud Run = **legacy/backup**. As seções §0–§6 abaixo descrevem o modo híbrido (proxy ligado) e valem
+>   **apenas** se esse modo voltar a ser ativado deliberadamente. No modo atual, leia "Cloud Run" como
+>   "runtime da Vercel" ao aplicar §4–§7 (whsec/envs na Vercel; webhook em `www`, nunca apex).
 
 ## 0. A verdade da arquitetura (leia primeiro — quase tudo aqui depende disso)
 
@@ -75,13 +94,13 @@ dispara em `beforeFiles`, **antes** dos handlers em `app/api/`.
 > ⚠️ **Divergência de preço a resolver antes de vender:** `lib/billing.ts` mostra
 > **R$97/197/347** (`priceLabel`, fonte única da UI), mas docs antigos (GO_LIVE_BILLING/
 > LAUNCH_NOW) dizem R$197/297/397. Reconcilie os `priceLabel` com o valor real dos Price IDs
-> em `acct_1TeQMX` **antes** de cobrar — risco de confiança/compliance.
+> na conta **`acct_1TemHu` (LeadBellus)** **antes** de cobrar — risco de confiança/compliance.
 
 ## 3. Configurar segredos no Cloud Run (NÃO na Vercel)
 
 ```bash
 gcloud run services update leadbellus --region southamerica-east1 \
-  --update-env-vars STRIPE_CHECKOUT_MODE=subscription,STRIPE_PRICE_ID_START=price_1Teqg... \
+  --update-env-vars STRIPE_CHECKOUT_MODE=subscription,STRIPE_PRICE_ID_START=price_1Tj5ih... \
   --set-secrets STRIPE_SECRET_KEY=stripe-secret-key:latest,STRIPE_WEBHOOK_SECRET=stripe-webhook-secret:latest
 # FIREBASE_*: prefira ADC (service account anexada ao serviço) — sem JSON em env.
 # Validar:
@@ -101,7 +120,7 @@ https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook
 
 - O `STRIPE_WEBHOOK_SECRET` **vive no Cloud Run** — é lá que o `constructEvent` roda
   (`webhook/route.ts` lê `rawBody = await request.text()` e verifica com o `whsec`). O `whsec`
-  precisa ser **o signing secret desse endpoint** registrado em `acct_1TeQMX`.
+  precisa ser **o signing secret desse endpoint** registrado em **`acct_1TemHuRTJ7iCFKxk` (LeadBellus)**.
 - Por que direto no Cloud Run (zero desvantagem): o handler roda no Cloud Run de qualquer
   forma; ir direto remove o edge proxy, os limites 4,5MB/120s, qualquer normalização futura de
   header/body, **e** a armadilha do apex.
@@ -165,7 +184,7 @@ node scripts/setup-zapi-webhook.mjs \
   no lançamento (só Start), mas **contraria** o aceite "checkout abre para Pro/Premium". Para abrir
   os três, é preciso expor a disponibilidade ao cliente (flag `NEXT_PUBLIC_*` ou via `/api/config`).
 - **Preço**: `lib/billing.ts` R$97/197/347 vs docs R$197/297/397 — reconciliar com os valores
-  reais em `acct_1TeQMX` antes de vender (fonte única = `lib/billing.ts`).
+  reais na conta `acct_1TemHu` (LeadBellus) antes de vender (fonte única = `lib/billing.ts`).
 - **Prod canônica (2026-06-30):** Vercel (`www.leadbellus.com.br`) é o host público; Cloud Run é o
   **API tier** (`/api/*` via proxy + webhooks diretos `.run.app`). Não há conflito pendente.
 
@@ -175,3 +194,4 @@ node scripts/setup-zapi-webhook.mjs \
   webhook na URL `.run.app`), **GO_LIVE_BILLING.md** (segredos no Cloud Run), este arquivo.
 - ✅ Corrigido (2026-07-01): `ENABLE_API_PROXY=true` obrigatório na Vercel (não `VERCEL=1`);
   COORDINATION.md, LAUNCH_NOW.md e README §WhatsApp reconciliados com Z-API como único provedor.
+  **← válido só no modo híbrido; desde 2026-07-02 o proxy fica DESLIGADO (ver atualização no topo).**

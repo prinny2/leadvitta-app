@@ -1,11 +1,13 @@
+import type { Clinica, TipoHistorico } from "@/lib/types";
+
 export type AppHistoricoResposta = {
   id?: string;
   firestore_id?: string;   // Firestore doc ID (stable identifier for upserts + client updates)
   firebase_uid: string;
-  tipo: string;
+  tipo: TipoHistorico;
   contexto: Record<string, unknown>;
-  respostas: any[];
-  favorito: boolean;
+  respostas: string[];
+  favorito?: boolean;
   intent?: string | null;
   sentiment?: string | null;
   score?: number | null;
@@ -13,17 +15,12 @@ export type AppHistoricoResposta = {
   updated_at?: string;
 };
 
-export type AppClinica = {
+export type AppClinica = Omit<
+  Partial<Clinica>,
+  "whatsapp" | "whatsapp_channel_key" | "zapi_instance_id" | "zapi_token" | "zapi_client_token"
+> & {
   id?: string;
   firebase_uid: string;
-  nome_clinica: string;
-  cidade?: string;
-  tom_padrao?: string;
-  procedimentos?: string[];
-  formalidade?: number;
-  como_chamar?: string;
-  cta_preferido?: string;
-  onboarded?: boolean;
   created_at?: string;
   updated_at?: string;
 };

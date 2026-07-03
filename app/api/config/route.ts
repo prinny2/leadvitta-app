@@ -2,6 +2,8 @@ import { jsonNoStore } from "@/lib/api-security";
 import {
   isAnyAIConfigured,
   isAnthropicConfigured,
+  isClerkClientConfigured,
+  isClerkServerConfigured,
   isFirebaseConfigured,
   isGa4ServerConfigured,
   isGeminiConfigured,
@@ -10,14 +12,14 @@ import {
   isStripeConfigured,
   isZApiConfigured,
   isOpsNotifyConfigured,
-  openaiModel,
-  anthropicModel,
-  geminiModel,
 } from "@/lib/config";
 import { getWhatsAppProvider } from "@/lib/whatsapp";
 import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 
 export const runtime = "nodejs";
+// Sonda de capacidades: precisa refletir o ambiente por request e nunca rodar
+// na pré-renderização do build (env malformada não pode derrubar o deploy).
+export const dynamic = "force-dynamic";
 
 /**
  * Endpoint para expor capacidades do backend para a UI com segurança.
@@ -26,6 +28,8 @@ export const runtime = "nodejs";
 export async function GET() {
   return jsonNoStore({
     stripe_enabled: isStripeConfigured,
+    clerk_enabled: isClerkClientConfigured,
+    clerk_server_enabled: isClerkServerConfigured,
     firebase_enabled: isFirebaseConfigured,
     firebase_admin_enabled: isFirebaseAdminConfigured(),
     ai_enabled: isAnyAIConfigured,
@@ -33,11 +37,6 @@ export async function GET() {
       openai: isOpenAIConfigured,
       anthropic: isAnthropicConfigured,
       gemini: isGeminiConfigured,
-    },
-    ai_models: {
-      openai: openaiModel,
-      anthropic: anthropicModel,
-      gemini: geminiModel,
     },
     nlp_enabled: isNlpServiceConfigured,
     ga4_server_enabled: isGa4ServerConfigured,

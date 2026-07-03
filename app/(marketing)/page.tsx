@@ -12,6 +12,7 @@ import {
   Clock,
   Check,
 } from "lucide-react";
+import { FadeUp } from "@/components/fade-up";
 import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 import { PricingSection } from "@/components/pricing-section";
@@ -24,8 +25,8 @@ const SIGNUP = "/signup?plan=start";
 // Paleta (on-brand: creme do logo + tinta navy + dourado) ----------------------
 const INK = "#10233B";
 const INK_SOFT = "#46566B";
-const CREAM = "#FBF6EC";
-const CREAM_2 = "#F2E9D8";
+const CREAM = "#FFFFFF";
+const CREAM_2 = "#F4F6FA";
 const NAVY = "#0B1A2E";
 const GOLD = "#C9A060";
 const GOLD_DEEP = "#8A6312";
@@ -101,11 +102,12 @@ function SectionTitle({ children, onNavy }: { children: React.ReactNode; onNavy?
   return (
     <h2
       style={{
-        fontFamily: "var(--font-fraunces, Georgia, serif)",
-        fontSize: "clamp(28px, 4vw, 44px)",
-        fontWeight: 700,
+        fontFamily: "var(--font-inter, system-ui, sans-serif)",
+        fontSize: "clamp(28px, 4vw, 42px)",
+        fontWeight: 800,
+        letterSpacing: "-0.02em",
         lineHeight: 1.12,
-        color: onNavy ? "#FBF6EC" : INK,
+        color: onNavy ? "#FFFFFF" : INK,
         margin: "0 0 14px",
       }}
     >
@@ -128,8 +130,9 @@ function Navbar() {
         position: "sticky",
         top: 0,
         zIndex: 50,
-        background: "rgba(251,246,236,0.85)",
-        backdropFilter: "blur(12px)",
+        background: "rgba(255,255,255,0.72)",
+        backdropFilter: "blur(18px) saturate(1.5)",
+        WebkitBackdropFilter: "blur(18px) saturate(1.5)",
         borderBottom: "1px solid rgba(16,35,59,0.08)",
       }}
     >
@@ -169,7 +172,7 @@ function Navbar() {
             className="hidden md:inline-flex"
             style={{
               background: INK,
-              color: "#F7C96B",
+              color: "#FFFFFF",
               borderRadius: "9999px",
               padding: "9px 20px",
               fontSize: "14px",
@@ -191,14 +194,18 @@ function Navbar() {
 function ChatProof() {
   return (
     <div
+      className="lp-float"
       style={{
-        background: "#ffffff",
-        border: "1px solid rgba(16,35,59,0.08)",
+        background: "rgba(255,255,255,0.82)",
+        backdropFilter: "blur(14px) saturate(1.3)",
+        WebkitBackdropFilter: "blur(14px) saturate(1.3)",
+        border: "1px solid rgba(255,255,255,0.9)",
+        outline: "1px solid rgba(16,35,59,0.07)",
         borderRadius: "22px",
         padding: "18px",
         boxSizing: "border-box",
         width: "100%",
-        boxShadow: "0 30px 60px rgba(16,35,59,0.12)",
+        boxShadow: "0 40px 80px rgba(16,35,59,0.16), 0 8px 24px rgba(16,35,59,0.08)",
         maxWidth: "420px",
       }}
     >
@@ -213,7 +220,7 @@ function ChatProof() {
       </div>
 
       <div style={{ display: "grid", gap: "8px", margin: "14px 0" }}>
-        <div style={{ alignSelf: "flex-start", maxWidth: "85%", background: "#F1EEE7", color: INK, borderRadius: "14px 14px 14px 4px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.4 }}>
+        <div style={{ alignSelf: "flex-start", maxWidth: "85%", background: "#F1F4F8", color: INK, borderRadius: "14px 14px 14px 4px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.4 }}>
           Quanto fica o botox? 😬 Tenho medo de ficar com cara artificial…
         </div>
         <div style={{ alignSelf: "flex-end", maxWidth: "88%", background: "#DCF6E6", color: "#0B3D2A", borderRadius: "14px 14px 4px 14px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.45 }}>
@@ -258,10 +265,18 @@ export default function LandingPage() {
 
       <main>
         {/* ── HERO ─────────────────────────────────────────────────────────── */}
-        <section className="landing-hero" style={{ padding: "64px 24px 72px", overflowX: "hidden" }}>
+        <section className="landing-hero" style={{ padding: "64px 24px 72px", overflowX: "hidden", position: "relative" }}>
+          {/* Glows + grid de fundo (decoração tech) */}
+          <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: "-180px", right: "-120px", width: "520px", height: "520px", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,160,96,0.16), transparent 65%)", filter: "blur(40px)" }} />
+            <div style={{ position: "absolute", bottom: "-220px", left: "-160px", width: "560px", height: "560px", borderRadius: "50%", background: "radial-gradient(circle, rgba(16,35,59,0.09), transparent 65%)", filter: "blur(48px)" }} />
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(16,35,59,0.055) 1px, transparent 1px)", backgroundSize: "26px 26px", maskImage: "linear-gradient(to bottom, black 0%, transparent 78%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, transparent 78%)" }} />
+          </div>
           <div
             className="hero-grid"
             style={{
+              position: "relative",
+              zIndex: 1,
               maxWidth: "1152px",
               width: "100%",
               minWidth: 0,
@@ -272,22 +287,23 @@ export default function LandingPage() {
               alignItems: "center",
             }}
           >
-            <div className="hero-copy-col" style={{ minWidth: 0 }}>
+            <FadeUp className="hero-copy-col" style={{ minWidth: 0 }}>
               <Eyebrow>Conversão na estética · WhatsApp</Eyebrow>
               <h1
                 className="hero-title"
                 style={{
-                  fontFamily: "var(--font-fraunces, Georgia, serif)",
-                  fontSize: "clamp(38px, 5.2vw, 64px)",
-                  fontWeight: 700,
-                  lineHeight: 1.04,
+                  fontFamily: "var(--font-inter, system-ui, sans-serif)",
+                  fontSize: "clamp(36px, 5vw, 60px)",
+                  fontWeight: 800,
+                  letterSpacing: "-0.025em",
+                  lineHeight: 1.06,
                   margin: "0 0 18px",
                   color: INK,
                   overflowWrap: "break-word",
                 }}
               >
                 Pare de perder cliente no{" "}
-                <span className="hero-title-highlight" style={{ color: GOLD_DEEP, fontStyle: "italic" }}>“quanto custa?”</span>
+                <span className="hero-title-highlight" style={{ background: "linear-gradient(100deg, #B8860B, #C9A060 55%, #8A6312)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", fontStyle: "italic" }}>“quanto custa?”</span>
               </h1>
               <p className="hero-subtitle" style={{ fontSize: "18px", lineHeight: 1.6, color: INK_SOFT, maxWidth: "480px", margin: "0 0 26px" }}>
                 Recebeu mensagem e travou? Cola aqui e saem <strong>3 respostas no jeitinho da sua clínica</strong>, prontas
@@ -297,11 +313,11 @@ export default function LandingPage() {
               <div className="hero-cta-row" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
                 <Link
                   href={SIGNUP}
-                  className="hero-cta"
+                  className="hero-cta lp-btn-primary"
                   style={{
-                    background: INK,
-                    color: "#F7C96B",
-                    borderRadius: "9999px",
+                    background: "linear-gradient(135deg, #16304F, #0B1A2E)",
+                    color: "#FFFFFF",
+                    borderRadius: "14px",
                     padding: "15px 28px",
                     fontSize: "15px",
                     fontWeight: 700,
@@ -309,18 +325,20 @@ export default function LandingPage() {
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
-                    boxShadow: "0 16px 38px rgba(16,35,59,0.22)",
+                    boxShadow: "0 16px 38px rgba(16,35,59,0.28), inset 0 1px 0 rgba(255,255,255,0.12)",
                   }}
                 >
                   Testar grátis (sem cartão) <ArrowRight size={17} />
                 </Link>
                 <a
                   href="#demo"
-                  className="hero-cta"
+                  className="hero-cta lp-btn-ghost"
                   style={{
-                    border: `1.5px solid rgba(16,35,59,0.2)`,
+                    border: `1.5px solid rgba(16,35,59,0.16)`,
+                    background: "rgba(255,255,255,0.6)",
+                    backdropFilter: "blur(8px)",
                     color: INK,
-                    borderRadius: "9999px",
+                    borderRadius: "14px",
                     padding: "15px 24px",
                     fontSize: "15px",
                     fontWeight: 600,
@@ -355,11 +373,11 @@ export default function LandingPage() {
                   </span>
                 ))}
               </div>
-            </div>
+            </FadeUp>
 
-            <div className="hero-proof-col" style={{ display: "flex", justifyContent: "center", minWidth: 0, width: "100%" }}>
+            <FadeUp delay={0.15} className="hero-proof-col" style={{ display: "flex", justifyContent: "center", minWidth: 0, width: "100%" }}>
               <ChatProof />
-            </div>
+            </FadeUp>
           </div>
         </section>
 
@@ -394,6 +412,7 @@ export default function LandingPage() {
         {/* ── DOR / SINAIS ─────────────────────────────────────────────────── */}
         <section style={{ padding: "76px 24px" }}>
           <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+            <FadeUp>
             <div style={{ maxWidth: "640px", marginBottom: "34px" }}>
               <Eyebrow>O que trava o seu WhatsApp</Eyebrow>
               <SectionTitle>Você lê a mensagem. A gente já te entrega a resposta.</SectionTitle>
@@ -401,6 +420,7 @@ export default function LandingPage() {
                 Sem decoreba e sem parecer robô — no tom da sua clínica.
               </p>
             </div>
+            </FadeUp>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
               {[
@@ -410,6 +430,7 @@ export default function LandingPage() {
               ].map((card) => (
                 <article
                   key={card.t}
+                  className="lp-card"
                   style={{
                     background: "#ffffff",
                     border: "1px solid rgba(16,35,59,0.07)",
@@ -430,22 +451,24 @@ export default function LandingPage() {
         {/* ── COMO FUNCIONA ────────────────────────────────────────────────── */}
         <section id="como-funciona" style={{ background: CREAM_2, padding: "76px 24px" }}>
           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+            <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 40px" }}>
               <Eyebrow>Como funciona</Eyebrow>
               <SectionTitle>Em 3 passos, sem complicação</SectionTitle>
             </div>
+            </FadeUp>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
               {[
                 { n: "01", icon: <MessageCircle size={20} />, t: "Cole a mensagem", c: "Copie o que a pessoa mandou no WhatsApp e cole no LeadBellus." },
                 { n: "02", icon: <Sparkles size={20} />, t: "Receba 3 respostas", c: "No tom da sua clínica: uma suave, uma consultiva e uma de fechamento." },
                 { n: "03", icon: <Copy size={20} />, t: "Copie e mande", c: "Revisa, ajusta se quiser e cola na conversa. Você no controle, sempre." },
               ].map((s) => (
-                <div key={s.n} style={{ background: "#ffffff", border: "1px solid rgba(16,35,59,0.07)", borderRadius: "18px", padding: "26px" }}>
+                <div key={s.n} className="lp-card" style={{ background: "#ffffff", border: "1px solid rgba(16,35,59,0.07)", borderRadius: "18px", padding: "26px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
                     <span style={{ width: "42px", height: "42px", borderRadius: "12px", background: INK, color: GOLD, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {s.icon}
                     </span>
-                    <span style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: "26px", fontWeight: 700, color: "rgba(16,35,59,0.14)" }}>{s.n}</span>
+                    <span style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)", fontSize: "26px", fontWeight: 700, color: "rgba(16,35,59,0.14)" }}>{s.n}</span>
                   </div>
                   <h3 style={{ color: INK, fontSize: "18px", fontWeight: 700, margin: "0 0 8px" }}>{s.t}</h3>
                   <p style={{ color: INK_SOFT, fontSize: "14px", lineHeight: 1.65, margin: 0 }}>{s.c}</p>
@@ -458,6 +481,7 @@ export default function LandingPage() {
         {/* ── PARA QUEM É (elas e eles) ────────────────────────────────────── */}
         <section id="para-quem" style={{ padding: "78px 24px" }}>
           <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+            <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "660px", margin: "0 auto 40px" }}>
               <Eyebrow>Para quem é</Eyebrow>
               <SectionTitle>Estética não tem só um público</SectionTitle>
@@ -465,6 +489,7 @@ export default function LandingPage() {
                 Seu WhatsApp atende mulheres e homens — e cada conversa tem o seu tom. O LeadBellus responde os dois do jeito certo.
               </p>
             </div>
+            </FadeUp>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>
               {[
@@ -509,12 +534,12 @@ export default function LandingPage() {
                     >
                       {col.tag}
                     </span>
-                    <h3 style={{ fontFamily: "var(--font-fraunces, Georgia, serif)", fontSize: "22px", fontWeight: 700, color: dark ? "#FBF6EC" : INK, margin: "0 0 16px" }}>
+                    <h3 style={{ fontFamily: "var(--font-inter, system-ui, sans-serif)", fontSize: "22px", fontWeight: 700, color: dark ? "#FFFFFF" : INK, margin: "0 0 16px" }}>
                       {col.titulo}
                     </h3>
                     <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "10px" }}>
                       {col.itens.map((it) => (
-                        <li key={it} style={{ display: "flex", gap: "10px", alignItems: "flex-start", fontSize: "14.5px", color: dark ? "rgba(251,246,236,0.85)" : INK_SOFT }}>
+                        <li key={it} style={{ display: "flex", gap: "10px", alignItems: "flex-start", fontSize: "14.5px", color: dark ? "rgba(255,255,255,0.85)" : INK_SOFT }}>
                           <Check size={17} style={{ color: GOLD, flexShrink: 0, marginTop: "2px" }} />
                           {it}
                         </li>
@@ -530,6 +555,7 @@ export default function LandingPage() {
         {/* ── DEMO ─────────────────────────────────────────────────────────── */}
         <section id="demo" style={{ background: CREAM_2, padding: "78px 24px" }}>
           <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+            <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "600px", margin: "0 auto 36px" }}>
               <Eyebrow>Experimente agora</Eyebrow>
               <SectionTitle>Veja uma resposta da sua clínica — de graça</SectionTitle>
@@ -537,6 +563,7 @@ export default function LandingPage() {
                 Escolha uma situação e veja como ficaria. Gostou? É só criar a conta e usar no atendimento real.
               </p>
             </div>
+            </FadeUp>
 
             <Suspense fallback={<LoadingRespostas etapas={["Carregando a demo…"]} />}>
               <LandingWhatsAppDemo />
@@ -562,7 +589,7 @@ export default function LandingPage() {
                   alignItems: "center",
                   gap: "8px",
                   background: INK,
-                  color: "#F7C96B",
+                  color: "#FFFFFF",
                   borderRadius: "9999px",
                   padding: "14px 30px",
                   fontSize: "15px",
@@ -581,15 +608,18 @@ export default function LandingPage() {
         </section>
 
         {/* ── PREÇOS ───────────────────────────────────────────────────────── */}
-        <section id="precos" style={{ background: NAVY, padding: "84px 24px" }}>
-          <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+        <section id="precos" style={{ background: NAVY, padding: "84px 24px", position: "relative", overflow: "hidden" }}>
+          <div aria-hidden style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: "760px", height: "480px", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,160,96,0.14), transparent 62%)", filter: "blur(52px)", pointerEvents: "none" }} />
+          <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 1 }}>
+            <FadeUp>
             <div style={{ textAlign: "center", marginBottom: "40px" }}>
               <Eyebrow onNavy>Escolha o seu plano</Eyebrow>
               <SectionTitle onNavy>Comece pelo plano que resolve hoje</SectionTitle>
-              <p style={{ color: "rgba(251,246,236,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
+              <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
                 Teste grátis e assine só se fizer sentido pra sua rotina.
               </p>
             </div>
+            </FadeUp>
             <PricingSection />
           </div>
         </section>
@@ -597,10 +627,12 @@ export default function LandingPage() {
         {/* ── CONFIANÇA ────────────────────────────────────────────────────── */}
         <section style={{ padding: "78px 24px" }}>
           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+            <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
               <Eyebrow>Por que confiar</Eyebrow>
               <SectionTitle>Feito pra estética brasileira — não parece resposta pronta</SectionTitle>
             </div>
+            </FadeUp>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
               {[
                 { icon: <ShieldCheck size={20} />, t: "Respeita as regras", c: "Nunca promete resultado, cura ou preço fixo. Suas respostas saem dentro do que pode." },
@@ -608,7 +640,7 @@ export default function LandingPage() {
                 { icon: <Lock size={20} />, t: "Seus dados protegidos", c: "Cada conta vê só os próprios dados. Pagamento seguro." },
                 { icon: <Clock size={20} />, t: "Risco zero pra testar", c: "Sem cartão pra começar e cancele quando quiser, sem multa." },
               ].map((s) => (
-                <div key={s.t} style={{ background: "#ffffff", border: "1px solid rgba(16,35,59,0.07)", borderRadius: "16px", padding: "22px" }}>
+                <div key={s.t} className="lp-card" style={{ background: "#ffffff", border: "1px solid rgba(16,35,59,0.07)", borderRadius: "16px", padding: "22px" }}>
                   <span style={{ display: "inline-flex", color: GOLD_DEEP, marginBottom: "12px" }}>{s.icon}</span>
                   <h3 style={{ fontSize: "16px", fontWeight: 700, color: INK, margin: "0 0 6px" }}>{s.t}</h3>
                   <p style={{ fontSize: "13.5px", lineHeight: 1.6, color: INK_SOFT, margin: 0 }}>{s.c}</p>
@@ -634,10 +666,12 @@ export default function LandingPage() {
         {/* ── FAQ ──────────────────────────────────────────────────────────── */}
         <section id="faq" style={{ background: CREAM_2, padding: "78px 24px" }}>
           <div style={{ maxWidth: "720px", margin: "0 auto" }}>
+            <FadeUp>
             <div style={{ textAlign: "center", marginBottom: "36px" }}>
               <Eyebrow>Dúvidas frequentes</Eyebrow>
               <SectionTitle>Antes de começar</SectionTitle>
             </div>
+            </FadeUp>
             <div style={{ display: "grid", gap: "10px" }}>
               {[
                 { q: "Tem risco de banir meu WhatsApp?", a: "Não 🙂 Ele não envia nada sozinho nem se conecta no seu WhatsApp. Só escreve a resposta — você lê, ajusta e cola na conversa. Seu número fica seguro." },
@@ -664,17 +698,18 @@ export default function LandingPage() {
             <LogoMark size={42} stroke={GOLD} />
             <h2
               style={{
-                fontFamily: "var(--font-fraunces, Georgia, serif)",
-                fontSize: "clamp(28px, 4vw, 44px)",
-                fontWeight: 700,
-                color: "#FBF6EC",
+                fontFamily: "var(--font-inter, system-ui, sans-serif)",
+                fontSize: "clamp(28px, 4vw, 42px)",
+                fontWeight: 800,
+                letterSpacing: "-0.02em",
+                color: "#FFFFFF",
                 margin: "18px 0 14px",
                 lineHeight: 1.12,
               }}
             >
               Sua próxima cliente não vai esperar
             </h2>
-            <p style={{ color: "rgba(251,246,236,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
+            <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
               Toda semana mais gente pergunta o preço e some. Não é falta de talento — é falta da resposta certa na hora certa.
             </p>
             <Link
@@ -695,7 +730,7 @@ export default function LandingPage() {
             >
               Testar grátis agora <ArrowRight size={18} />
             </Link>
-            <p style={{ fontSize: "13px", color: "rgba(251,246,236,0.5)", marginTop: "14px" }}>Sem cartão · cancele quando quiser</p>
+            <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginTop: "14px" }}>Sem cartão · cancele quando quiser</p>
           </div>
         </section>
       </main>
@@ -703,6 +738,19 @@ export default function LandingPage() {
       <FooterSection />
 
       {/* Espaço + barra fixa mobile */}
+      <style>{`
+        .lp-btn-primary, .lp-btn-ghost { transition: transform .2s ease, box-shadow .2s ease; will-change: transform; }
+        .lp-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 22px 48px rgba(16,35,59,0.34), inset 0 1px 0 rgba(255,255,255,0.12); }
+        .lp-btn-ghost:hover { transform: translateY(-2px); }
+        .lp-card { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+        .lp-card:hover { transform: translateY(-4px); box-shadow: 0 22px 48px rgba(16,35,59,0.10); border-color: rgba(201,160,96,0.45) !important; }
+        @keyframes lp-float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+        .lp-float { animation: lp-float 7s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .lp-float { animation: none; }
+          .lp-btn-primary, .lp-btn-ghost, .lp-card { transition: none; }
+        }
+      `}</style>
       <style>{`
         @media (min-width: 768px) { .hero-grid { grid-template-columns: 1.05fr 0.95fr !important; } }
         .lp-mobile-bar { display: none; }
@@ -749,7 +797,7 @@ export default function LandingPage() {
           maxWidth: "520px",
           minHeight: "66px",
           margin: "0 auto",
-          background: "rgba(251,246,236,0.96)",
+          background: "rgba(255,255,255,0.97)",
           backdropFilter: "blur(14px)",
           border: "1px solid rgba(201,160,96,0.24)",
           borderRadius: "20px",
@@ -771,7 +819,7 @@ export default function LandingPage() {
           style={{
             marginLeft: "auto",
             background: INK,
-            color: "#F7C96B",
+            color: "#FFFFFF",
             fontWeight: 700,
             fontSize: "14px",
             borderRadius: "14px",

@@ -49,7 +49,18 @@ function parseServiceAccount(): ServiceAccount | null {
 function getFirebaseAdminOptions(): AppOptions | null {
   const serviceAccount = parseServiceAccount();
   if (serviceAccount) {
-    return { credential: cert(serviceAccount) };
+    // cert() valida e LANÇA com credencial malformada (campo faltando, PEM
+    // inválido). Isso roda durante o build (rotas GET pré-renderizadas chamam
+    // isFirebaseAdminConfigured) — uma env ruim não pode derrubar o deploy.
+    try {
+      return { credential: cert(serviceAccount) };
+    } catch (e) {
+      console.error(
+        "[firebase/admin] credencial de service account inválida:",
+        e instanceof Error ? e.message : e
+      );
+      return null;
+    }
   }
 
   const projectId =
@@ -106,7 +117,26 @@ export async function verifyFirebaseIdToken(
 
   try {
     return await getAuth(app).verifyIdToken(idToken);
-  } catch {
+  } catch (e) {
+    console.warn("[firebase/admin] falha ao verificar ID token:", e instanceof Error ? e.message : e);
+    return null;
+  }
+}
+
+export async function createFirebaseCustomToken(
+  uid: string,
+  claims?: Record<string, unknown>
+): Promise<string | null> {
+  const app = getFirebaseAdminApp();
+  if (!app) return null;
+
+  try {
+    return await getAuth(app).createCustomToken(uid, claims);
+  } catch (e) {
+    console.error(
+      "[firebase/admin] falha ao criar custom token:",
+      e instanceof Error ? e.message : e
+    );
     return null;
   }
 }

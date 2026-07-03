@@ -1,20 +1,26 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { type NextFetchEvent, type NextRequest, NextResponse } from "next/server";
 import {
   buildCanonicalRedirectUrl,
   isLegacyPublicHost,
   shouldKeepLegacyApiRoute,
 } from "@/lib/canonical-host";
 import { updateSession } from "@/lib/firebase/middleware";
+import { isClerkServerConfigured } from "@/lib/config";
 
-// CLERK_MIGRATION NOTE:
-// When migrating to Clerk:
-// 1. Switch to clerkMiddleware + createRouteMatcher
-// 2. Explicitly exclude public webhook paths:
-//    - /api/stripe/webhook
-//    - /api/whatsapp/webhook
-// 3. Keep the canonical host redirect logic before auth checks.
+const isProtectedAppRoute = createRouteMatcher([
+  "/dashboard(.*)",
+  "/conversas(.*)",
+  "/gerador(.*)",
+  "/lead-intelligence(.*)",
+  "/objecoes(.*)",
+  "/follow-up(.*)",
+  "/scripts(.*)",
+  "/historico(.*)",
+  "/configuracoes(.*)",
+]);
 
-export async function middleware(request: NextRequest) {
+function getCanonicalRedirect(request: NextRequest) {
   const hostname = request.nextUrl.hostname;
   const pathname = request.nextUrl.pathname;
 
@@ -28,6 +34,38 @@ export async function middleware(request: NextRequest) {
       request.nextUrl.search
     );
     return NextResponse.redirect(target, 308);
+  }
+
+  return null;
+}
+
+const clerkAuthMiddleware = clerkMiddleware(async (auth, request) => {
+  const redirect = getCanonicalRedirect(request);
+  if (redirect) return redirect;
+
+  if (isProtectedAppRoute(request)) {
+    const { userId } = await auth();
+    if (!userId) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/login";
+      loginUrl.search = "";
+      loginUrl.searchParams.set(
+        "next",
+        `${request.nextUrl.pathname}${request.nextUrl.search}`
+      );
+      return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  return NextResponse.next();
+});
+
+export async function middleware(request: NextRequest, event: NextFetchEvent) {
+  const redirect = getCanonicalRedirect(request);
+  if (redirect) return redirect;
+
+  if (isClerkServerConfigured) {
+    return clerkAuthMiddleware(request, event);
   }
 
   return await updateSession(request);

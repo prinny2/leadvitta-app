@@ -55,7 +55,9 @@ export async function liberarProcessamento(
     .collection("mensagens_processadas")
     .doc(providerMessageId.replace(/[^\w-]/g, "_"))
     .delete()
-    .catch(() => {});
+    .catch((err) => {
+      console.warn("[conversas] falha ao liberar processamento:", err instanceof Error ? err.message : err);
+    });
 }
 
 type InboundParams = {

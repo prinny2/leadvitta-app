@@ -1,4 +1,4 @@
-import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import { enforceRateLimit, getBaseUrl, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import Stripe from "stripe";
 import { ga4ValueFromCents, sendGa4Event } from "@/lib/analytics/ga4-server";
 import type { BillingInterval, BillingPlanConfig } from "@/lib/billing";
@@ -7,7 +7,7 @@ import {
   getStripeCheckoutMode,
   parseBillingPlan,
 } from "@/lib/billing";
-import { isStripeConfigured, siteUrl } from "@/lib/config";
+import { isStripeConfigured } from "@/lib/config";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { isAllowedStripePriceId } from "@/lib/stripe/price-guard";
 import { getStripe } from "@/lib/stripe/server";
@@ -22,14 +22,6 @@ type CheckoutBody = {
   customerEmail?: string;
   gaClientId?: string;
 };
-
-function getBaseUrl(request: Request) {
-  return (
-    request.headers.get("origin") ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    siteUrl
-  ).replace(/\/$/, "");
-}
 
 function getCheckoutDescription(
   planConfig: BillingPlanConfig,

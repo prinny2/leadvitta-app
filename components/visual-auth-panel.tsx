@@ -36,7 +36,9 @@ async function notifyOpsSignup(idToken: string) {
       authorization: `Bearer ${idToken}`,
     },
     body: JSON.stringify({ event: "signup.created" }),
-  }).catch(() => {});
+  }).catch((err) => {
+    console.warn("[auth] ops signup notify falhou:", err instanceof Error ? err.message : err);
+  });
 }
 
 function loadDnaDraft(): Partial<Clinica> | null {

@@ -3,13 +3,16 @@
 
 // Config do Firebase web é PÚBLICA por design (vai no bundle do cliente), mas
 // a API key deve vir do ambiente para não ficar committed no repo.
+// Os identificadores abaixo são públicos por design (aparecem no bundle do
+// cliente de qualquer app Firebase). Os fallbacks hardcoded garantem que
+// produção continua funcionando mesmo se as NEXT_PUBLIC_FIREBASE_* não
+// estiverem setadas na Vercel — apenas a apiKey é obrigatória via env.
 export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "",
   authDomain:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
     "leadvitta-app.firebaseapp.com",
-  projectId:
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "leadvitta-app",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "leadvitta-app",
   storageBucket:
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
     "leadvitta-app.firebasestorage.app",
@@ -23,6 +26,17 @@ export const firebaseConfig = {
 /** True quando há projeto Firebase configurado (login + banco). */
 export const isFirebaseConfigured =
   !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
+
+/** Chave pública do Clerk para a sessão do navegador. */
+export const clerkPublishableKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim() || "";
+
+/** True quando a UI pode usar Clerk no cliente. */
+export const isClerkClientConfigured = !!clerkPublishableKey;
+
+/** True quando middleware/server actions podem validar sessão Clerk. */
+export const isClerkServerConfigured =
+  isClerkClientConfigured && !!process.env.CLERK_SECRET_KEY?.trim();
 
 /** Chave pública VAPID para Web Push (FCM). Pública por design — vai no frontend. */
 export const firebaseVapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;

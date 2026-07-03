@@ -11,10 +11,15 @@ import { tons } from "@/data/tons";
 import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
 import { getClinica, saveClinica } from "@/lib/store";
 import { onAuthStateChanged, updatePassword } from "firebase/auth";
-import { isFirebaseConfigured, isWebPushConfigured } from "@/lib/config";
+import {
+  isClerkClientConfigured,
+  isFirebaseConfigured,
+  isWebPushConfigured,
+} from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
 import { clinicaVazia, type Clinica } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { AnaOnboarding } from "@/components/ana-onboarding";
 import { CheckoutButton } from "@/components/checkout-button";
 import { BillingPortalButton } from "@/components/billing-portal-button";
 import { NotificacoesToggle } from "@/components/notificacoes-toggle";
@@ -178,7 +183,9 @@ export default function ConfiguracoesPage() {
               body: JSON.stringify({ numero: "", firebaseIdToken: t }),
             });
           }
-        } catch { /* rollback best-effort */ }
+        } catch (rollbackErr) {
+          console.warn("[config] rollback WhatsApp falhou:", rollbackErr instanceof Error ? rollbackErr.message : rollbackErr);
+        }
       }
       setErro(err instanceof Error ? err.message : "Erro ao salvar.");
     } finally {
@@ -227,11 +234,18 @@ export default function ConfiguracoesPage() {
 
       {/* Header */}
       <div>
-        <h1 className="font-serif text-3xl font-semibold text-champagne-300">Configurações</h1>
+        <h1 className="font-serif text-3xl font-semibold text-champagne-300">
+          {c.onboarded ? "Configurações" : "Bem-vinda ao LeadBellus"}
+        </h1>
         <p className="text-sm text-navy-100 mt-1">
           O DNA da sua clínica deixa todas as respostas com a sua identidade.
         </p>
       </div>
+
+      {/* Ana — guia de onboarding até o DNA ser salvo */}
+      {!c.onboarded && (
+        <AnaOnboarding dnaPct={dnaPct} nomeClinica={c.nome_clinica.trim() || undefined} />
+      )}
 
       {checkoutNotice === "sucesso" && (
         <div className="rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3">
@@ -480,8 +494,20 @@ export default function ConfiguracoesPage() {
 
       {isWebPushConfigured && <NotificacoesToggle />}
 
-      {/* ── Trocar senha ── */}
-      {isFirebaseConfigured && (
+      {/* ── Conta e senha ── */}
+      {isClerkClientConfigured ? (
+        <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
+          <SectionHeader icon={KeyRound} title="Conta e senha" />
+
+          <div className="p-5 sm:p-6">
+            <p className="text-sm text-navy-100">
+              Sua conta agora é gerenciada pelo Clerk. Use os fluxos de login,
+              recuperação de acesso e provedores sociais do Clerk para alterar
+              credenciais.
+            </p>
+          </div>
+        </div>
+      ) : isFirebaseConfigured ? (
         <div className="overflow-hidden rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
           <SectionHeader icon={KeyRound} title="Trocar senha" />
 
@@ -506,7 +532,7 @@ export default function ConfiguracoesPage() {
             )}
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
