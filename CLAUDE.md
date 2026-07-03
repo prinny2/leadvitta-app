@@ -44,9 +44,7 @@ env vars are set.
 - **AI:** OpenAI (`gpt-4o-mini` default) with **Anthropic Claude fallback**
   (`claude-haiku-4-5`). All calls are server-side with timeout/retry; Anthropic
   uses ephemeral prompt caching.
-- **Auth + data:** **Clerk** is the public auth (login/signup, since 2026-07-01,
-  PR #98); Firebase provides the internal session bridge (custom token via
-  `/api/auth/firebase-token`) and **Cloud Firestore** remains the data store;
+- **Auth + data:** Firebase Auth (email/password + Google) and Cloud Firestore;
   Firebase Admin SDK for server-side webhook writes.
 - **Billing:** Stripe (subscription mode), reconciled into Firestore via webhook.
 - **Integrations:** **WhatsApp via Z-API** (`ZAPI_INSTANCE_ID` / `ZAPI_TOKEN`;
