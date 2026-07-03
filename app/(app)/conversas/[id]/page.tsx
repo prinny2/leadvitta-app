@@ -46,11 +46,15 @@ export default function ConversaThreadPage() {
         setErroCarregamento(true);
         setMensagens([]);
       });
-    marcarConversaLida(id).catch(() => {});
+    marcarConversaLida(id).catch((err) => {
+      console.warn("[conversas] falha ao marcar como lida:", err instanceof Error ? err.message : err);
+    });
   }, [id]);
 
   useEffect(() => {
-    getClinica().then(setClinica).catch(() => {});
+    getClinica().then(setClinica).catch((err) => {
+      console.warn("[conversas] falha ao carregar clínica:", err instanceof Error ? err.message : err);
+    });
   }, []);
 
   useEffect(() => {

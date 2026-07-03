@@ -6,7 +6,7 @@ import {
   registrarMensagemEnviada,
   getCanalClinica,
 } from "@/lib/conversas";
-import { enforceRateLimit, rejectCrossOriginRequest } from "@/lib/api-security";
+import { enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,12 +27,9 @@ export async function POST(req: Request) {
   });
   if (rateLimitError) return rateLimitError;
 
-  let body: { conversaId?: string; texto?: string; firebaseIdToken?: string };
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
-  }
+  const parsed = await readJsonBody<{ conversaId?: string; texto?: string; firebaseIdToken?: string }>(req, 8_192);
+  if (parsed.error) return parsed.error;
+  const body = parsed.data ?? {};
 
   const { conversaId, texto, firebaseIdToken } = body;
   if (!conversaId || !texto?.trim()) {

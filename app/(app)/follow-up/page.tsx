@@ -79,7 +79,9 @@ export default function FollowUpPage() {
         tipo: "follow_up",
         contexto: { gatilho, contexto, procedimento, tom, nomeCliente },
         respostas: data.mensagens,
-      }).catch(() => {});
+      }).catch((err) => {
+        console.warn("[follow-up] falha ao salvar histórico:", err instanceof Error ? err.message : err);
+      });
     } catch {
       setErro("Falha de conexão. Tente novamente.");
     } finally {

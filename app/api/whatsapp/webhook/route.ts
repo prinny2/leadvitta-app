@@ -98,7 +98,10 @@ async function processarMensagem(msg: InboundMessage) {
     score: nlp?.score ?? null,
   });
 
-  if (!nlp) return;
+  if (!nlp) {
+    await marcarPrecisaAtencao(clinicaId, msg.from);
+    return;
+  }
   const respostaFinal = nlp.respostas.consultiva;
 
   const envio = await getWhatsAppProvider().sendText(msg.from, respostaFinal, {
@@ -149,7 +152,9 @@ async function processarMensagem(msg: InboundMessage) {
     intent: nlp.intent ?? null,
     sentiment: nlp.sentiment ?? null,
     score: nlp.score ?? null,
-  }).catch(() => {});
+  }).catch((err) => {
+    console.warn("[whatsapp] supabase historico mirror falhou:", err instanceof Error ? err.message : err);
+  });
 
   console.log(
     `[whatsapp] resposta ${envio.ok ? "enviada" : "FALHOU"} para ${msg.from} (clínica ${clinicaId}).`

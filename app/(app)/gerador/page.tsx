@@ -221,19 +221,25 @@ export default function GeradorPage() {
         setRespostas((prev) => (prev ? { ...prev, [variante]: data.texto } : prev));
         setSalvo(false);
       }
-    } catch { /* silencioso */ } finally { setRefinando(null); }
+    } catch (err) {
+      console.warn("[gerador] falha ao refinar resposta:", err instanceof Error ? err.message : err);
+    } finally { setRefinando(null); }
   }
 
   async function salvar() {
     if (!respostas) return;
-    await addHistorico({
-      tipo: modo === "reescrever" ? "reescrever" : "gerador",
-      contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
-      respostas: [respostas.curta, respostas.consultiva, respostas.persuasiva],
-      intent: nlp?.intent, sentiment: nlp?.sentiment, score: nlp?.score,
-    });
-    setSalvo(true);
-    setTimeout(() => setSalvo(false), 2500);
+    try {
+      await addHistorico({
+        tipo: modo === "reescrever" ? "reescrever" : "gerador",
+        contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
+        respostas: [respostas.curta, respostas.consultiva, respostas.persuasiva],
+        intent: nlp?.intent, sentiment: nlp?.sentiment, score: nlp?.score,
+      });
+      setSalvo(true);
+      setTimeout(() => setSalvo(false), 2500);
+    } catch (err) {
+      console.warn("[gerador] falha ao salvar histórico:", err instanceof Error ? err.message : err);
+    }
   }
 
   const nomeDna = clinica?.nome_clinica;

@@ -188,8 +188,8 @@ export async function POST(req: Request) {
     if (decoded?.uid) {
       try {
         await mirrorGeneration(decoded.uid, body, result);
-      } catch {
-        // Supabase é espelho aditivo; geração não pode falhar por causa dele.
+      } catch (err) {
+        console.warn("[api/generate] supabase mirror falhou:", err instanceof Error ? err.message : err);
       }
     }
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { reivindicarNumero, liberarNumero } from "@/lib/numeros";
-import { enforceRateLimit, rejectCrossOriginRequest } from "@/lib/api-security";
+import { enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,18 +24,16 @@ export async function POST(req: Request) {
   });
   if (rateLimitError) return rateLimitError;
 
-  let body: {
+  type WhatsAppBody = {
     numero?: string;
     zapi_instance_id?: string;
     zapi_token?: string;
     zapi_client_token?: string;
     firebaseIdToken?: string;
   };
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
-  }
+  const parsed = await readJsonBody<WhatsAppBody>(req, 4_096);
+  if (parsed.error) return parsed.error;
+  const body = parsed.data ?? {};
 
   const decoded = await verifyFirebaseIdToken(body.firebaseIdToken);
   if (!decoded) {
