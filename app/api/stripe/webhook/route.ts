@@ -211,8 +211,8 @@ export async function POST(request: Request) {
       webhookSecret
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Assinatura inválida.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    console.error("[stripe.webhook] assinatura inválida:", err);
+    return NextResponse.json({ error: "Assinatura inválida." }, { status: 400 });
   }
 
   try {

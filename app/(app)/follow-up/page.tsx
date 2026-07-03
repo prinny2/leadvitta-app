@@ -14,7 +14,10 @@ import { procedimentos } from "@/data/procedimentos";
 import { tons } from "@/data/tons";
 import { followupContextoOptions } from "@/data/opcoes";
 import { addHistorico } from "@/lib/store";
-import { useClinica } from "@/lib/hooks/use-clinica";
+import { useClinica, buildClinicaDnaPayload } from "@/lib/hooks/use-clinica";
+import { useApiAction } from "@/lib/hooks/use-api-action";
+import { FormSection } from "@/components/form-section";
+import { ErrorBanner } from "@/components/error-banner";
 import { cn } from "@/lib/utils";
 
 const fupOptions = followups.map((f) => ({ value: f.id, label: f.label }));
@@ -36,9 +39,7 @@ export default function FollowUpPage() {
   const [tom, setTom] = useState("acolhedor");
   const [nomeCliente, setNomeCliente] = useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [erro, setErro] = useState("");
-  const [aviso, setAviso] = useState("");
+  const { loading, erro, aviso, call } = useApiAction();
   const [mensagens, setMensagens] = useState<string[] | null>(null);
 
   useEffect(() => {
@@ -46,45 +47,25 @@ export default function FollowUpPage() {
   }, [clinica]);
 
   async function gerar() {
-    setLoading(true);
-    setErro("");
-    setAviso("");
     setMensagens(null);
-    try {
-      const res = await fetch("/api/follow-up", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          gatilho, contexto, detalhe, procedimento, tom, nomeCliente,
-          clinica: clinica
-            ? {
-                nome_clinica: clinica.nome_clinica,
-                cidade: clinica.cidade,
-                como_chamar: clinica.como_chamar,
-                formalidade: clinica.formalidade,
-                cta_preferido: clinica.cta_preferido,
-              }
-            : undefined,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setErro(data.error || "Não foi possível gerar agora."); return; }
-      setMensagens(data.mensagens);
-      if (data.mock) {
-        setAviso(data.aviso || "Modo demonstração — mostrando um exemplo. As mensagens reais entram quando a clínica está ativa.");
-      } else if (data.aviso) {
-        setAviso(data.aviso);
-      }
-      addHistorico({
-        tipo: "follow_up",
-        contexto: { gatilho, contexto, procedimento, tom, nomeCliente },
-        respostas: data.mensagens,
-      }).catch(() => {});
-    } catch {
-      setErro("Falha de conexão. Tente novamente.");
-    } finally {
-      setLoading(false);
-    }
+    await call<{ mensagens: string[] }>({
+      url: "/api/follow-up",
+      body: {
+        gatilho, contexto, detalhe, procedimento, tom, nomeCliente,
+        clinica: buildClinicaDnaPayload(clinica),
+      },
+      onSuccess: (data) => {
+        setMensagens(data.mensagens);
+        addHistorico({
+          tipo: "follow_up",
+          contexto: { gatilho, contexto, procedimento, tom, nomeCliente },
+          respostas: data.mensagens,
+        }).catch((err) => {
+          console.warn("[follow-up] falha ao salvar histórico:", err instanceof Error ? err.message : err);
+        });
+      },
+      demoAviso: "Modo demonstração — mostrando um exemplo. As mensagens reais entram quando a clínica está ativa.",
+    });
   }
 
   return (
@@ -104,14 +85,7 @@ export default function FollowUpPage() {
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
 
         {/* Formulário */}
-        <div className="rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
-          <div className="border-b border-brand-50 px-5 py-4 sm:px-6">
-            <p className="text-xs font-semibold uppercase tracking-wider text-navy-100">
-              Contexto da cliente
-            </p>
-          </div>
-
-          <div className="space-y-4 p-5 sm:p-6">
+        <FormSection titulo="Contexto da cliente">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="gat">Sumiu há quanto tempo?</Label>
@@ -150,9 +124,7 @@ export default function FollowUpPage() {
               />
             </div>
 
-            {erro && (
-              <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">{erro}</p>
-            )}
+            <ErrorBanner message={erro} />
 
             <button
               type="button"
@@ -163,8 +135,7 @@ export default function FollowUpPage() {
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
               Gerar sequência de follow-up
             </button>
-          </div>
-        </div>
+        </FormSection>
 
         {/* Resultados */}
         <div className="space-y-4">

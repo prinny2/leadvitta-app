@@ -1,5 +1,6 @@
 import {
   enforceRateLimit,
+  getBearerToken,
   jsonNoStore,
   rejectCrossOriginRequest,
 } from "@/lib/api-security";
@@ -7,12 +8,6 @@ import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { reconcileBillingForUser } from "@/lib/stripe/billing-sync";
 
 export const runtime = "nodejs";
-
-function getBearerToken(request: Request) {
-  const header = request.headers.get("authorization") || "";
-  const [scheme, token] = header.split(" ");
-  return scheme?.toLowerCase() === "bearer" ? token : undefined;
-}
 
 /** Liga checkout guest (mesmo e-mail) à clínica após signup/login. */
 export async function POST(request: Request) {

@@ -27,7 +27,9 @@ import { perfisCliente } from "@/data/perfis-cliente";
 import { objetivoOptions, oQueMelhorarOptions } from "@/data/opcoes";
 import { addHistorico } from "@/lib/store";
 import { getFirebaseAuth } from "@/lib/firebase/client";
-import { useClinica } from "@/lib/hooks/use-clinica";
+import { useClinica, buildClinicaDnaPayload } from "@/lib/hooks/use-clinica";
+import { FormSection } from "@/components/form-section";
+import { ErrorBanner } from "@/components/error-banner";
 import { cn } from "@/lib/utils";
 import type { RespostaTripla, Variante } from "@/lib/types";
 
@@ -111,19 +113,6 @@ export default function GeradorPage() {
     window.sessionStorage.removeItem("re_prefill");
   }, []);
 
-  function dnaPayload() {
-    return clinica
-      ? {
-          nome_clinica: clinica.nome_clinica,
-          cidade: clinica.cidade,
-          procedimentos: clinica.procedimentos,
-          formalidade: clinica.formalidade,
-          como_chamar: clinica.como_chamar,
-          cta_preferido: clinica.cta_preferido,
-        }
-      : undefined;
-  }
-
   function toggleMelhorar(v: string) {
     setOQueMelhorar((prev) =>
       prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]
@@ -159,7 +148,7 @@ export default function GeradorPage() {
         body: JSON.stringify({
           modo, procedimento, situacao, tom, objetivo, perfilCliente,
           oQueMelhorar: modo === "reescrever" ? oQueMelhorar : undefined,
-          nomeCliente, mensagemCliente, clinica: dnaPayload(), firebaseIdToken,
+          nomeCliente, mensagemCliente, clinica: buildClinicaDnaPayload(clinica), firebaseIdToken,
         }),
       });
       const data = await res.json();
@@ -213,7 +202,7 @@ export default function GeradorPage() {
         body: JSON.stringify({
           acao: "refinar", variante, respostaAtual: respostas[variante],
           procedimento, situacao, tom, objetivo, perfilCliente,
-          nomeCliente, mensagemCliente, clinica: dnaPayload(),
+          nomeCliente, mensagemCliente, clinica: buildClinicaDnaPayload(clinica),
         }),
       });
       const data = await res.json();
@@ -221,19 +210,25 @@ export default function GeradorPage() {
         setRespostas((prev) => (prev ? { ...prev, [variante]: data.texto } : prev));
         setSalvo(false);
       }
-    } catch { /* silencioso */ } finally { setRefinando(null); }
+    } catch (err) {
+      console.warn("[gerador] falha ao refinar resposta:", err instanceof Error ? err.message : err);
+    } finally { setRefinando(null); }
   }
 
   async function salvar() {
     if (!respostas) return;
-    await addHistorico({
-      tipo: modo === "reescrever" ? "reescrever" : "gerador",
-      contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
-      respostas: [respostas.curta, respostas.consultiva, respostas.persuasiva],
-      intent: nlp?.intent, sentiment: nlp?.sentiment, score: nlp?.score,
-    });
-    setSalvo(true);
-    setTimeout(() => setSalvo(false), 2500);
+    try {
+      await addHistorico({
+        tipo: modo === "reescrever" ? "reescrever" : "gerador",
+        contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
+        respostas: [respostas.curta, respostas.consultiva, respostas.persuasiva],
+        intent: nlp?.intent, sentiment: nlp?.sentiment, score: nlp?.score,
+      });
+      setSalvo(true);
+      setTimeout(() => setSalvo(false), 2500);
+    } catch (err) {
+      console.warn("[gerador] falha ao salvar histórico:", err instanceof Error ? err.message : err);
+    }
   }
 
   const nomeDna = clinica?.nome_clinica;
@@ -282,14 +277,7 @@ export default function GeradorPage() {
       <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
 
         {/* ── Formulário ── */}
-        <div className="rounded-2xl border border-navy-500 bg-navy-700 shadow-card">
-          <div className="border-b border-brand-50 px-5 py-4 sm:px-6">
-            <p className="text-xs font-semibold uppercase tracking-wider text-navy-100">
-              {modo === "reescrever" ? "Sua mensagem" : "Contexto da conversa"}
-            </p>
-          </div>
-
-          <div className="space-y-4 p-5 sm:p-6">
+        <FormSection titulo={modo === "reescrever" ? "Sua mensagem" : "Contexto da conversa"}>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="nome">Nome da cliente</Label>
@@ -368,9 +356,7 @@ export default function GeradorPage() {
               />
             </div>
 
-            {erro && (
-              <p className="rounded-lg bg-red-900/20 px-3 py-2 text-sm text-red-400">{erro}</p>
-            )}
+            <ErrorBanner message={erro} />
 
             <button
               type="button"
@@ -381,8 +367,7 @@ export default function GeradorPage() {
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
               {modo === "reescrever" ? "Melhorar mensagem" : "Gerar 3 respostas"}
             </button>
-          </div>
-        </div>
+        </FormSection>
 
         {/* ── Resultados ── */}
         <div className="space-y-4">

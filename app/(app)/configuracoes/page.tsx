@@ -182,7 +182,9 @@ export default function ConfiguracoesPage() {
               body: JSON.stringify({ numero: "", firebaseIdToken: t }),
             });
           }
-        } catch { /* rollback best-effort */ }
+        } catch (rollbackErr) {
+          console.warn("[config] rollback WhatsApp falhou:", rollbackErr instanceof Error ? rollbackErr.message : rollbackErr);
+        }
       }
       setErro(err instanceof Error ? err.message : "Erro ao salvar.");
     } finally {

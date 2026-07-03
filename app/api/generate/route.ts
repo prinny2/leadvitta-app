@@ -1,4 +1,4 @@
-import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import { jsonNoStore, enforceRateLimit, parseProviderChain, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { gerarRespostas, refinarResposta, type GerarResultado } from "@/lib/ai/provider";
 import type { GerarInput, RefineInput, RespostaTripla } from "@/lib/types";
 import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
@@ -152,12 +152,7 @@ export async function POST(req: Request) {
       }
     }
 
-    const providerChain = Array.isArray(body.providerChain)
-      ? body.providerChain.filter(
-          (p): p is "openai" | "anthropic" | "gemini" =>
-            p === "openai" || p === "anthropic" || p === "gemini"
-        )
-      : undefined;
+    const providerChain = parseProviderChain(body.providerChain);
 
     let result;
     try {
@@ -188,8 +183,8 @@ export async function POST(req: Request) {
     if (decoded?.uid) {
       try {
         await mirrorGeneration(decoded.uid, body, result);
-      } catch {
-        // Supabase é espelho aditivo; geração não pode falhar por causa dele.
+      } catch (err) {
+        console.warn("[api/generate] supabase mirror falhou:", err instanceof Error ? err.message : err);
       }
     }
 

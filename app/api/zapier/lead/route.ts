@@ -1,4 +1,4 @@
-import { enforceRateLimit, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import { enforceRateLimit, getBearerToken, jsonNoStore, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { sendOpsNotify } from "@/lib/ops-notify";
 
@@ -8,12 +8,6 @@ type LeadBody = {
   event?: string;
   plan?: string;
 };
-
-function getBearerToken(request: Request) {
-  const header = request.headers.get("authorization") || "";
-  const [scheme, token] = header.split(" ");
-  return scheme?.toLowerCase() === "bearer" ? token : undefined;
-}
 
 export async function POST(request: Request) {
   const originError = rejectCrossOriginRequest(request);

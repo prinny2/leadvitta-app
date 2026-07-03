@@ -73,7 +73,8 @@ export async function enableWebPush(): Promise<EnableResult> {
 
     if (!token) return { ok: false, reason: "sem_token" };
     return { ok: true, token };
-  } catch {
+  } catch (err) {
+    console.warn("[messaging] falha ao habilitar Web Push:", err instanceof Error ? err.message : err);
     return { ok: false, reason: "erro" };
   }
 }

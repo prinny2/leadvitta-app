@@ -52,10 +52,14 @@ export async function POST(request: Request) {
     { merge: true }
   );
 
-  await sendOpsNotify("waitlist.joined", { email, plan }).catch(() => {});
+  await sendOpsNotify("waitlist.joined", { email, plan }).catch((err) => {
+    console.warn("[waitlist] ops notify falhou:", err instanceof Error ? err.message : err);
+  });
 
   // Best-effort Supabase mirror (additive, non-blocking)
-  upsertWaitlist({ email, plan }).catch(() => {});
+  upsertWaitlist({ email, plan }).catch((err) => {
+    console.warn("[waitlist] supabase mirror falhou:", err instanceof Error ? err.message : err);
+  });
 
   return jsonNoStore({ ok: true });
 }

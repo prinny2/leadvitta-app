@@ -129,6 +129,149 @@ describe("zapiProvider.parseInbound", () => {
   });
 });
 
+describe("zapiProvider.sendImage", () => {
+  it("returns not configured without credentials", async () => {
+    vi.stubEnv("ZAPI_INSTANCE_ID", "");
+    vi.stubEnv("ZAPI_TOKEN", "");
+    const res = await zapiProvider.sendImage("5591985156690", "https://img.jpg", "caption");
+    expect(res.ok).toBe(false);
+    expect(res.status).toBe(0);
+  });
+
+  it("calls send-image endpoint with correct payload", async () => {
+    configureZapi();
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ messageId: "IMG1" }),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const res = await zapiProvider.sendImage(
+      "whatsapp:+5591985156690",
+      "https://example.com/photo.jpg",
+      "Antes e depois"
+    );
+    expect(res).toEqual({ ok: true, status: 200, data: { messageId: "IMG1" } });
+
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(url).toBe("https://api.z-api.io/instances/INST123/token/TOK456/send-image");
+    const body = JSON.parse((init as RequestInit).body as string);
+    expect(body).toEqual({
+      phone: "5591985156690",
+      image: "https://example.com/photo.jpg",
+      caption: "Antes e depois",
+    });
+  });
+
+  it("includes Client-Token header when ZAPI_CLIENT_TOKEN is set", async () => {
+    configureZapi();
+    vi.stubEnv("ZAPI_CLIENT_TOKEN", "CLIENT789");
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({}),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    await zapiProvider.sendImage("5591985156690", "https://img.jpg");
+    const headers = (fetchSpy.mock.calls[0][1] as RequestInit).headers as Record<string, string>;
+    expect(headers["Client-Token"]).toBe("CLIENT789");
+  });
+
+  it("tolerates non-JSON response body", async () => {
+    configureZapi();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+        json: () => Promise.reject(new Error("not json")),
+      })
+    );
+    const res = await zapiProvider.sendImage("5591985156690", "https://img.jpg");
+    expect(res.ok).toBe(false);
+    expect(res.data).toEqual({});
+  });
+});
+
+describe("zapiProvider.sendButtons", () => {
+  it("returns not configured without credentials", async () => {
+    vi.stubEnv("ZAPI_INSTANCE_ID", "");
+    vi.stubEnv("ZAPI_TOKEN", "");
+    const res = await zapiProvider.sendButtons("5591985156690", "Choose:", [
+      { id: "1", label: "Sim" },
+    ]);
+    expect(res.ok).toBe(false);
+    expect(res.status).toBe(0);
+  });
+
+  it("calls send-button-list endpoint with correct payload", async () => {
+    configureZapi();
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ messageId: "BTN1" }),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const buttons = [
+      { id: "opt_sim", label: "Sim" },
+      { id: "opt_nao", label: "Não" },
+    ];
+    const res = await zapiProvider.sendButtons("5591985156690", "Quer agendar?", buttons);
+    expect(res).toEqual({ ok: true, status: 200, data: { messageId: "BTN1" } });
+
+    const [url, init] = fetchSpy.mock.calls[0];
+    expect(url).toBe(
+      "https://api.z-api.io/instances/INST123/token/TOK456/send-button-list"
+    );
+    const body = JSON.parse((init as RequestInit).body as string);
+    expect(body).toEqual({
+      phone: "5591985156690",
+      message: "Quer agendar?",
+      buttonList: {
+        buttons: [
+          { id: "opt_sim", label: "Sim" },
+          { id: "opt_nao", label: "Não" },
+        ],
+      },
+    });
+  });
+
+  it("includes Client-Token header when ZAPI_CLIENT_TOKEN is set", async () => {
+    configureZapi();
+    vi.stubEnv("ZAPI_CLIENT_TOKEN", "CLIENT789");
+    const fetchSpy = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({}),
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    await zapiProvider.sendButtons("5591985156690", "Escolha:", [{ id: "1", label: "A" }]);
+    const headers = (fetchSpy.mock.calls[0][1] as RequestInit).headers as Record<string, string>;
+    expect(headers["Client-Token"]).toBe("CLIENT789");
+  });
+
+  it("tolerates non-JSON response body", async () => {
+    configureZapi();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: () => Promise.reject(new Error("not json")),
+      })
+    );
+    const res = await zapiProvider.sendButtons("5591985156690", "msg", [
+      { id: "1", label: "X" },
+    ]);
+    expect(res.ok).toBe(false);
+    expect(res.data).toEqual({});
+  });
+});
+
 describe("zapiProvider.validateWebhook", () => {
   it("sem token configurado, libera fora de produção", async () => {
     vi.stubEnv("ZAPI_SECURITY_TOKEN", "");
