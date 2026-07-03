@@ -14,7 +14,7 @@ Stack: **Next.js App Router + TypeScript + TailwindCSS + Clerk + Firebase/Firest
 
 ## Status (produção) — atualizado 2026-07-03
 
-- **LIVE:** `https://leadbellus.com.br` em arquitetura **full-Vercel** — Vercel serve o frontend e executa `/api/*`; Cloud Run fica como legado/backup. `ENABLE_API_PROXY` deve permanecer desligado.
+- **LIVE:** `https://www.leadbellus.com.br` em arquitetura **full-Vercel** — Vercel serve o frontend e executa `/api/*`; Cloud Run fica como legado/backup. `ENABLE_API_PROXY` deve permanecer desligado.
 - **Auth:** Clerk para login/cadastro com ponte Firebase interna. **Billing:** Stripe LIVE com webhook configurado.
 - **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
 - **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID, número +55 91 8515-6690). Auto-resposta (webhook) em rollout.
@@ -128,7 +128,7 @@ ZAPIER_SHARED_SECRET=
 
 ## Deploy (Vercel atual)
 
-- **Vercel:** Serve o frontend, domínio principal (`leadbellus.com.br`) e handlers `app/api/*`.
+- **Vercel:** Serve o frontend, domínio principal (`www.leadbellus.com.br`) e handlers `app/api/*`.
 - **Cloud Run:** Legado/backup. Use apenas se o modo híbrido/proxy for reativado deliberadamente.
 
 1. Mantenha `ENABLE_API_PROXY=false`/ausente em produção para preservar a ponte Clerk -> Firebase.

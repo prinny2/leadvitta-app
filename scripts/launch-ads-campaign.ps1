@@ -48,9 +48,9 @@ LEAD BELLUS ADS CAMPAIGN - IMPORT TO GOOGLE ADS EDITOR (AUTOMATED PREP)
    - 04_assets_manual.csv
 5. Review everything. Post changes ONLY as Paused first.
 6. After import, go to Google Ads web and run the GA4 setup from 07_ga4_conversions.md
-7. Domain is leadbellus.com.br.
+7. Domain is www.leadbellus.com.br.
 
-Pack generated for production: https://leadbellus.com.br
+Pack generated for production: https://www.leadbellus.com.br
 "@
 $instructions | Out-File -FilePath (Join-Path $dest "AUTO_IMPORT_INSTRUCTIONS.txt") -Encoding UTF8
 

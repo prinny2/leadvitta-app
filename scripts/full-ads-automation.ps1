@@ -7,7 +7,7 @@
 # 2. Copies the pack to Desktop with timestamp for safety
 # 3. Creates ready-to-use import instructions
 # 4. Opens the pack folder
-# 5. Opens the live production site (leadbellus.com.br)
+# 5. Opens the live production site (www.leadbellus.com.br)
 # 6. Prints exact next steps to launch the campaign
 #
 # Run this anytime you want to refresh the campaign.
@@ -62,7 +62,7 @@ $instructions = @"
 ================================================================================
 LEAD BELLUS - GOOGLE ADS CAMPAIGN LAUNCH (AUTOMATED)
 Generated: $(Get-Date)
-Production URL: https://leadbellus.com.br
+Production URL: https://www.leadbellus.com.br
 ================================================================================
 
 STEP 1: IMPORT TO GOOGLE ADS EDITOR
@@ -99,7 +99,7 @@ GUARDRAILS (DO NOT REMOVE)
 - Campaign starts Paused
 - Search only (no Display, no remarketing yet)
 - No fake claims, no "7 dias gratis", no guaranteed results
-- Final URLs use leadbellus.com.br
+- Final URLs use www.leadbellus.com.br
 
 FILES IN THIS FOLDER
 --------------------
@@ -129,8 +129,8 @@ Invoke-Item -LiteralPath $dest
 
 # 5. Open live site
 if (-not $NoBrowser) {
-    Write-Host "[5/6] Opening live site (leadbellus.com.br)..." -ForegroundColor Yellow
-    Start-Process "https://leadbellus.com.br"
+    Write-Host "[5/6] Opening live site (www.leadbellus.com.br)..." -ForegroundColor Yellow
+    Start-Process "https://www.leadbellus.com.br"
 }
 
 # 6. Final message
@@ -146,7 +146,7 @@ Write-Host "3. Import the 4 CSV files into Google Ads Editor (Paused)."
 Write-Host "4. Follow GA4 steps in 07_ga4_conversions.md"
 Write-Host "5. Review and go live (carefully)."
 Write-Host ""
-Write-Host "Everything is ready. Domain is leadbellus.com.br" -ForegroundColor Green
+Write-Host "Everything is ready. Domain is www.leadbellus.com.br" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Cyan
 
 # Optional: show files

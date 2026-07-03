@@ -65,7 +65,7 @@ All items are set to 'Paused' by default.
 After importing, review and POST only as PAUSED.
 Then go to Google Ads web to enable and set up GA4 conversions.
 
-Domain: leadbellus.com.br (live)
+Domain: www.leadbellus.com.br (live)
 "@
 $batchNote | Out-File (Join-Path $dest "READY_TO_IMPORT.txt") -Encoding UTF8
 
@@ -94,7 +94,7 @@ Invoke-Item -LiteralPath $dest
 
 # 6. Open the live site
 Write-Host "`n[6/7] Opening the live production site..." -ForegroundColor Yellow
-Start-Process "https://leadbellus.com.br"
+Start-Process "https://www.leadbellus.com.br"
 
 # 7. Final instructions
 Write-Host "`n[7/7] AUTOMATION COMPLETE!" -ForegroundColor Green
@@ -102,7 +102,7 @@ Write-Host "Pack ready at: $dest"
 Write-Host "Open 'READY_TO_IMPORT.txt' inside the folder."
 Write-Host "Google Ads Editor should be opening (if found)."
 Write-Host "Import the 4 CSVs in order, keep Paused, then enable after review."
-Write-Host "Domain: leadbellus.com.br (already live on prod)"
+Write-Host "Domain: www.leadbellus.com.br (already live on prod)"
 Write-Host "========================================" -ForegroundColor Cyan
 
 # Show files
