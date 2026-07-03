@@ -120,15 +120,15 @@ Dockerfile, cloudbuild.yaml  # Cloud Run build/deploy
 
 ## Dev commands
 
-There is **no `lint` or `test` script** — do not invent validation commands
-beyond build + health check (per AGENTS.md). Available scripts: `dev`, `build`,
-`start`.
+There is **no `lint` script** — do not invent one. Available scripts: `dev`,
+`build`, `start`, `test`, `test:watch`, `test:coverage`.
 
 ```bash
 npm install
 npm run dev            # http://localhost:3000 (HMR)
 npm run build          # production build (.next/standalone)
 npm run start          # serve the build
+npm test               # Vitest (~275 tests, all mocked — no network or keys needed)
 curl http://localhost:3000/api/health      # smoke check → {"status":"ok",...}
 
 # Core flow in demo mode (no AI keys → "mock": true):
@@ -142,6 +142,16 @@ Container parity with Cloud Run (serves on `:8080` via `node server.js`):
 ```bash
 docker build -t leadbellus . && docker run --rm -p 8080:8080 leadbellus
 ```
+
+## Workflow tips
+
+- **No `make`.** There is no `Makefile`. Use `npm run build` and `npm test` instead.
+- **Sync before PR.** Always run `git fetch origin main && git merge origin/main`
+  before opening a pull request to avoid last-minute merge sessions.
+- **Name your branch/session.** Descriptive branch names make `/chronicle` queries
+  useful later; NULL summaries make history nearly untraceable.
+- **CI failures on docs-only branches** are often transient — try re-running the
+  check before writing a fix loop.
 
 ## Deploy
 
