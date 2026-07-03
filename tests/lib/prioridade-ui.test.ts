@@ -41,8 +41,9 @@ describe("prioridadeFromScore", () => {
     expect(prioridadeFromScore(null)).toBe("morno");
   });
 
-  it("returns 'morno' for non-number values", () => {
-    expect(prioridadeFromScore(undefined)).toBe("morno");
+  it("returns 'morno' for non-number types (string, boolean)", () => {
+    expect(prioridadeFromScore("42" as unknown as number)).toBe("morno");
+    expect(prioridadeFromScore(true as unknown as number)).toBe("morno");
   });
 
   it("handles boundary values exactly", () => {
