@@ -17,21 +17,28 @@ Arquitetura implementada (claims #82–#85 no blackboard do cockpit):
 
 ---
 
-**Status original:** Planned / Not started in this checkout.  
-**Current reality (2026-07-01):** Firebase Auth (client) + lightweight cookie guard.  
-**Risk if rushed:** Webhooks broken, auth failures on checkout/API, identity loss, launch blocker.
+**Status original (pre-PR #98):** Planned / Not started.  
+**Post-migration reality (2026-07-01):** Clerk = public auth; Firebase = internal bridge + data layer.  
+**Risk if misconfigured:** Webhooks broken, auth failures on checkout/API, identity loss, launch blocker.
 
-## Current State (Truth)
+## Current State (Truth — post-migration)
 
-- `package.json`: no `@clerk/nextjs`
-- `middleware.ts`: `updateSession` from `@/lib/firebase/middleware` (cookie `firebase_auth`, simple protected route list)
-- Login / Signup: `<VisualAuthPanel />` (Firebase)
-- Client identity: `getFirebaseAuth().currentUser.getIdToken()` → sent as `firebaseIdToken`
-- Server verification: `verifyFirebaseIdToken(...)` (lib/firebase/admin.ts or similar)
-- Protected app routes rely on the cookie guard + client Firebase session for Firestore.
-- Firebase remains the data store (Firestore rules, clinica docs keyed by UID probably).
+- `package.json`: `@clerk/nextjs` installed (`^7.5.12`)
+- `middleware.ts`: imports `clerkMiddleware` from `@clerk/nextjs/server` (active
+  when `isClerkServerConfigured`; falls back to Firebase cookie guard otherwise)
+- Login / Signup: `<SignIn>` / `<SignUp>` from `@clerk/nextjs` (when configured)
+- `app/layout.tsx`: wraps app in `<ClerkProvider>` when `isClerkClientConfigured`
+- Clerk→Firebase bridge: `FirebaseSessionSync` calls `/api/auth/firebase-token`
+  to mint a Firebase custom token after Clerk login
+- Server-side: `app/api/clerk/webhook/route.ts` handles Clerk webhooks
+- Firebase remains the data store (Firestore rules, clinica docs keyed by UID).
 
-## Hard Requirements for Any Clerk Migration
+> **Pre-migration state** (kept for historical reference): Firebase Auth only,
+> `<VisualAuthPanel>`, `firebaseIdToken` sent from client, `verifyFirebaseIdToken`
+> on server. The checklist below documents the prerequisites that guided the
+> migration.
+
+## Hard Requirements for the Migration (Historical Reference)
 
 **1. Public webhooks MUST stay public (no auth middleware)**
 
@@ -132,11 +139,12 @@ Only after code is ready:
 
 ## Do NOT Do (anti-patterns)
 
-- `npm install @clerk/nextjs` on main without plan.
-- `vercel integration add clerk` before webhooks and token paths are handled.
+- ~~`npm install @clerk/nextjs` on main without plan.~~ (Done via PR #98.)
+- ~~`vercel integration add clerk` before webhooks and token paths are handled.~~ (Done.)
 - Assuming `auth.protect()` can be global (it will break inbound webhooks).
+- Setting `ENABLE_API_PROXY=true` — it routes `/api/auth/firebase-token` to Cloud Run which lacks Clerk env vars.
 
-## Next Steps (when pilot decides to start)
+## Next Steps (historical — pre-PR #98)
 
 - Open dedicated claim + branch.
 - Map every `verifyFirebaseIdToken` call + Firestore write that assumes UID.
@@ -241,4 +249,7 @@ Shared:
 
 ---
 
-**Status as of this "faça tudo"**: Preparation complete. The project is now documented and ready for a safe, deliberate Clerk implementation on a dedicated branch. No Clerk packages added. All current Firebase flows remain untouched and working.
+**Status as of PR #98 merge (2026-07-01):** Migration executed. Clerk is installed,
+configured, and live in production. The checklist above is kept as a historical
+record of what was planned and implemented. Firebase flows remain working as the
+internal bridge + data layer.

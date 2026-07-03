@@ -120,9 +120,9 @@ Dockerfile, cloudbuild.yaml  # Cloud Run build/deploy
 
 ## Dev commands
 
-There is **no `lint` or `test` script** — do not invent validation commands
-beyond build + health check (per AGENTS.md). Available scripts: `dev`, `build`,
-`start`.
+There is **no lint script**; do not invent one. Available scripts: `dev`, `build`,
+`start`, `test`, `test:watch`, `test:coverage` (Vitest, ~275 tests, all mocked —
+no network or keys needed).
 
 ```bash
 npm install
@@ -200,8 +200,10 @@ plus `NEXT_PUBLIC_SITE_URL`.
   split-brain; production has since moved (back) to Vercel. If you change the
   production host, do it deliberately and update this file + `status.md`
   together. **No Auth0** — `feat/auth0` is intentionally parked; Firebase
-  Auth is the official v1 auth. Don't add `AUTH0_*`, Auth0 deps, or new
-  `/auth/*` routes without a dedicated migration.
+  Auth provides the internal session bridge (Clerk→Firebase custom token) +
+  Firestore data layer. Clerk is the public auth (login/signup) since PR #98.
+  Don't add `AUTH0_*`, Auth0 deps, or new `/auth/*` routes without a
+  dedicated migration.
 - Each agent works on its **own branch**; never commit directly to the branch
   that deploys.
 - New API routes should follow the `lib/api-security.ts` pattern: origin check +
@@ -215,24 +217,25 @@ plus `NEXT_PUBLIC_SITE_URL`.
 Develop on branch `claude/claude-md-docs-yydjie`, commit with clear messages,
 push with `git push -u origin claude/claude-md-docs-yydjie`, and open a draft PR.
 
-## Current Authentication (as of 2026-07-01 — IMPORTANT)
+## Current Authentication (updated 2026-07-02)
 
-**This checkout uses Firebase Auth (client-side), NOT Clerk.**
+**Public auth = Clerk** (live since 2026-07-01, PR #98 `fbf64dc`).
 
-- `middleware.ts` → `lib/firebase/middleware.ts` (simple cookie `firebase_auth` guard for protected routes)
-- Login/Signup pages use `<VisualAuthPanel>` (Firebase)
-- Most protected flows pass `firebaseIdToken = await user.getIdToken()` from client to APIs
-- Server verifies with `verifyFirebaseIdToken` (lib/firebase/admin.ts)
-- Firebase is also the data backend (Firestore)
+- `middleware.ts` imports `clerkMiddleware` from `@clerk/nextjs/server` (active
+  when `isClerkServerConfigured` is true; falls back to Firebase cookie guard
+  otherwise).
+- Login/Signup pages render `<SignIn>` / `<SignUp>` from `@clerk/nextjs` when
+  Clerk is configured.
+- `app/layout.tsx` wraps the app in `<ClerkProvider>` when
+  `isClerkClientConfigured`.
+- **Firebase = internal session bridge + data layer**: after Clerk login,
+  `FirebaseSessionSync` calls `/api/auth/firebase-token` to mint a Firebase
+  custom token so Firestore rules and billing flows still work.
+- Firestore remains the data backend.
 
-**Clerk (@clerk/nextjs) is a PLANNED migration only.**
-
-See:
-- `docs/clerk-auth-migration.md` (full plan + checklist + all files that touch tokens)
-- Blackboard claim #78 + Decision D-007
+See `docs/clerk-auth-migration.md` for full history and architecture.
 
 **Hard rules:**
-- Never run `npm install @clerk/nextjs` or `vercel integration add clerk` on main.
-- Webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`) must remain completely public.
-- Any real Clerk work must happen on a dedicated branch after the prerequisites in the plan are implemented.
-- Current Firebase flows must stay working until the migration branch is proven.
+- Webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`, `/api/clerk/webhook`) must remain completely public (outside `auth.protect()`).
+- Do **not** set `ENABLE_API_PROXY=true` — it breaks the Clerk→Firebase bridge.
+- Current dual-mode design (Clerk when configured, Firebase fallback otherwise) must be preserved.
