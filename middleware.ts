@@ -44,7 +44,17 @@ const clerkAuthMiddleware = clerkMiddleware(async (auth, request) => {
   if (redirect) return redirect;
 
   if (isProtectedAppRoute(request)) {
-    await auth.protect();
+    const { userId } = await auth();
+    if (!userId) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/login";
+      loginUrl.search = "";
+      loginUrl.searchParams.set(
+        "next",
+        `${request.nextUrl.pathname}${request.nextUrl.search}`
+      );
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
   return NextResponse.next();
