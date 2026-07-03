@@ -15,6 +15,11 @@
 param(
     [switch]$NoBrowser
 )
+$ErrorActionPreference = "Stop"
+
+$repoRoot = Split-Path -Parent $PSScriptRoot
+Set-Location -LiteralPath $repoRoot
+
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  LEAD BELLUS ADS + GA4 AUTOMATION" -ForegroundColor Cyan
@@ -30,7 +35,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "    Pack generated successfully." -ForegroundColor Green
 
-$source = "ads\google_ads_editor"
+$source = Join-Path "ads" "google_ads_editor"
 if (-not (Test-Path $source)) {
     Write-Error "Source pack not found at $source"
     exit 1
@@ -38,19 +43,20 @@ if (-not (Test-Path $source)) {
 
 # 2. Copy to Desktop (timestamped)
 $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm"
-$dest = "$env:USERPROFILE\Desktop\LeadBellus_Campaign_$timestamp"
+$dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Campaign_$timestamp"
 Write-Host "[2/6] Copying fresh pack to Desktop..." -ForegroundColor Yellow
 if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
 New-Item -ItemType Directory -Path $dest | Out-Null
-Copy-Item -Path "$source\*" -Destination $dest -Recurse -Force
+Copy-Item -Path (Join-Path $source "*") -Destination $dest -Recurse -Force
 Write-Host "    Copied to: $dest" -ForegroundColor Green
 
 # 3. Create master instructions file
+Write-Host "[3/6] Creating launch instructions..." -ForegroundColor Yellow
 $instructions = @"
 ================================================================================
 LEAD BELLUS - GOOGLE ADS CAMPAIGN LAUNCH (AUTOMATED)
 Generated: $(Get-Date)
-Production URL: https://leadbellus.com.br (or https://leadvitta-8exz9puff-vini1.vercel.app)
+Production URL: https://leadbellus.com.br
 ================================================================================
 
 STEP 1: IMPORT TO GOOGLE ADS EDITOR
@@ -108,17 +114,17 @@ It will regenerate everything fresh.
 Support: Check ADS_COMMAND_CENTER.md for overall strategy.
 "@
 
-$instructions | Out-File -FilePath "$dest\00_LAUNCH_CAMPAIGN_NOW.txt" -Encoding UTF8
+$instructions | Out-File -FilePath (Join-Path $dest "00_LAUNCH_CAMPAIGN_NOW.txt") -Encoding UTF8
 
 # Also copy the main instructions
-Copy-Item "$source\README.md" -Destination $dest -Force
-Copy-Item "$source\05_launch_checklist.md" -Destination $dest -Force
-Copy-Item "$source\06_automation_rules.md" -Destination $dest -Force
-Copy-Item "$source\07_ga4_conversions.md" -Destination $dest -Force
+Copy-Item (Join-Path $source "README.md") -Destination $dest -Force
+Copy-Item (Join-Path $source "05_launch_checklist.md") -Destination $dest -Force
+Copy-Item (Join-Path $source "06_automation_rules.md") -Destination $dest -Force
+Copy-Item (Join-Path $source "07_ga4_conversions.md") -Destination $dest -Force
 
 # 4. Open folder
 Write-Host "[4/6] Opening pack folder..." -ForegroundColor Yellow
-explorer.exe $dest
+Invoke-Item -LiteralPath $dest
 
 # 5. Open live site
 if (-not $NoBrowser) {

@@ -2,6 +2,9 @@
 # Run this to regenerate pack, copy to Desktop, open folder, and get import instructions.
 
 $ErrorActionPreference = "Stop"
+$repoRoot = Split-Path -Parent $PSScriptRoot
+Set-Location -LiteralPath $repoRoot
+
 
 Write-Host "=== LEAD BELLUS ADS + GA4 AUTOMATION ===" -ForegroundColor Green
 Write-Host "Regenerating pack..." -ForegroundColor Yellow
@@ -12,12 +15,12 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-$packDir = "ads\google_ads_editor"
-$dest = "$env:USERPROFILE\Desktop\LeadBellus_Ads_Pack_Auto"
+$packDir = Join-Path "ads" "google_ads_editor"
+$dest = Join-Path ([Environment]::GetFolderPath("Desktop")) "LeadBellus_Ads_Pack_Auto"
 
 if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
 New-Item -ItemType Directory -Path $dest | Out-Null
-Copy-Item -Path "$packDir\*" -Destination $dest -Recurse -Force
+Copy-Item -Path (Join-Path $packDir "*") -Destination $dest -Recurse -Force
 
 # Create auto-instructions file
 $instructions = @"
@@ -35,11 +38,11 @@ LEAD BELLUS ADS CAMPAIGN - IMPORT TO GOOGLE ADS EDITOR (AUTOMATED PREP)
 6. After import, go to Google Ads web and run the GA4 setup from 07_ga4_conversions.md
 7. Domain is leadbellus.com.br (already aliased to this prod deploy).
 
-Pack generated for latest production: https://leadvitta-8exz9puff-vini1.vercel.app (aliased to .br)
+Pack generated for production: https://leadbellus.com.br
 "@
-$instructions | Out-File -FilePath "$dest\AUTO_IMPORT_INSTRUCTIONS.txt" -Encoding UTF8
+$instructions | Out-File -FilePath (Join-Path $dest "AUTO_IMPORT_INSTRUCTIONS.txt") -Encoding UTF8
 
-explorer.exe $dest
+Invoke-Item -LiteralPath $dest
 
 Write-Host "Automation done!" -ForegroundColor Green
 Write-Host "Pack copied to: $dest" -ForegroundColor Cyan
