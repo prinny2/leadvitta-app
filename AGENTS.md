@@ -18,10 +18,13 @@ details. Standard dev commands live in `package.json` (`dev`, `build`, `start`,
   flags (all integrations report `false` in demo mode, except `firebase` which
   may report `true` from baked public defaults — this does not require secrets).
 
-**Auth note (critical):** Current auth is Firebase client + cookie middleware.
-Clerk is planned future migration only. Full details + checklist in
-`docs/clerk-auth-migration.md`. Do not add Clerk packages without following
-that plan and using a dedicated branch + new claim.
+**Auth note (critical, updated 2026-07-02):** Public auth is **Clerk** (live in
+production since 2026-07-01, PR #98). Firebase remains as the internal session
+bridge (`/api/auth/firebase-token` custom token) + Firestore data layer.
+Public webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`,
+`/api/clerk/webhook`) must stay outside `auth.protect()`. Do **not** set
+`ENABLE_API_PROXY=true` — it breaks the Clerk→Firebase bridge. History + design:
+`docs/clerk-auth-migration.md`.
 - **Exercising the core AI flow without auth:** the protected app routes under
   `app/(app)/*` (e.g. `/gerador`, `/dashboard`) redirect to `/login` when there
   is no real Firebase session. To test the "message → 3 response variants" core
