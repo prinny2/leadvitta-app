@@ -17,6 +17,9 @@ import { getWhatsAppProvider } from "@/lib/whatsapp";
 import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 
 export const runtime = "nodejs";
+// Sonda de capacidades: precisa refletir o ambiente por request e nunca rodar
+// na pré-renderização do build (env malformada não pode derrubar o deploy).
+export const dynamic = "force-dynamic";
 
 /**
  * Endpoint para expor capacidades do backend para a UI com segurança.

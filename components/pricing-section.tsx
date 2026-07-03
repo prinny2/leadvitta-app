@@ -95,8 +95,10 @@ function PricingCard({
       </div>
       <h3
         style={{
-          fontFamily: "var(--font-fraunces, Georgia, serif)",
-          fontSize: "28px",
+          fontFamily: "var(--font-inter, system-ui, sans-serif)",
+          fontSize: "24px",
+          fontWeight: 800,
+          letterSpacing: "-0.01em",
           color: "#ffffff",
           margin: "0 0 8px",
         }}
@@ -107,8 +109,9 @@ function PricingCard({
       <div style={{ marginBottom: "14px" }}>
         <span
           style={{
-            fontFamily: "var(--font-fraunces, Georgia, serif)",
-            fontSize: "48px",
+            fontFamily: "var(--font-inter, system-ui, sans-serif)",
+            fontSize: "44px",
+            letterSpacing: "-0.02em",
             fontWeight: 700,
             color: featured ? "#C9A060" : "#ffffff",
             lineHeight: 1,
@@ -188,6 +191,17 @@ function PricingCard({
               {plan.id === "start" ? "Assinar Start agora" : `Assinar ${plan.label}`}
             </PlanCTA>
           )}
+          {/* Upsell anual: só aparece quando o price anual existe no ambiente
+              (senão o checkout responderia 503 e queimaria a venda). */}
+          {!ctaHref && plan.priceIdAnnual ? (
+            <PlanCTA
+              plan={plan.id}
+              interval="annual"
+              className="mt-2 block w-full rounded-xl border border-[#C9A060]/45 px-5 py-2.5 text-center text-[13px] font-bold text-[#D9B66D]"
+            >
+              {`Anual: R$${plan.price * 10}/ano — 2 meses grátis`}
+            </PlanCTA>
+          ) : null}
           <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.42)", textAlign: "center", margin: "10px 0 0" }}>
             {plan.id === "start"
               ? "Depois da demo: R$97/mês · cancele quando quiser"

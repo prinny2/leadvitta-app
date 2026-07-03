@@ -45,18 +45,18 @@ describe("getStripeCheckoutMode", () => {
     vi.unstubAllEnvs();
   });
 
-  it("retorna 'subscription' quando STRIPE_CHECKOUT_MODE=subscription", () => {
-    vi.stubEnv("STRIPE_CHECKOUT_MODE", "subscription");
+  it("retorna 'payment' quando STRIPE_CHECKOUT_MODE=payment", () => {
+    vi.stubEnv("STRIPE_CHECKOUT_MODE", "payment");
+    expect(getStripeCheckoutMode()).toBe("payment");
+  });
+
+  it("retorna 'subscription' por padrão (produto é assinatura)", () => {
+    vi.stubEnv("STRIPE_CHECKOUT_MODE", "");
     expect(getStripeCheckoutMode()).toBe("subscription");
   });
 
-  it("retorna 'payment' por padrão", () => {
-    vi.stubEnv("STRIPE_CHECKOUT_MODE", "");
-    expect(getStripeCheckoutMode()).toBe("payment");
-  });
-
-  it("retorna 'payment' para qualquer outro valor", () => {
+  it("retorna 'subscription' para qualquer outro valor", () => {
     vi.stubEnv("STRIPE_CHECKOUT_MODE", "qualquer-coisa");
-    expect(getStripeCheckoutMode()).toBe("payment");
+    expect(getStripeCheckoutMode()).toBe("subscription");
   });
 });

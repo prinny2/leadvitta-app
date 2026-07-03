@@ -83,7 +83,7 @@ export function MarketingMobileMenu() {
               left: 0,
               right: 0,
               zIndex: 50,
-              background: "#FBF6EC",
+              background: "#FFFFFF",
               borderBottom: "1px solid rgba(201,160,96,0.3)",
               padding: "12px 24px 20px",
               display: "flex",
@@ -121,7 +121,7 @@ export function MarketingMobileMenu() {
               style={{
                 marginTop: "8px",
                 background: "#10233B",
-                color: "#F7C96B",
+                color: "#FFFFFF",
                 borderRadius: "9999px",
                 padding: "13px 20px",
                 fontSize: "15px",

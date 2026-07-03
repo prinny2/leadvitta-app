@@ -49,7 +49,18 @@ function parseServiceAccount(): ServiceAccount | null {
 function getFirebaseAdminOptions(): AppOptions | null {
   const serviceAccount = parseServiceAccount();
   if (serviceAccount) {
-    return { credential: cert(serviceAccount) };
+    // cert() valida e LANÇA com credencial malformada (campo faltando, PEM
+    // inválido). Isso roda durante o build (rotas GET pré-renderizadas chamam
+    // isFirebaseAdminConfigured) — uma env ruim não pode derrubar o deploy.
+    try {
+      return { credential: cert(serviceAccount) };
+    } catch (e) {
+      console.error(
+        "[firebase/admin] credencial de service account inválida:",
+        e instanceof Error ? e.message : e
+      );
+      return null;
+    }
   }
 
   const projectId =
