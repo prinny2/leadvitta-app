@@ -22,11 +22,13 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $repoRoot
 
 
+$ErrorActionPreference = "Stop"
+Set-Location (Split-Path $PSScriptRoot -Parent)
+
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  LEAD BELLUS ADS + GA4 AUTOMATION" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-
 # 1. Regenerate pack
 Write-Host "[1/6] Regenerating Ads + GA4 pack..." -ForegroundColor Yellow
 npm run ads:generate
