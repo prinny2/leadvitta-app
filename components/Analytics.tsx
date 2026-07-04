@@ -121,18 +121,24 @@ export const trackEvent = (
 ) => {
   if (typeof window === "undefined") return;
 
-  if ((window as any).gtag && GA4_ID) {
-    (window as any).gtag("event", eventName, params);
-  }
+  // Analytics nunca pode quebrar o clique: se gtag/fbq lançarem (bloqueador de
+  // anúncios, script adulterado), o CTA segue navegando normalmente.
+  try {
+    if ((window as any).gtag && GA4_ID) {
+      (window as any).gtag("event", eventName, params);
+    }
 
-  if ((window as any).fbq && META_PIXEL_ID) {
-    const standardEvents: Record<string, string> = {
-      sign_up: "Lead",
-      checkout_click: "InitiateCheckout",
-      purchase: "Purchase",
-      contact_whatsapp: "Contact",
-    };
-    const metaEvent = standardEvents[eventName] || eventName;
-    (window as any).fbq("track", metaEvent, params);
+    if ((window as any).fbq && META_PIXEL_ID) {
+      const standardEvents: Record<string, string> = {
+        sign_up: "Lead",
+        checkout_click: "InitiateCheckout",
+        purchase: "Purchase",
+        contact_whatsapp: "Contact",
+      };
+      const metaEvent = standardEvents[eventName] || eventName;
+      (window as any).fbq("track", metaEvent, params);
+    }
+  } catch {
+    // Falha de analytics é silenciosa por design.
   }
 };
