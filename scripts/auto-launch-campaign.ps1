@@ -21,6 +21,7 @@ Write-Host "=== LEAD BELLUS ADS + GA4 CAMPAIGN AUTOMATION ===" -ForegroundColor 
 
 # 1. Regenerate pack
 Write-Host "`n[1/7] Regenerating the pack..." -ForegroundColor Yellow
+$env:ADS_BASE_URL = "https://www.leadbellus.com.br"
 npm run ads:generate
 if ($LASTEXITCODE -ne 0) {
     throw "Ads + GA4 pack generation failed for ads\google_ads_editor. npm run ads:generate exited with code $LASTEXITCODE."

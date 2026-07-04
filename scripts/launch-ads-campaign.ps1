@@ -9,6 +9,7 @@ Set-Location -LiteralPath $repoRoot
 
 Write-Host "=== LEAD BELLUS ADS + GA4 AUTOMATION ===" -ForegroundColor Green
 Write-Host "Regenerating pack..." -ForegroundColor Yellow
+$env:ADS_BASE_URL = "https://www.leadbellus.com.br"
 npm run ads:generate
 
 if ($LASTEXITCODE -ne 0) {
