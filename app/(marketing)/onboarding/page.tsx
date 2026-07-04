@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
@@ -36,6 +36,11 @@ import {
   ctaOptions,
   formalidadeLabel,
 } from "@/data/opcoes";
+import {
+  fallbackResponse,
+  getStepFromUrl,
+  getTreatment,
+} from "@/app/(marketing)/onboarding/helpers";
 
 type Step = "clinica" | "resposta" | "planos";
 
@@ -47,29 +52,6 @@ const STEPS: { id: Step; n: number; label: string }[] = [
 
 const DRAFT_KEY = "lb_dna_draft";
 const INITIAL_PROCEDURES = 8;
-
-function getTreatment(comoChamar: string): string {
-  switch (comoChamar) {
-    case "amor":
-      return "amor";
-    case "nome":
-      return "Ana";
-    case "nenhum":
-      return "";
-    default:
-      return "linda";
-  }
-}
-
-function fallbackResponse(c: Clinica): string {
-  const treatment = getTreatment(c.como_chamar);
-  const greeting = treatment ? `Oi, ${treatment}! ` : "Oi! ";
-  const clinic = c.nome_clinica.trim()
-    ? ` Aqui na ${c.nome_clinica.trim()},`
-    : "";
-
-  return `${greeting}O valor do botox depende muito do seu objetivo e de uma avaliacao, porque cada rosto pede um cuidado diferente.${clinic} a gente prefere te entender primeiro para indicar o que faz sentido pra voce. Quer que eu ja deixe sua avaliacao reservada?`;
-}
 
 function loadDraft(): Partial<Clinica> | null {
   try {
@@ -102,11 +84,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
   const tabFromUrl = searchParams.get("aba");
   const canPersist = signedIn || !isFirebaseConfigured;
 
-  const [step, setStep] = useState<Step>(
-    tabFromUrl === "planos" || tabFromUrl === "resposta"
-      ? tabFromUrl
-      : "clinica"
-  );
+  const [step, setStep] = useState<Step>("clinica");
   const [clinic, setClinic] = useState<Clinica>(clinicaVazia);
   const [showAllProcedures, setShowAllProcedures] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -118,6 +96,16 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
     const draft = loadDraft();
     if (draft) setClinic((prev) => ({ ...prev, ...draft }));
   }, []);
+
+  const urlStepApplied = useRef(false);
+  useEffect(() => {
+    if (urlStepApplied.current) return;
+    const nextStep = getStepFromUrl(tabFromUrl, clinic.nome_clinica);
+    if (nextStep !== "clinica") {
+      urlStepApplied.current = true;
+      setStep(nextStep);
+    }
+  }, [tabFromUrl, clinic.nome_clinica]);
 
   useEffect(() => {
     saveDraft(clinic);
@@ -439,6 +427,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         <button
                           key={procedure.id}
                           type="button"
+                          aria-pressed={active}
                           onClick={() => toggleProcedure(procedure.label)}
                           className={cn(
                             "rounded-2xl border p-4 text-left transition-all",
