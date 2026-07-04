@@ -24,14 +24,15 @@ import { WhatsAppCta } from "@/components/whatsapp-cta";
 
 const SIGNUP = "/onboarding";
 
-// Paleta (on-brand: creme do logo + tinta navy + dourado) ----------------------
-const INK = "#10233B";
-const INK_SOFT = "#46566B";
+// Paleta (navy profundo + dourado vivo; verde só nos elementos de WhatsApp) ----
+const INK = "#0B1B33";
+const INK_SOFT = "#3D5068";
 const CREAM = "#FFFFFF";
-const CREAM_2 = "#F4F6FA";
-const NAVY = "#0B1A2E";
-const GOLD = "#C9A060";
-const GOLD_DEEP = "#8A6312";
+const CREAM_2 = "#F3F6FB";
+const NAVY = "#081426";
+const GOLD = "#E4A84D";
+const GOLD_DEEP = "#9A6414";
+const GOLD_HOT = "#F7C96B";
 
 /** Depoimentos reais entram aqui. Vazio = a seção mostra prova honesta, sem inventar. */
 const DEPOIMENTOS: { nome: string; clinica: string; texto: string }[] = [
@@ -261,18 +262,18 @@ export default function LandingPage() {
       <Navbar />
 
       {/* Faixa de lançamento */}
-      <div className="launch-strip" style={{ background: INK, color: "#F7C96B", textAlign: "center", padding: "9px 24px", fontSize: "13px", fontWeight: 600 }}>
-        Preço de lançamento · teste grátis, sem cartão
+      <div className="launch-strip" style={{ background: `linear-gradient(90deg, ${GOLD_HOT}, ${GOLD} 55%, #D18A1F)`, color: NAVY, textAlign: "center", padding: "9px 24px", fontSize: "13px", fontWeight: 700 }}>
+        Lançamento: R$97/mês — menos de R$3,30 por dia · teste grátis, sem cartão
       </div>
 
       <main>
         {/* ── HERO ─────────────────────────────────────────────────────────── */}
-        <section className="landing-hero" style={{ padding: "64px 24px 72px", overflowX: "hidden", position: "relative" }}>
+        <section className="landing-hero" style={{ padding: "72px 24px 80px", overflowX: "hidden", position: "relative", background: `linear-gradient(180deg, ${NAVY} 0%, #0D2038 100%)` }}>
           {/* Glows + grid de fundo (decoração tech) */}
           <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: "-180px", right: "-120px", width: "520px", height: "520px", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,160,96,0.16), transparent 65%)", filter: "blur(40px)" }} />
-            <div style={{ position: "absolute", bottom: "-220px", left: "-160px", width: "560px", height: "560px", borderRadius: "50%", background: "radial-gradient(circle, rgba(16,35,59,0.09), transparent 65%)", filter: "blur(48px)" }} />
-            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(16,35,59,0.055) 1px, transparent 1px)", backgroundSize: "26px 26px", maskImage: "linear-gradient(to bottom, black 0%, transparent 78%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, transparent 78%)" }} />
+            <div style={{ position: "absolute", top: "-180px", right: "-120px", width: "560px", height: "560px", borderRadius: "50%", background: "radial-gradient(circle, rgba(228,168,77,0.28), transparent 65%)", filter: "blur(44px)" }} />
+            <div style={{ position: "absolute", bottom: "-240px", left: "-160px", width: "560px", height: "560px", borderRadius: "50%", background: "radial-gradient(circle, rgba(31,168,85,0.14), transparent 65%)", filter: "blur(52px)" }} />
+            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)", backgroundSize: "26px 26px", maskImage: "linear-gradient(to bottom, black 0%, transparent 78%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, transparent 78%)" }} />
           </div>
           <div
             className="hero-grid"
@@ -290,7 +291,7 @@ export default function LandingPage() {
             }}
           >
             <FadeUp className="hero-copy-col" style={{ minWidth: 0 }}>
-              <Eyebrow>Conversão na estética · WhatsApp</Eyebrow>
+              <Eyebrow onNavy>Clínicas de estética · WhatsApp</Eyebrow>
               <h1
                 className="hero-title"
                 style={{
@@ -300,16 +301,15 @@ export default function LandingPage() {
                   letterSpacing: "-0.025em",
                   lineHeight: 1.06,
                   margin: "0 0 18px",
-                  color: INK,
+                  color: "#FFFFFF",
                   overflowWrap: "break-word",
                 }}
               >
-                Pare de perder cliente no{" "}
-                <span className="hero-title-highlight" style={{ background: "linear-gradient(100deg, #B8860B, #C9A060 55%, #8A6312)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", fontStyle: "italic" }}>“quanto custa?”</span>
+                Você não perde cliente pelo preço.{" "}
+                <span className="hero-title-highlight" style={{ background: `linear-gradient(100deg, ${GOLD_HOT}, ${GOLD} 55%, #D18A1F)`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", fontStyle: "italic" }}>Perde pela resposta.</span>
               </h1>
-              <p className="hero-subtitle" style={{ fontSize: "18px", lineHeight: 1.6, color: INK_SOFT, maxWidth: "480px", margin: "0 0 26px" }}>
-                Recebeu mensagem e travou? Cola aqui e saem <strong>3 respostas no jeitinho da sua clínica</strong>, prontas
-                pra colar no WhatsApp. Sem prometer o impossível, sem soar robô.
+              <p className="hero-subtitle" style={{ fontSize: "18px", lineHeight: 1.6, color: "rgba(255,255,255,0.78)", maxWidth: "480px", margin: "0 0 26px" }}>
+                Cole a mensagem da cliente. Em segundos saem <strong style={{ color: "#FFFFFF" }}>3 respostas no tom da sua clínica</strong> — é copiar, colar no WhatsApp e agendar.
               </p>
 
               <div className="hero-cta-row" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
@@ -319,17 +319,17 @@ export default function LandingPage() {
                   href={SIGNUP}
                   className="hero-cta lp-btn-primary"
                   style={{
-                    background: "linear-gradient(135deg, #16304F, #0B1A2E)",
-                    color: "#FFFFFF",
+                    background: `linear-gradient(135deg, ${GOLD_HOT}, ${GOLD} 60%, #D18A1F)`,
+                    color: NAVY,
                     borderRadius: "14px",
                     padding: "15px 28px",
                     fontSize: "15px",
-                    fontWeight: 700,
+                    fontWeight: 800,
                     textDecoration: "none",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "8px",
-                    boxShadow: "0 16px 38px rgba(16,35,59,0.28), inset 0 1px 0 rgba(255,255,255,0.12)",
+                    boxShadow: "0 18px 44px rgba(228,168,77,0.35), inset 0 1px 0 rgba(255,255,255,0.35)",
                   }}
                 >
                   Testar grátis (sem cartão) <ArrowRight size={17} />
@@ -338,10 +338,10 @@ export default function LandingPage() {
                   href="#demo"
                   className="hero-cta lp-btn-ghost"
                   style={{
-                    border: `1.5px solid rgba(16,35,59,0.16)`,
-                    background: "rgba(255,255,255,0.6)",
+                    border: `1.5px solid rgba(255,255,255,0.28)`,
+                    background: "rgba(255,255,255,0.07)",
                     backdropFilter: "blur(8px)",
-                    color: INK,
+                    color: "#FFFFFF",
                     borderRadius: "14px",
                     padding: "15px 24px",
                     fontSize: "15px",
@@ -355,25 +355,25 @@ export default function LandingPage() {
                   <PlayCircle size={17} /> Ver demo
                 </a>
               </div>
-              <p style={{ fontSize: "13px", color: INK_SOFT, margin: "0 0 26px" }}>
-                Atende <strong>mulheres e homens</strong> · funciona no celular · cancele quando quiser
+              <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", margin: "0 0 26px" }}>
+                Atende <strong style={{ color: "rgba(255,255,255,0.85)" }}>mulheres e homens</strong> · funciona no celular · cancele quando quiser
               </p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {["Preço sem susto", "“Achou caro”", "Cliente sumiu", "Medo do procedimento"].map((t) => (
+                {["Preço", "“Achou caro”", "Cliente sumiu", "Medo", "Follow-up"].map((t) => (
                   <span
                     key={t}
                     style={{
-                      background: "rgba(16,35,59,0.04)",
-                      border: "1px solid rgba(16,35,59,0.1)",
+                      background: "rgba(228,168,77,0.1)",
+                      border: "1px solid rgba(228,168,77,0.35)",
                       borderRadius: "9999px",
                       padding: "7px 13px",
                       fontSize: "12px",
-                      fontWeight: 600,
-                      color: INK_SOFT,
+                      fontWeight: 700,
+                      color: GOLD_HOT,
                     }}
                   >
-                    {t}
+                    ✓ {t}
                   </span>
                 ))}
               </div>
@@ -418,19 +418,21 @@ export default function LandingPage() {
           <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
             <FadeUp>
             <div style={{ maxWidth: "640px", marginBottom: "34px" }}>
-              <Eyebrow>O que trava o seu WhatsApp</Eyebrow>
-              <SectionTitle>Você lê a mensagem. A gente já te entrega a resposta.</SectionTitle>
+              <Eyebrow>As 5 conversas que definem seu mês</Eyebrow>
+              <SectionTitle>Toda conversa difícil já chega respondida</SectionTitle>
               <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-                Sem decoreba e sem parecer robô — no tom da sua clínica.
+                Um app, todos os travamentos do WhatsApp resolvidos — no tom da sua clínica.
               </p>
             </div>
             </FadeUp>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: "18px" }}>
               {[
-                { t: "Perguntou o preço", c: "Você responde com jeitinho, passa segurança e convida pra avaliação — sem jogar só o valor." },
-                { t: "Achou caro", c: "Mostra o valor do seu trabalho antes de sair dando desconto." },
-                { t: "Sumiu", c: "Você chama de volta com leveza e um próximo passo claro — sem parecer chata." },
+                { t: "Perguntou o preço", c: "Sai resposta que valoriza antes de falar número — e já convida pra avaliação." },
+                { t: "“Achou caro”", c: "Sai resposta que defende seu valor sem sair dando desconto." },
+                { t: "Sumiu", c: "Sai follow-up leve, com dia e hora pra voltar." },
+                { t: "Medo do procedimento", c: "Sai resposta que acolhe e passa segurança — sem prometer milagre." },
+                { t: "Quase fechando", c: "Sai mensagem de fechamento com o próximo passo claro." },
               ].map((card) => (
                 <article
                   key={card.t}
@@ -613,6 +615,34 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* ── FAÇA A CONTA (ancoragem de preço) ────────────────────────────── */}
+        <section style={{ padding: "78px 24px", background: CREAM }}>
+          <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+            <FadeUp>
+            <div style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 40px" }}>
+              <Eyebrow>Faça a conta</Eyebrow>
+              <SectionTitle>Uma cliente que não some paga o app por meses</SectionTitle>
+              <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
+                Você sabe quanto vale o seu ticket médio. Agora compare:
+              </p>
+            </div>
+            </FadeUp>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
+              {[
+                { n: "R$3,23", t: "por dia", c: "É o LeadBellus no plano Start. Menos que a água da recepção." },
+                { n: "1 cliente", t: "recuperada", c: "Uma única avaliação que não some já cobre meses de assinatura." },
+                { n: "30 seg", t: "por resposta", c: "Da mensagem colada às 3 respostas prontas — em todas as conversas, todo dia." },
+              ].map((s) => (
+                <div key={s.n} className="lp-card" style={{ background: CREAM_2, border: "1px solid rgba(11,27,51,0.07)", borderRadius: "20px", padding: "30px", textAlign: "center" }}>
+                  <p style={{ margin: 0, fontSize: "40px", fontWeight: 800, letterSpacing: "-0.02em", background: `linear-gradient(120deg, ${GOLD_DEEP}, ${GOLD})`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>{s.n}</p>
+                  <p style={{ margin: "2px 0 12px", fontSize: "13px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: GOLD_DEEP }}>{s.t}</p>
+                  <p style={{ margin: 0, fontSize: "14.5px", lineHeight: 1.65, color: INK_SOFT }}>{s.c}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── PREÇOS ───────────────────────────────────────────────────────── */}
         <section id="precos" style={{ background: NAVY, padding: "84px 24px", position: "relative", overflow: "hidden" }}>
           <div aria-hidden style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: "760px", height: "480px", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,160,96,0.14), transparent 62%)", filter: "blur(52px)", pointerEvents: "none" }} />
@@ -622,7 +652,7 @@ export default function LandingPage() {
               <Eyebrow onNavy>Escolha o seu plano</Eyebrow>
               <SectionTitle onNavy>Comece pelo plano que resolve hoje</SectionTitle>
               <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
-                Teste grátis e assine só se fizer sentido pra sua rotina.
+                Teste grátis primeiro. Assine só quando as respostas já estiverem fechando avaliação por você.
               </p>
             </div>
             </FadeUp>
@@ -713,10 +743,10 @@ export default function LandingPage() {
                 lineHeight: 1.12,
               }}
             >
-              Sua próxima cliente não vai esperar
+              Quantas vão perguntar o preço essa semana?
             </h2>
             <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
-              Toda semana mais gente pergunta o preço e some. Não é falta de talento — é falta da resposta certa na hora certa.
+              Com a resposta certa, elas agendam. Sem ela, elas somem. Comece hoje, de graça.
             </p>
             <TrackLink
               event="cta_click"
