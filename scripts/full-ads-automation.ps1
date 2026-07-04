@@ -100,7 +100,7 @@ GUARDRAILS (DO NOT REMOVE)
 --------------------------
 - Campaign starts Paused
 - Search only (no Display, no remarketing yet)
-- No fake claims, no "7 dias gratis", no guaranteed results
+- No fake claims, no "7 dias grátis", no guaranteed results
 - Final URLs use www.leadbellus.com.br
 
 FILES IN THIS FOLDER

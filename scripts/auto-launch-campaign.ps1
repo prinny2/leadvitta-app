@@ -22,7 +22,9 @@ Write-Host "=== LEAD BELLUS ADS + GA4 CAMPAIGN AUTOMATION ===" -ForegroundColor 
 # 1. Regenerate pack
 Write-Host "`n[1/7] Regenerating the pack..." -ForegroundColor Yellow
 npm run ads:generate
-if ($LASTEXITCODE -ne 0) { throw "Generation failed" }
+if ($LASTEXITCODE -ne 0) {
+    throw "Ads + GA4 pack generation failed for ads\google_ads_editor. npm run ads:generate exited with code $LASTEXITCODE."
+}
 Write-Host "Pack regenerated." -ForegroundColor Green
 
 $source = Join-Path "ads" "google_ads_editor"

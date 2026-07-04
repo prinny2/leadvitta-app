@@ -61,7 +61,6 @@ export async function POST(request: Request) {
     console.warn("[waitlist] supabase mirror falhou:", err instanceof Error ? err.message : err);
   });
 
-
   return jsonNoStore({ ok: true });
 }
 
