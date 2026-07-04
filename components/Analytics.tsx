@@ -130,6 +130,7 @@ export const trackEvent = (
       sign_up: "Lead",
       checkout_click: "InitiateCheckout",
       purchase: "Purchase",
+      contact_whatsapp: "Contact",
     };
     const metaEvent = standardEvents[eventName] || eventName;
     (window as any).fbq("track", metaEvent, params);

@@ -123,5 +123,18 @@ export const isOpsNotifyConfigured =
 export const isZApiConfigured =
   !!process.env.ZAPI_INSTANCE_ID?.trim() && !!process.env.ZAPI_TOKEN?.trim();
 
+/** Página do Facebook + Instagram Business para publicação automática. */
+export const metaPageId = process.env.META_PAGE_ID?.trim() || "";
+export const metaPageAccessToken =
+  process.env.META_PAGE_ACCESS_TOKEN?.trim() || "";
+export const metaIgUserId = process.env.META_IG_USER_ID?.trim() || "";
+
+/** True quando dá pra publicar posts na Página do Facebook via Graph API. */
+export const isMetaPublishConfigured = !!metaPageId && !!metaPageAccessToken;
+
+/** True quando também dá pra publicar no feed do Instagram Business. */
+export const isInstagramPublishConfigured =
+  isMetaPublishConfigured && !!metaIgUserId;
+
 /** Alias legado — sempre Z-API. */
 export const isWhatsappConfigured = isZApiConfigured;
