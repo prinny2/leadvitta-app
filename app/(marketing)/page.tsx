@@ -19,6 +19,8 @@ import { PricingSection } from "@/components/pricing-section";
 import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MarketingMobileMenu } from "@/components/marketing-mobile-menu";
+import { TrackLink } from "@/components/track-link";
+import { WhatsAppCta } from "@/components/whatsapp-cta";
 
 const SIGNUP = "/onboarding";
 
@@ -52,7 +54,7 @@ function StructuredDataTags() {
       price: "97",
       priceCurrency: "BRL",
       availability: "https://schema.org/InStock",
-      url: "https://www.leadbellus.com.br/signup",
+      url: "https://www.leadbellus.com.br/onboarding",
     },
     audience: {
       "@type": "Audience",
@@ -311,7 +313,9 @@ export default function LandingPage() {
               </p>
 
               <div className="hero-cta-row" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
-                <Link
+                <TrackLink
+                  event="cta_click"
+                  source="hero"
                   href={SIGNUP}
                   className="hero-cta lp-btn-primary"
                   style={{
@@ -329,7 +333,7 @@ export default function LandingPage() {
                   }}
                 >
                   Testar grátis (sem cartão) <ArrowRight size={17} />
-                </Link>
+                </TrackLink>
                 <a
                   href="#demo"
                   className="hero-cta lp-btn-ghost"
@@ -582,7 +586,9 @@ export default function LandingPage() {
               <p style={{ fontSize: "15px", color: INK, lineHeight: 1.6, margin: "0 0 18px", fontWeight: 600 }}>
                 Esta é a demonstração. Crie sua conta grátis pra usar no WhatsApp de verdade.
               </p>
-              <Link
+              <TrackLink
+                event="cta_click"
+                source="demo"
                 href={SIGNUP}
                 style={{
                   display: "inline-flex",
@@ -598,7 +604,7 @@ export default function LandingPage() {
                 }}
               >
                 Criar conta grátis <ArrowRight size={16} />
-              </Link>
+              </TrackLink>
               <p style={{ fontSize: "12px", color: INK_SOFT, marginTop: "10px" }}>Start R$97/mês · sem cartão pra testar · cancele quando quiser</p>
               <div style={{ maxWidth: "430px", margin: "10px auto 0" }}>
                 <LegalConsentLinks />
@@ -712,7 +718,9 @@ export default function LandingPage() {
             <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
               Toda semana mais gente pergunta o preço e some. Não é falta de talento — é falta da resposta certa na hora certa.
             </p>
-            <Link
+            <TrackLink
+              event="cta_click"
+              source="cta_final"
               href={SIGNUP}
               style={{
                 display: "inline-flex",
@@ -729,7 +737,7 @@ export default function LandingPage() {
               }}
             >
               Testar grátis agora <ArrowRight size={18} />
-            </Link>
+            </TrackLink>
             <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginTop: "14px" }}>Sem cartão · cancele quando quiser</p>
           </div>
         </section>
@@ -813,7 +821,9 @@ export default function LandingPage() {
             Sem cartão · depois R$97/mês
           </p>
         </div>
-        <Link
+        <TrackLink
+          event="cta_click"
+          source="mobile_bar"
           href={SIGNUP}
           className="lp-mobile-bar-cta"
           style={{
@@ -831,8 +841,9 @@ export default function LandingPage() {
           }}
         >
           Começar grátis
-        </Link>
+        </TrackLink>
       </div>
+      <WhatsAppCta />
     </div>
   );
 }
