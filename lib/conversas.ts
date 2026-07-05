@@ -19,6 +19,11 @@ export function conversaId(clinicaId: string, numero: string): string {
   return `${clinicaId}__${numeroDigits(numero)}`;
 }
 
+// Janela de dedup: reentregas do provedor acontecem em minutos/horas; 30 dias
+// é folga larga. `expira_em` precisa ser Date (vira Timestamp) — a política de
+// TTL do Firestore não enxerga string ISO.
+const DEDUP_TTL_DIAS = 30;
+
 /**
  * Idempotência: reserva o processamento de uma mensagem do provedor.
  * Retorna true se é a 1ª vez (prossiga); false se já foi processada (retry).
@@ -33,7 +38,10 @@ export async function reservarProcessamento(
     .collection("mensagens_processadas")
     .doc(providerMessageId.replace(/[^\w-]/g, "_"));
   try {
-    await ref.create({ em: new Date().toISOString() });
+    await ref.create({
+      em: new Date().toISOString(),
+      expira_em: new Date(Date.now() + DEDUP_TTL_DIAS * 24 * 60 * 60 * 1000),
+    });
     return true;
   } catch {
     return false; // já existe → retry duplicado

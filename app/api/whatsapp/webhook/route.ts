@@ -11,7 +11,6 @@ import {
   reservarProcessamento,
   liberarProcessamento,
 } from "@/lib/conversas";
-import { upsertHistorico } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -120,7 +119,10 @@ async function processarMensagem(msg: InboundMessage) {
     await marcarPrecisaAtencao(clinicaId, msg.from);
   }
 
-  const histDoc = await db.collection("historico").add({
+  // Espelho Supabase removido do hot path (custo por mensagem sem leitor);
+  // o histórico do WhatsApp vive só no Firestore. A migração completa para
+  // Supabase é obra de fundo separada.
+  await db.collection("historico").add({
     user_id: clinicaId,
     tipo: "gerador",
     contexto: {
@@ -135,25 +137,6 @@ async function processarMensagem(msg: InboundMessage) {
     intent: nlp.intent ?? null,
     sentiment: nlp.sentiment ?? null,
     score: nlp.score ?? null,
-  });
-
-  // Best-effort Supabase additive mirror
-  upsertHistorico({
-    firestore_id: histDoc.id,
-    firebase_uid: clinicaId,
-    tipo: "gerador",
-    contexto: {
-      canal: "whatsapp",
-      de: msg.from,
-      mensagemCliente: msg.text,
-      entregue: envio.ok,
-    },
-    respostas: [respostaFinal],
-    intent: nlp.intent ?? null,
-    sentiment: nlp.sentiment ?? null,
-    score: nlp.score ?? null,
-  }).catch((err) => {
-    console.warn("[whatsapp] supabase historico mirror falhou:", err instanceof Error ? err.message : err);
   });
 
   console.log(

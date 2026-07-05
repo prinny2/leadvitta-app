@@ -13,6 +13,15 @@ import { sendOpsNotify } from "@/lib/ops-notify";
 
 export const runtime = "nodejs";
 
+// Janela de auditoria/replay dos eventos Stripe antes do TTL do Firestore
+// apagar o doc. `expira_em` precisa ser Date (vira Timestamp) — a política de
+// TTL não enxerga string ISO.
+const STRIPE_EVENT_TTL_DIAS = 90;
+
+function stripeEventExpiraEm(): Date {
+  return new Date(Date.now() + STRIPE_EVENT_TTL_DIAS * 24 * 60 * 60 * 1000);
+}
+
 /**
  * Reivindica o evento de forma idempotente. Retorna false se ele JÁ foi
  * processado — o Stripe entrega at-least-once e reentrega em retries. O
@@ -38,6 +47,7 @@ async function claimStripeEvent(event: Stripe.Event): Promise<boolean> {
           created: event.created,
           processed: false,
           received_at: new Date().toISOString(),
+          expira_em: stripeEventExpiraEm(),
         },
         { merge: true }
       );
@@ -59,6 +69,7 @@ async function finishStripeEvent(event: Stripe.Event) {
       created: event.created,
       processed: true,
       processed_at: new Date().toISOString(),
+      expira_em: stripeEventExpiraEm(),
     },
     { merge: true }
   );

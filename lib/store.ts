@@ -32,14 +32,44 @@ import {
 const LS_CLINICA = "re_clinica";
 const LS_HISTORICO = "re_historico";
 
+// Cache do doc `clinicas/{uid}`: getClinica() e getBillingPlan() são chamados
+// em quase toda navegação e liam o MESMO doc em reads separados. A promise é
+// cacheada (não o valor) para deduplicar chamadas concorrentes no mount.
+const CLINICA_CACHE_TTL_MS = 60_000;
+type ClinicaDocData = Record<string, any> | null;
+let clinicaDocCache: { uid: string; em: number; promise: Promise<ClinicaDocData> } | null = null;
+
+function getClinicaDocCached(uid: string): Promise<ClinicaDocData> {
+  const agora = Date.now();
+  if (
+    clinicaDocCache &&
+    clinicaDocCache.uid === uid &&
+    agora - clinicaDocCache.em < CLINICA_CACHE_TTL_MS
+  ) {
+    return clinicaDocCache.promise;
+  }
+  const promise = getDoc(doc(getFirebaseDb(), "clinicas", uid)).then((snap) =>
+    snap.exists() ? (snap.data() as Record<string, any>) : null
+  );
+  promise.catch(() => {
+    // Erro não pode ficar cacheado 60s — solta pra próxima chamada tentar de novo.
+    if (clinicaDocCache?.promise === promise) clinicaDocCache = null;
+  });
+  clinicaDocCache = { uid, em: agora, promise };
+  return promise;
+}
+
+export function invalidateClinicaCache(): void {
+  clinicaDocCache = null;
+}
+
 // ---------------- Clínica (configurações / DNA) ----------------
 export async function getClinica(): Promise<Clinica> {
   if (isFirebaseConfigured) {
     const user = await waitForAuthUser();
     if (!user) return clinicaVazia;
-    const snap = await getDoc(doc(getFirebaseDb(), "clinicas", user.uid));
-    if (!snap.exists()) return clinicaVazia;
-    const d = snap.data();
+    const d = await getClinicaDocCached(user.uid);
+    if (!d) return clinicaVazia;
     return {
       nome_clinica: d.nome_clinica ?? "",
       cidade: d.cidade ?? "",
@@ -71,6 +101,7 @@ export async function saveClinica(c: Clinica): Promise<void> {
       { ...resto, updated_at: new Date().toISOString() },
       { merge: true }
     );
+    invalidateClinicaCache();
     return;
   }
   if (typeof window === "undefined") return;
@@ -114,9 +145,9 @@ export async function getBillingPlan(): Promise<"start" | "pro" | "premium"> {
     try {
       const user = await waitForAuthUser();
       if (!user) return "start";
-      const snap = await getDoc(doc(getFirebaseDb(), "clinicas", user.uid));
-      if (!snap.exists()) return "start";
-      const plan = snap.data()?.billing?.plan;
+      const d = await getClinicaDocCached(user.uid);
+      if (!d) return "start";
+      const plan = d.billing?.plan;
       if (plan === "pro" || plan === "premium") return plan;
     } catch (err) {
       console.warn("[store] falha ao ler plano de billing:", err instanceof Error ? err.message : err);
@@ -140,6 +171,7 @@ export async function saveFcmToken(token: string): Promise<void> {
     { fcm_tokens: arrayUnion(token), updated_at: new Date().toISOString() },
     { merge: true }
   );
+  invalidateClinicaCache();
 }
 
 // ---------------- Histórico ----------------
