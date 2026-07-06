@@ -29,7 +29,6 @@ const LandingWhatsAppDemo = dynamic(
       (mod) => mod.LandingWhatsAppDemo
     ),
   {
-    ssr: false,
     loading: () => <LoadingRespostas etapas={["Carregando a demo…"]} />,
   }
 );
