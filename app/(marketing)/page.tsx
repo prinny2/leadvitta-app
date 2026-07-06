@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import {
   ArrowRight,
   PlayCircle,
@@ -13,7 +13,6 @@ import {
   Check,
 } from "lucide-react";
 import { FadeUp } from "@/components/fade-up";
-import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 import { PricingSection } from "@/components/pricing-section";
 import { FooterSection } from "@/components/footer-section";
@@ -23,6 +22,17 @@ import { TrackLink } from "@/components/track-link";
 import { WhatsAppCta } from "@/components/whatsapp-cta";
 
 const SIGNUP = "/onboarding";
+
+const LandingWhatsAppDemo = dynamic(
+  () =>
+    import("@/components/landing-whatsapp-demo").then(
+      (mod) => mod.LandingWhatsAppDemo
+    ),
+  {
+    ssr: false,
+    loading: () => <LoadingRespostas etapas={["Carregando a demo…"]} />,
+  }
+);
 
 // Paleta (navy profundo + dourado vivo; verde só nos elementos de WhatsApp) ----
 const INK = "#0B1B33";
@@ -571,9 +581,7 @@ export default function LandingPage() {
             </div>
             </FadeUp>
 
-            <Suspense fallback={<LoadingRespostas etapas={["Carregando a demo…"]} />}>
-              <LandingWhatsAppDemo />
-            </Suspense>
+            <LandingWhatsAppDemo />
 
             <div
               style={{
