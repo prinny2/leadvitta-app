@@ -2,14 +2,19 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer,
-} from "recharts";
+import dynamic from "next/dynamic";
 import {
   Brain, Sparkles, Loader2, TrendingUp, Target, Zap, ChevronRight, AlertCircle, Send,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import type { LeadIntelligenceResult } from "@/app/api/lead-intelligence/route";
+
+// Recharts (~450 KB parsed) is deferred into its own async chunk so the
+// input form and initial results become interactive immediately.
+const LeadRadar = dynamic(() => import("./radar-chart"), {
+  ssr: false,
+  loading: () => <div className="h-[230px] rounded-xl bg-navy-600/40 animate-pulse" />,
+});
 
 // ── Theme tokens ──────────────────────────────────────────────────────────────
 function useTokens() {
@@ -78,28 +83,6 @@ function ScoreRing({ score, temperatura }: { score: number; temperatura: string 
         {tempLabel}
       </span>
     </div>
-  );
-}
-
-// ── Radar chart ───────────────────────────────────────────────────────────────
-function LeadRadar({ eixos }: { eixos: LeadIntelligenceResult["eixos"] }) {
-  const { light } = useTokens();
-  const data = [
-    { axis: "Urgência",   val: eixos.urgencia      },
-    { axis: "Intenção",   val: eixos.intencao      },
-    { axis: "Confiança",  val: eixos.confianca     },
-    { axis: "Receptiv.",  val: eixos.receptividade },
-    { axis: "Maturidade", val: eixos.maturidade    },
-  ];
-  return (
-    <ResponsiveContainer width="100%" height={230}>
-      <RadarChart data={data} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
-        <PolarGrid stroke={light ? "rgba(0,0,0,0.08)" : "rgba(255,255,255,0.08)"} />
-        <PolarAngleAxis dataKey="axis" tick={{ fill: light ? "#6B7280" : "#8aacc8", fontSize: 11, fontWeight: 600 }} />
-        <Radar name="Lead" dataKey="val" stroke="#C9A060" strokeWidth={2} fill="#C9A060" fillOpacity={0.18}
-          dot={{ fill: "#C9A060", r: 4, strokeWidth: 0 }} />
-      </RadarChart>
-    </ResponsiveContainer>
   );
 }
 
