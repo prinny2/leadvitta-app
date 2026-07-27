@@ -41,6 +41,14 @@ vi.mock("@/lib/supabase/server", () => ({
   upsertHistorico,
 }));
 
+// `after()` from next/server defers work until after the response is sent.
+// In tests there is no Next.js request context, so we run the callback
+// immediately to keep all mirror-related assertions working.
+vi.mock("next/server", async (importOriginal) => {
+  const actual = await importOriginal() as Record<string, unknown>;
+  return { ...actual, after: (fn: () => unknown) => fn() };
+});
+
 import { POST } from "@/app/api/generate/route";
 
 function genRequest(body: unknown) {
