@@ -180,12 +180,13 @@ export async function POST(req: Request) {
       ? Math.max(0, limit.remaining - 1)
       : undefined;
 
+    // Fire-and-forget: the Supabase write is non-critical for the response.
+    // Awaiting it added 100–500 ms to every generation request. Errors are
+    // logged but do not block the user from receiving their AI responses.
     if (decoded?.uid) {
-      try {
-        await mirrorGeneration(decoded.uid, body, result);
-      } catch (err) {
+      mirrorGeneration(decoded.uid, body, result).catch((err) => {
         console.warn("[api/generate] supabase mirror falhou:", err instanceof Error ? err.message : err);
-      }
+      });
     }
 
     return jsonNoStore(
