@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { jsonNoStore, enforceRateLimit, parseProviderChain, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { gerarRespostas, refinarResposta, type GerarResultado } from "@/lib/ai/provider";
 import type { GerarInput, RefineInput, RespostaTripla } from "@/lib/types";
@@ -184,9 +185,11 @@ export async function POST(req: Request) {
     // Awaiting it added 100–500 ms to every generation request. Errors are
     // logged but do not block the user from receiving their AI responses.
     if (decoded?.uid) {
-      mirrorGeneration(decoded.uid, body, result).catch((err) => {
-        console.warn("[api/generate] supabase mirror falhou:", err instanceof Error ? err.message : err);
-      });
+      after(() =>
+        mirrorGeneration(decoded.uid, body, result).catch((err) => {
+          console.warn("[api/generate] supabase mirror falhou:", err instanceof Error ? err.message : err);
+        })
+      );
     }
 
     return jsonNoStore(
