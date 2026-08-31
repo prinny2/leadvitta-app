@@ -47,6 +47,8 @@ const DEFAULT_PROVIDER_CHAIN: AIProviderId[] = [
 
 type CallAIOptions = {
   providers?: AIProviderId[];
+  /** Override the max_tokens/maxOutputTokens budget for this call. Defaults to 1024. */
+  maxTokens?: number;
 };
 
 // Clients
@@ -132,6 +134,7 @@ async function callAI(
   options?: CallAIOptions
 ): Promise<string> {
   const TIMEOUT_MS = 20000;
+  const maxTokens = options?.maxTokens ?? 1024;
 
   const tryOpenAI = async () => {
     if (!isOpenAIConfigured) return null;
@@ -144,7 +147,7 @@ async function callAI(
             { role: "user", content: user },
           ],
           temperature: 0.7,
-          max_tokens: 1024,
+          max_tokens: maxTokens,
           response_format: { type: "json_object" }
         }),
         TIMEOUT_MS
@@ -162,7 +165,7 @@ async function callAI(
       const resp = await withTimeout(
         getAnthropic().messages.create({
           model: anthropicModel,
-          max_tokens: 1024,
+          max_tokens: maxTokens,
           temperature: 0.7,
           system: [
             { type: "text", text: system, cache_control: { type: "ephemeral" } },
@@ -191,7 +194,7 @@ async function callAI(
           config: {
             systemInstruction: system,
             temperature: 0.7,
-            maxOutputTokens: 1024,
+            maxOutputTokens: maxTokens,
             responseMimeType: "application/json",
           },
         }),
@@ -325,7 +328,7 @@ export async function classificarMensagem(
       SYSTEM_CLASSIFIER,
       `MENSAGEM: "${texto}"`,
       1,
-      options
+      { ...options, maxTokens: 128 }
     );
     const parsed = parseJson<GeradorJson>(raw);
     if (!parsed) return {};
