@@ -4,11 +4,7 @@ Micro-SaaS para clínicas e profissionais de estética responderem melhor no
 WhatsApp: gera respostas estratégicas, quebra objeções, faz follow-up e conduz a
 cliente até o agendamento com guardrails de compliance.
 
-**Empresa (LeadBellus):** Vinicius Paes da Serra Freire (MEI)  
-**Fundador:** Vinicius Paes da Serra Freire  
-**Contato:** vpaes.freire02@gmail.com
-
-**Nota:** A Inova Simples (RESONANZA INOVA SIMPLES I S, CNPJ 67.046.121/0001-45) é exclusiva para o projeto ResonAnza (com José). O LeadBellus opera sob o MEI pessoal.
+Projeto autoral, desenvolvido e mantido de ponta a ponta por um único desenvolvedor.
 
 Stack: **Next.js App Router + TypeScript + TailwindCSS + Clerk + Firebase/Firestore + OpenAI/Anthropic/Gemini + Stripe + Zapier + Cloud Run/Vercel (Híbrido)**.
 
@@ -17,7 +13,7 @@ Stack: **Next.js App Router + TypeScript + TailwindCSS + Clerk + Firebase/Firest
 - **LIVE:** `https://leadbellus.com.br` em arquitetura **híbrida** — Vercel serve o frontend, Cloud Run processa `/api/*` (proxy). Modo demonstração desligado (config Firebase real no bundle).
 - **Auth:** Clerk para login/cadastro com ponte Firebase interna. **Billing:** Stripe LIVE com webhook configurado.
 - **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
-- **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID, número +55 91 8515-6690). Auto-resposta (webhook) em rollout.
+- **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID). Auto-resposta (webhook) em rollout.
 
 
 ## Rodar local
