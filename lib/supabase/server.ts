@@ -110,17 +110,18 @@ export async function upsertWaitlist(item: AppWaitlist) {
   try {
     const now = new Date().toISOString();
     const email = item.email.trim().toLowerCase();
+    // `id` is a uuid with a DB default; the idempotency key is `email`, which
+    // carries the unique index. Sending the e-mail as `id` failed with 22P02.
     const { error } = await supabaseServer
       .from('app_waitlist')
       .upsert(
         {
-          id: item.id ?? email,
           email,
           plan: item.plan,
           created_at: item.created_at ?? now,
           updated_at: now,
         },
-        { onConflict: 'id' }
+        { onConflict: 'email' }
       );
 
     if (error) throw error;

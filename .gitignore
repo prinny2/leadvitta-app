@@ -65,3 +65,7 @@ scripts/.ga-*.json
 
 # Clerk local dev (keyless mode writes secretKey here — never commit)
 .clerk/
+.env*
+
+# Supabase CLI cache
+supabase/.temp/
