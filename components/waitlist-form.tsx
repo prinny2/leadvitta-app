@@ -43,7 +43,7 @@ export function WaitlistForm({ plan, className }: WaitlistFormProps) {
   if (ok) {
     return (
       <p className={className}>
-        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-700">
+        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-gold-300">
           <Check size={15} /> Pronto! Você será avisada quando o {plan === "premium" ? "Premium" : "Pro"} abrir.
         </span>
       </p>
@@ -63,7 +63,7 @@ export function WaitlistForm({ plan, className }: WaitlistFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="seu@email.com"
-          className="h-10 min-w-0 flex-1 rounded-xl border border-brand-200 bg-white px-3 text-sm text-ink outline-none focus:border-brand-400"
+          className="h-10 min-w-0 flex-1 rounded-xl border border-navy-500 bg-navy-800 px-3 text-sm text-champagne-300 outline-none placeholder:text-navy-100/60 focus:border-gold-500/50"
         />
         <button
           type="submit"
@@ -75,7 +75,7 @@ export function WaitlistForm({ plan, className }: WaitlistFormProps) {
           Avise-me
         </button>
       </div>
-      {erro ? <p className="mt-1.5 text-xs text-red-600">{erro}</p> : (
+      {erro ? <p className="mt-1.5 text-xs text-pain-300">{erro}</p> : (
         <p className="mt-1.5 text-xs text-muted">Entre na lista de espera — sem compromisso.</p>
       )}
     </form>
