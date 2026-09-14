@@ -821,14 +821,14 @@ function ResponsePanel({
     <div
       className={cn(
         "flex flex-col rounded-3xl border p-6",
-        tone === "bad" && "border-pain-200 bg-pain-50/60"
+        tone === "bad" && "border-pain-500/40 bg-navy-700"
       )}
     >
       <div className="badge-pain mb-4 w-fit">{badge}</div>
       <div className="rounded-2xl rounded-bl-md border border-pain-500/40 bg-pain-500/10 px-4 py-3 text-sm leading-relaxed text-champagne-100">
         "{body}"
       </div>
-      <p className="mt-4 text-sm leading-relaxed text-pain-600/90">
+      <p className="mt-4 text-sm leading-relaxed text-pain-200">
         {caption}
       </p>
     </div>
