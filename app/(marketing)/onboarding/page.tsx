@@ -363,7 +363,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         {clinic.nome_clinica.trim() || "sua clinica"}.
                       </h2>
                     </div>
-                    <span className="rounded-full border border-gold-500/30 bg-gold-500/15 px-3 py-1 text-xs font-semibold text-gold-300">
+                    <span className="rounded-full border border-gold-500/30 bg-gold-500/[0.15] px-3 py-1 text-xs font-semibold text-gold-300">
                       {clinic.procedimentos.length} procedimentos
                     </span>
                   </div>
@@ -488,7 +488,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                           className={cn(
                             "rounded-xl border px-4 py-3 text-sm font-medium transition-colors",
                             clinic.como_chamar === option.value
-                              ? "border-gold-500 bg-gold-500/15 text-champagne-100"
+                              ? "border-gold-500 bg-gold-500/[0.15] text-champagne-100"
                               : "border-navy-500 bg-navy-700 text-champagne-300 hover:border-navy-300 hover:bg-navy-600"
                           )}
                         >
@@ -536,7 +536,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                           className={cn(
                             "rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors",
                             clinic.cta_preferido === option.value
-                              ? "border-gold-500 bg-gold-500/15 text-champagne-100"
+                              ? "border-gold-500 bg-gold-500/[0.15] text-champagne-100"
                               : "border-navy-500 bg-navy-700 text-champagne-300 hover:border-navy-300 hover:bg-navy-600"
                           )}
                         >
@@ -607,7 +607,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                 />
 
                 <div className="relative flex flex-col overflow-hidden rounded-3xl border-2 border-gold-500/50 bg-navy-700 p-6 shadow-cta">
-                  <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-gold-500/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-300">
+                  <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-gold-500/[0.15] px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-300">
                     <Check size={13} /> A resposta da{" "}
                     {clinic.nome_clinica.trim() || "sua clinica"}
                   </div>
