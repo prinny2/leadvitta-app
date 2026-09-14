@@ -1,0 +1,107 @@
+/* ── LeadBellus — sistema visual das artes sociais ───────────────────────── */
+:root{
+  --navy-ink:#07101e; --navy-800:#0b1424; --navy-700:#0f1b2f; --navy-600:#131f35;
+  --navy-500:#1a2840; --navy-400:#243450;
+  --gold:#C9A060; --gold-hot:#E4B85A; --gold-deep:#D18A1F; --gold-dark:#B8860B;
+  --champagne:#D4C4A0; --champagne-2:#E8D5B7;
+  --light:#FBF8F2; --light-text:#F4EFE6;
+  --sans:'Inter','Noto Color Emoji',system-ui,sans-serif;
+  --serif:'Fraunces','Noto Color Emoji',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111;font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+.board{
+  position:relative; overflow:hidden; flex:none;
+  background:
+    radial-gradient(120% 70% at 88% -8%, rgba(228,184,90,.16), transparent 58%),
+    radial-gradient(100% 60% at 6% 104%, rgba(201,160,96,.10), transparent 60%),
+    linear-gradient(160deg,#0a1526,#06101c);
+  color:var(--light-text);
+  display:flex; flex-direction:column;
+}
+/* textura sutil de grade dourada */
+.board::before{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:linear-gradient(rgba(201,160,96,.055) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(201,160,96,.055) 1px,transparent 1px);
+  background-size:64px 64px; mask-image:radial-gradient(85% 65% at 50% 40%,#000 25%,transparent 78%);
+}
+/* moldura dourada interna */
+.frame{position:absolute;border:1px solid rgba(201,160,96,.22);border-radius:18px;pointer-events:none}
+
+/* ── tipografia ─────────────────────────────────────────────────────────── */
+.eyebrow{
+  font-size:22px; font-weight:800; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold); display:inline-flex; align-items:center; gap:14px;
+}
+.eyebrow::before{content:'';width:34px;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+h1.display{
+  font-family:var(--sans); font-weight:800; letter-spacing:-.03em; line-height:1.03; color:#fff;
+}
+.hl{
+  font-family:var(--serif); font-weight:600; font-style:italic; letter-spacing:-.01em;
+  background:linear-gradient(100deg,var(--gold-hot),var(--gold) 55%,var(--gold-deep));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.lede{color:rgba(255,255,255,.76); line-height:1.5; font-weight:400}
+.lede strong{color:#fff;font-weight:700}
+
+/* ── balões de conversa ─────────────────────────────────────────────────── */
+.chat{display:flex;flex-direction:column;gap:18px}
+.bubble{
+  max-width:82%; padding:26px 30px; border-radius:26px; line-height:1.4;
+  font-size:34px; font-weight:500; position:relative;
+}
+.bubble.in{
+  align-self:flex-start; border-bottom-left-radius:8px;
+  background:rgba(19,31,53,.94); border:1px solid rgba(201,160,96,.16); color:#EAF0F8;
+}
+.bubble.out{
+  align-self:flex-end; border-bottom-right-radius:8px;
+  background:linear-gradient(140deg,rgba(201,160,96,.22),rgba(201,160,96,.10));
+  border:1px solid rgba(228,184,90,.42); color:#FCF6E9;
+}
+.meta{display:block;margin-top:12px;font-size:20px;font-weight:600;color:rgba(255,255,255,.42)}
+
+/* ── pílulas de tom ─────────────────────────────────────────────────────── */
+.tone{
+  white-space:nowrap;
+  display:inline-flex;align-items:center;gap:10px;padding:9px 20px;border-radius:999px;
+  font-size:20px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+}
+.tone i{width:9px;height:9px;border-radius:50%;background:currentColor;display:block}
+.tone.suave{color:var(--champagne-2);background:rgba(232,213,183,.12);border:1px solid rgba(232,213,183,.3)}
+.tone.consultiva{color:var(--gold);background:rgba(201,160,96,.14);border:1px solid rgba(201,160,96,.36)}
+.tone.fechamento{color:var(--gold-hot);background:rgba(228,184,90,.18);border:1px solid rgba(228,184,90,.5)}
+
+/* ── cards de resposta ──────────────────────────────────────────────────── */
+.rcard{
+  background:rgba(15,27,47,.9); border:1px solid rgba(201,160,96,.18);
+  border-radius:22px; padding:28px 30px; display:flex; flex-direction:column; gap:14px;
+}
+.rcard p{font-size:29px;line-height:1.42;color:rgba(255,255,255,.8)}
+
+/* ── CTA / rodapé ───────────────────────────────────────────────────────── */
+.cta{
+  display:inline-flex;align-items:center;gap:14px;padding:20px 36px;border-radius:16px;
+  background:linear-gradient(135deg,var(--gold-hot),var(--gold) 60%,var(--gold-deep));
+  color:#07101e;font-weight:900;font-size:30px;letter-spacing:-.01em;
+  box-shadow:0 20px 48px rgba(228,168,77,.3), inset 0 1px 0 rgba(255,255,255,.38);
+}
+.site{font-size:26px;font-weight:700;color:var(--champagne);letter-spacing:.02em}
+.footerbar{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.hair{height:1px;background:linear-gradient(90deg,transparent,rgba(201,160,96,.55),transparent)}
+
+/* ── logo ───────────────────────────────────────────────────────────────── */
+.logo{display:inline-flex;align-items:center;gap:16px}
+.logo .word{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;color:var(--light-text);line-height:1}
+.logo.stack{flex-direction:column;gap:14px}
+
+/* ── numeral do carrossel ───────────────────────────────────────────────── */
+.num{
+  font-family:var(--serif);font-weight:600;font-size:120px;line-height:.8;
+  color:transparent;-webkit-text-stroke:2px rgba(201,160,96,.55);
+}
+.swipe{display:inline-flex;align-items:center;gap:12px;font-size:24px;font-weight:800;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
