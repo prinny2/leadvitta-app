@@ -201,6 +201,7 @@ html.light-theme .app-root .gold-divider {
 }
 
 /* Scrollbar */
+html.light-theme .app-root,
 html.light-theme .app-root * {
   scrollbar-color: #C9A060 #F0EDE6;
 }

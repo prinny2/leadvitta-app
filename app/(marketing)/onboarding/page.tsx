@@ -249,7 +249,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
   }, [step]);
 
   return (
-    <div className="min-h-screen bg-navy-900">
+    <div className="min-h-screen bg-navy-900" style={{ colorScheme: "dark" }}>
       <header className="border-b border-navy-500/50 bg-navy-900/80 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <Logo href="/" textClass="text-lg text-ink" />
