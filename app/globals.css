@@ -129,97 +129,98 @@ html.light-theme {
 }
 
 /* Backgrounds */
-html.light-theme body,
-html.light-theme .bg-navy-900,
-html.light-theme main.bg-navy-900 {
+html.light-theme .app-root,
+html.light-theme .app-root.bg-navy-900,
+html.light-theme .app-root .bg-navy-900,
+html.light-theme .app-root main.bg-navy-900 {
   background-color: #F5F4F0 !important;
 }
 
-html.light-theme .bg-navy-800,
-html.light-theme aside.bg-navy-800 {
+html.light-theme .app-root .bg-navy-800,
+html.light-theme .app-root aside.bg-navy-800 {
   background-color: #FFFFFF !important;
 }
 
-html.light-theme .bg-navy-700 {
+html.light-theme .app-root .bg-navy-700 {
   background-color: #FFFFFF !important;
 }
 
-html.light-theme .bg-navy-600 {
+html.light-theme .app-root .bg-navy-600 {
   background-color: #FFFFFF !important;
 }
 
-html.light-theme .bg-navy-500\/50,
-html.light-theme .bg-navy-600\/50 {
+html.light-theme .app-root .bg-navy-500\/50,
+html.light-theme .app-root .bg-navy-600\/50 {
   background-color: rgba(201, 160, 96, 0.08) !important;
 }
 
 /* Borders */
-html.light-theme .border-navy-500,
-html.light-theme .border-navy-500\/50 {
+html.light-theme .app-root .border-navy-500,
+html.light-theme .app-root .border-navy-500\/50 {
   border-color: #E8E4DC !important;
 }
 
-html.light-theme .border-r.border-navy-500\/50 {
+html.light-theme .app-root .border-r.border-navy-500\/50 {
   border-color: #E8E4DC !important;
 }
 
-html.light-theme .border-b.border-navy-500\/50 {
+html.light-theme .app-root .border-b.border-navy-500\/50 {
   border-color: #E8E4DC !important;
 }
 
 /* Text colors */
-html.light-theme .text-champagne-300 {
+html.light-theme .app-root .text-champagne-300 {
   color: #1a1208 !important;
 }
 
-html.light-theme .text-navy-100 {
+html.light-theme .app-root .text-navy-100 {
   color: #6B7280 !important;
 }
 
-html.light-theme .text-white {
+html.light-theme .app-root .text-white {
   color: #0A1628 !important;
 }
 
-html.light-theme .text-navy-50 {
+html.light-theme .app-root .text-navy-50 {
   color: #374151 !important;
 }
 
 /* Cards */
-html.light-theme .shadow-card {
+html.light-theme .app-root .shadow-card {
   box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04) !important;
 }
 
 /* Nav active state */
-html.light-theme .border-l-2.border-gold-500 {
+html.light-theme .app-root .border-l-2.border-gold-500 {
   background-color: rgba(201,160,96,0.1) !important;
 }
 
 /* Gold divider stays */
-html.light-theme .gold-divider {
+html.light-theme .app-root .gold-divider {
   background: linear-gradient(90deg, transparent, rgba(201,160,96,0.4), transparent);
 }
 
 /* Scrollbar */
-html.light-theme * {
+html.light-theme .app-root * {
   scrollbar-color: #C9A060 #F0EDE6;
 }
 
 /* Recharts chart text */
-html.light-theme .recharts-cartesian-axis-tick text {
+html.light-theme .app-root .recharts-cartesian-axis-tick text {
   fill: #9CA3AF !important;
 }
 
 /* Input/textarea in light mode */
-html.light-theme input,
-html.light-theme textarea,
-html.light-theme select {
+html.light-theme .app-root input,
+html.light-theme .app-root textarea,
+html.light-theme .app-root select {
   background-color: #F9F8F5 !important;
   border-color: #E8E4DC !important;
   color: #0A1628 !important;
 }
 
 /* Lead Intelligence page bg in light mode */
-html.light-theme [style*="background: linear-gradient(135deg, #0f1b2f"] {
+html.light-theme .app-root [style*="background: linear-gradient(135deg, #0f1b2f"] {
   background: linear-gradient(135deg, #FFFFFF 0%, #F9F8F5 100%) !important;
   border-color: rgba(201,160,96,0.25) !important;
 }
