@@ -55,12 +55,19 @@ vi.mock("@/lib/analytics/ga4-server", () => ({
 
 import { POST } from "@/app/api/stripe/checkout/route";
 
+// O rate limit da rota (10 req / 10 min) é guardado em módulo e sobrevive entre
+// testes. Cada chamada usa um IP próprio para que acrescentar um caso novo não
+// derrube os anteriores com 429.
+let clientIpSeq = 0;
+
 function checkoutRequest(body: unknown, headers: Record<string, string> = {}) {
+  clientIpSeq += 1;
   return new Request("http://localhost:3000/api/stripe/checkout", {
     method: "POST",
     headers: {
       origin: "http://localhost:3000",
       "content-type": "application/json",
+      "x-forwarded-for": `203.0.113.${clientIpSeq % 256}`,
       ...headers,
     },
     body: JSON.stringify(body),
@@ -121,6 +128,40 @@ describe("Stripe checkout — validações", () => {
     const res = await POST(checkoutRequest({ plan: "premium" }));
     expect(res.status).toBe(400);
     expect(sessionsCreate).not.toHaveBeenCalled();
+  });
+});
+
+describe("Stripe checkout — retorno do funil", () => {
+  it("devolve quem cancela no onboarding para a etapa de planos", async () => {
+    const res = await POST(
+      checkoutRequest({ plan: "start", origem: "onboarding" })
+    );
+
+    expect(res.status).toBe(200);
+    const params = sessionsCreate.mock.calls[0][0];
+    expect(params.cancel_url).toBe(
+      "http://localhost:3000/onboarding?aba=planos&checkout=cancelado"
+    );
+    expect(params.success_url).toContain("/signup?checkout=sucesso");
+  });
+
+  it("mantém o retorno padrão quando a origem não é informada", async () => {
+    const res = await POST(checkoutRequest({ plan: "start" }));
+
+    expect(res.status).toBe(200);
+    const params = sessionsCreate.mock.calls[0][0];
+    expect(params.cancel_url).toBe("http://localhost:3000/#demo");
+  });
+
+  it("ignora origem forjada em vez de redirecionar para fora", async () => {
+    const res = await POST(
+      checkoutRequest({ plan: "start", origem: "https://evil.example.com" })
+    );
+
+    expect(res.status).toBe(200);
+    const params = sessionsCreate.mock.calls[0][0];
+    expect(params.cancel_url).toBe("http://localhost:3000/#demo");
+    expect(params.success_url).toContain("http://localhost:3000/");
   });
 });
 

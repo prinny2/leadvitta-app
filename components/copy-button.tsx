@@ -40,8 +40,8 @@ export function CopyButton({
       type="button"
       onClick={onCopy}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-white px-3 py-1.5 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-50",
-        copied && "border-green-300 bg-green-50 text-green-700",
+        "inline-flex items-center gap-1.5 rounded-lg border border-navy-500 bg-navy-700 px-3 py-1.5 text-xs font-medium text-champagne-300 transition-colors hover:bg-navy-600",
+        copied && "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
         className
       )}
     >

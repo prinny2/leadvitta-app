@@ -92,7 +92,7 @@ export default function RootLayout({
 
   return (
     <html lang="pt-BR" className={`${inter.variable} ${fraunces.variable}`}>
-      <body className="min-h-screen bg-nude-50 font-sans text-ink antialiased">
+      <body className="min-h-screen bg-navy-900 font-sans text-ink antialiased">
         {isClerkClientConfigured ? (
           <ClerkProvider localization={ptBR}>{app}</ClerkProvider>
         ) : (
