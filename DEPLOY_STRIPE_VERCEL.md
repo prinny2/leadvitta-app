@@ -1,4 +1,4 @@
-# DEPLOY_STRIPE_VERCEL.md — Checkout recorrente + Webhook (arquitetura híbrida)
+# DEPLOY_STRIPE_VERCEL.md — Checkout recorrente + Webhook (Vercel atual + legado híbrido)
 
 > Última revisão: 2026-07-02. Fonte da verdade de estado vivo: **COORDINATION.md**.
 > Fonte única de planos/preços na UI: **lib/billing.ts**. Não comitar segredos.
@@ -18,41 +18,25 @@
 > - **Supabase (espelho): projeto vivo = `imlroxezgshrybizdnyy`** (embutido no bundle de prod). O schema
 >   de 2026-06-28 foi aplicado no `jaxpniltorjryfibnfkg`, que o código não lê (envs `leadbellusreal_*`) —
 >   rodar `supabase/schema.sql` no projeto vivo antes de confiar no espelho.
-> - Cloud Run = **legacy/backup**. As seções §0–§6 abaixo descrevem o modo híbrido (proxy ligado) e valem
->   **apenas** se esse modo voltar a ser ativado deliberadamente. No modo atual, leia "Cloud Run" como
->   "runtime da Vercel" ao aplicar §4–§7 (whsec/envs na Vercel; webhook em `www`, nunca apex).
+> - Cloud Run = **legacy/backup**. As seções antigas sobre Cloud Run descrevem o modo híbrido (proxy ligado) e valem
+>   **apenas** se esse modo voltar a ser ativado deliberadamente. No modo atual, envs/whsec vivem na
+>   Vercel, webhooks usam `www`, e comandos/segredos do Cloud Run são legado-only.
 
-## 0. A verdade da arquitetura (leia primeiro — quase tudo aqui depende disso)
+## 0. A verdade da arquitetura atual (leia primeiro — quase tudo aqui depende disso)
 
-LeadBellus é **híbrido**:
+LeadBellus roda **full-Vercel** em produção:
 
-- **Vercel** (`www.leadbellus.com.br`) serve **apenas o frontend** e as variáveis
-  `NEXT_PUBLIC_*` **embutidas no build**.
-- **TODAS** as rotas `/api/*` são reescritas (proxy server-side) para o **Cloud Run**
-  em `https://leadbellus-87102725202.southamerica-east1.run.app`.
+- **Vercel** (`www.leadbellus.com.br`) serve o frontend **e** executa os handlers em `app/api/*`.
+- `ENABLE_API_PROXY` **não** está setado em produção e **não deve ser ativado** sem uma migração deliberada.
+- Segredos de runtime usados pelos handlers atuais (`STRIPE_*`, `FIREBASE_*`, `CLERK_*`, `ZAPI_*`, `GA4_API_SECRET`) vivem na **Vercel**.
 
-Motivo no código (`next.config.mjs:10-11,51-61`):
+**Modo híbrido/legado (desligado):** se `ENABLE_API_PROXY=true` voltar a ser ativado deliberadamente,
+as rotas `/api/*` passam a ser reescritas para o Cloud Run em
+`https://leadbellus-87102725202.southamerica-east1.run.app`. Nesse modo legado, os segredos de
+runtime dessas rotas precisam viver no Cloud Run/Secret Manager e as seções antigas sobre Cloud Run
+voltam a se aplicar.
 
-```js
-const enableApiProxy = process.env.ENABLE_API_PROXY === "true";
-// rewrites().beforeFiles: { source: "/api/:path*", destination: `${apiProxyOrigin}/api/:path*` }
-```
-
-O proxy é **opt-in**: na Vercel de produção defina **`ENABLE_API_PROXY=true` no build**
-(sem isso, `/api/*` roda na edge da Vercel **sem** os segredos do Cloud Run). O rewrite
-dispara em `beforeFiles`, **antes** dos handlers em `app/api/`.
-
-**Consequência que muda tudo:**
-`app/api/stripe/checkout/route.ts` e `app/api/stripe/webhook/route.ts`
-**NUNCA executam na Vercel** — rodam no **Cloud Run**, lendo `process.env.STRIPE_*` /
-`FIREBASE_*` **do ambiente do Cloud Run**, não da Vercel.
-
-> **Regra de ouro:** todo segredo de **runtime** de `/api/*` (`STRIPE_*`, `FIREBASE_*`,
-> `OPENAI/ANTHROPIC`, `ZAPI_*`) vai no **Cloud Run** (Secret Manager). Na **Vercel** só
-> ficam `NEXT_PUBLIC_*` (build-time) e as vars de proxy. Segredo de Stripe/Firebase setado
-> **só na Vercel é INERTE** — o cliente paga e a conta nunca ativa.
-
-## 1. Onde cada variável vive
+## 1. Onde cada variável vive no modo híbrido legado
 
 | Variável | Vercel (build) | Cloud Run (runtime) | Observação |
 |---|:--:|:--:|---|
@@ -112,22 +96,31 @@ explícito = a URL `.run.app`). Lembre: mudar `NEXT_PUBLIC_*` exige **novo build
 
 ## 4. Webhook do Stripe — endpoint e segredo
 
-**Recomendado: apontar o endpoint DIRETO para o Cloud Run**, pulando o proxy da Vercel:
+**Produção atual (full-Vercel):** apontar o endpoint para o host canônico com `www`:
 
 ```
-https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook
+https://www.leadbellus.com.br/api/stripe/webhook
 ```
 
-- O `STRIPE_WEBHOOK_SECRET` **vive no Cloud Run** — é lá que o `constructEvent` roda
-  (`webhook/route.ts` lê `rawBody = await request.text()` e verifica com o `whsec`). O `whsec`
-  precisa ser **o signing secret desse endpoint** registrado em **`acct_1TemHuRTJ7iCFKxk` (LeadBellus)**.
-- Por que direto no Cloud Run (zero desvantagem): o handler roda no Cloud Run de qualquer
-  forma; ir direto remove o edge proxy, os limites 4,5MB/120s, qualquer normalização futura de
-  header/body, **e** a armadilha do apex.
+- O `STRIPE_WEBHOOK_SECRET` precisa estar **no runtime que serve `/api/stripe/webhook`**:
+  **Vercel** no modo full-Vercel atual; **Cloud Run** somente no modo híbrido/legado. É esse
+  runtime que roda o `constructEvent` (`webhook/route.ts` lê `rawBody = await request.text()` e
+  verifica com o `whsec`). O `whsec` precisa ser **o signing secret desse endpoint** registrado em
+  **`acct_1TemHuRTJ7iCFKxk` (LeadBellus)** — a `acct_1TeQMX...` está aposentada (D-004).
+- **Modo híbrido/legado:** se o proxy `/api/*` voltar a ser ativado deliberadamente e o handler
+  voltar a rodar no Cloud Run, registre o endpoint `.run.app` direto para evitar o hop pelo proxy
+  da Vercel:
+
+  ```
+  https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook
+  ```
+
+  Nesse cenário legado, o `STRIPE_WEBHOOK_SECRET` correspondente a esse endpoint `.run.app` fica
+  no Cloud Run.
 
 **Armadilha do apex (307):** `leadbellus.com.br` (apex) faz **307 → www**, e o **Stripe não
-segue redirect**. Se mantiver o endpoint no domínio Vercel por branding, use **`www`** (nunca
-o apex) — e **ainda assim** ponha o `whsec` no Cloud Run.
+segue redirect**. No modo atual use **`www`** (nunca o apex); no modo híbrido/legado use o
+endpoint `.run.app` direto.
 
 **Eventos a assinar:** `checkout.session.completed`, `customer.subscription.created`,
 `customer.subscription.updated`, `customer.subscription.deleted` — esses 4 o handler reconcilia
@@ -138,12 +131,12 @@ em `clinicas/{uid}.billing` via Admin SDK (escrita **server-only**). `invoice.pa
 
 | Sintoma | Causa provável | Onde olhar / corrigir |
 |---|---|---|
-| Webhook **400** "No signatures found"/"signature mismatch" | `STRIPE_WEBHOOK_SECRET` errado/ausente **no Cloud Run** (ou whsec de outro endpoint) | `webhook/route.ts:122,142`; `gcloud run services describe leadbellus`. **Não** é problema de bytes do proxy. |
-| Webhook nunca chega / entregas falham no Stripe | endpoint registrado no **apex** (307→www, Stripe não segue) | repointar p/ a URL `.run.app` ou `www`. |
-| Cliente paga e conta **não ativa** | segredos Stripe/Firebase setados **só na Vercel** (inertes) | mover `STRIPE_*`/`FIREBASE_*` p/ Cloud Run. |
-| Checkout **503** | `STRIPE_PRICE_ID_<PLANO>` ausente ou Stripe não configurado no Cloud Run | `checkout/route.ts:57-76`; `config.ts:53-56`. |
+| Webhook **400** "No signatures found"/"signature mismatch" | `STRIPE_WEBHOOK_SECRET` errado/ausente no runtime que serve o webhook (Vercel atual; Cloud Run híbrido/legado) | `webhook/route.ts:122,142`; conferir env do runtime correspondente. **Não** é problema de bytes do proxy. |
+| Webhook nunca chega / entregas falham no Stripe | endpoint registrado no **apex** (307→www, Stripe não segue) | repointar para `www` no modo atual ou `.run.app` no modo híbrido/legado. |
+| Cliente paga e conta **não ativa** | segredos Stripe/Firebase ausentes no runtime que serve checkout/webhook | configurar `STRIPE_*`/`FIREBASE_*` na Vercel atual ou no Cloud Run híbrido/legado. |
+| Checkout **503** | `STRIPE_PRICE_ID_<PLANO>` ausente ou Stripe não configurado no runtime atual | `checkout/route.ts:57-76`; `config.ts:53-56`. |
 | Checkout **400** "Plano inválido" / "ainda não disponível" | `plan` ≠ start/pro/premium, ou Price ID do plano vazio (`disponivel=false`) | `checkout/route.ts:45-56`; `billing.ts:56,74`. |
-| `/api/config` mostra `stripe_enabled=false` | env do **Cloud Run** (o `/api/config` no domínio é respondido pelo Cloud Run via proxy) | corrigir env no Cloud Run, não na Vercel. |
+| `/api/config` mostra `stripe_enabled=false` | env ausente no runtime que responde `/api/config` | corrigir env na Vercel atual ou no Cloud Run híbrido/legado. |
 | Build da Vercel **falha** ("API proxy loop") | `API_PROXY_ORIGIN` aponta p/ `leadbellus.com.br` | `next.config.mjs:13-17`; deixar vazio ou usar `.run.app`. |
 | Mudei `NEXT_PUBLIC_*` e nada mudou | é **build-time**; precisa rebuild na Vercel | redeploy não basta — refazer o build. |
 
@@ -152,27 +145,27 @@ em `clinicas/{uid}.billing` via Admin SDK (escrita **server-only**). `invoice.pa
 Provedor **Z-API only** (número **+55 91 8515-6690**). Painel Z-API → Webhooks:
 
 - **Ao receber** (`ReceivedMessage`):
-  `https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>`
+  `https://www.leadbellus.com.br/api/whatsapp/webhook?token=<ZAPI_SECURITY_TOKEN>`
 - **Receber status da mensagem** e **todos os demais campos**: **DEIXAR VAZIO**
   (`route.ts` só processa inbound de mensagem; o resto é no-op).
-- `ZAPI_SECURITY_TOKEN` deve existir no **runtime do Cloud Run** e ser **igual** ao `?token=`.
-  Token ausente/errado ⇒ **403** e 100% das mensagens inbound caem (fail-closed). Auto-resposta
+- `ZAPI_SECURITY_TOKEN` deve existir no runtime que serve o webhook (**Vercel** no modo atual;
+  **Cloud Run** só no modo híbrido/legado) e ser **igual** ao `?token=`. Token ausente/errado ⇒ **403** e 100% das mensagens inbound caem (fail-closed). Auto-resposta
   só dispara para clínica com `billing.status` em `active|paid|trialing`.
 
-Registro alternativo via script (passe a URL Cloud Run para evitar o hop de proxy):
+Registro alternativo via script (passe a URL canônica atual; `.run.app` só no modo híbrido/legado):
 
 ```bash
 node scripts/setup-zapi-webhook.mjs \
-  https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook
-# o script anexa ?token automaticamente. Sem argv[2] ele usa NEXT_PUBLIC_SITE_URL (= www), que proxia.
+  https://www.leadbellus.com.br/api/whatsapp/webhook
+# o script anexa ?token automaticamente. Sem argv[2] ele usa NEXT_PUBLIC_SITE_URL (= www).
 ```
 
 ## 7. Aceitação
 
 1. `curl -L https://www.leadbellus.com.br/api/config` → `stripe_enabled`, `firebase_admin_enabled`,
-   `ai_enabled` = `true`, `whatsapp_provider:"zapi"` (respondido pelo Cloud Run via proxy).
-2. Stripe **"Send test webhook"** no endpoint `.run.app` → **200 `{"received":true}`**.
-   (400 = whsec/endpoint divergente no Cloud Run, não bytes do proxy.)
+   `ai_enabled` = `true`, `whatsapp_provider:"zapi"` (respondido pela Vercel no modo atual).
+2. Stripe **"Send test webhook"** no endpoint `www` → **200 `{"received":true}`**.
+   (400 = whsec/endpoint divergente no runtime que serve o webhook, não bytes do proxy.)
 3. Checkout real do **Start** conclui e `clinicas/{uid}.billing` é gravado pelo webhook (Admin SDK);
    o usuário volta para `/configuracoes?checkout=sucesso`.
 4. WhatsApp: `node scripts/simulate-whatsapp-webhook.mjs` → **200**; sem token → **403**.
@@ -185,13 +178,13 @@ node scripts/setup-zapi-webhook.mjs \
   os três, é preciso expor a disponibilidade ao cliente (flag `NEXT_PUBLIC_*` ou via `/api/config`).
 - **Preço**: `lib/billing.ts` R$97/197/347 vs docs R$197/297/397 — reconciliar com os valores
   reais na conta `acct_1TemHu` (LeadBellus) antes de vender (fonte única = `lib/billing.ts`).
-- **Prod canônica (2026-06-30):** Vercel (`www.leadbellus.com.br`) é o host público; Cloud Run é o
-  **API tier** (`/api/*` via proxy + webhooks diretos `.run.app`). Não há conflito pendente.
+- **Prod canônica (2026-07-03):** Vercel (`www.leadbellus.com.br`) é o host público e runtime de
+  `/api/*`; Cloud Run é legado/backup e só volta se o proxy for reativado deliberadamente.
 
 ## 9. Docs relacionados (estado)
 
 - ✅ Canônicos: **COORDINATION.md** (estado vivo), **README §Deploy/§Stripe/§WhatsApp** (Z-API only,
-  webhook na URL `.run.app`), **GO_LIVE_BILLING.md** (segredos no Cloud Run), este arquivo.
-- ✅ Corrigido (2026-07-01): `ENABLE_API_PROXY=true` obrigatório na Vercel (não `VERCEL=1`);
-  COORDINATION.md, LAUNCH_NOW.md e README §WhatsApp reconciliados com Z-API como único provedor.
-  **← válido só no modo híbrido; desde 2026-07-02 o proxy fica DESLIGADO (ver atualização no topo).**
+  webhooks no host `www` atual), **GO_LIVE_BILLING.md** (histórico; revisar antes de uso), este arquivo.
+- ✅ Histórico (2026-07-01): `ENABLE_API_PROXY=true` foi obrigatório apenas no modo híbrido legado;
+  desde 2026-07-02 o proxy fica DESLIGADO para preservar a ponte Clerk -> Firebase.
+  Z-API permanece o único provedor WhatsApp.
