@@ -48,7 +48,7 @@ function StructuredDataTags() {
     operatingSystem: "Web",
     url: "https://www.leadbellus.com.br",
     description:
-      "Copiloto de WhatsApp para clínicas de estética cria respostas prontas para preço, objeções e follow-up — para clientes mulheres e homens.",
+      "LeadBellus entende a mensagem, o contexto da conversa e o jeito da sua clínica de estética para sugerir respostas no WhatsApp — a equipe revisa e conduz cada cliente ao próximo passo.",
     inLanguage: "pt-BR",
     offers: {
       "@type": "Offer",
@@ -218,16 +218,16 @@ function ChatProof() {
         </div>
         <div style={{ lineHeight: 1.2 }}>
           <p style={{ margin: 0, fontSize: "13px", fontWeight: 700, color: INK }}>Cliente · WhatsApp</p>
-          <p style={{ margin: 0, fontSize: "11px", color: "#1FA855", fontWeight: 700 }}>quase fechando</p>
+          <p style={{ margin: 0, fontSize: "11px", color: "#1FA855", fontWeight: 700 }}>conversa em andamento</p>
         </div>
       </div>
 
       <div style={{ display: "grid", gap: "8px", margin: "14px 0" }}>
         <div style={{ alignSelf: "flex-start", maxWidth: "85%", background: "#F1F4F8", color: INK, borderRadius: "14px 14px 14px 4px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.4 }}>
-          Quanto fica o botox? 😬 Tenho medo de ficar com cara artificial…
+          Oi! Quanto fica o botox? Tenho um pouco de medo de ficar artificial…
         </div>
         <div style={{ alignSelf: "flex-end", maxWidth: "88%", background: "#DCF6E6", color: "#0B3D2A", borderRadius: "14px 14px 4px 14px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.45 }}>
-          Oi! 😊 O valor depende da avaliação e do que você busca — o resultado é sempre natural quando bem indicado. Quer que eu veja um horário essa semana?
+          Oi! Que bom que você perguntou 😊 O valor depende da avaliação, porque cada rosto pede uma quantidade diferente — e quando é bem indicado, o resultado fica natural. Quer que eu veja um horário pra você conhecer a clínica essa semana?
         </div>
       </div>
 
@@ -248,7 +248,7 @@ function ChatProof() {
             {t}
           </span>
         ))}
-        <span style={{ fontSize: "11px", color: INK_SOFT, alignSelf: "center" }}>3 respostas prontas pra copiar</span>
+        <span style={{ fontSize: "11px", color: INK_SOFT, alignSelf: "center" }}>3 sugestões — a equipe revisa e envia</span>
       </div>
     </div>
   );
@@ -263,17 +263,16 @@ export default function LandingPage() {
 
       {/* Faixa de lançamento */}
       <div className="launch-strip" style={{ background: `linear-gradient(90deg, ${GOLD_HOT}, ${GOLD} 55%, #D18A1F)`, color: NAVY, textAlign: "center", padding: "9px 24px", fontSize: "13px", fontWeight: 700 }}>
-        Lançamento: R$97/mês — menos de R$3,30 por dia · teste grátis, sem cartão
+        Plano Start por R$97/mês · teste grátis, sem cartão
       </div>
 
       <main>
         {/* ── HERO ─────────────────────────────────────────────────────────── */}
         <section className="landing-hero" style={{ padding: "72px 24px 80px", overflowX: "hidden", position: "relative", background: `linear-gradient(180deg, ${NAVY} 0%, #0D2038 100%)` }}>
-          {/* Glows + grid de fundo (decoração tech) */}
+          {/* Glows suaves de fundo */}
           <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-            <div style={{ position: "absolute", top: "-180px", right: "-120px", width: "560px", height: "560px", borderRadius: "50%", background: "radial-gradient(circle, rgba(228,168,77,0.28), transparent 65%)", filter: "blur(44px)" }} />
-            <div style={{ position: "absolute", bottom: "-240px", left: "-160px", width: "560px", height: "560px", borderRadius: "50%", background: "radial-gradient(circle, rgba(31,168,85,0.14), transparent 65%)", filter: "blur(52px)" }} />
-            <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1px)", backgroundSize: "26px 26px", maskImage: "linear-gradient(to bottom, black 0%, transparent 78%)", WebkitMaskImage: "linear-gradient(to bottom, black 0%, transparent 78%)" }} />
+            <div style={{ position: "absolute", top: "-180px", right: "-120px", width: "560px", height: "560px", borderRadius: "50%", background: "radial-gradient(circle, rgba(228,168,77,0.22), transparent 65%)", filter: "blur(44px)" }} />
+            <div style={{ position: "absolute", bottom: "-240px", left: "-160px", width: "560px", height: "560px", borderRadius: "50%", background: "radial-gradient(circle, rgba(31,168,85,0.1), transparent 65%)", filter: "blur(52px)" }} />
           </div>
           <div
             className="hero-grid"
@@ -305,11 +304,12 @@ export default function LandingPage() {
                   overflowWrap: "break-word",
                 }}
               >
-                Você não perde cliente pelo preço.{" "}
-                <span className="hero-title-highlight" style={{ background: `linear-gradient(100deg, ${GOLD_HOT}, ${GOLD} 55%, #D18A1F)`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", fontStyle: "italic" }}>Perde pela resposta.</span>
+                Cada conversa no WhatsApp{" "}
+                <span className="hero-title-highlight" style={{ background: `linear-gradient(100deg, ${GOLD_HOT}, ${GOLD} 55%, #D18A1F)`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", fontStyle: "italic" }}>pode terminar em um agendamento.</span>
               </h1>
-              <p className="hero-subtitle" style={{ fontSize: "18px", lineHeight: 1.6, color: "rgba(255,255,255,0.78)", maxWidth: "480px", margin: "0 0 26px" }}>
-                Cole a mensagem da cliente. Em segundos saem <strong style={{ color: "#FFFFFF" }}>3 respostas no tom da sua clínica</strong> — é copiar, colar no WhatsApp e agendar.
+              <p className="hero-subtitle" style={{ fontSize: "18px", lineHeight: 1.6, color: "rgba(255,255,255,0.78)", maxWidth: "500px", margin: "0 0 26px" }}>
+                O LeadBellus entende a mensagem, o contexto da conversa e o jeito da sua clínica de estética — e sugere respostas para{" "}
+                <strong style={{ color: "#FFFFFF" }}>sua equipe revisar, enviar e conduzir cada cliente ao próximo passo</strong>.
               </p>
 
               <div className="hero-cta-row" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
@@ -356,24 +356,24 @@ export default function LandingPage() {
                 </a>
               </div>
               <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", margin: "0 0 26px" }}>
-                Atende <strong style={{ color: "rgba(255,255,255,0.85)" }}>mulheres e homens</strong> · funciona no celular · cancele quando quiser
+                A IA sugere, <strong style={{ color: "rgba(255,255,255,0.85)" }}>sua equipe decide o que enviar</strong> · funciona no celular · cancele quando quiser
               </p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {["Preço", "“Achou caro”", "Cliente sumiu", "Medo", "Follow-up"].map((t) => (
+                {["Preço", "Objeção", "Medo", "Silêncio", "Decisão"].map((t) => (
                   <span
                     key={t}
                     style={{
-                      background: "rgba(228,168,77,0.1)",
-                      border: "1px solid rgba(228,168,77,0.35)",
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.16)",
                       borderRadius: "9999px",
                       padding: "7px 13px",
                       fontSize: "12px",
-                      fontWeight: 700,
-                      color: GOLD_HOT,
+                      fontWeight: 600,
+                      color: "rgba(255,255,255,0.75)",
                     }}
                   >
-                    ✓ {t}
+                    {t}
                   </span>
                 ))}
               </div>
@@ -413,26 +413,89 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ── DOR / SINAIS ─────────────────────────────────────────────────── */}
-        <section style={{ padding: "76px 24px" }}>
+        {/* ── ROTINA DA CLÍNICA ────────────────────────────────────────────── */}
+        <section style={{ padding: "76px 24px", background: CREAM }}>
+          <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+            <div className="rotina-grid" style={{ display: "grid", gridTemplateColumns: "1fr", gap: "44px", alignItems: "center" }}>
+              <FadeUp>
+                <Eyebrow>Um dia comum de atendimento</Eyebrow>
+                <SectionTitle>14h37 na sua clínica</SectionTitle>
+                <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: "0 0 16px", maxWidth: "480px" }}>
+                  Alguém da equipe está em procedimento. Outra pessoa atende na recepção. E o WhatsApp continua recebendo mensagens — cada uma em um momento diferente da decisão.
+                </p>
+                <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0, maxWidth: "480px" }}>
+                  O LeadBellus lê a mensagem, entende o momento da conversa e sugere respostas no tom da sua clínica —{" "}
+                  <strong style={{ color: INK }}>para a equipe responder com segurança, sem parecer apressada nem robótica</strong>.
+                </p>
+              </FadeUp>
+
+              <FadeUp delay={0.1}>
+                <div
+                  role="list"
+                  aria-label="Conversas chegando no WhatsApp da clínica"
+                  style={{
+                    background: "#ffffff",
+                    border: "1px solid rgba(16,35,59,0.08)",
+                    borderRadius: "22px",
+                    padding: "22px",
+                    boxShadow: "0 24px 60px rgba(16,35,59,0.08)",
+                    display: "grid",
+                    gap: "12px",
+                  }}
+                >
+                  {[
+                    { h: "14h37", nome: "Mariana", msg: "Oi! Quanto custa o botox?", momento: "quer entender o valor" },
+                    { h: "14h41", nome: "Paula", msg: "Tenho medo de ficar com o rosto artificial…", momento: "precisa de segurança" },
+                    { h: "14h48", nome: "Renata", msg: "Recebeu as informações ontem e ainda não respondeu", momento: "hora do follow-up" },
+                    { h: "14h52", nome: "Camila", msg: "Consigo um horário ainda essa semana?", momento: "pronta para agendar" },
+                  ].map((c) => (
+                    <div
+                      key={c.h}
+                      role="listitem"
+                      style={{
+                        display: "flex",
+                        gap: "12px",
+                        alignItems: "flex-start",
+                        padding: "12px 14px",
+                        borderRadius: "14px",
+                        background: CREAM_2,
+                        border: "1px solid rgba(16,35,59,0.05)",
+                      }}
+                    >
+                      <span style={{ fontSize: "12px", fontWeight: 700, color: GOLD_DEEP, whiteSpace: "nowrap", marginTop: "2px", fontVariantNumeric: "tabular-nums" }}>{c.h}</span>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: INK }}>{c.nome}</p>
+                        <p style={{ margin: "2px 0 4px", fontSize: "13.5px", lineHeight: 1.5, color: INK_SOFT }}>{c.msg}</p>
+                        <span style={{ fontSize: "11px", fontWeight: 700, color: "#1FA855", textTransform: "uppercase", letterSpacing: "0.04em" }}>{c.momento}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </FadeUp>
+            </div>
+          </div>
+        </section>
+
+        {/* ── SITUAÇÕES DE ATENDIMENTO ─────────────────────────────────────── */}
+        <section style={{ padding: "76px 24px", background: CREAM_2 }}>
           <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
             <FadeUp>
             <div style={{ maxWidth: "640px", marginBottom: "34px" }}>
-              <Eyebrow>As 5 conversas que definem seu mês</Eyebrow>
-              <SectionTitle>Toda conversa difícil já chega respondida</SectionTitle>
+              <Eyebrow>Situações de atendimento</Eyebrow>
+              <SectionTitle>A mesma resposta não serve para todas as conversas</SectionTitle>
               <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-                Um app, todos os travamentos do WhatsApp resolvidos — no tom da sua clínica.
+                Cada cliente chega em um momento diferente da decisão. O LeadBellus reconhece esse momento e sugere a resposta adequada — sempre no tom da sua clínica.
               </p>
             </div>
             </FadeUp>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: "18px" }}>
               {[
-                { t: "Perguntou o preço", c: "Sai resposta que valoriza antes de falar número — e já convida pra avaliação." },
-                { t: "“Achou caro”", c: "Sai resposta que defende seu valor sem sair dando desconto." },
-                { t: "Sumiu", c: "Sai follow-up leve, com dia e hora pra voltar." },
-                { t: "Medo do procedimento", c: "Sai resposta que acolhe e passa segurança — sem prometer milagre." },
-                { t: "Quase fechando", c: "Sai mensagem de fechamento com o próximo passo claro." },
+                { t: "Preço", c: "Contextualiza o valor e o cuidado envolvido antes de falar em número — e convida para a avaliação." },
+                { t: "Objeção", c: "Responde a comparações e ao “achei caro” sem partir direto para o desconto." },
+                { t: "Medo", c: "Acolhe a insegurança com naturalidade, sem prometer resultados que não podem ser prometidos." },
+                { t: "Silêncio", c: "Sugere um follow-up contextual e leve, que retoma a conversa sem parecer insistente." },
+                { t: "Decisão", c: "Oferece um próximo passo claro — uma avaliação ou um horário — quando a pessoa está pronta." },
               ].map((card) => (
                 <article
                   key={card.t}
@@ -455,21 +518,21 @@ export default function LandingPage() {
         </section>
 
         {/* ── COMO FUNCIONA ────────────────────────────────────────────────── */}
-        <section id="como-funciona" style={{ background: CREAM_2, padding: "76px 24px" }}>
+        <section id="como-funciona" style={{ background: CREAM, padding: "76px 24px" }}>
           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
             <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 40px" }}>
               <Eyebrow>Como funciona</Eyebrow>
-              <SectionTitle>Em 3 passos, sem complicação</SectionTitle>
+              <SectionTitle>Simples de encaixar na rotina</SectionTitle>
             </div>
             </FadeUp>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
               {[
                 { n: "01", icon: <MessageCircle size={20} />, t: "Cole a mensagem", c: "Copie o que a pessoa mandou no WhatsApp e cole no LeadBellus." },
-                { n: "02", icon: <Sparkles size={20} />, t: "Receba 3 respostas", c: "No tom da sua clínica: uma suave, uma consultiva e uma de fechamento." },
-                { n: "03", icon: <Copy size={20} />, t: "Copie e mande", c: "Revisa, ajusta se quiser e cola na conversa. Você no controle, sempre." },
+                { n: "02", icon: <Sparkles size={20} />, t: "Ele entende o contexto", c: "O LeadBellus interpreta o momento da conversa e sugere 3 respostas no tom da sua clínica." },
+                { n: "03", icon: <Copy size={20} />, t: "A equipe revisa e envia", c: "Você lê, ajusta se quiser e cola na conversa — com o próximo passo claro." },
               ].map((s) => (
-                <div key={s.n} className="lp-card" style={{ background: "#ffffff", border: "1px solid rgba(16,35,59,0.07)", borderRadius: "18px", padding: "26px" }}>
+                <div key={s.n} className="lp-card" style={{ background: CREAM_2, border: "1px solid rgba(16,35,59,0.07)", borderRadius: "18px", padding: "26px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
                     <span style={{ width: "42px", height: "42px", borderRadius: "12px", background: INK, color: GOLD, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {s.icon}
@@ -481,18 +544,23 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+            <FadeUp>
+              <p style={{ textAlign: "center", margin: "28px auto 0", maxWidth: "520px", fontSize: "16px", lineHeight: 1.6, color: INK_SOFT }}>
+                <strong style={{ color: INK }}>A IA sugere. A clínica decide.</strong> O LeadBellus não envia mensagens sozinho — nada sai sem passar pela sua equipe.
+              </p>
+            </FadeUp>
           </div>
         </section>
 
-        {/* ── PARA QUEM É (elas e eles) ────────────────────────────────────── */}
-        <section id="para-quem" style={{ padding: "78px 24px" }}>
+        {/* ── PARA QUEM É ──────────────────────────────────────────────────── */}
+        <section id="para-quem" style={{ padding: "78px 24px", background: CREAM_2 }}>
           <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
             <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "660px", margin: "0 auto 40px" }}>
               <Eyebrow>Para quem é</Eyebrow>
-              <SectionTitle>Estética não tem só um público</SectionTitle>
+              <SectionTitle>Feito para a rotina comercial de clínicas de estética</SectionTitle>
               <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-                Seu WhatsApp atende mulheres e homens — e cada conversa tem o seu tom. O LeadBellus responde os dois do jeito certo.
+                Do injetável ao capilar, cada procedimento gera dúvidas diferentes no WhatsApp. O LeadBellus adapta a resposta ao procedimento, ao cliente e ao momento da conversa — para mulheres e homens.
               </p>
             </div>
             </FadeUp>
@@ -500,16 +568,16 @@ export default function LandingPage() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>
               {[
                 {
-                  tag: "Para elas",
+                  tag: "Facial e injetáveis",
                   bg: "#ffffff",
-                  titulo: "A estética que elas já procuram",
-                  itens: ["Botox e preenchimento", "Harmonização facial", "Limpeza de pele e peeling", "Bioestimulador e skinbooster", "Corporal: drenagem, gordura localizada"],
+                  titulo: "Conversas que pedem confiança",
+                  itens: ["Botox e preenchimento", "Harmonização facial", "Bioestimulador e skinbooster", "Limpeza de pele e peeling", "Skincare e cuidados de rotina"],
                 },
                 {
-                  tag: "Para eles",
+                  tag: "Corporal e capilar",
                   bg: INK,
-                  titulo: "O público masculino que mais cresce",
-                  itens: ["Botox masculino (testa, bruxismo)", "Design de barba e sobrancelha", "Queda capilar e calvície", "Skincare e limpeza de pele", "Depilação a laser"],
+                  titulo: "Conversas que pedem continuidade",
+                  itens: ["Drenagem e gordura localizada", "Depilação a laser", "Queda capilar e calvície", "Design de barba e sobrancelha", "Protocolos com várias sessões"],
                 },
               ].map((col) => {
                 const dark = col.bg === INK;
@@ -559,14 +627,14 @@ export default function LandingPage() {
         </section>
 
         {/* ── DEMO ─────────────────────────────────────────────────────────── */}
-        <section id="demo" style={{ background: CREAM_2, padding: "78px 24px" }}>
+        <section id="demo" style={{ background: CREAM, padding: "78px 24px" }}>
           <div style={{ maxWidth: "900px", margin: "0 auto" }}>
             <FadeUp>
-            <div style={{ textAlign: "center", maxWidth: "600px", margin: "0 auto 36px" }}>
-              <Eyebrow>Experimente agora</Eyebrow>
-              <SectionTitle>Veja uma resposta da sua clínica — de graça</SectionTitle>
-              <p style={{ color: INK_SOFT, fontSize: "15px", margin: 0 }}>
-                Escolha uma situação e veja como ficaria. Gostou? É só criar a conta e usar no atendimento real.
+            <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
+              <Eyebrow>Experimente o raciocínio</Eyebrow>
+              <SectionTitle>Veja como o LeadBellus responderia essa conversa</SectionTitle>
+              <p style={{ color: INK_SOFT, fontSize: "15px", lineHeight: 1.7, margin: 0 }}>
+                Escolha uma situação real do seu WhatsApp e acompanhe o caminho: mensagem recebida → contexto da conversa → sugestões de resposta → próximo passo.
               </p>
             </div>
             </FadeUp>
@@ -586,7 +654,7 @@ export default function LandingPage() {
               }}
             >
               <p style={{ fontSize: "15px", color: INK, lineHeight: 1.6, margin: "0 0 18px", fontWeight: 600 }}>
-                Esta é a demonstração. Crie sua conta grátis pra usar no WhatsApp de verdade.
+                Gostou do raciocínio? Crie sua conta grátis e use no atendimento real, com o tom da sua clínica.
               </p>
               <TrackLink
                 event="cta_click"
@@ -615,26 +683,26 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ── FAÇA A CONTA (ancoragem de preço) ────────────────────────────── */}
-        <section style={{ padding: "78px 24px", background: CREAM }}>
+        {/* ── PREÇO SIMPLES ────────────────────────────────────────────────── */}
+        <section style={{ padding: "78px 24px", background: CREAM_2 }}>
           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
             <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 40px" }}>
-              <Eyebrow>Faça a conta</Eyebrow>
-              <SectionTitle>Uma cliente que não some paga o app por meses</SectionTitle>
+              <Eyebrow>Preço simples</Eyebrow>
+              <SectionTitle>Uma assinatura, atendimento consistente</SectionTitle>
               <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-                Você sabe quanto vale o seu ticket médio. Agora compare:
+                Sem contrato longo, sem implantação, sem treinamento demorado. O valor está na rotina: menos tempo travado em resposta difícil, mais consistência em cada conversa.
               </p>
             </div>
             </FadeUp>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
               {[
-                { n: "R$3,23", t: "por dia", c: "É o LeadBellus no plano Start. Menos que a água da recepção." },
-                { n: "1 cliente", t: "recuperada", c: "Uma única avaliação que não some já cobre meses de assinatura." },
-                { n: "30 seg", t: "por resposta", c: "Da mensagem colada às 3 respostas prontas — em todas as conversas, todo dia." },
+                { n: "R$97", t: "por mês", c: "O plano Start, com teste grátis antes. Cancele quando quiser, direto no painel." },
+                { n: "Segundos", t: "por sugestão", c: "Da mensagem colada às 3 sugestões de resposta — mesmo nos horários mais cheios." },
+                { n: "Um tom", t: "para a equipe toda", c: "Quem responder, responde no jeito da clínica. A conversa mantém o mesmo padrão." },
               ].map((s) => (
-                <div key={s.n} className="lp-card" style={{ background: CREAM_2, border: "1px solid rgba(11,27,51,0.07)", borderRadius: "20px", padding: "30px", textAlign: "center" }}>
-                  <p style={{ margin: 0, fontSize: "40px", fontWeight: 800, letterSpacing: "-0.02em", background: `linear-gradient(120deg, ${GOLD_DEEP}, ${GOLD})`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>{s.n}</p>
+                <div key={s.n} className="lp-card" style={{ background: "#ffffff", border: "1px solid rgba(11,27,51,0.07)", borderRadius: "20px", padding: "30px", textAlign: "center" }}>
+                  <p style={{ margin: 0, fontSize: "36px", fontWeight: 800, letterSpacing: "-0.02em", background: `linear-gradient(120deg, ${GOLD_DEEP}, ${GOLD})`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>{s.n}</p>
                   <p style={{ margin: "2px 0 12px", fontSize: "13px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: GOLD_DEEP }}>{s.t}</p>
                   <p style={{ margin: 0, fontSize: "14.5px", lineHeight: 1.65, color: INK_SOFT }}>{s.c}</p>
                 </div>
@@ -652,7 +720,7 @@ export default function LandingPage() {
               <Eyebrow onNavy>Escolha o seu plano</Eyebrow>
               <SectionTitle onNavy>Comece pelo plano que resolve hoje</SectionTitle>
               <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
-                Teste grátis primeiro. Assine só quando as respostas já estiverem fechando avaliação por você.
+                Teste grátis primeiro e assine quando fizer sentido para a rotina da sua clínica.
               </p>
             </div>
             </FadeUp>
@@ -664,17 +732,20 @@ export default function LandingPage() {
         <section style={{ padding: "78px 24px" }}>
           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
             <FadeUp>
-            <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
-              <Eyebrow>Por que confiar</Eyebrow>
-              <SectionTitle>Feito pra estética brasileira — não parece resposta pronta</SectionTitle>
+            <div style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 36px" }}>
+              <Eyebrow>Confiança</Eyebrow>
+              <SectionTitle>Sua equipe no controle, sempre</SectionTitle>
+              <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
+                O LeadBellus não envia mensagens sozinho e não se conecta ao seu WhatsApp. Ele sugere — quem revisa e envia é a sua equipe.
+              </p>
             </div>
             </FadeUp>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
               {[
-                { icon: <ShieldCheck size={20} />, t: "Respeita as regras", c: "Nunca promete resultado, cura ou preço fixo. Suas respostas saem dentro do que pode." },
-                { icon: <MessageCircle size={20} />, t: "No seu tom", c: "Você define o jeito da clínica. As respostas saem com cara de gente, não de robô." },
-                { icon: <Lock size={20} />, t: "Seus dados protegidos", c: "Cada conta vê só os próprios dados. Pagamento seguro." },
-                { icon: <Clock size={20} />, t: "Risco zero pra testar", c: "Sem cartão pra começar e cancele quando quiser, sem multa." },
+                { icon: <ShieldCheck size={20} />, t: "Cuidado com promessas", c: "As sugestões evitam promessas de resultado, cura ou preço fixo — linguagem adequada ao segmento de estética." },
+                { icon: <MessageCircle size={20} />, t: "No tom da sua clínica", c: "Você define o jeito de falar da clínica e as sugestões seguem esse tom — com cara de gente, não de robô." },
+                { icon: <Lock size={20} />, t: "Privacidade", c: "Cada conta acessa apenas os próprios dados. Pagamento processado com segurança." },
+                { icon: <Clock size={20} />, t: "Teste sem compromisso", c: "Sem cartão para começar. Cancele quando quiser, direto no painel, sem multa." },
               ].map((s) => (
                 <div key={s.t} className="lp-card" style={{ background: "#ffffff", border: "1px solid rgba(16,35,59,0.07)", borderRadius: "16px", padding: "22px" }}>
                   <span style={{ display: "inline-flex", color: GOLD_DEEP, marginBottom: "12px" }}>{s.icon}</span>
@@ -710,11 +781,11 @@ export default function LandingPage() {
             </FadeUp>
             <div style={{ display: "grid", gap: "10px" }}>
               {[
-                { q: "Tem risco de banir meu WhatsApp?", a: "Não 🙂 Ele não envia nada sozinho nem se conecta no seu WhatsApp. Só escreve a resposta — você lê, ajusta e cola na conversa. Seu número fica seguro." },
-                { q: "É um robô que responde sozinho?", a: "Não. Quem responde é você. A IA só te entrega o texto pronto e você decide o que mandar. O controle é todo seu." },
-                { q: "Serve pra público masculino também?", a: "Sim. Botox masculino, barba, sobrancelha, queda capilar, skincare… o tom se ajusta pra cada cliente, homem ou mulher." },
-                { q: "Funciona no celular?", a: "Sim! No celular, tablet ou computador, direto no navegador. Dá pra gerar a resposta e colar no WhatsApp na mesma tela." },
-                { q: "Preciso de cartão pra testar?", a: "Não. Testa de graça e só assina o Start (R$97/mês) se curtir." },
+                { q: "Tem risco de banir meu WhatsApp?", a: "Não. O LeadBellus não envia nada sozinho nem se conecta ao seu WhatsApp. Ele só sugere a resposta — você lê, ajusta e cola na conversa. Seu número fica seguro." },
+                { q: "É um robô que responde sozinho?", a: "Não. Quem responde é a sua equipe. A IA sugere o texto e o próximo passo; a clínica decide o que enviar. O controle é todo seu." },
+                { q: "Serve pra público masculino também?", a: "Sim. Botox masculino, barba, sobrancelha, queda capilar, skincare… as sugestões se adaptam ao procedimento e ao cliente." },
+                { q: "Funciona no celular?", a: "Sim. No celular, tablet ou computador, direto no navegador. Dá pra gerar a sugestão e colar no WhatsApp na mesma tela." },
+                { q: "Preciso de cartão pra testar?", a: "Não. Você testa de graça e só assina o Start (R$97/mês) se fizer sentido pra sua rotina." },
                 { q: "Como cancelo?", a: "Pelo painel, quando quiser. Sem multa e sem ligação." },
               ].map((item, i) => (
                 <details key={item.q} open={i === 0} style={{ borderRadius: "14px", border: "1px solid rgba(16,35,59,0.1)", background: "#ffffff", overflow: "hidden" }}>
@@ -743,10 +814,10 @@ export default function LandingPage() {
                 lineHeight: 1.12,
               }}
             >
-              Quantas vão perguntar o preço essa semana?
+              Sua equipe já sabe cuidar da cliente. O LeadBellus ajuda a cuidar da conversa.
             </h2>
             <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
-              Com a resposta certa, elas agendam. Sem ela, elas somem. Comece hoje, de graça.
+              Veja como o LeadBellus se encaixa no atendimento da sua clínica. Comece hoje, de graça.
             </p>
             <TrackLink
               event="cta_click"
@@ -791,6 +862,7 @@ export default function LandingPage() {
       `}</style>
       <style>{`
         @media (min-width: 768px) { .hero-grid { grid-template-columns: 1.05fr 0.95fr !important; } }
+        @media (min-width: 900px) { .rotina-grid { grid-template-columns: 0.95fr 1.05fr !important; } }
         .lp-mobile-bar { display: none; }
         @media (max-width: 767px) {
           .landing-root { max-width: 100vw; overflow-x: hidden; }
@@ -799,9 +871,9 @@ export default function LandingPage() {
           .hero-grid,
           .hero-copy-col,
           .hero-proof-col { min-width: 0; width: 100%; }
-          .hero-title { max-width: 340px !important; font-size: clamp(34px, 10.7vw, 42px) !important; line-height: 1.06 !important; }
+          .hero-title { max-width: 360px !important; font-size: clamp(30px, 9vw, 40px) !important; line-height: 1.1 !important; }
           .hero-title-highlight { display: block; max-width: 100%; }
-          .hero-subtitle { max-width: 340px !important; font-size: 17px !important; line-height: 1.55 !important; }
+          .hero-subtitle { max-width: 360px !important; font-size: 17px !important; line-height: 1.55 !important; }
           .hero-cta-row { display: grid !important; grid-template-columns: 1fr; gap: 10px !important; }
           .hero-cta { box-sizing: border-box; width: 100%; justify-content: center; }
           .lp-mobile-bar-cta { min-width: 122px !important; padding: 12px 14px !important; font-size: 13px !important; }
