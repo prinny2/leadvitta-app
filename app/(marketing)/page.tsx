@@ -263,7 +263,7 @@ export default function LandingPage() {
 
       {/* Faixa de lançamento */}
       <div className="launch-strip" style={{ background: `linear-gradient(90deg, ${GOLD_HOT}, ${GOLD} 55%, #D18A1F)`, color: NAVY, textAlign: "center", padding: "9px 24px", fontSize: "13px", fontWeight: 700 }}>
-        Plano Start por R$97/mês · teste grátis, sem cartão
+        Plano Start por R$97/mês · 5 respostas grátis, sem cartão
       </div>
 
       <main>
@@ -697,7 +697,7 @@ export default function LandingPage() {
             </FadeUp>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
               {[
-                { n: "R$97", t: "por mês", c: "O plano Start, com teste grátis antes. Cancele quando quiser, direto no painel." },
+                { n: "R$97", t: "por mês", c: "O plano Start, depois de 5 respostas grátis. Cancele quando quiser, direto no painel." },
                 { n: "Segundos", t: "por sugestão", c: "Da mensagem colada às 3 sugestões de resposta — mesmo nos horários mais cheios." },
                 { n: "Um tom", t: "para a equipe toda", c: "Quem responder, responde no jeito da clínica. A conversa mantém o mesmo padrão." },
               ].map((s) => (
@@ -720,7 +720,7 @@ export default function LandingPage() {
               <Eyebrow onNavy>Escolha o seu plano</Eyebrow>
               <SectionTitle onNavy>Comece pelo plano que resolve hoje</SectionTitle>
               <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
-                Teste grátis primeiro e assine quando fizer sentido para a rotina da sua clínica.
+                Gere 5 respostas grátis primeiro e assine quando fizer sentido para a rotina da sua clínica.
               </p>
             </div>
             </FadeUp>
@@ -917,7 +917,7 @@ export default function LandingPage() {
       >
         <div className="lp-mobile-bar-copy" style={{ lineHeight: 1.2 }}>
           <p className="lp-mobile-bar-title" style={{ margin: 0, fontSize: "14px", fontWeight: 800, color: INK }}>
-            Teste grátis
+            5 respostas grátis
           </p>
           <p className="lp-mobile-bar-subtitle" style={{ margin: "3px 0 0", fontSize: "11px", color: INK_SOFT }}>
             Sem cartão · depois R$97/mês

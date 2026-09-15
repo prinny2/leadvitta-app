@@ -46,7 +46,6 @@ const nextConfig = read("next.config.mjs");
 const routeClinicaWhatsapp = read("app/api/clinica/whatsapp/route.ts");
 const routeConversasReply = read("app/api/conversas/reply/route.ts");
 const routeStripeCheckout = read("app/api/stripe/checkout/route.ts");
-const libStripeCheckoutReturn = read("lib/stripe/checkout-return.ts");
 const routeNotifySignup = read("app/api/notify/signup/route.ts");
 const routeWaitlist = read("app/api/waitlist/route.ts");
 
@@ -223,22 +222,8 @@ const requiredRouteContracts = [
       ['import { verifyFirebaseIdToken }', "imports Firebase token verification"],
       ["verifyFirebaseIdToken(body.firebaseIdToken)", "verifies Firebase ID token before checkout"],
       ["client_reference_id: firebaseUid", "links Stripe checkout to Firebase uid"],
-      // Os caminhos de retorno moraram nesta rota; hoje vivem em
-      // lib/stripe/checkout-return.ts (contrato logo abaixo). Aqui garantimos
-      // que a rota os monte pelo helper e nunca por uma URL vinda do cliente.
-      ["buildCheckoutReturnPaths({", "builds Stripe return paths through the shared helper"],
-      ["origin: parseCheckoutOrigin(body.origem)", "resolves the checkout origin through the closed enum"],
-      ["signedIn: !!firebaseUid", "keeps the return path tied to the verified Firebase uid"],
-    ],
-  },
-  {
-    file: "lib/stripe/checkout-return.ts",
-    source: libStripeCheckoutReturn,
-    snippets: [
-      ['"/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"', "returns authenticated checkouts to settings"],
-      ['"/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"', "returns public checkouts to signup"],
-      ['cancelPath: "/onboarding?aba=planos&checkout=cancelado"', "returns canceled onboarding checkouts to the plans step"],
-      ['const CHECKOUT_ORIGINS', "keeps checkout origins as a closed allowlist"],
+      ['? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"', "returns authenticated checkouts to settings"],
+      [': "/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"', "returns public checkouts to signup"],
     ],
   },
   {

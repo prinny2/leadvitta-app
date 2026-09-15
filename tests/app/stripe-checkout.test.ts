@@ -131,40 +131,6 @@ describe("Stripe checkout — validações", () => {
   });
 });
 
-describe("Stripe checkout — retorno do funil", () => {
-  it("devolve quem cancela no onboarding para a etapa de planos", async () => {
-    const res = await POST(
-      checkoutRequest({ plan: "start", origem: "onboarding" })
-    );
-
-    expect(res.status).toBe(200);
-    const params = sessionsCreate.mock.calls[0][0];
-    expect(params.cancel_url).toBe(
-      "http://localhost:3000/onboarding?aba=planos&checkout=cancelado"
-    );
-    expect(params.success_url).toContain("/signup?checkout=sucesso");
-  });
-
-  it("mantém o retorno padrão quando a origem não é informada", async () => {
-    const res = await POST(checkoutRequest({ plan: "start" }));
-
-    expect(res.status).toBe(200);
-    const params = sessionsCreate.mock.calls[0][0];
-    expect(params.cancel_url).toBe("http://localhost:3000/#demo");
-  });
-
-  it("ignora origem forjada em vez de redirecionar para fora", async () => {
-    const res = await POST(
-      checkoutRequest({ plan: "start", origem: "https://evil.example.com" })
-    );
-
-    expect(res.status).toBe(200);
-    const params = sessionsCreate.mock.calls[0][0];
-    expect(params.cancel_url).toBe("http://localhost:3000/#demo");
-    expect(params.success_url).toContain("http://localhost:3000/");
-  });
-});
-
 describe("Stripe checkout — criação da sessão", () => {
   it("propaga firebase_uid e client_reference_id para o usuário logado", async () => {
     cfg.isFirebaseConfigured = true;
@@ -237,6 +203,9 @@ describe("Stripe checkout — criação da sessão", () => {
     expect(params.metadata.firebase_uid).toBe("");
     expect(params.client_reference_id).toBeUndefined();
     expect(params.customer_email).toBe("guest@exemplo.com");
+    // Visitante volta pro funil (com aviso), não pra âncora da landing.
+    expect(params.success_url).toContain("/signup?checkout=sucesso");
+    expect(params.cancel_url).toContain("/onboarding?checkout=cancelado&aba=planos");
   });
 
   it("usa subscription_data no modo subscription", async () => {

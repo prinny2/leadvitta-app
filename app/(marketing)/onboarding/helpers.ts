@@ -31,6 +31,15 @@ export function fallbackResponse(c: Clinica): string {
   return `${greeting}O valor do botox depende muito do seu objetivo e de uma avaliação, porque cada rosto pede um cuidado diferente.${clinicPrefix} prefere te entender primeiro para indicar o que faz sentido pra você. Quer que eu já deixe sua avaliação reservada?`;
 }
 
+export function getStepFromUrl(
+  tabFromUrl: string | null,
+  nomeClinica: string
+): "clinica" | "resposta" | "planos" {
+  if (!nomeClinica.trim()) return "clinica";
+  if (tabFromUrl === "resposta" || tabFromUrl === "planos") return tabFromUrl;
+  return "clinica";
+}
+
 /**
  * Etapa pedida pela URL (`?plan=` / `?aba=`).
  *
@@ -46,13 +55,4 @@ export function resolveUrlStep(
   if (!knownClinicName.trim()) return "clinica";
   if (planFromUrl) return "planos";
   return getStepFromUrl(tabFromUrl, knownClinicName);
-}
-
-export function getStepFromUrl(
-  tabFromUrl: string | null,
-  nomeClinica: string
-): "clinica" | "resposta" | "planos" {
-  if (!nomeClinica.trim()) return "clinica";
-  if (tabFromUrl === "resposta" || tabFromUrl === "planos") return tabFromUrl;
-  return "clinica";
 }

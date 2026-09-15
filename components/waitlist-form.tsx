@@ -63,19 +63,20 @@ export function WaitlistForm({ plan, className }: WaitlistFormProps) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="seu@email.com"
-          className="h-10 min-w-0 flex-1 rounded-xl border border-navy-500 bg-navy-800 px-3 text-sm text-champagne-300 placeholder:text-navy-100/60 outline-none focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/20"
+          className="h-10 min-w-0 flex-1 rounded-xl border border-navy-500 bg-navy-800 px-3 text-sm text-champagne-300 outline-none placeholder:text-navy-100/60 focus:border-gold-500/50"
         />
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-gold-500 px-4 text-sm font-bold text-navy-900 transition-colors hover:bg-gold-400 disabled:opacity-60"
+          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl px-4 text-sm font-bold transition-opacity disabled:opacity-60"
+          style={{ background: "#C9A060", color: "#07101e" }}
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : null}
           Avise-me
         </button>
       </div>
       {erro ? <p className="mt-1.5 text-xs text-pain-300">{erro}</p> : (
-        <p className="mt-1.5 text-xs text-navy-50">Entre na lista de espera — sem compromisso.</p>
+        <p className="mt-1.5 text-xs text-muted">Entre na lista de espera — sem compromisso.</p>
       )}
     </form>
   );

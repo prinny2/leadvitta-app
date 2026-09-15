@@ -9,10 +9,6 @@ import {
 } from "@/lib/billing";
 import { isStripeConfigured } from "@/lib/config";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
-import {
-  buildCheckoutReturnPaths,
-  parseCheckoutOrigin,
-} from "@/lib/stripe/checkout-return";
 import { isAllowedStripePriceId } from "@/lib/stripe/price-guard";
 import { getStripe } from "@/lib/stripe/server";
 import { sendOpsNotify } from "@/lib/ops-notify";
@@ -25,8 +21,6 @@ type CheckoutBody = {
   firebaseIdToken?: string;
   customerEmail?: string;
   gaClientId?: string;
-  /** De onde o checkout foi aberto (define o retorno de cancelamento). */
-  origem?: unknown;
 };
 
 function getCheckoutDescription(
@@ -139,10 +133,14 @@ export async function POST(request: Request) {
 
   const checkoutMode = getStripeCheckoutMode();
   const baseUrl = getBaseUrl(request);
-  const { successPath, cancelPath } = buildCheckoutReturnPaths({
-    origin: parseCheckoutOrigin(body.origem),
-    signedIn: !!firebaseUid,
-  });
+  const successPath = firebaseUid
+    ? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"
+    : "/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}";
+  // Visitante que desiste volta pro passo de planos com aviso — antes caía em
+  // "/#demo", no meio da landing, sem nenhuma mensagem.
+  const cancelPath = firebaseUid
+    ? "/configuracoes?checkout=cancelado"
+    : "/onboarding?checkout=cancelado&aba=planos";
   const checkoutDescription = getCheckoutDescription(planConfig, interval);
   const params: Stripe.Checkout.SessionCreateParams = {
     mode: checkoutMode,
