@@ -208,6 +208,10 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
     const seq = ++generationSeq.current;
     setGenerating(true);
     setGenerateFailed(false);
+    // Limpa a resposta anterior: se ESTA tentativa falhar, o aviso diz que o
+    // texto na tela é o exemplo local — e aí ele precisa mesmo ser o exemplo,
+    // não a geração antiga (que ainda por cima pode ser de um DNA já editado).
+    setGeneratedResponse("");
 
     try {
       const result = await fetch("/api/generate", {
