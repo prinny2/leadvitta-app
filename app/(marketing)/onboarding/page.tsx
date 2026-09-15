@@ -530,6 +530,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         <button
                           key={option.value}
                           type="button"
+                          aria-pressed={clinic.como_chamar === option.value}
                           onClick={() =>
                             setClinicField("como_chamar", option.value)
                           }
@@ -578,6 +579,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         <button
                           key={option.value}
                           type="button"
+                          aria-pressed={clinic.cta_preferido === option.value}
                           onClick={() =>
                             setClinicField("cta_preferido", option.value)
                           }

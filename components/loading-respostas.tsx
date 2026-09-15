@@ -57,7 +57,7 @@ export function LoadingRespostas({
           <span className="text-sm font-semibold transition-opacity">{etapasForRun[i]}</span>
         </div>
         <div
-          className="h-1.5 w-full overflow-hidden rounded-full bg-navy-600"
+          className="h-1.5 w-full overflow-hidden rounded-full bg-gold-500/15"
           role="progressbar"
           aria-label="Progresso da geração"
           aria-valuemin={0}
@@ -73,7 +73,7 @@ export function LoadingRespostas({
           {[0, 1, 2].map((n) => (
             <div
               key={n}
-              className="h-12 animate-pulse rounded-xl bg-navy-600"
+              className="h-12 animate-pulse rounded-xl bg-gold-500/10"
               style={{ animationDelay: `${n * 150}ms` }}
             />
           ))}
