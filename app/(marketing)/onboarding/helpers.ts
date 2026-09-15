@@ -1,3 +1,4 @@
+import { ctaOptions } from "@/data/opcoes";
 import type { Clinica } from "@/lib/types";
 
 export function getTreatment(comoChamar: string): string {
@@ -11,6 +12,13 @@ export function getTreatment(comoChamar: string): string {
     default:
       return "linda";
   }
+}
+
+/** Rótulo curto do CTA (ex.: "Marcar avaliação") a partir do texto salvo. */
+export function ctaLabel(value: string): string {
+  const match = ctaOptions.find((option) => option.value === value);
+  if (match) return match.label;
+  return value.trim() || "Marcar avaliação";
 }
 
 export function fallbackResponse(c: Clinica): string {
@@ -30,4 +38,21 @@ export function getStepFromUrl(
   if (!nomeClinica.trim()) return "clinica";
   if (tabFromUrl === "resposta" || tabFromUrl === "planos") return tabFromUrl;
   return "clinica";
+}
+
+/**
+ * Etapa pedida pela URL (`?plan=` / `?aba=`).
+ *
+ * `knownClinicName` é o nome JÁ GRAVADO (rascunho local ou Firestore) — nunca o
+ * que está sendo digitado. Sem essa distinção, o funil reagia a cada tecla e
+ * arrancava a pessoa da etapa 1 no meio do preenchimento.
+ */
+export function resolveUrlStep(
+  planFromUrl: string | null,
+  tabFromUrl: string | null,
+  knownClinicName: string
+): "clinica" | "resposta" | "planos" {
+  if (!knownClinicName.trim()) return "clinica";
+  if (planFromUrl) return "planos";
+  return getStepFromUrl(tabFromUrl, knownClinicName);
 }

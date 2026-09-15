@@ -53,8 +53,8 @@ export default function ConversasPage() {
   return (
     <div>
       <header className="mb-5">
-        <h1 className="font-serif text-3xl font-semibold text-ink">Conversas</h1>
-        <p className="text-sm text-muted">
+        <h1 className="font-serif text-3xl font-semibold text-champagne-300">Conversas</h1>
+        <p className="text-sm text-navy-50">
           As mensagens das suas clientes no WhatsApp, organizadas por prioridade.
           Responda primeiro quem está mais quente — direto daqui.
         </p>
@@ -70,8 +70,8 @@ export default function ConversasPage() {
               className={cn(
                 "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                 filtro === f.value
-                  ? "border-brand-400 bg-brand-50 text-brand-600"
-                  : "border-brand-200 bg-white text-muted hover:bg-nude-100"
+                  ? "border-gold-500/50 bg-gold-500/10 text-champagne-300"
+                  : "border-navy-500 bg-navy-800 text-navy-50 hover:bg-navy-600"
               )}
             >
               {f.label}
@@ -82,13 +82,13 @@ export default function ConversasPage() {
 
       {itens === null && (
         <div className="flex justify-center py-16">
-          <Loader2 className="animate-spin text-brand-400" />
+          <Loader2 className="animate-spin text-gold-400" />
         </div>
       )}
 
       {erro && (
         <Card>
-          <CardBody className="flex flex-col items-center gap-3 py-16 text-center text-muted">
+          <CardBody className="flex flex-col items-center gap-3 py-16 text-center text-navy-50">
             <MessageCircle size={28} className="text-red-300" />
             <p className="max-w-sm text-sm">
               Não foi possível carregar suas conversas agora.
@@ -96,7 +96,7 @@ export default function ConversasPage() {
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="rounded-xl border border-brand-300 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50"
+              className="rounded-xl border border-gold-500/40 px-4 py-2 text-sm font-medium text-gold-300 transition-colors hover:bg-gold-500/10"
             >
               Tentar de novo
             </button>
@@ -106,8 +106,8 @@ export default function ConversasPage() {
 
       {!erro && itens && visiveis.length === 0 && (
         <Card>
-          <CardBody className="flex flex-col items-center gap-3 py-16 text-center text-muted">
-            <MessageCircle size={28} className="text-brand-300" />
+          <CardBody className="flex flex-col items-center gap-3 py-16 text-center text-navy-50">
+            <MessageCircle size={28} className="text-navy-100" />
             <p className="max-w-sm text-sm">
               {itens.length === 0
                 ? "Quando uma cliente te chamar no WhatsApp, a conversa aparece aqui — já com a prioridade e a resposta pronta."
@@ -132,16 +132,16 @@ export default function ConversasPage() {
                 key={c.id}
                 href={`/conversas/${encodeURIComponent(c.id)}`}
                 className={cn(
-                  "flex items-center gap-3 rounded-2xl border border-l-4 border-brand-100 bg-white p-4 shadow-card transition-colors hover:bg-nude-50",
+                  "flex items-center gap-3 rounded-2xl border border-l-4 border-navy-500 bg-navy-700 p-4 shadow-card transition-colors hover:bg-navy-600",
                   acento
                 )}
               >
-                <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-50 text-lg">
+                <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-navy-600 text-lg">
                   <span aria-hidden="true">{prio.emoji}</span>
                   {c.nao_lida && (
                     <>
                       <span
-                        className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-white bg-brand-500"
+                        className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-navy-700 bg-gold-500"
                         aria-hidden="true"
                       />
                       <span className="sr-only">Não lida</span>
@@ -152,7 +152,7 @@ export default function ConversasPage() {
                   <div className="flex items-center gap-2">
                     <span
                       className={cn(
-                        "truncate font-medium text-ink",
+                        "truncate font-medium text-champagne-300",
                         c.nao_lida && "font-semibold"
                       )}
                     >
@@ -168,13 +168,13 @@ export default function ConversasPage() {
                       {typeof c.score === "number" ? ` · ${c.score}%` : ""}
                     </span>
                   </div>
-                  <p className="truncate text-sm text-muted">{c.ultima_mensagem}</p>
+                  <p className="truncate text-sm text-navy-50">{c.ultima_mensagem}</p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
-                  <span className="text-[11px] text-muted">
+                  <span className="text-[11px] text-navy-50">
                     {formatarData(c.ultima_atividade)}
                   </span>
-                  <ChevronRight size={16} className="text-brand-300" />
+                  <ChevronRight size={16} className="text-navy-100" />
                 </div>
               </Link>
             );

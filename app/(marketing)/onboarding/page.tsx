@@ -37,9 +37,10 @@ import {
   formalidadeLabel,
 } from "@/data/opcoes";
 import {
+  ctaLabel,
   fallbackResponse,
-  getStepFromUrl,
   getTreatment,
+  resolveUrlStep,
 } from "@/app/(marketing)/onboarding/helpers";
 
 type Step = "clinica" | "resposta" | "planos";
@@ -90,22 +91,31 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generateFailed, setGenerateFailed] = useState(false);
   const [generatedResponse, setGeneratedResponse] = useState("");
+
+  // Nome da clínica JÁ GRAVADO (rascunho local ou Firestore). A navegação por
+  // URL usa este valor, nunca o campo em edição.
+  const [storedName, setStoredName] = useState("");
 
   useEffect(() => {
     const draft = loadDraft();
-    if (draft) setClinic((prev) => ({ ...prev, ...draft }));
+    if (!draft) return;
+    setClinic((prev) => ({ ...prev, ...draft }));
+    setStoredName(draft.nome_clinica ?? "");
   }, []);
 
+  // `?plan=` / `?aba=` só reposicionam o funil UMA vez e a partir do que já
+  // estava salvo. Antes o efeito acompanhava o que a pessoa estava digitando e
+  // pulava para os planos na primeira tecla do nome da clínica.
   const urlStepApplied = useRef(false);
   useEffect(() => {
     if (urlStepApplied.current) return;
-    const nextStep = getStepFromUrl(tabFromUrl, clinic.nome_clinica);
-    if (nextStep !== "clinica") {
-      urlStepApplied.current = true;
-      setStep(nextStep);
-    }
-  }, [tabFromUrl, clinic.nome_clinica]);
+    const nextStep = resolveUrlStep(planFromUrl, tabFromUrl, storedName);
+    if (nextStep === "clinica") return;
+    urlStepApplied.current = true;
+    setStep(nextStep);
+  }, [planFromUrl, tabFromUrl, storedName]);
 
   useEffect(() => {
     saveDraft(clinic);
@@ -118,16 +128,13 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
       .then((saved) => {
         if (saved.nome_clinica || saved.onboarded) {
           setClinic((prev) => ({ ...prev, ...saved }));
+          if (saved.nome_clinica) setStoredName(saved.nome_clinica);
         }
       })
       .catch(() => {
         // Mantem o rascunho local se a sessao Firebase ainda nao sincronizou.
       });
   }, [authLoaded, canPersist]);
-
-  useEffect(() => {
-    if (planFromUrl && clinic.nome_clinica.trim()) setStep("planos");
-  }, [planFromUrl, clinic.nome_clinica]);
 
   useEffect(() => {
     if (!checkoutSuccess) return;
@@ -143,7 +150,9 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
   }, [checkoutSuccess, searchParams]);
 
   const currentStepIndex = STEPS.findIndex((item) => item.id === step);
-  const progress = `${Math.round(((currentStepIndex + 1) / STEPS.length) * 100)}%`;
+  const progressPercent = Math.round(
+    ((currentStepIndex + 1) / STEPS.length) * 100
+  );
   const canContinue = clinic.nome_clinica.trim().length > 0;
   const visibleProcedures = useMemo(
     () =>
@@ -170,21 +179,40 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
     }));
   }
 
+  /** Único caminho de gravação do DNA — evita salvar duas vezes o mesmo estado. */
+  async function persistClinic(): Promise<boolean> {
+    if (!canPersist || !canContinue) return false;
+    try {
+      await saveClinica({ ...clinic, onboarded: true });
+      return true;
+    } catch {
+      setSaveFailed(true);
+      return false;
+    }
+  }
+
   function goTo(nextStep: Step) {
     setStep(nextStep);
     setSaveFailed(false);
 
-    if (nextStep === "planos" && canPersist && canContinue) {
-      saveClinica({ ...clinic, onboarded: true }).catch(() =>
-        setSaveFailed(true)
-      );
-    }
+    if (nextStep === "planos") void persistClinic();
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  // Sequência da requisição: se a pessoa clicar em "gerar de novo" antes da
+  // anterior responder, só a última resposta pode vencer a corrida.
+  const generationSeq = useRef(0);
+
   async function generateResponse() {
+    const seq = ++generationSeq.current;
     setGenerating(true);
+    setGenerateFailed(false);
+    // Limpa a resposta anterior: se ESTA tentativa falhar, o aviso diz que o
+    // texto na tela é o exemplo local — e aí ele precisa mesmo ser o exemplo,
+    // não a geração antiga (que ainda por cima pode ser de um DNA já editado).
+    setGeneratedResponse("");
+
     try {
       const result = await fetch("/api/generate", {
         method: "POST",
@@ -209,15 +237,20 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
       const data = (await result.json().catch(() => ({}))) as {
         respostas?: { consultiva?: string; curta?: string };
       };
-      setGeneratedResponse(
-        data.respostas?.consultiva ||
-          data.respostas?.curta ||
-          fallbackResponse(clinic)
-      );
+      if (seq !== generationSeq.current) return;
+
+      const texto = data.respostas?.consultiva || data.respostas?.curta || "";
+      if (!result.ok || !texto) {
+        // Sem resposta da IA seguimos mostrando o exemplo local (que acompanha
+        // as edições do DNA), mas dizemos que a geração ao vivo falhou.
+        setGenerateFailed(true);
+        return;
+      }
+      setGeneratedResponse(texto);
     } catch {
-      setGeneratedResponse(fallbackResponse(clinic));
+      if (seq === generationSeq.current) setGenerateFailed(true);
     } finally {
-      setGenerating(false);
+      if (seq === generationSeq.current) setGenerating(false);
     }
   }
 
@@ -225,7 +258,8 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
     setSaving(true);
     setSaveFailed(false);
     try {
-      await saveClinica({ ...clinic, onboarded: true });
+      const ok = await persistClinic();
+      if (!ok) return;
       trackEvent("sign_up", {
         method: "Onboarding",
         city: clinic.cidade || undefined,
@@ -233,17 +267,16 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
       });
       router.push("/gerador");
       router.refresh();
-    } catch {
-      setSaveFailed(true);
     } finally {
       setSaving(false);
     }
   }
 
+  const autoGenerated = useRef(false);
   useEffect(() => {
-    if (step === "resposta" && !generatedResponse && !generating) {
-      generateResponse();
-    }
+    if (step !== "resposta" || autoGenerated.current) return;
+    autoGenerated.current = true;
+    generateResponse();
     // A resposta deve ser gerada uma vez ao entrar na etapa.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
@@ -304,7 +337,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
           </p>
         </section>
 
-        <nav className="mt-9 flex justify-center">
+        <nav className="mt-9 flex justify-center" aria-label="Etapas do cadastro">
           <div className="inline-flex w-full max-w-md gap-1 rounded-2xl border border-navy-500 bg-navy-700 p-1.5 sm:w-auto">
             {STEPS.map((item) => {
               const active = step === item.id;
@@ -315,6 +348,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                   key={item.id}
                   type="button"
                   disabled={!enabled}
+                  aria-current={active ? "step" : undefined}
                   onClick={() => enabled && goTo(item.id)}
                   className={cn(
                     "flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 text-center text-[11px] font-medium transition-colors sm:flex-row sm:gap-2 sm:px-5 sm:text-sm",
@@ -341,17 +375,31 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
           </div>
         </nav>
 
-        <div className="mx-auto mt-4 h-2 w-full max-w-md overflow-hidden rounded-full bg-navy-600">
+        <div
+          className="mx-auto mt-4 h-2 w-full max-w-md overflow-hidden rounded-full bg-navy-600"
+          role="progressbar"
+          aria-label="Progresso do cadastro"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progressPercent}
+        >
           <div
             className="h-full rounded-full bg-gold-500 transition-all duration-300"
-            style={{ width: progress }}
+            style={{ width: `${progressPercent}%` }}
           />
         </div>
 
         <div className="mt-8">
           {step === "clinica" && (
             <Card>
-              <CardBody className="space-y-8 p-6 sm:p-8">
+              <CardBody className="p-6 sm:p-8">
+                <form
+                  className="space-y-8"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    if (canContinue) goTo("resposta");
+                  }}
+                >
                 <div className="rounded-3xl border border-navy-500 bg-navy-700 p-5 shadow-card">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
@@ -378,7 +426,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         )?.label || "Linda"
                       }
                     />
-                    <MiniStat label="CTA" value={clinic.cta_preferido} />
+                    <MiniStat label="CTA" value={ctaLabel(clinic.cta_preferido)} />
                   </div>
                 </div>
 
@@ -482,6 +530,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         <button
                           key={option.value}
                           type="button"
+                          aria-pressed={clinic.como_chamar === option.value}
                           onClick={() =>
                             setClinicField("como_chamar", option.value)
                           }
@@ -530,6 +579,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         <button
                           key={option.value}
                           type="button"
+                          aria-pressed={clinic.cta_preferido === option.value}
                           onClick={() =>
                             setClinicField("cta_preferido", option.value)
                           }
@@ -550,6 +600,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                 <div className="flex flex-col items-stretch gap-3 border-t border-navy-500 pt-6 sm:flex-row sm:items-center sm:justify-end">
                   {canPersist && (
                     <Button
+                      type="button"
                       variant="ghost"
                       onClick={saveAndEnter}
                       disabled={saving || !canContinue}
@@ -561,8 +612,8 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                     </Button>
                   )}
                   <Button
+                    type="submit"
                     variant="cta"
-                    onClick={() => goTo("resposta")}
                     disabled={!canContinue}
                     className="sm:min-w-[220px]"
                   >
@@ -576,6 +627,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                   </p>
                 )}
                 {saveFailed && <SaveError onRetry={saveAndEnter} />}
+                </form>
               </CardBody>
             </Card>
           )}
@@ -611,7 +663,11 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                     <Check size={13} /> A resposta da{" "}
                     {clinic.nome_clinica.trim() || "sua clinica"}
                   </div>
-                  <div className="rounded-2xl rounded-br-md bg-navy-500 px-4 py-3 text-sm leading-relaxed text-champagne-100 shadow-soft">
+                  <div
+                    className="rounded-2xl rounded-br-md bg-navy-500 px-4 py-3 text-sm leading-relaxed text-champagne-100 shadow-soft"
+                    aria-live="polite"
+                    aria-busy={generating}
+                  >
                     {generating ? (
                       <span className="inline-flex items-center gap-2 text-white/90">
                         <Loader2 size={15} className="animate-spin" />
@@ -625,6 +681,12 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                     Acolhe, mostra valor e conduz para avaliação no seu jeito
                     de falar.
                   </p>
+                  {generateFailed && !generating && (
+                    <p className="mt-3 text-xs text-pain-300">
+                      Não conseguimos gerar ao vivo agora — este é um exemplo no
+                      seu tom. Tente de novo em instantes.
+                    </p>
+                  )}
                   <button
                     type="button"
                     onClick={generateResponse}
@@ -801,7 +863,7 @@ function MiniStat({ label, value }: { label: string; value: string }) {
       <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
         {label}
       </p>
-      <p className="mt-1 text-sm font-medium capitalize text-ink">{value}</p>
+      <p className="mt-1 text-sm font-medium text-ink first-letter:uppercase">{value}</p>
     </div>
   );
 }

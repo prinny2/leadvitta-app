@@ -55,12 +55,19 @@ vi.mock("@/lib/analytics/ga4-server", () => ({
 
 import { POST } from "@/app/api/stripe/checkout/route";
 
+// O rate limit da rota (10 req / 10 min) é guardado em módulo e sobrevive entre
+// testes. Cada chamada usa um IP próprio para que acrescentar um caso novo não
+// derrube os anteriores com 429.
+let clientIpSeq = 0;
+
 function checkoutRequest(body: unknown, headers: Record<string, string> = {}) {
+  clientIpSeq += 1;
   return new Request("http://localhost:3000/api/stripe/checkout", {
     method: "POST",
     headers: {
       origin: "http://localhost:3000",
       "content-type": "application/json",
+      "x-forwarded-for": `203.0.113.${clientIpSeq % 256}`,
       ...headers,
     },
     body: JSON.stringify(body),
