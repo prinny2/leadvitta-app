@@ -50,13 +50,11 @@ customers, built and operated end-to-end by one developer.
 
 ## Screenshots
 
-<!-- Save PNGs in docs/screenshots/ and the links below will work as-is. -->
-
 | | |
 | --- | --- |
-| **Landing — hero + live WhatsApp demo**<br>`docs/screenshots/01-landing.png` | **Generator — 3 replies + Lead Intelligence**<br>`docs/screenshots/02-gerador.png` |
+| **Landing — hero + WhatsApp demo** | **Generator — 3 reply variants** |
 | ![Landing](docs/screenshots/01-landing.png) | ![Generator](docs/screenshots/02-gerador.png) |
-| **Onboarding step 2 — generic reply vs. the clinic's reply**<br>`docs/screenshots/03-onboarding.png` | **Dashboard**<br>`docs/screenshots/04-dashboard.png` |
+| **Onboarding — generic reply vs. the clinic's reply** | **Dashboard** |
 | ![Onboarding](docs/screenshots/03-onboarding.png) | ![Dashboard](docs/screenshots/04-dashboard.png) |
 
 ## Setup
