@@ -196,6 +196,9 @@ describe("Stripe checkout — criação da sessão", () => {
     expect(params.metadata.firebase_uid).toBe("");
     expect(params.client_reference_id).toBeUndefined();
     expect(params.customer_email).toBe("guest@exemplo.com");
+    // Visitante volta pro funil (com aviso), não pra âncora da landing.
+    expect(params.success_url).toContain("/signup?checkout=sucesso");
+    expect(params.cancel_url).toContain("/onboarding?checkout=cancelado&aba=planos");
   });
 
   it("usa subscription_data no modo subscription", async () => {

@@ -1,160 +1,101 @@
 # LeadBellus
 
-Micro-SaaS para clínicas e profissionais de estética responderem melhor no
-WhatsApp: gera respostas estratégicas, quebra objeções, faz follow-up e conduz a
-cliente até o agendamento com guardrails de compliance.
+**AI-assisted WhatsApp sales replies for Brazilian aesthetic clinics** — turns a
+client's message ("how much is Botox?", "that's expensive", silence after a quote)
+into three ready-to-send replies in the clinic's own tone, with compliance
+guardrails, usage-based paywall and Stripe subscriptions. Live, billing real
+customers, built and operated end-to-end by one developer.
 
-Projeto autoral, desenvolvido e mantido de ponta a ponta por um único desenvolvedor.
+> Product UI and copy are in Brazilian Portuguese (the target market). Code,
+> comments and this README are mixed EN/PT-BR.
 
-Stack: **Next.js App Router + TypeScript + TailwindCSS + Clerk + Firebase/Firestore + OpenAI/Anthropic/Gemini + Stripe + Zapier + Cloud Run/Vercel (Híbrido)**.
+**Live:** https://www.leadbellus.com.br
 
-## Status (produção) — atualizado 2026-06-15
+---
 
-- **LIVE:** `https://leadbellus.com.br` em arquitetura **híbrida** — Vercel serve o frontend, Cloud Run processa `/api/*` (proxy). Modo demonstração desligado (config Firebase real no bundle).
-- **Auth:** Clerk para login/cadastro com ponte Firebase interna. **Billing:** Stripe LIVE com webhook configurado.
-- **IA:** cadeia de fallback OpenAI → Anthropic → Gemini.
-- **WhatsApp:** envio validado em produção via **Z-API** (instância LeadBellus conectada/PAID). Auto-resposta (webhook) em rollout.
+## Tech stack
 
+| Layer | What is used |
+| --- | --- |
+| Framework | **Next.js 15** (App Router, route groups, server routes) · **React 19** · **TypeScript** (strict) |
+| Styling / UI | **Tailwind CSS 3.4**, custom navy/gold design system, `framer-motion`, `lucide-react`, `recharts` |
+| Auth | **Clerk** (public sign-in/sign-up, pt-BR localisation) bridged to **Firebase Auth** via server-minted custom tokens so Firestore security rules and billing keep working |
+| Data | **Cloud Firestore** (per-user rules, compound indexes) · **Firebase Admin SDK** for webhook writes · **Supabase/Postgres** as an additive analytics mirror |
+| AI | **OpenAI** (`gpt-4o-mini`) → **Anthropic Claude** (`claude-haiku-4-5`, prompt caching) → **Google Gemini** (`gemini-2.5-flash`) provider fallback chain, server-side only, with timeout/retry and a post-generation compliance denylist |
+| Payments | **Stripe Checkout** (subscription mode, promo codes, annual upsell), **Stripe Billing Portal**, signed **webhooks** reconciled into Firestore with idempotency (`stripe_events`) and guest-checkout linking by e-mail |
+| WhatsApp | **Z-API** (WhatsApp Business gateway): outbound send, inbound webhook, auto-reply for paying clinics, per-clinic number binding |
+| Growth / analytics | **GA4** (client + Measurement Protocol server events: `begin_checkout`, `purchase`), Meta Pixel, Meta Graph API auto-posting (FB/IG), Zapier lead intake, campaign landing pages (`/campanha/[slug]`) |
+| Security | Origin/CORS checks, in-memory rate limiting per route, body-size limits, `Cache-Control: no-store` JSON helpers, Firestore rules that keep `billing` server-only |
+| Infra | **Vercel** (production) · Docker + **Cloud Run** (legacy/API parity) · Firebase emulators for local dev · GitHub Actions (Firestore rules/contract verification) |
+| Testing | **Vitest** — 35 suites / 391 tests over prompts, guardrails, API security, billing, webhooks, config flags and data catalogues (all network mocked, no keys needed) |
 
-## Rodar local
+## Key features
 
-```bash
-npm install
-npm run dev
-```
+- **3-variant reply generator** — every client message becomes *Suave / Consultiva / Fechamento* replies, adapted to the clinic's "DNA" (procedures, tone, formality, how they address clients, preferred CTA).
+- **Compliance guardrails for aesthetics** — the prompt forbids guaranteed results, diagnoses and fixed prices; a denylist post-check flags violations with severity and reason (`/api/compliance`, `/compliance` page).
+- **Objection library, follow-ups and sales scripts** — curated PT-BR playbooks for "achou caro", ghosting, "vou pensar", plus AI-generated follow-up sequences.
+- **Lead Intelligence** — intent, sentiment and a 0-100 priority score per conversation, surfaced in the generator and in a dedicated dashboard.
+- **WhatsApp Business integration (Z-API)** — inbound webhook stores messages in an inbox (`/conversas`), auto-replies for clinics with an active plan, one-click reply from the app, idempotent handling of provider redeliveries.
+- **Stripe subscription flow** — 3 plans (Start R$97 / Pro R$197 / Premium R$347), monthly + annual prices, guest checkout straight from the landing page, webhook → Firestore activation, billing portal for card/cancel, "pending billing" linked to the account on first login.
+- **Usage-based paywall** — 5 free generations per account enforced atomically in a Firestore transaction (no race between concurrent requests), unlimited for paying plans.
+- **Zero-config demo mode** — with no env vars the whole app runs: login skipped, data in `localStorage`, AI mocked. Real integrations switch on feature-by-feature as keys are provided (`lib/config.ts`).
+- **Clerk → Firebase session bridge** — Clerk owns the public auth UX; a server route mints Firebase custom tokens so Firestore rules, checkout and quotas still key off the Firebase uid.
+- **Conversion funnel** — 3-step onboarding (clinic DNA → "your reply vs. a generic one" → plans), campaign landing pages, waitlist for unreleased plans, GA4 + server-side purchase events, ops alerts via WhatsApp.
+- **Operational endpoints** — `/api/health` and `/api/config` report which capabilities are live (AI providers, Stripe, Clerk, Firebase Admin, Z-API) for deploy verification.
 
-Abra `http://localhost:3000`. Sem chaves, o app roda em **modo demonstração**:
-login dispensado, dados no `localStorage` e respostas mockadas.
+## Live demo
 
-## Estratégia de autenticação (atual)
+- **Production:** https://www.leadbellus.com.br (Stripe is in live mode — the free tier lets you try the generator on the landing page and after sign-up without a card).
+- **Local demo mode:** `npm install && npm run dev` with **no** `.env.local` → open http://localhost:3000/dashboard. Login is skipped and AI replies are mocked, so every screen is clickable offline.
 
-- **Clerk** é a sessão pública oficial do produto.
-- `/login` e `/signup` usam os componentes Clerk.
-- Após login Clerk, o app cria uma sessão Firebase interna por custom token para
-  preservar Firestore, checkout e APIs que ainda validam **Firebase ID token**.
-- Webhooks públicos (`/api/stripe/webhook`, `/api/whatsapp/webhook` e Clerk) não
-  ficam atrás de `auth.protect()`.
-- **Auth0 não faz parte do fluxo atual**.
+## Screenshots
 
-## Variáveis de ambiente
+| | |
+| --- | --- |
+| **Landing — hero + WhatsApp demo** | **Generator — 3 reply variants** |
+| ![Landing](docs/screenshots/01-landing.png) | ![Generator](docs/screenshots/02-gerador.png) |
+| **Onboarding — generic reply vs. the clinic's reply** | **Dashboard** |
+| ![Onboarding](docs/screenshots/03-onboarding.png) | ![Dashboard](docs/screenshots/04-dashboard.png) |
 
-Copie `.env.local.example` para `.env.local` e preencha conforme o ambiente.
-
-### Clerk
-
-No Clerk Dashboard:
-
-1. Crie/configure a aplicação de produção.
-2. Configure `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` e `CLERK_SECRET_KEY`.
-3. Crie webhook para `POST /api/clerk/webhook` com evento `user.created` e salve
-   o segredo em `CLERK_WEBHOOK_SIGNING_SECRET`.
-
-### Firebase
-
-No Firebase Console:
-
-1. Crie um projeto e um Web App.
-2. Habilite **Authentication** e **Firestore Database**.
-3. Copie as variáveis `NEXT_PUBLIC_FIREBASE_*`.
-4. Para APIs server-side, configure Firebase Admin; ele cria os custom tokens da
-   ponte Clerk -> Firebase.
-
-### IA
-
-Configure pelo menos uma chave:
-
-```env
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-GEMINI_API_KEY=
-# Modelos opcionais
-OPENAI_MODEL=gpt-4o
-ANTHROPIC_MODEL=claude-haiku-4-5
-GEMINI_MODEL=gemini-2.5-flash
-```
-
-O backend tenta os provedores na ordem: **OpenAI -> Anthropic -> Gemini**.
-
-### Stripe (ADR-001)
-
-A configuração de webhooks deve seguir o **ADR-001**:
-
-- **URL:** `https://leadbellus-87102725202.southamerica-east1.run.app/api/stripe/webhook` (Cloud Run direto).
-- **Modo:** Snapshot (Instantâneo).
-- **Eventos:** `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
-
-```env
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-STRIPE_PRICE_ID_START=
-STRIPE_PRICE_ID_PRO=
-STRIPE_PRICE_ID_PREMIUM=
-STRIPE_PRICE_ID_START_ANNUAL=
-STRIPE_PRICE_ID_PRO_ANNUAL=
-STRIPE_PRICE_ID_PREMIUM_ANNUAL=
-# Opcional: guard extra no checkout (comma-separated price_...)
-STRIPE_ALLOWED_PRICE_IDS=
-```
-
-### WhatsApp (Z-API — único provedor)
-
-```env
-ZAPI_INSTANCE_ID=
-ZAPI_TOKEN=
-ZAPI_CLIENT_TOKEN=
-ZAPI_SECURITY_TOKEN=
-```
-
-Para configurar os webhooks automaticamente na Z-API:
+## Setup
 
 ```bash
-node scripts/setup-zapi-webhook.mjs \
-  https://leadbellus-87102725202.southamerica-east1.run.app/api/whatsapp/webhook
+git clone https://github.com/prinny2/leadvitta-app && cd leadvitta-app
+npm install            # Node 20+
+npm run dev            # http://localhost:3000 — demo mode, no keys needed
+npm test               # Vitest, 391 tests, fully mocked
 ```
 
-Webhook inbound recomendado: URL **direta** do Cloud Run (`.run.app`) com `?token=<ZAPI_SECURITY_TOKEN>`.
-Ver **DEPLOY_STRIPE_VERCEL.md** §6.
+To enable real integrations copy `.env.local.example` to `.env.local` and fill
+the groups you need (each one switches on independently):
+`NEXT_PUBLIC_CLERK_*`/`CLERK_SECRET_KEY` (auth) · `NEXT_PUBLIC_FIREBASE_*` +
+Firebase Admin credentials (data, quotas, webhooks) · `OPENAI_API_KEY` /
+`ANTHROPIC_API_KEY` / `GEMINI_API_KEY` (AI) · `STRIPE_*` (billing) · `ZAPI_*`
+(WhatsApp).
 
-### Zapier
-
-```env
-ZAPIER_WEBHOOK_URL=
-ZAPIER_SHARED_SECRET=
-```
-
-## Deploy (Arquitetura Híbrida)
-
-- **Vercel:** Serve o frontend e domínio principal (`leadbellus.com.br`).
-- **Cloud Run:** Processa todas as rotas `/api/*` via proxy, gerencia segredos e integrações pesadas.
-
-1. Configure `ENABLE_API_PROXY=true` e `API_PROXY_ORIGIN` na Vercel apontando para o Cloud Run.
-2. Refaça o build sempre que mudar qualquer `NEXT_PUBLIC_*`.
-3. Valide `GET /api/health` e `GET /api/config` após o deploy.
-
-## Testes
-
-Testes unitários com **Vitest** cobrem a lógica pura (sem rede): geração de
-prompts, guardrails de compliance, parsing de respostas da IA, segurança das
-APIs (rate limit, CORS, validação de payload), billing, ativação de billing via
-webhook do Stripe, flags de configuração e os catálogos de dados.
+Useful checks after a deploy:
 
 ```bash
-npm test            # roda toda a suíte uma vez
-npm run test:watch  # modo watch durante o desenvolvimento
-npm run test:coverage  # relatório de cobertura (texto + HTML em ./coverage)
+curl https://<host>/api/health   # which integrations are live
+curl https://<host>/api/config   # feature flags exposed to the client
 ```
 
-Os testes ficam em `tests/`, espelhando a estrutura de `lib/`, `data/` e
-`app/api/`. Os SDKs externos (OpenAI/Anthropic/Stripe), o Firestore Admin e
-`fetch` são mockados — nenhum teste faz chamada de rede real nem precisa de
-chaves.
+### Repository map
 
-## Rotas principais
+```
+app/(marketing)   landing, /onboarding funnel, /campanha/[slug]
+app/(auth)        /login, /signup (Clerk)
+app/(app)         dashboard, gerador, conversas, lead-intelligence, objecoes,
+                  follow-up, scripts, historico, compliance, configuracoes
+app/api           generate, follow-up, lead-intelligence, compliance,
+                  stripe/{checkout,portal,webhook}, billing/reconcile,
+                  whatsapp/webhook, clerk/webhook, auth/firebase-token, …
+lib/ai            provider chain, prompts + compliance denylist, mock
+lib/stripe        Stripe client, billing sync, price allowlist
+lib/              store (Firestore ⇄ localStorage), api-security, usage-limit,
+                  whatsapp-zapi, ops-notify, config flags
+data/             PT-BR catalogues: procedures, objections, follow-ups, scripts
+tests/            Vitest suites mirroring lib/, data/ and app/api/
+```
 
-- `/` marketing
-- `/login`, `/dashboard`, `/gerador`, `/historico`, `/configuracoes`
-- `/api/generate` IA
-- `/api/stripe/webhook`
-- `/api/whatsapp/webhook`
-- `/api/health`
-- `/api/config` (Status de capacidades ativas)
+Architecture notes for contributors and AI agents live in `CLAUDE.md`.

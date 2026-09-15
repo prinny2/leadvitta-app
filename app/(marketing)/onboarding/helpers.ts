@@ -20,7 +20,7 @@ export function fallbackResponse(c: Clinica): string {
     ? ` Aqui na ${c.nome_clinica.trim()}, a gente`
     : " A gente";
 
-  return `${greeting}O valor do botox depende muito do seu objetivo e de uma avaliacao, porque cada rosto pede um cuidado diferente.${clinicPrefix} prefere te entender primeiro para indicar o que faz sentido pra voce. Quer que eu ja deixe sua avaliacao reservada?`;
+  return `${greeting}O valor do botox depende muito do seu objetivo e de uma avaliação, porque cada rosto pede um cuidado diferente.${clinicPrefix} prefere te entender primeiro para indicar o que faz sentido pra você. Quer que eu já deixe sua avaliação reservada?`;
 }
 
 export function getStepFromUrl(
