@@ -194,7 +194,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
           procedimento: "botox",
           situacao: "preco",
           tom: "acolhedor",
-          objetivo: "direcionar para a avaliacao",
+          objetivo: "direcionar para a avaliação",
           nomeCliente: getTreatment(clinic.como_chamar) || "Ana",
           mensagemCliente: "Oi! Quanto custa o botox?",
           clinica: {
@@ -202,7 +202,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
             formalidade: clinic.formalidade,
             como_chamar: clinic.como_chamar,
             cta_preferido:
-              clinic.cta_preferido || "marcar uma avaliacao",
+              clinic.cta_preferido || "marcar uma avaliação",
           },
         }),
       });
@@ -293,14 +293,14 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
             Etapa {currentStepIndex + 1} de {STEPS.length}
           </p>
           <h1 className="mx-auto mt-3 max-w-2xl font-serif text-3xl font-semibold leading-tight text-ink sm:text-5xl">
-            Ela perguntou o preco.{" "}
+            Ela perguntou o preço.{" "}
             <span className="text-gold-gradient">
               Veja como responder diferente.
             </span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-            Monte o DNA da clinica, veja a resposta mudar no seu tom e escolha
-            como comecar.
+            Monte o DNA da clínica, veja a resposta mudar no seu tom e escolha
+            como começar.
           </p>
         </section>
 
@@ -394,7 +394,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                       onChange={(event) =>
                         setClinicField("nome_clinica", event.target.value)
                       }
-                      placeholder="Ex.: Espaco Beleza & Cuidado"
+                      placeholder="Ex.: Espaço Beleza & Cuidado"
                       autoFocus
                     />
                   </div>
@@ -410,7 +410,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                       onChange={(event) =>
                         setClinicField("cidade", event.target.value)
                       }
-                      placeholder="Ex.: Sao Paulo - SP"
+                      placeholder="Ex.: São Paulo - SP"
                     />
                   </div>
                 </div>
@@ -476,7 +476,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
 
                 <div className="space-y-5">
                   <div>
-                    <Label>Como voce chama a cliente?</Label>
+                    <Label>Como você chama a cliente?</Label>
                     <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
                       {comoChamarOptions.map((option) => (
                         <button
@@ -515,7 +515,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                       className="mt-2 h-11 w-full accent-gold-500"
                     />
                     <div className="flex justify-between text-xs text-muted">
-                      <span>Bem proximo</span>
+                      <span>Bem próximo</span>
                       <span className="font-medium text-gold-400">
                         {formalidadeLabel(clinic.formalidade)}
                       </span>
@@ -524,7 +524,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                   </div>
 
                   <div>
-                    <Label>Como voce fecha?</Label>
+                    <Label>Como você fecha?</Label>
                     <div className="mt-2 grid gap-2 sm:grid-cols-3">
                       {ctaOptions.map((option) => (
                         <button
@@ -572,7 +572,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
 
                 {!canContinue && (
                   <p className="text-center text-xs text-muted sm:text-right">
-                    Coloque o nome da clinica para continuar.
+                    Coloque o nome da clínica para continuar.
                   </p>
                 )}
                 {saveFailed && <SaveError onRetry={saveAndEnter} />}
@@ -602,8 +602,8 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                       <X size={13} /> Resposta qualquer
                     </>
                   }
-                  body="Botox e R$900. Qualquer duvida, estou a disposicao."
-                  caption="Joga o preco, nao cria valor. A cliente compara com a concorrente mais barata e some."
+                  body="Botox é R$900. Qualquer dúvida, estou à disposição."
+                  caption="Joga o preço, não cria valor. A cliente compara com a concorrente mais barata e some."
                 />
 
                 <div className="relative flex flex-col overflow-hidden rounded-3xl border-2 border-gold-500/50 bg-navy-700 p-6 shadow-cta">
@@ -622,7 +622,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                     )}
                   </div>
                   <p className="mt-4 text-sm leading-relaxed text-champagne-300">
-                    Acolhe, mostra valor e conduz para avaliacao no seu jeito
+                    Acolhe, mostra valor e conduz para avaliação no seu jeito
                     de falar.
                   </p>
                   <button
@@ -634,16 +634,16 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                     <Sparkles size={14} />
                     {generating
                       ? "Gerando..."
-                      : "Gerar de novo com a cara da minha clinica"}
+                      : "Gerar de novo com a cara da minha clínica"}
                   </button>
                 </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
                 {[
-                  ["Acolhe", "A cliente sente atencao real."],
-                  ["Cria valor", "A avaliacao vira parte da conversa."],
-                  ["Conduz", "O proximo passo fica claro."],
+                  ["Acolhe", "A cliente sente atenção real."],
+                  ["Cria valor", "A avaliação vira parte da conversa."],
+                  ["Conduz", "O próximo passo fica claro."],
                 ].map(([title, description]) => (
                   <div
                     key={title}
@@ -676,10 +676,10 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
             <div className="space-y-6">
               <div className="text-center">
                 <h2 className="font-serif text-2xl font-semibold text-ink">
-                  Uma cliente recuperada ja paga o mes inteiro.
+                  Uma cliente recuperada já paga o mês inteiro.
                 </h2>
                 <p className="mx-auto mt-2 max-w-xl text-sm text-muted">
-                  Comece pelo Start. Voce cancela quando quiser.
+                  Comece pelo Start. Você cancela quando quiser.
                 </p>
               </div>
 
@@ -765,7 +765,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                     href="/signup?plan=start"
                     className="font-semibold text-gold-400 hover:text-gold-300"
                   >
-                    Criar conta gratis
+                    Criar conta grátis
                   </Link>
                 </div>
               )}
@@ -773,14 +773,14 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
               <div className="flex items-start gap-3 rounded-2xl border border-lavender-200 bg-lavender-50 p-4 text-xs text-lavender-700">
                 <ShieldCheck size={18} className="mt-0.5 shrink-0" />
                 <p>
-                  Respostas feitas para estetica: sem promessa de resultado,
-                  sem diagnostico e sempre valorizando a avaliacao.
+                  Respostas feitas para estética: sem promessa de resultado,
+                  sem diagnóstico e sempre valorizando a avaliação.
                 </p>
               </div>
 
               <div className="flex justify-center">
                 <Button variant="ghost" onClick={() => goTo("resposta")}>
-                  <ArrowLeft size={16} /> Ver a diferenca de novo
+                  <ArrowLeft size={16} /> Ver a diferença de novo
                 </Button>
               </div>
             </div>
@@ -838,7 +838,7 @@ function ResponsePanel({
 function SaveError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-      Nao conseguimos salvar o perfil da sua clinica agora.
+      Não conseguimos salvar o perfil da sua clínica agora.
       <button
         type="button"
         onClick={onRetry}
