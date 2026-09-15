@@ -266,7 +266,7 @@ export default async function CampaignPage({ params }: Props) {
             </p>
           </div>
 
-          <PricingSection ctaHref="/signup?plan=start" />
+          <PricingSection ctaHref="/signup?plan=start&next=checkout" />
         </div>
       </section>
 

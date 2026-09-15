@@ -136,9 +136,11 @@ export async function POST(request: Request) {
   const successPath = firebaseUid
     ? "/configuracoes?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}"
     : "/signup?checkout=sucesso&session_id={CHECKOUT_SESSION_ID}";
+  // Visitante que desiste volta pro passo de planos com aviso — antes caía em
+  // "/#demo", no meio da landing, sem nenhuma mensagem.
   const cancelPath = firebaseUid
     ? "/configuracoes?checkout=cancelado"
-    : "/#demo";
+    : "/onboarding?checkout=cancelado&aba=planos";
   const checkoutDescription = getCheckoutDescription(planConfig, interval);
   const params: Stripe.Checkout.SessionCreateParams = {
     mode: checkoutMode,
