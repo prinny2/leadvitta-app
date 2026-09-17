@@ -2,11 +2,8 @@
 
 Guidance for AI assistants (and humans) working in this repository.
 
-> **Authoritative rulebook:** if an `AGENTS.md` is present, it wins on agent
-> roles/deployment/safety where the two overlap. ⚠️ Note: `AGENTS.md` and
-> `ESTADO.md` are **referenced but not committed in this checkout** — treat this
-> CLAUDE.md as the de-facto guide unless those files actually exist. The live
-> workspace project-state file lives at `C:\Users\vpaes\status.md`.
+> **Authoritative rulebook:** `AGENTS.md` wins on agent roles/deployment/safety
+> where the two overlap; this file is the day-to-day guide.
 
 ## ⚠️ This app is LIVE and billing in production
 
@@ -212,10 +209,6 @@ plus `NEXT_PUBLIC_SITE_URL`.
 - New observable/UI content goes in `data/` (PT-BR); AI guardrails (compliance
   denylist) live in `lib/ai/prompts.ts`.
 
-## Git workflow for this task
-
-Develop on branch `claude/claude-md-docs-yydjie`, commit with clear messages,
-push with `git push -u origin claude/claude-md-docs-yydjie`, and open a draft PR.
 
 ## Current Authentication (updated 2026-07-02)
 

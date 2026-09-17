@@ -37,7 +37,7 @@ describe("sendWhatsAppText (Z-API)", () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
-    const res = await sendWhatsAppText("5591985156690", "oi");
+    const res = await sendWhatsAppText("5511999990000", "oi");
     expect(res.ok).toBe(false);
     expect(res.status).toBe(0);
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -52,7 +52,7 @@ describe("sendWhatsAppText (Z-API)", () => {
     });
     vi.stubGlobal("fetch", fetchSpy);
 
-    const res = await sendWhatsAppText("whatsapp:+5591985156690", "olá");
+    const res = await sendWhatsAppText("whatsapp:+5511999990000", "olá");
     expect(res).toEqual({ ok: true, status: 200, data: { messageId: "Z1" } });
 
     const [url, init] = fetchSpy.mock.calls[0];
@@ -61,7 +61,7 @@ describe("sendWhatsAppText (Z-API)", () => {
     );
     expect((init as RequestInit).method).toBe("POST");
     const body = JSON.parse((init as RequestInit).body as string);
-    expect(body).toEqual({ phone: "5591985156690", message: "olá" });
+    expect(body).toEqual({ phone: "5511999990000", message: "olá" });
   });
 
   it("inclui o header Client-Token quando ZAPI_CLIENT_TOKEN existe", async () => {
@@ -74,7 +74,7 @@ describe("sendWhatsAppText (Z-API)", () => {
     });
     vi.stubGlobal("fetch", fetchSpy);
 
-    await sendWhatsAppText("5591985156690", "oi");
+    await sendWhatsAppText("5511999990000", "oi");
     const headers = (fetchSpy.mock.calls[0][1] as RequestInit).headers as Record<
       string,
       string
@@ -92,7 +92,7 @@ describe("sendWhatsAppText (Z-API)", () => {
         json: () => Promise.reject(new Error("not json")),
       })
     );
-    const res = await sendWhatsAppText("5591985156690", "oi");
+    const res = await sendWhatsAppText("5511999990000", "oi");
     expect(res.ok).toBe(false);
     expect(res.status).toBe(400);
     expect(res.data).toEqual({});
@@ -103,7 +103,7 @@ describe("zapiProvider.parseInbound", () => {
   it("extrai uma InboundMessage de um ReceivedMessage", () => {
     const raw = JSON.stringify({
       type: "ReceivedMessage",
-      phone: "5591985156690",
+      phone: "5511999990000",
       connectedPhone: "5591980000000",
       text: { message: "quanto custa?" },
       messageId: "M1",
@@ -111,7 +111,7 @@ describe("zapiProvider.parseInbound", () => {
     });
     const msg = zapiProvider.parseInbound(raw, new Request("http://x/"));
     expect(msg).toEqual({
-      from: "5591985156690",
+      from: "5511999990000",
       to: "5591980000000",
       text: "quanto custa?",
       providerMessageId: "M1",
@@ -133,7 +133,7 @@ describe("zapiProvider.sendImage", () => {
   it("returns not configured without credentials", async () => {
     vi.stubEnv("ZAPI_INSTANCE_ID", "");
     vi.stubEnv("ZAPI_TOKEN", "");
-    const res = await zapiProvider.sendImage("5591985156690", "https://img.jpg", "caption");
+    const res = await zapiProvider.sendImage("5511999990000", "https://img.jpg", "caption");
     expect(res.ok).toBe(false);
     expect(res.status).toBe(0);
   });
@@ -148,7 +148,7 @@ describe("zapiProvider.sendImage", () => {
     vi.stubGlobal("fetch", fetchSpy);
 
     const res = await zapiProvider.sendImage(
-      "whatsapp:+5591985156690",
+      "whatsapp:+5511999990000",
       "https://example.com/photo.jpg",
       "Antes e depois"
     );
@@ -158,7 +158,7 @@ describe("zapiProvider.sendImage", () => {
     expect(url).toBe("https://api.z-api.io/instances/INST123/token/TOK456/send-image");
     const body = JSON.parse((init as RequestInit).body as string);
     expect(body).toEqual({
-      phone: "5591985156690",
+      phone: "5511999990000",
       image: "https://example.com/photo.jpg",
       caption: "Antes e depois",
     });
@@ -174,7 +174,7 @@ describe("zapiProvider.sendImage", () => {
     });
     vi.stubGlobal("fetch", fetchSpy);
 
-    await zapiProvider.sendImage("5591985156690", "https://img.jpg");
+    await zapiProvider.sendImage("5511999990000", "https://img.jpg");
     const headers = (fetchSpy.mock.calls[0][1] as RequestInit).headers as Record<string, string>;
     expect(headers["Client-Token"]).toBe("CLIENT789");
   });
@@ -189,7 +189,7 @@ describe("zapiProvider.sendImage", () => {
         json: () => Promise.reject(new Error("not json")),
       })
     );
-    const res = await zapiProvider.sendImage("5591985156690", "https://img.jpg");
+    const res = await zapiProvider.sendImage("5511999990000", "https://img.jpg");
     expect(res.ok).toBe(false);
     expect(res.data).toEqual({});
   });
@@ -199,7 +199,7 @@ describe("zapiProvider.sendButtons", () => {
   it("returns not configured without credentials", async () => {
     vi.stubEnv("ZAPI_INSTANCE_ID", "");
     vi.stubEnv("ZAPI_TOKEN", "");
-    const res = await zapiProvider.sendButtons("5591985156690", "Choose:", [
+    const res = await zapiProvider.sendButtons("5511999990000", "Choose:", [
       { id: "1", label: "Sim" },
     ]);
     expect(res.ok).toBe(false);
@@ -219,7 +219,7 @@ describe("zapiProvider.sendButtons", () => {
       { id: "opt_sim", label: "Sim" },
       { id: "opt_nao", label: "Não" },
     ];
-    const res = await zapiProvider.sendButtons("5591985156690", "Quer agendar?", buttons);
+    const res = await zapiProvider.sendButtons("5511999990000", "Quer agendar?", buttons);
     expect(res).toEqual({ ok: true, status: 200, data: { messageId: "BTN1" } });
 
     const [url, init] = fetchSpy.mock.calls[0];
@@ -228,7 +228,7 @@ describe("zapiProvider.sendButtons", () => {
     );
     const body = JSON.parse((init as RequestInit).body as string);
     expect(body).toEqual({
-      phone: "5591985156690",
+      phone: "5511999990000",
       message: "Quer agendar?",
       buttonList: {
         buttons: [
@@ -249,7 +249,7 @@ describe("zapiProvider.sendButtons", () => {
     });
     vi.stubGlobal("fetch", fetchSpy);
 
-    await zapiProvider.sendButtons("5591985156690", "Escolha:", [{ id: "1", label: "A" }]);
+    await zapiProvider.sendButtons("5511999990000", "Escolha:", [{ id: "1", label: "A" }]);
     const headers = (fetchSpy.mock.calls[0][1] as RequestInit).headers as Record<string, string>;
     expect(headers["Client-Token"]).toBe("CLIENT789");
   });
@@ -264,7 +264,7 @@ describe("zapiProvider.sendButtons", () => {
         json: () => Promise.reject(new Error("not json")),
       })
     );
-    const res = await zapiProvider.sendButtons("5591985156690", "msg", [
+    const res = await zapiProvider.sendButtons("5511999990000", "msg", [
       { id: "1", label: "X" },
     ]);
     expect(res.ok).toBe(false);

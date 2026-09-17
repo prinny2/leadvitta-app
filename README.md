@@ -98,4 +98,11 @@ data/             PT-BR catalogues: procedures, objections, follow-ups, scripts
 tests/            Vitest suites mirroring lib/, data/ and app/api/
 ```
 
-Architecture notes for contributors and AI agents live in `CLAUDE.md`.
+Architecture notes for contributors and AI agents live in `CLAUDE.md`; the
+Stripe/Vercel/Z-API runbook is in `docs/ops/`, and `docs/nlp-prototype.ipynb`
+is the zero-shot intent/sentiment experiment that preceded Lead Intelligence.
+
+## License
+
+Source-available for portfolio and code review. LeadBellus is a live commercial
+product; the code is **not** licensed for reuse or redistribution — see `LICENSE`.

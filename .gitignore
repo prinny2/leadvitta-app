@@ -69,3 +69,7 @@ scripts/.ga-*.json
 
 # Supabase CLI cache
 supabase/.temp/
+
+# Dumps de páginas/ferramentas de agentes
+/agent-tools/
+.ipynb_checkpoints/
