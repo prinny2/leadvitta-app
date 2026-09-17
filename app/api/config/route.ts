@@ -1,4 +1,4 @@
-import { jsonNoStore } from "@/lib/api-security";
+import { jsonCacheable } from "@/lib/api-security";
 import {
   isAnyAIConfigured,
   isAnthropicConfigured,
@@ -26,7 +26,7 @@ export const dynamic = "force-dynamic";
  * Não vaza segredos, apenas booleanos indicando o que está ativo.
  */
 export async function GET() {
-  return jsonNoStore({
+  return jsonCacheable({
     stripe_enabled: isStripeConfigured,
     clerk_enabled: isClerkClientConfigured,
     clerk_server_enabled: isClerkServerConfigured,

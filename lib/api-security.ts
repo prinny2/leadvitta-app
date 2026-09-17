@@ -200,6 +200,28 @@ export function jsonNoStore(body: unknown, init?: ResponseInit) {
   return response;
 }
 
+/**
+ * Cria uma resposta JSON com cabeçalho de cache público (CDN + browser).
+ * Use apenas para endpoints cujo conteúdo é estável entre requisições dentro
+ * de uma mesma implantação (ex.: feature flags derivadas de env vars).
+ *
+ * @param body     Corpo da resposta (serializável em JSON).
+ * @param maxAge   Tempo máximo de cache fresh, em segundos (padrão: 60).
+ * @param swr      Tempo do stale-while-revalidate em segundos (padrão: 300).
+ */
+export function jsonCacheable(
+  body: unknown,
+  maxAge = 60,
+  swr = 300
+) {
+  const response = NextResponse.json(body);
+  response.headers.set(
+    "Cache-Control",
+    `public, max-age=${maxAge}, stale-while-revalidate=${swr}`
+  );
+  return response;
+}
+
 export function getBearerToken(request: Request): string | undefined {
   const header = request.headers.get("authorization") || "";
   const [scheme, token] = header.split(" ");
