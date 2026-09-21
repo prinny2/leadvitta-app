@@ -26,8 +26,8 @@ customers, built and operated end-to-end by one developer.
 | WhatsApp | **Z-API** (WhatsApp Business gateway): outbound send, inbound webhook, auto-reply for paying clinics, per-clinic number binding |
 | Growth / analytics | **GA4** (client + Measurement Protocol server events: `begin_checkout`, `purchase`), Meta Pixel, Meta Graph API auto-posting (FB/IG), Zapier lead intake, campaign landing pages (`/campanha/[slug]`) |
 | Security | Origin/CORS checks, in-memory rate limiting per route, body-size limits, `Cache-Control: no-store` JSON helpers, Firestore rules that keep `billing` server-only |
-| Infra | **Vercel** (production) · Docker + **Cloud Run** (legacy/API parity) · Firebase emulators for local dev · GitHub Actions (Firestore rules/contract verification) |
-| Testing | **Vitest** — 35 suites / 391 tests over prompts, guardrails, API security, billing, webhooks, config flags and data catalogues (all network mocked, no keys needed) |
+| Infra | **Vercel** (production) · Dockerfile + Cloud Build config kept from an earlier deployment path (not in use) · Firebase emulators for local dev · GitHub Actions (Firestore rules/contract verification) |
+| Testing | **Vitest** — 35 files / 398 tests over prompts, guardrails, API security, billing, webhooks, config flags and data catalogues (all network mocked, no keys needed) |
 
 ## Key features
 
@@ -63,7 +63,7 @@ customers, built and operated end-to-end by one developer.
 git clone https://github.com/prinny2/leadvitta-app && cd leadvitta-app
 npm install            # Node 20+
 npm run dev            # http://localhost:3000 — demo mode, no keys needed
-npm test               # Vitest, 391 tests, fully mocked
+npm test               # Vitest, 398 tests, fully mocked
 ```
 
 To enable real integrations copy `.env.local.example` to `.env.local` and fill

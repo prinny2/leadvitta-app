@@ -118,7 +118,7 @@ Dockerfile, cloudbuild.yaml  # Cloud Run build/deploy
 ## Dev commands
 
 There is **no lint script**; do not invent one. Available scripts: `dev`, `build`,
-`start`, `test`, `test:watch`, `test:coverage` (Vitest, ~275 tests, all mocked —
+`start`, `test`, `test:watch`, `test:coverage` (Vitest, 398 tests in 35 files, all mocked —
 no network or keys needed).
 
 ```bash
