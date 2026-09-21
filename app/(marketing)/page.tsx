@@ -639,13 +639,13 @@ export default function LandingPage() {
         <section id="demo" style={{ background: CREAM, padding: "78px 24px" }}>
           <div style={{ maxWidth: "900px", margin: "0 auto" }}>
             <FadeUp>
-            <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
-              <Eyebrow>Experimente o raciocínio</Eyebrow>
-              <SectionTitle>Veja como o LeadBellus responderia essa conversa</SectionTitle>
-              <p style={{ color: INK_SOFT, fontSize: "15px", lineHeight: 1.7, margin: 0 }}>
-                Escolha uma situação real do seu WhatsApp e acompanhe o caminho: mensagem recebida → contexto da conversa → sugestões de resposta → próximo passo.
-              </p>
-            </div>
+              <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
+                <Eyebrow>Experimente o raciocínio</Eyebrow>
+                <SectionTitle>Veja como o LeadBellus responderia essa conversa</SectionTitle>
+                <p style={{ color: INK_SOFT, fontSize: "15px", lineHeight: 1.7, margin: 0 }}>
+                  Escolha uma situação real do seu WhatsApp e acompanhe o caminho: mensagem recebida → contexto da conversa → sugestões de resposta → próximo passo.
+                </p>
+              </div>
             </FadeUp>
 
             <LandingWhatsAppDemo />
