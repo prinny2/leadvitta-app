@@ -1,0 +1,73 @@
+# LeadBellus — catálogo de serviços (fonte: lib/service-role.ts)
+#
+# O repo é um "modular monolith": um único build Next.js que pode ser
+# implantado N vezes com SERVICE_ROLE diferente. Cada papel só expõe as rotas
+# listadas aqui (+ /api/health e /api/config); todo o resto responde 404.
+# Humanos e agentes (Claude Code, Codex) leem este arquivo para saber quem é
+# dono de quê antes de mexer numa rota. Detalhes: docs/architecture/services.md
+version: 1
+shared_routes: [/api/health, /api/config]
+
+services:
+  web:
+    role: web
+    description: Monólito completo — páginas, app autenticado e todas as APIs (deploy atual na Vercel).
+    routes: ["*"]
+    data_owner: []          # não é dono exclusivo; usa os clientes dos outros serviços
+    env_required: [NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY, NEXT_PUBLIC_FIREBASE_API_KEY]
+
+  ai:
+    role: ai
+    description: Geração de respostas, follow-up, compliance e Lead Intelligence (OpenAI → Anthropic → Gemini com fallback).
+    routes:
+      - /api/generate
+      - /api/conversas/reply
+      - /api/follow-up
+      - /api/compliance
+      - /api/lead-intelligence
+    code: [lib/ai/, data/, lib/usage-limit.ts, lib/conversas.ts]
+    data_owner: [app_historico_respostas (Supabase mirror), historico (Firestore)]
+    env_required: [OPENAI_API_KEY | ANTHROPIC_API_KEY | GEMINI_API_KEY, FIREBASE_SERVICE_ACCOUNT]
+    scale_profile: cpu-light, latency-bound (LLM), horizontal
+
+  billing:
+    role: billing
+    description: Checkout, portal, webhooks Stripe idempotentes, reconcile e ponte Clerk→Firebase.
+    routes:
+      - /api/stripe/checkout
+      - /api/stripe/portal
+      - /api/stripe/webhook
+      - /api/billing/reconcile
+      - /api/clerk/webhook
+      - /api/auth/firebase-token
+    code: [lib/stripe/, lib/billing.ts, lib/billing-client.ts, lib/firebase/admin.ts]
+    data_owner: [clinicas.plano (Firestore), stripe customer/subscription ids]
+    env_required: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PRICE_ID_START, CLERK_SECRET_KEY, CLERK_WEBHOOK_SECRET, FIREBASE_SERVICE_ACCOUNT]
+    scale_profile: low traffic, must be single-writer for reconcile
+
+  whatsapp:
+    role: whatsapp
+    description: Webhook Z-API de entrada e envio de mensagens por clínica.
+    routes:
+      - /api/whatsapp/webhook
+      - /api/clinica/whatsapp
+    code: [lib/whatsapp.ts, lib/whatsapp-zapi.ts, lib/whatsapp-types.ts]
+    data_owner: [conversas (Firestore)]
+    env_required: [ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_SECURITY_TOKEN, FIREBASE_SERVICE_ACCOUNT]
+    scale_profile: bursty inbound, needs public HTTPS URL registered at Z-API
+
+  growth:
+    role: growth
+    description: Waitlist, notificações de signup, entrada Zapier e publicação social.
+    routes:
+      - /api/waitlist
+      - /api/notify/signup
+      - /api/zapier/lead
+      - /api/marketing/social-post
+    code: [lib/zapier.ts, lib/ops-notify.ts, lib/social/, lib/supabase/]
+    data_owner: [app_waitlist (Supabase)]
+    env_required: [SUPABASE_URL, SUPABASE_SECRET_KEY, META_* (social)]
+    scale_profile: tiny
+
+# Ordem sugerida de extração para deploys separados (menor acoplamento primeiro):
+extraction_order: [growth, whatsapp, ai, billing]
