@@ -77,8 +77,15 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
     priceLabel: "R$347",
     periodLabel: "/mês",
     tagline: "Em breve: automações para reduzir o trabalho manual.",
-    selo: process.env.STRIPE_PRICE_ID_PREMIUM ? undefined : "Em breve",
-    disponivel: !!process.env.STRIPE_PRICE_ID_PREMIUM,
+    selo: "Em breve",
+    /**
+     * Travado em false de propósito: todos os módulos do Premium ainda são
+     * "Em breve". Vender antes de existir gera reembolso e risco de CDC.
+     * Só liberar (`PREMIUM_LAUNCHED=true`) quando as automações estiverem no ar —
+     * ter o STRIPE_PRICE_ID_PREMIUM configurado não basta.
+     */
+    disponivel:
+      process.env.PREMIUM_LAUNCHED === "true" && !!process.env.STRIPE_PRICE_ID_PREMIUM,
     features: [
       "Tudo do Pro",
       "Em breve: apoio para agendamento pelo WhatsApp",

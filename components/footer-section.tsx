@@ -56,7 +56,7 @@ const LEGAL = [
 ];
 
 const STACK = [
-  { label: "Responde no WhatsApp", icon: MessageCircle },
+  { label: "Sugere respostas para o WhatsApp", icon: MessageCircle },
   { label: "Entende o pedido", icon: Brain },
   { label: "Mantém o tom da clínica", icon: Sparkles },
   { label: "Pagamento seguro", icon: ShieldCheck },
@@ -196,9 +196,6 @@ export function FooterSection() {
           <div className="lb-footer-links lb-footer-support-links" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             <FooterLink href="mailto:suporte@leadbellus.com.br">
               suporte@leadbellus.com.br
-            </FooterLink>
-            <FooterLink href="https://instagram.com/leadbellus" isNext={false}>
-              Instagram @leadbellus
             </FooterLink>
             <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)" }}>
               Suporte pelo chat no app

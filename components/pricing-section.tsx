@@ -223,9 +223,9 @@ function PricingCard({
 
 export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
   const focusByPlan = {
-    start: "Pago agora: respostas continuas",
+    start: "Pago agora: respostas contínuas",
     pro: "Biblioteca, roteiros e histórico",
-    premium: "Automacoes avancadas em breve",
+    premium: "Automações avançadas em breve",
   } as const;
   const rows = billingPlanList.map((plan) => ({
     plan: plan.label,
