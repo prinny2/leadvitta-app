@@ -232,3 +232,16 @@ See `docs/clerk-auth-migration.md` for full history and architecture.
 - Webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`, `/api/clerk/webhook`) must remain completely public (outside `auth.protect()`).
 - Do **not** set `ENABLE_API_PROXY=true` — it breaks the Clerk→Firebase bridge.
 - Current dual-mode design (Clerk when configured, Firebase fallback otherwise) must be preserved.
+
+## Service roles & agent lanes (added 2026-09-26)
+
+- The app is a **modular monolith**: one build, deployable as `web` (default,
+  Vercel) or as `ai` / `billing` / `whatsapp` / `growth` via `SERVICE_ROLE`.
+  Gate lives in `middleware.ts` → `lib/service-role.ts`; catalog in
+  `services.yaml`; design + extraction order in `docs/architecture/services.md`.
+  `docker-compose.yml` runs all five + Firebase emulators.
+- Every new `/api/*` route goes in exactly one role; the test suite fails on
+  overlap.
+- Tool ownership (Claude Code vs Codex vs Xcode) is in `docs/agents/tool-roles.md`.
+  Claude Code owns architecture/infra/billing/auth/webhooks; Codex owns scoped
+  single-issue work; Xcode owns native Apple targets only.

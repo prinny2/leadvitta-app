@@ -98,6 +98,11 @@ data/             PT-BR catalogues: procedures, objections, follow-ups, scripts
 tests/            Vitest suites mirroring lib/, data/ and app/api/
 ```
 
+The app is a **modular monolith**: one build that can run as the full site
+(`SERVICE_ROLE=web`, production) or as separate `ai` / `billing` / `whatsapp` /
+`growth` services — see `services.yaml`, `docs/architecture/services.md` and
+`docker-compose.yml`.
+
 Architecture notes for contributors and AI agents live in `CLAUDE.md`; the
 Stripe/Vercel/Z-API runbook is in `docs/ops/`, and `docs/nlp-prototype.ipynb`
 is the zero-shot intent/sentiment experiment that preceded Lead Intelligence.
