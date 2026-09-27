@@ -13,6 +13,7 @@ import {
 } from "@/lib/config";
 import { isWhatsappConfigured } from "@/lib/whatsapp";
 import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
+import { getServiceRole } from "@/lib/service-role";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export async function GET() {
   return NextResponse.json({
     status: "ok",
     service: "leadbellus",
+    service_role: getServiceRole(),
     time: new Date().toISOString(),
     readiness: {
       ai: isAnyAIConfigured,
