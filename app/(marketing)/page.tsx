@@ -1,5 +1,5 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Suspense } from "react";
 import {
   ArrowRight,
   PlayCircle,
@@ -13,7 +13,6 @@ import {
   Check,
 } from "lucide-react";
 import { FadeUp } from "@/components/fade-up";
-import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
 import { LoadingRespostas } from "@/components/loading-respostas";
 import { PricingSection } from "@/components/pricing-section";
 import { FooterSection } from "@/components/footer-section";
@@ -23,6 +22,16 @@ import { TrackLink } from "@/components/track-link";
 import { WhatsAppCta } from "@/components/whatsapp-cta";
 
 const SIGNUP = "/onboarding";
+
+const LandingWhatsAppDemo = dynamic(
+  () =>
+    import("@/components/landing-whatsapp-demo").then(
+      (mod) => mod.LandingWhatsAppDemo
+    ),
+  {
+    loading: () => <LoadingRespostas etapas={["Carregando a demo…"]} />,
+  }
+);
 
 // Paleta (navy profundo + dourado vivo; verde só nos elementos de WhatsApp) ----
 const INK = "#0B1B33";
@@ -630,18 +639,16 @@ export default function LandingPage() {
         <section id="demo" style={{ background: CREAM, padding: "78px 24px" }}>
           <div style={{ maxWidth: "900px", margin: "0 auto" }}>
             <FadeUp>
-            <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
-              <Eyebrow>Experimente o raciocínio</Eyebrow>
-              <SectionTitle>Veja como o LeadBellus responderia essa conversa</SectionTitle>
-              <p style={{ color: INK_SOFT, fontSize: "15px", lineHeight: 1.7, margin: 0 }}>
-                Escolha uma situação real do seu WhatsApp e acompanhe o caminho: mensagem recebida → contexto da conversa → sugestões de resposta → próximo passo.
-              </p>
-            </div>
+              <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
+                <Eyebrow>Experimente o raciocínio</Eyebrow>
+                <SectionTitle>Veja como o LeadBellus responderia essa conversa</SectionTitle>
+                <p style={{ color: INK_SOFT, fontSize: "15px", lineHeight: 1.7, margin: 0 }}>
+                  Escolha uma situação real do seu WhatsApp e acompanhe o caminho: mensagem recebida → contexto da conversa → sugestões de resposta → próximo passo.
+                </p>
+              </div>
             </FadeUp>
 
-            <Suspense fallback={<LoadingRespostas etapas={["Carregando a demo…"]} />}>
-              <LandingWhatsAppDemo />
-            </Suspense>
+            <LandingWhatsAppDemo />
 
             <div
               style={{
