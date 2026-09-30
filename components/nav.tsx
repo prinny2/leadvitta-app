@@ -97,7 +97,7 @@ export function Sidebar() {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col bg-navy-800 px-3 py-6 md:flex border-r border-navy-500/50">
       {/* Logo */}
-      <Link href="/dashboard" className="flex items-center gap-3 px-2 mb-8">
+      <Link href="/dashboard" prefetch={false} className="flex items-center gap-3 px-2 mb-8">
         <LogoMark size={34} />
         <span className="font-serif text-base font-semibold text-champagne-300">
           Lead<span className="text-gold-500">Bellus</span>
@@ -114,6 +114,7 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
+              prefetch={false}
               className={cn(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                 active
@@ -153,7 +154,7 @@ export function MobileNav() {
   return (
     <div className="sticky top-0 z-20 border-b border-navy-500/50 bg-navy-800 backdrop-blur md:hidden">
       <div className="flex items-center justify-between px-4 py-3">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
+        <Link href="/dashboard" prefetch={false} className="flex items-center gap-2.5">
           <LogoMark size={26} />
           <span className="font-serif text-sm font-semibold text-champagne-300">
             Lead<span className="text-gold-500">Bellus</span>
@@ -166,6 +167,7 @@ export function MobileNav() {
           <Link
             key={href}
             href={href}
+            prefetch={false}
             className={cn(
               "flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
               isActive(pathname, href)
