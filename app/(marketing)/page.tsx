@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import {
   ArrowRight,
   PlayCircle,
@@ -13,8 +12,7 @@ import {
   Check,
 } from "lucide-react";
 import { FadeUp } from "@/components/fade-up";
-import { LandingWhatsAppDemo } from "@/components/landing-whatsapp-demo";
-import { LoadingRespostas } from "@/components/loading-respostas";
+import { DeferredLandingWhatsAppDemo } from "@/components/deferred-landing-whatsapp-demo";
 import { PricingSection } from "@/components/pricing-section";
 import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
@@ -639,9 +637,7 @@ export default function LandingPage() {
             </div>
             </FadeUp>
 
-            <Suspense fallback={<LoadingRespostas etapas={["Carregando a demo…"]} />}>
-              <LandingWhatsAppDemo />
-            </Suspense>
+            <DeferredLandingWhatsAppDemo />
 
             <div
               style={{
