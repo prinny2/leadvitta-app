@@ -34,8 +34,11 @@ describe("GET /api/config", () => {
     expect(body.ai_models).toBeUndefined();
   });
 
-  it("uses Cache-Control: no-store header", async () => {
+  it("uses a public Cache-Control header with stale-while-revalidate", async () => {
     const res = await GET();
-    expect(res.headers.get("cache-control")).toContain("no-store");
+    const cc = res.headers.get("cache-control") ?? "";
+    expect(cc).toContain("public");
+    expect(cc).toContain("max-age=60");
+    expect(cc).toContain("stale-while-revalidate=300");
   });
 });
