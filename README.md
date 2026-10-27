@@ -1,15 +1,25 @@
 # LeadBellus
 
-**AI-assisted WhatsApp sales replies for Brazilian aesthetic clinics** — turns a
-client's message ("how much is Botox?", "that's expensive", silence after a quote)
-into three ready-to-send replies in the clinic's own tone, with compliance
-guardrails, usage-based paywall and Stripe subscriptions. Live, billing real
-customers, built and operated end-to-end by one developer.
+**AI-assisted WhatsApp sales replies for Brazilian aesthetic clinics.** A client's
+message ("how much is Botox?", "that's expensive", silence after a quote) becomes
+three ready-to-send replies in the clinic's own tone, with compliance guardrails.
+Built and operated end-to-end by one developer.
+
+- **Stack:** Next.js 15 · React 19 · TypeScript · Clerk → Firebase Auth · Firestore · Stripe · Z-API (WhatsApp) · OpenAI → Claude → Gemini
+- **Shipped:** ran in production on Vercel with live-mode Stripe subscriptions and a usage-based paywall. Production is offline since Oct 2026.
+- **Run it:** `npm install && npm run dev` → http://localhost:3000/dashboard (demo mode: no keys, AI mocked) · `npm test` → 404 Vitest tests
 
 > Product UI and copy are in Brazilian Portuguese (the target market). Code,
 > comments and this README are mixed EN/PT-BR.
 
-**Live:** https://www.leadbellus.com.br
+## Screenshots
+
+| | |
+| --- | --- |
+| **Landing — hero + WhatsApp demo** | **Generator — 3 reply variants** |
+| ![Landing](docs/screenshots/01-landing.png) | ![Generator](docs/screenshots/02-gerador.png) |
+| **Onboarding — generic reply vs. the clinic's reply** | **Dashboard** |
+| ![Onboarding](docs/screenshots/03-onboarding.png) | ![Dashboard](docs/screenshots/04-dashboard.png) |
 
 ---
 
@@ -27,7 +37,7 @@ customers, built and operated end-to-end by one developer.
 | Growth / analytics | **GA4** (client + Measurement Protocol server events: `begin_checkout`, `purchase`), Meta Pixel, Meta Graph API auto-posting (FB/IG), Zapier lead intake, campaign landing pages (`/campanha/[slug]`) |
 | Security | Origin/CORS checks, in-memory rate limiting per route, body-size limits, `Cache-Control: no-store` JSON helpers, Firestore rules that keep `billing` server-only |
 | Infra | **Vercel** (production) · Dockerfile + Cloud Build config kept from an earlier deployment path (not in use) · Firebase emulators for local dev · GitHub Actions (Firestore rules/contract verification) |
-| Testing | **Vitest** — 35 files / 398 tests over prompts, guardrails, API security, billing, webhooks, config flags and data catalogues (all network mocked, no keys needed) |
+| Testing | **Vitest** — 36 files / 404 tests over prompts, guardrails, API security, billing, webhooks, config flags and data catalogues (all network mocked, no keys needed) |
 
 ## Key features
 
@@ -43,19 +53,10 @@ customers, built and operated end-to-end by one developer.
 - **Conversion funnel** — 3-step onboarding (clinic DNA → "your reply vs. a generic one" → plans), campaign landing pages, waitlist for unreleased plans, GA4 + server-side purchase events, ops alerts via WhatsApp.
 - **Operational endpoints** — `/api/health` and `/api/config` report which capabilities are live (AI providers, Stripe, Clerk, Firebase Admin, Z-API) for deploy verification.
 
-## Live demo
+## Demo
 
-- **Production:** https://www.leadbellus.com.br (Stripe is in live mode — the free tier lets you try the generator on the landing page and after sign-up without a card).
 - **Local demo mode:** `npm install && npm run dev` with **no** `.env.local` → open http://localhost:3000/dashboard. Login is skipped and AI replies are mocked, so every screen is clickable offline.
-
-## Screenshots
-
-| | |
-| --- | --- |
-| **Landing — hero + WhatsApp demo** | **Generator — 3 reply variants** |
-| ![Landing](docs/screenshots/01-landing.png) | ![Generator](docs/screenshots/02-gerador.png) |
-| **Onboarding — generic reply vs. the clinic's reply** | **Dashboard** |
-| ![Onboarding](docs/screenshots/03-onboarding.png) | ![Dashboard](docs/screenshots/04-dashboard.png) |
+- **Production** (www.leadbellus.com.br) is offline since Oct 2026. While it ran, Stripe was in live mode and the free tier (5 generations) worked without a card.
 
 ## Setup
 
@@ -63,7 +64,7 @@ customers, built and operated end-to-end by one developer.
 git clone https://github.com/prinny2/leadvitta-app && cd leadvitta-app
 npm install            # Node 20+
 npm run dev            # http://localhost:3000 — demo mode, no keys needed
-npm test               # Vitest, 398 tests, fully mocked
+npm test               # Vitest, 404 tests, fully mocked
 ```
 
 To enable real integrations copy `.env.local.example` to `.env.local` and fill
