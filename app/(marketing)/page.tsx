@@ -19,6 +19,7 @@ import { PricingSection } from "@/components/pricing-section";
 import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MarketingMobileMenu } from "@/components/marketing-mobile-menu";
+import { RevealAfter } from "@/components/reveal-after";
 import { TrackLink } from "@/components/track-link";
 import { WhatsAppCta } from "@/components/whatsapp-cta";
 
@@ -312,7 +313,7 @@ export default function LandingPage() {
                 <strong style={{ color: "#FFFFFF" }}>sua equipe revisar, enviar e conduzir cada cliente ao próximo passo</strong>.
               </p>
 
-              <div className="hero-cta-row" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
+              <div id="hero-ctas" className="hero-cta-row" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
                 <TrackLink
                   event="cta_click"
                   source="hero"
@@ -893,58 +894,60 @@ export default function LandingPage() {
         }
       `}</style>
       <div className="lp-mobile-spacer" />
-      <div
-        className="lp-mobile-bar"
-        style={{
-          position: "fixed",
-          left: "12px",
-          right: "12px",
-          bottom: "calc(10px + env(safe-area-inset-bottom))",
-          zIndex: 58,
-          alignItems: "center",
-          gap: "12px",
-          boxSizing: "border-box",
-          maxWidth: "520px",
-          minHeight: "66px",
-          margin: "0 auto",
-          background: "rgba(255,255,255,0.97)",
-          backdropFilter: "blur(14px)",
-          border: "1px solid rgba(201,160,96,0.24)",
-          borderRadius: "20px",
-          boxShadow: "0 18px 48px rgba(11,26,46,0.22)",
-          padding: "10px 10px 10px 14px",
-        }}
-      >
-        <div className="lp-mobile-bar-copy" style={{ lineHeight: 1.2 }}>
-          <p className="lp-mobile-bar-title" style={{ margin: 0, fontSize: "14px", fontWeight: 800, color: INK }}>
-            5 respostas grátis
-          </p>
-          <p className="lp-mobile-bar-subtitle" style={{ margin: "3px 0 0", fontSize: "11px", color: INK_SOFT }}>
-            Sem cartão · depois R$97/mês
-          </p>
-        </div>
-        <TrackLink
-          event="cta_click"
-          source="mobile_bar"
-          href={SIGNUP}
-          className="lp-mobile-bar-cta"
+      <RevealAfter targetId="hero-ctas">
+        <div
+          className="lp-mobile-bar"
           style={{
-            marginLeft: "auto",
-            background: INK,
-            color: "#FFFFFF",
-            fontWeight: 700,
-            fontSize: "14px",
-            borderRadius: "14px",
-            padding: "12px 18px",
-            minWidth: "132px",
-            textDecoration: "none",
-            textAlign: "center",
-            whiteSpace: "nowrap",
+            position: "fixed",
+            left: "12px",
+            right: "12px",
+            bottom: "calc(10px + env(safe-area-inset-bottom))",
+            zIndex: 58,
+            alignItems: "center",
+            gap: "12px",
+            boxSizing: "border-box",
+            maxWidth: "520px",
+            minHeight: "66px",
+            margin: "0 auto",
+            background: "rgba(255,255,255,0.97)",
+            backdropFilter: "blur(14px)",
+            border: "1px solid rgba(201,160,96,0.24)",
+            borderRadius: "20px",
+            boxShadow: "0 18px 48px rgba(11,26,46,0.22)",
+            padding: "10px 10px 10px 14px",
           }}
         >
-          Começar grátis
-        </TrackLink>
-      </div>
+          <div className="lp-mobile-bar-copy" style={{ lineHeight: 1.2 }}>
+            <p className="lp-mobile-bar-title" style={{ margin: 0, fontSize: "14px", fontWeight: 800, color: INK }}>
+              5 respostas grátis
+            </p>
+            <p className="lp-mobile-bar-subtitle" style={{ margin: "3px 0 0", fontSize: "11px", color: INK_SOFT }}>
+              Sem cartão · depois R$97/mês
+            </p>
+          </div>
+          <TrackLink
+            event="cta_click"
+            source="mobile_bar"
+            href={SIGNUP}
+            className="lp-mobile-bar-cta"
+            style={{
+              marginLeft: "auto",
+              background: INK,
+              color: "#FFFFFF",
+              fontWeight: 700,
+              fontSize: "14px",
+              borderRadius: "14px",
+              padding: "12px 18px",
+              minWidth: "132px",
+              textDecoration: "none",
+              textAlign: "center",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Começar grátis
+          </TrackLink>
+        </div>
+      </RevealAfter>
       <WhatsAppCta />
     </div>
   );

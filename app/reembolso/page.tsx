@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EMPRESA } from "@/lib/empresa";
 
 export const metadata: Metadata = {
   title: "Política de Reembolso — LeadBellus",
@@ -17,15 +18,7 @@ export default function ReembolsoPage() {
         <h1 className="mt-6 font-serif text-3xl font-semibold text-champagne-300 sm:text-4xl">
           Política de Reembolso
         </h1>
-        <p className="mt-2 text-xs text-navy-100">Última atualização: junho de 2026</p>
-
-        <div className="mt-6 rounded-2xl border border-gold-500/30 bg-gold-500/10 px-4 py-3">
-          <p className="text-sm font-semibold text-gold-300">Rascunho para revisão</p>
-          <p className="mt-1 text-xs leading-relaxed text-champagne-300">
-            Este documento é um modelo inicial e precisa de revisão jurídica antes
-            de valer como política definitiva.
-          </p>
-        </div>
+        <p className="mt-2 text-xs text-navy-100">Última atualização: outubro de 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-navy-50">
           <section>
@@ -39,7 +32,8 @@ export default function ReembolsoPage() {
           <section>
             <h2 className="font-serif text-xl font-semibold text-champagne-200">2. Assinatura Start</h2>
             <p className="mt-2">
-              O Start é uma assinatura mensal paga. A cobrança é processada pela
+              O Start é uma assinatura mensal paga, fornecida pelo LeadBellus
+              (CNPJ {EMPRESA.cnpj}). A cobrança é processada pela
               Stripe, e os dados do cartão não ficam armazenados no LeadBellus.
             </p>
           </section>
