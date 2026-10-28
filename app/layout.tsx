@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter, Fraunces } from "next/font/google";
+import localFont from "next/font/local";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ptBR } from "@clerk/localizations";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
@@ -8,20 +8,25 @@ import Ga4Analytics from "@/components/Analytics";
 import { FirebaseSessionSync } from "@/components/firebase-session-sync";
 import { isClerkClientConfigured } from "@/lib/config";
 
-// next/font: self-host + fallback com métricas ajustadas (size-adjust), o que
-// zera o layout shift quando a webfont chega (CLS era 0,20 só por causa disso).
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+// Fontes versionadas em app/fonts (variáveis, subset latin — Fontsource 5.3.0,
+// licença OFL ao lado). Antes vinham do Google Fonts no build e o CI quebrava
+// quando o download falhava. next/font/local mantém o fallback com métricas
+// ajustadas (size-adjust), que zera o layout shift quando a webfont chega
+// (CLS era 0,20 só por causa disso).
+const inter = localFont({
+  src: "./fonts/inter-latin-wght.woff2",
+  weight: "100 900",
   display: "swap",
   variable: "--font-inter",
+  adjustFontFallback: "Arial",
 });
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+const fraunces = localFont({
+  src: "./fonts/fraunces-latin-wght.woff2",
+  weight: "100 900",
   display: "swap",
   variable: "--font-fraunces",
+  adjustFontFallback: "Times New Roman",
 });
 
 export const metadata: Metadata = {
