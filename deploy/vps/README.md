@@ -115,6 +115,6 @@ ssh deploy@IP
 cd /opt/leadbellus
 docker compose ps
 docker compose logs -f app
-docker compose restart app            # depois de editar app.env
+docker compose up -d --force-recreate app   # depois de editar app.env (restart NÃO relê o env_file)
 docker images leadbellus              # rollback: echo IMAGE_TAG=<sha> > .env && docker compose up -d
 ```
