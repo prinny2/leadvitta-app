@@ -1,7 +1,8 @@
 // Calendário editorial de posts orgânicos (Facebook + Instagram) publicados
 // automaticamente pelo cron /api/marketing/social-post. Datas no fuso
 // America/Belem (YYYY-MM-DD). Post sem imagemUrl sai só no Facebook — o
-// Instagram exige imagem. Edite/adicione posts aqui; o cron cuida do resto.
+// Instagram exige imagem. Artes 1080×1350 em public/social (script
+// scripts/render-social-cards.py). Edite/adicione posts aqui; o cron cuida do resto.
 
 export type CanalSocial = "facebook" | "instagram";
 
@@ -85,5 +86,77 @@ export const SOCIAL_POSTS: SocialPost[] = [
     texto:
       "Entre um procedimento e outro, o WhatsApp acumula. 📱\n\nCada mensagem sem resposta é uma cliente esfriando. Com o LeadBellus, você cola a mensagem, recebe 3 respostas prontas e resolve a fila no intervalo do café.\n\nR$97/mês, teste grátis sem cartão 👇",
     link: utm("calendario_julho", "facebook"),
+  },
+  {
+    id: "2026-10-29-secretaria",
+    data: "2026-10-29",
+    canais: ["facebook", "instagram"],
+    texto:
+      "A secretária da clínica de estética responde enquanto a cliente ainda está quente.\n\nNo tom da casa. Sua equipe lê e envia. Preço, promessa e diagnóstico não saem sozinhos.\n\n5 respostas grátis, sem cartão 👇",
+    imagemUrl: `${LP}/social/2026-10-29-secretaria.png`,
+    link: utm("secretaria", "facebook"),
+  },
+  {
+    id: "2026-10-31-espera",
+    data: "2026-10-31",
+    canais: ["facebook", "instagram"],
+    texto:
+      "Cada minuto sem resposta é uma cliente esfriando.\n\nEntre um procedimento e outro, o WhatsApp acumula. A secretária escreve a mensagem. Você manda no intervalo.\n\nTeste grátis 👇",
+    imagemUrl: `${LP}/social/2026-10-31-espera.png`,
+    link: utm("secretaria", "facebook"),
+  },
+  {
+    id: "2026-11-02-depois",
+    data: "2026-11-02",
+    canais: ["facebook", "instagram"],
+    texto:
+      "Quem já fez o procedimento também precisa de cuidado.\n\nO oi do dia seguinte. A manutenção. O retorno que a clínica esquece. O LeadBellus prepara essa mensagem no tom da sua casa.\n\nSua equipe envia 👇",
+    imagemUrl: `${LP}/social/2026-11-02-depois.png`,
+    link: utm("secretaria", "facebook"),
+  },
+  {
+    id: "2026-11-04-equipe",
+    data: "2026-11-04",
+    canais: ["facebook", "instagram"],
+    texto:
+      "A secretária escreve. Sua equipe envia.\n\nÉ assim que clínica de estética atende rápido sem a IA falar sozinha com a paciente. Preço, promessa e diagnóstico passam por gente.\n\nConheça o LeadBellus 👇",
+    imagemUrl: `${LP}/social/2026-11-04-equipe.png`,
+    link: utm("secretaria", "facebook"),
+  },
+  {
+    id: "2026-11-06-painel",
+    data: "2026-11-06",
+    canais: ["facebook", "instagram"],
+    texto:
+      "Três filas que decidem o mês de uma clínica de ticket alto:\n\n• quem está esperando agora\n• quem sumiu antes de marcar\n• quem fez e não voltou\n\nO LeadBellus mostra a conversa e escreve o próximo passo. Sua equipe envia 👇",
+    imagemUrl: `${LP}/social/2026-11-06-painel.png`,
+    link: utm("secretaria", "facebook"),
+  },
+  {
+    id: "2026-11-08-preco",
+    data: "2026-11-08",
+    canais: ["facebook", "instagram"],
+    texto:
+      "“Quanto custa?”\n\nResponder só o número é o jeito mais rápido de perder a cliente. Ela precisa de contexto: avaliação, segurança, próximo horário.\n\nO LeadBellus entrega 3 respostas — suave, consultiva e fechamento — no tom da sua clínica 👇",
+    imagemUrl: `${LP}/social/2026-11-08-preco.png`,
+    link: utm("secretaria", "facebook"),
+  },
+  {
+    id: "2026-11-10-sumiu",
+    data: "2026-11-10",
+    canais: ["facebook", "instagram"],
+    texto:
+      "“Vou ver e te falo” não é um não.\n\nÉ silêncio. Um follow-up leve, com o próximo horário, traz a conversa de volta sem pressionar.\n\nA secretária escreve. Sua equipe envia 👇",
+    imagemUrl: `${LP}/social/2026-11-10-sumiu.png`,
+    link: utm("secretaria", "facebook"),
+  },
+  {
+    id: "2026-11-12-start",
+    data: "2026-11-12",
+    canais: ["facebook", "instagram"],
+    texto:
+      "Uma conversa recuperada paga o mês.\n\nStart por R$97. 5 respostas grátis, sem cartão. A secretária da clínica de estética: responde quem está esperando e não esquece quem já passou pela cadeira.\n\nleadbellus.com.br 👇",
+    imagemUrl: `${LP}/social/2026-11-12-start.png`,
+    link: utm("secretaria", "facebook"),
   },
 ];
