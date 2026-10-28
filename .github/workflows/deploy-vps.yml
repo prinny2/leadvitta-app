@@ -72,26 +72,35 @@ jobs:
           SSH_OPTS="-i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=accept-new"
           TARGET="$VPS_USER@$VPS_HOST"
 
-          scp $SSH_OPTS deploy/vps/docker-compose.yml deploy/vps/Caddyfile "$TARGET:/opt/leadbellus/"
+          scp $SSH_OPTS deploy/vps/docker-compose.yml "$TARGET:/opt/leadbellus/"
+          scp $SSH_OPTS deploy/vps/Caddyfile "$TARGET:/opt/leadbellus/Caddyfile.new"
           docker save "leadbellus:$TAG" | gzip | ssh $SSH_OPTS "$TARGET" 'gunzip | docker load'
 
-          ssh $SSH_OPTS "$TARGET" "set -e
-            cd /opt/leadbellus
-            echo IMAGE_TAG=$TAG > .env
-            docker compose up -d --remove-orphans
-            for i in \$(seq 1 30); do
-              curl -fsS http://127.0.0.1:8080/api/health && exit 0
-              sleep 2
-            done
-            docker compose logs --tail=100 app
-            exit 1"
+          ssh $SSH_OPTS "$TARGET" "TAG=$TAG bash -s" <<'REMOTE'
+          set -e
+          cd /opt/leadbellus
+          PREV=$(sed -n 's/^IMAGE_TAG=//p' .env 2>/dev/null || true)
 
-      - name: Limpar imagens antigas no VPS
-        if: success()
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-        run: |
-          # Mantém a imagem em uso; apaga as que não rodam há mais de 7 dias.
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "$VPS_USER@$VPS_HOST" \
-            'docker image prune -af --filter "until=168h"'
+          # O Caddyfile é bind mount de arquivo: o Caddy só lê config nova se o
+          # container for recriado — e só vale recriar quando ela mudou.
+          CADDY_CHANGED=
+          if cmp -s Caddyfile.new Caddyfile; then rm -f Caddyfile.new; else mv Caddyfile.new Caddyfile; CADDY_CHANGED=1; fi
+
+          echo "IMAGE_TAG=$TAG" > .env
+          docker compose up -d --remove-orphans
+          if [ -n "$CADDY_CHANGED" ]; then docker compose up -d --force-recreate caddy; fi
+
+          ok=
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/api/health; then ok=1; break; fi
+            sleep 2
+          done
+          if [ -z "$ok" ]; then docker compose logs --tail=100 app; exit 1; fi
+
+          # Sem registry, o rollback depende da imagem anterior no disco: mantém
+          # a atual e a anterior, apaga as demais.
+          docker images leadbellus --format '{{.Tag}}' \
+            | grep -vxF -e "$TAG" -e "${PREV:-$TAG}" \
+            | xargs -r -I{} docker rmi "leadbellus:{}" || true
+          docker image prune -f
+          REMOTE

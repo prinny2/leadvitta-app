@@ -97,7 +97,11 @@ Login (Firebase) → onboarding → gerador → checkout Start → Stripe *Recen
 
 O relançamento roda **sem Clerk**: sem `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`/`CLERK_SECRET_KEY` o
 app usa o Firebase Auth (e-mail/senha + Google). Contas criadas via Clerk (jul–out/2026) ficam
-com os dados em `clinicas/{id_do_clerk}` e precisam criar conta nova. Para religar o Clerk:
+com os dados em `clinicas/{id_do_clerk}` e precisam criar conta nova. **Antes de desligar,
+confirme no Stripe que não há assinatura ativa** cujo `metadata.firebase_uid` comece com
+`user_` (ID do Clerk): o `lib/stripe/billing-sync.ts` roteia por esse UID, então um assinante
+assim seguiria cobrado sem acesso — migre `clinicas/{uid}` + metadata juntos ou mantenha o
+Clerk. (Relançamento de 28/10/2026: confirmado sem assinantes ativos.) Para religar o Clerk:
 chaves no `app.env` + Variable no GitHub + CNAMEs do Clerk no Registro.br.
 
 ## Travas de custo (não pular)
@@ -116,5 +120,6 @@ cd /opt/leadbellus
 docker compose ps
 docker compose logs -f app
 docker compose up -d --force-recreate app   # depois de editar app.env (restart NÃO relê o env_file)
-docker images leadbellus              # rollback: echo IMAGE_TAG=<sha> > .env && docker compose up -d
+docker images leadbellus              # o deploy guarda a imagem atual + a anterior
+echo IMAGE_TAG=<sha-anterior> > .env && docker compose up -d   # rollback
 ```
