@@ -45,6 +45,70 @@ const DEFAULT_PROVIDER_CHAIN: AIProviderId[] = [
   "gemini",
 ];
 
+// O modelo de GEMINI_MODEL entra primeiro. Os outros só rodam se ele
+// responder sobrecarregado, sumido ou com cota estourada. Timeout e
+// chave inválida não passam para o próximo: um timeout de 20s vezes
+// quatro modelos deixaria a tela esperando mais de um minuto.
+const GEMINI_MODEL_FALLBACKS = [
+  "gemini-3.5-flash",
+  "gemini-3.8-flash",
+  "gemini-flash-latest",
+  "gemini-3.5-flash-lite",
+];
+
+function geminiModelsInOrder(): string[] {
+  const seen = new Set<string>();
+  const ordered: string[] = [];
+  for (const model of [geminiModel, ...GEMINI_MODEL_FALLBACKS]) {
+    const name = model.trim();
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    ordered.push(name);
+  }
+  return ordered;
+}
+
+function geminiErrorShouldTryNextModel(err: unknown): boolean {
+  const record = err as {
+    message?: unknown;
+    status?: unknown;
+    code?: unknown;
+    error?: { code?: unknown; status?: unknown; message?: unknown };
+  };
+  const message = typeof record?.message === "string" ? record.message : "";
+  let parsedCode: unknown;
+  let parsedStatus = "";
+  let parsedMessage = "";
+  if (message.startsWith("{")) {
+    try {
+      const parsed = JSON.parse(message) as {
+        error?: { code?: unknown; status?: unknown; message?: unknown };
+        code?: unknown;
+        status?: unknown;
+      };
+      parsedCode = parsed.error?.code ?? parsed.code;
+      parsedStatus = String(parsed.error?.status ?? parsed.status ?? "");
+      parsedMessage = String(parsed.error?.message ?? "");
+    } catch {
+      /* a mensagem não é JSON */
+    }
+  }
+  const numeric = [record?.status, record?.code, record?.error?.code, parsedCode]
+    .map((value) => Number(value))
+    .find((value) => Number.isFinite(value));
+  const blob = [
+    message,
+    String(record?.error?.status ?? ""),
+    String(record?.error?.message ?? ""),
+    parsedStatus,
+    parsedMessage,
+  ].join(" ");
+  if (numeric === 401 || numeric === 403) return false;
+  if (/API Timeout/i.test(blob)) return false;
+  if (numeric === 404 || numeric === 429 || numeric === 500 || numeric === 503) return true;
+  return /NOT_FOUND|UNAVAILABLE|RESOURCE_EXHAUSTED|high demand|no longer available/i.test(blob);
+}
+
 type CallAIOptions = {
   providers?: AIProviderId[];
 };
@@ -183,25 +247,34 @@ async function callAI(
 
   const tryGemini = async () => {
     if (!isGeminiConfigured) return null;
-    try {
-      const resp = await withTimeout(
-        getGemini().models.generateContent({
-          model: geminiModel,
-          contents: user,
-          config: {
-            systemInstruction: system,
-            temperature: 0.7,
-            maxOutputTokens: 1024,
-            responseMimeType: "application/json",
-          },
-        }),
-        TIMEOUT_MS
-      );
-      return resp.text?.trim() || null;
-    } catch (err: any) {
-      console.warn("[callAI] Gemini falhou:", err?.message || err);
-      return null;
+    const models = geminiModelsInOrder();
+    for (let index = 0; index < models.length; index += 1) {
+      const model = models[index];
+      try {
+        const resp = await withTimeout(
+          getGemini().models.generateContent({
+            model,
+            contents: user,
+            config: {
+              systemInstruction: system,
+              temperature: 0.7,
+              maxOutputTokens: 1024,
+              responseMimeType: "application/json",
+            },
+          }),
+          TIMEOUT_MS
+        );
+        return resp.text?.trim() || null;
+      } catch (err: any) {
+        const tryNext = index < models.length - 1 && geminiErrorShouldTryNextModel(err);
+        console.warn(
+          `[callAI] Gemini ${model} falhou${tryNext ? ", tentando o próximo modelo" : ""}:`,
+          err?.message || err
+        );
+        if (!tryNext) return null;
+      }
     }
+    return null;
   };
 
   const chain = options?.providers ?? DEFAULT_PROVIDER_CHAIN;

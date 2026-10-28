@@ -466,6 +466,52 @@ describe("provider — cadeia customizada (LP: OpenAI → Gemini)", () => {
   });
 });
 
+describe("provider — Gemini troca de modelo quando um está sobrecarregado", () => {
+  beforeEach(() => {
+    vi.stubEnv("OPENAI_API_KEY", "");
+    vi.stubEnv("ANTHROPIC_API_KEY", "");
+    vi.stubEnv("GEMINI_API_KEY", "gem-key");
+    vi.stubEnv("GEMINI_MODEL", "gemini-3.5-flash");
+  });
+
+  it("usa o modelo seguinte depois de um 503", async () => {
+    geminiGenerate.mockImplementation(async (args: { model?: string }) => {
+      if (args.model === "gemini-3.5-flash") {
+        throw new Error(
+          JSON.stringify({
+            error: { code: 503, status: "UNAVAILABLE", message: "high demand" },
+          })
+        );
+      }
+      return { text: JSON.stringify({ resposta: "Te explico na avaliação." }) };
+    });
+
+    const { refinarResposta } = await loadProvider();
+    const res = await refinarResposta(refineInput);
+
+    expect(res.mock).toBe(false);
+    expect(res.texto).toBe("Te explico na avaliação.");
+    expect(geminiGenerate.mock.calls.map((call) => call[0].model)).toEqual([
+      "gemini-3.5-flash",
+      "gemini-3.8-flash",
+    ]);
+  });
+
+  it("não tenta outro modelo quando a chave é recusada", async () => {
+    geminiGenerate.mockRejectedValue(
+      new Error(JSON.stringify({ error: { code: 401, status: "UNAUTHENTICATED", message: "invalid key" } }))
+    );
+
+    const { refinarResposta } = await loadProvider();
+    const res = await refinarResposta(refineInput);
+
+    expect(res.mock).toBe(true);
+    const models = geminiGenerate.mock.calls.map((call) => call[0].model);
+    expect(models.length).toBeGreaterThan(0);
+    expect(models.every((model) => model === "gemini-3.5-flash")).toBe(true);
+  });
+});
+
 describe("provider — Anthropic configurada", () => {
   beforeEach(configureAnthropicOnly);
 
