@@ -45,9 +45,6 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "LeadBellus", url: "https://www.leadbellus.com.br" }],
   publisher: "LeadBellus",
-  alternates: {
-    canonical: "https://www.leadbellus.com.br",
-  },
   icons: {
     icon: "/icon.svg",
     shortcut: "/favicon.ico",
@@ -56,13 +53,12 @@ export const metadata: Metadata = {
     title: "LeadBellus — Respostas para WhatsApp na Estética",
     description:
       "Transforme preço, objeção e cliente que sumiu em respostas prontas para copiar e mandar no WhatsApp.",
-    url: "https://www.leadbellus.com.br",
     siteName: "LeadBellus",
     locale: "pt_BR",
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "LeadBellus — Respostas para WhatsApp na Estética",
     description: "3 respostas curtas, no tom da sua clínica, para copiar e mandar no WhatsApp.",
   },

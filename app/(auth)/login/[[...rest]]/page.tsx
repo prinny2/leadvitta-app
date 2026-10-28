@@ -4,6 +4,14 @@ import { parseBillingPlan } from "@/lib/billing";
 import { VisualAuthPanel } from "@/components/visual-auth-panel";
 import { Card, CardBody } from "@/components/ui/card";
 import { isClerkClientConfigured } from "@/lib/config";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+  path: "/login",
+  title: "Entrar — LeadBellus",
+  description: "Entre na sua conta LeadBellus.",
+  index: false,
+});
 
 // Só aceita caminhos internos ("/rota"), nunca URLs absolutas ("//host" ou
 // "http://"), pra evitar open redirect via ?next=.

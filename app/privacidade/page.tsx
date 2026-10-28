@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EMPRESA } from "@/lib/empresa";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/privacidade",
   title: "Política de Privacidade — LeadBellus",
-  description: "Política de Privacidade do LeadBellus (LGPD).",
-};
+  description:
+    "Política de Privacidade do LeadBellus conforme a LGPD: quais dados coletamos, para que usamos, com quem compartilhamos e como exercer seus direitos de titular.",
+});
 
 export default function PrivacidadePage() {
   return (

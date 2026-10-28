@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EMPRESA } from "@/lib/empresa";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/termos",
   title: "Termos de Serviço — LeadBellus",
-  description: "Termos de Serviço do LeadBellus.",
-};
+  description:
+    "Termos de Serviço do LeadBellus: como funciona a assinatura Start, uso aceitável, conteúdo gerado por IA, cancelamento e as responsabilidades de cada parte.",
+});
 
 export default function TermosPage() {
   return (

@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EMPRESA } from "@/lib/empresa";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/reembolso",
   title: "Política de Reembolso — LeadBellus",
-  description: "Política de cancelamento e reembolso do LeadBellus.",
-};
+  description:
+    "Política de Reembolso do LeadBellus: teste grátis com 5 respostas, assinatura Start mensal, cancelamento quando quiser e análise de cobranças indevidas.",
+});
 
 export default function ReembolsoPage() {
   return (
