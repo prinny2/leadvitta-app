@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Brain, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
+import { EMPRESA } from "@/lib/empresa";
 
 function LogoMark({ size = 34 }: { size?: number }) {
   return (
@@ -218,7 +219,7 @@ export function FooterSection() {
         className="lb-footer-bottom"
       >
         <p className="lb-footer-fineprint" style={{ fontSize: "12px", color: "rgba(255,255,255,0.25)", margin: 0 }}>
-          © 2026 LeadBellus · Vinicius Paes da Serra Freire (MEI)
+          © 2026 {EMPRESA.marca} · CNPJ {EMPRESA.cnpj}
         </p>
         <div
           className="lb-footer-badge"

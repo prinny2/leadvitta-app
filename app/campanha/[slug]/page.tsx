@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EMPRESA } from "@/lib/empresa";
 import { HeroDevices } from "@/components/hero-devices";
 import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
@@ -286,7 +287,7 @@ export default async function CampaignPage({ params }: Props) {
             © {new Date().getFullYear()} LeadBellus. Todos os direitos reservados.
           </p>
           <p style={{ margin: 0, fontSize: "12px", color: "rgba(255,255,255,0.25)" }}>
-            LeadBellus — MEI Vinícius Paes da Serra Freire · CNPJ sob consulta.
+            {EMPRESA.marca} · CNPJ {EMPRESA.cnpj}
           </p>
         </div>
       </footer>

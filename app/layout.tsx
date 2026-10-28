@@ -43,8 +43,8 @@ export const metadata: Metadata = {
     "objeções estética",
     "LeadBellus",
   ],
-  authors: [{ name: "Vinicius Paes da Serra Freire", url: "https://leadbellus.com.br" }],
-  publisher: "Vinicius Paes da Serra Freire (MEI)",
+  authors: [{ name: "LeadBellus", url: "https://www.leadbellus.com.br" }],
+  publisher: "LeadBellus",
   alternates: {
     canonical: "https://www.leadbellus.com.br",
   },

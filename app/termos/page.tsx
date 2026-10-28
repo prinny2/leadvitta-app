@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EMPRESA } from "@/lib/empresa";
 
 export const metadata: Metadata = {
   title: "Termos de Serviço — LeadBellus",
@@ -17,15 +18,7 @@ export default function TermosPage() {
         <h1 className="mt-6 font-serif text-3xl font-semibold text-champagne-300 sm:text-4xl">
           Termos de Serviço
         </h1>
-        <p className="mt-2 text-xs text-navy-100">Última atualização: junho de 2026</p>
-
-        <div className="mt-6 rounded-2xl border border-gold-500/30 bg-gold-500/10 px-4 py-3">
-          <p className="text-sm font-semibold text-gold-300">⚠️ Rascunho para revisão</p>
-          <p className="mt-1 text-xs leading-relaxed text-champagne-300">
-            Este documento é um modelo inicial e precisa de revisão jurídica antes
-            de valer como termo definitivo. Não constitui aconselhamento jurídico.
-          </p>
-        </div>
+        <p className="mt-2 text-xs text-navy-100">Última atualização: outubro de 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-navy-50">
           <section>
@@ -39,7 +32,7 @@ export default function TermosPage() {
           <section>
             <h2 className="font-serif text-xl font-semibold text-champagne-200">2. O que é o Serviço</h2>
             <p className="mt-2">
-              O LeadBellus é uma ferramenta de apoio que usa inteligência
+              O LeadBellus (CNPJ {EMPRESA.cnpj}) é uma ferramenta de apoio que usa inteligência
               artificial para ajudar clínicas e profissionais de estética a
               responder mensagens de clientes no WhatsApp, gerando sugestões de
               resposta, contornos de objeção e follow-ups. É uma ferramenta de
