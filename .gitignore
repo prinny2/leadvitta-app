@@ -55,6 +55,7 @@ WhatsApp Image*
 .env
 .env.*
 !.env.local.example
+app.env
 # Google Ads / GA OAuth desktop client secrets
 ads/**/.env*
 scripts/.ga-*.json

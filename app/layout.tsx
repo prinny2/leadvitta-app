@@ -86,7 +86,8 @@ export default function RootLayout({
       {isClerkClientConfigured && <FirebaseSessionSync />}
       {children}
       <Ga4Analytics />
-      <VercelAnalytics />
+      {/* Só existe na Vercel; fora dela o script /_vercel/insights dá 404. */}
+      {process.env.VERCEL && <VercelAnalytics />}
     </>
   );
 
