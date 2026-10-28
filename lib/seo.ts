@@ -13,7 +13,7 @@ const SHARE_IMAGE = {
   url: "/opengraph-image",
   width: 1200,
   height: 630,
-  alt: "LeadBellus — respostas de WhatsApp para clínicas de estética",
+  alt: "LeadBellus — a secretária de WhatsApp da clínica de estética",
 };
 
 /**
