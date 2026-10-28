@@ -14,7 +14,10 @@ Guidance for AI assistants (and humans) working in this repository.
 > Z-API subscriptions are **cancelled**; the GCP billing account of `leadvitta-app`
 > is **closed** (Cloud Run is gone; Firebase stays on the free **Spark** plan as the
 > data layer). Deploy = `.github/workflows/deploy-vps.yml` → Docker + Caddy on the
-> VPS; runbook in `deploy/vps/README.md`. **Never re-enable usage-billed hosting**
+> VPS (AWS EC2 t3.micro, us-east-2, `3.12.9.125`, free-plan credits until
+> 2027-04-28); runbook in `deploy/vps/README.md`. **Clerk is not configured** on the
+> relaunch → login runs on the Firebase Auth fallback (dual-mode code kept intact).
+> **Never re-enable usage-billed hosting**
 > (Cloud Run, Vercel Pro, Firebase Blaze, EC2/App Runner) without a hard budget cap.
 > Every Vercel/Cloud Run instruction below is **historical**.
 
