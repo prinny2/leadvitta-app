@@ -8,9 +8,11 @@ DEPLOY_PUBKEY="${1:?passe a chave pública SSH de deploy como 1º argumento}"
 APP_DIR=/opt/leadbellus
 
 export DEBIAN_FRONTEND=noninteractive
-apt-get update
-apt-get -y upgrade
-apt-get -y install docker.io docker-compose-v2 ufw unattended-upgrades curl
+# No 1º boot (user data da EC2) o unattended-upgrades pode estar com o lock do dpkg.
+APT="apt-get -o DPkg::Lock::Timeout=600"
+$APT update
+$APT -y upgrade
+$APT -y install docker.io docker-compose-v2 ufw unattended-upgrades curl
 systemctl enable --now docker
 
 # Firewall: só SSH e web.
