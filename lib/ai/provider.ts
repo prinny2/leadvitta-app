@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import OpenAI from "openai";
 import {
   anthropicModel,
-  geminiModel,
+  geminiModels,
   isAnthropicConfigured,
   isAnyAIConfigured,
   isGeminiConfigured,
@@ -183,25 +183,29 @@ async function callAI(
 
   const tryGemini = async () => {
     if (!isGeminiConfigured) return null;
-    try {
-      const resp = await withTimeout(
-        getGemini().models.generateContent({
-          model: geminiModel,
-          contents: user,
-          config: {
-            systemInstruction: system,
-            temperature: 0.7,
-            maxOutputTokens: 1024,
-            responseMimeType: "application/json",
-          },
-        }),
-        TIMEOUT_MS
-      );
-      return resp.text?.trim() || null;
-    } catch (err: any) {
-      console.warn("[callAI] Gemini falhou:", err?.message || err);
-      return null;
+    // Tenta cada modelo da lista: um 503/429 num modelo não derruba a chamada.
+    for (const model of geminiModels) {
+      try {
+        const resp = await withTimeout(
+          getGemini().models.generateContent({
+            model,
+            contents: user,
+            config: {
+              systemInstruction: system,
+              temperature: 0.7,
+              maxOutputTokens: 1024,
+              responseMimeType: "application/json",
+            },
+          }),
+          TIMEOUT_MS
+        );
+        const text = resp.text?.trim();
+        if (text) return text;
+      } catch (err: any) {
+        console.warn(`[callAI] Gemini ${model} falhou:`, err?.message || err);
+      }
     }
+    return null;
   };
 
   const chain = options?.providers ?? DEFAULT_PROVIDER_CHAIN;

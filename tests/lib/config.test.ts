@@ -111,7 +111,14 @@ describe("lib/config", () => {
     // AI_MODEL é claude-*, então só o anthropicModel o herda; os demais usam default.
     expect(anthropicModel).toBe("claude-haiku-4-5");
     expect(openaiModel).toBe("gpt-4o-mini");
-    expect(geminiModel).toBe("gemini-2.5-flash");
+    expect(geminiModel).toBe("gemini-3.5-flash");
+  });
+
+  it("GEMINI_MODEL aceita lista de fallback separada por vírgula", async () => {
+    vi.stubEnv("GEMINI_MODEL", " gemini-a , gemini-b,,gemini-c ");
+    const { geminiModels, geminiModel } = await loadConfig();
+    expect(geminiModels).toEqual(["gemini-a", "gemini-b", "gemini-c"]);
+    expect(geminiModel).toBe("gemini-a");
   });
 
   it("isZApiConfigured exige ZAPI_INSTANCE_ID + ZAPI_TOKEN", async () => {
