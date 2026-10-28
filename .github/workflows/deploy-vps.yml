@@ -1,0 +1,96 @@
+# Deploy do LeadBellus no VPS: builda a imagem aqui no GitHub (o VPS pequeno não
+# precisa compilar Next.js), manda via SSH com `docker save | docker load` (sem
+# registry, sem custo de storage) e sobe com docker compose. Passo a passo:
+# deploy/vps/README.md.
+name: Deploy VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Desligado até o servidor existir: Settings → Variables → VPS_ENABLED=true.
+    if: vars.VPS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          provenance: false
+          tags: leadbellus:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # NEXT_PUBLIC_* são públicas e build-time → GitHub *Variables*, não Secrets.
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_FIREBASE_API_KEY=${{ vars.NEXT_PUBLIC_FIREBASE_API_KEY }}
+            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ vars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+            NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ vars.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ vars.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ vars.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+            NEXT_PUBLIC_FIREBASE_APP_ID=${{ vars.NEXT_PUBLIC_FIREBASE_APP_ID }}
+            NEXT_PUBLIC_FIREBASE_VAPID_KEY=${{ vars.NEXT_PUBLIC_FIREBASE_VAPID_KEY }}
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ vars.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_CLERK_SIGN_IN_URL=${{ vars.NEXT_PUBLIC_CLERK_SIGN_IN_URL }}
+            NEXT_PUBLIC_CLERK_SIGN_UP_URL=${{ vars.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}
+            NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=${{ vars.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL }}
+            NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=${{ vars.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL }}
+            NEXT_PUBLIC_SUPABASE_URL=${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_META_PIXEL_ID=${{ vars.NEXT_PUBLIC_META_PIXEL_ID }}
+            NEXT_PUBLIC_GA4_ID=${{ vars.NEXT_PUBLIC_GA4_ID }}
+            NEXT_PUBLIC_WHATSAPP_NUMBER=${{ vars.NEXT_PUBLIC_WHATSAPP_NUMBER }}
+
+      - name: Enviar e subir no VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          TAG: ${{ github.sha }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          SSH_OPTS="-i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=accept-new"
+          TARGET="$VPS_USER@$VPS_HOST"
+
+          scp $SSH_OPTS deploy/vps/docker-compose.yml deploy/vps/Caddyfile "$TARGET:/opt/leadbellus/"
+          docker save "leadbellus:$TAG" | gzip | ssh $SSH_OPTS "$TARGET" 'gunzip | docker load'
+
+          ssh $SSH_OPTS "$TARGET" "set -e
+            cd /opt/leadbellus
+            echo IMAGE_TAG=$TAG > .env
+            docker compose up -d --remove-orphans
+            for i in \$(seq 1 30); do
+              curl -fsS http://127.0.0.1:8080/api/health && exit 0
+              sleep 2
+            done
+            docker compose logs --tail=100 app
+            exit 1"
+
+      - name: Limpar imagens antigas no VPS
+        if: success()
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          # Mantém a imagem em uso; apaga as que não rodam há mais de 7 dias.
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "$VPS_USER@$VPS_HOST" \
+            'docker image prune -af --filter "until=168h"'

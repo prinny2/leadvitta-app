@@ -127,6 +127,24 @@ describe("zapiProvider.parseInbound", () => {
   it("retorna null para JSON inválido", () => {
     expect(zapiProvider.parseInbound("{ nao json", new Request("http://x/"))).toBeNull();
   });
+
+  it.each([
+    ["grupo (isGroup)", { isGroup: true }],
+    ["grupo (sufixo -group)", { phone: "120363000000000000-group" }],
+    ["mensagem enviada pelo próprio número", { fromMe: true }],
+    ["canal/newsletter", { isNewsletter: true }],
+    ["lista de transmissão", { broadcast: true }],
+  ])("ignora %s", (_label, extra) => {
+    const raw = JSON.stringify({
+      type: "ReceivedMessage",
+      phone: "5591985156690",
+      connectedPhone: "5591980000000",
+      text: { message: "oi" },
+      messageId: "M2",
+      ...extra,
+    });
+    expect(zapiProvider.parseInbound(raw, new Request("http://x/"))).toBeNull();
+  });
 });
 
 describe("zapiProvider.sendImage", () => {

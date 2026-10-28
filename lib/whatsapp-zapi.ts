@@ -48,6 +48,21 @@ export const zapiProvider: WhatsAppProvider = {
         return null;
       }
 
+      // Só conversa 1:1 de cliente. Grupo, canal, lista de transmissão e as
+      // mensagens que o próprio número envia (fromMe) também chegam como
+      // ReceivedMessage — cada uma custaria leituras/escritas no Firestore e uma
+      // chamada de IA, sem ninguém pra responder.
+      const phone = String(payload.phone ?? "");
+      if (
+        payload.fromMe ||
+        payload.isGroup ||
+        payload.isNewsletter ||
+        payload.broadcast ||
+        /-group$|@g\.us$|@newsletter$|@broadcast$/.test(phone)
+      ) {
+        return null;
+      }
+
       const msg: InboundMessage = {
         from: stripPrefix(payload.phone ?? ""),
         to: stripPrefix(payload.connectedPhone ?? ""),

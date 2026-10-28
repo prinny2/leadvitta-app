@@ -10,11 +10,13 @@ Guidance for AI assistants (and humans) working in this repository.
 
 ## ⚠️ This app is LIVE and billing in production
 
-> **Production host = Vercel** (as of 2026-06-19). The live site
-> `https://www.leadbellus.com.br` is served by Vercel (project `vini1/leadvitta-app`,
-> `Server: Vercel`). Cloud Run still exists but only handles redirects + legacy
-> webhooks. The "Cloud Run only / No Vercel" wording further down is **superseded** —
-> kept for historical context.
+> **Production host = one fixed-price VPS** (relaunch, 2026-10-28). Vercel and
+> Z-API subscriptions are **cancelled**; the GCP billing account of `leadvitta-app`
+> is **closed** (Cloud Run is gone; Firebase stays on the free **Spark** plan as the
+> data layer). Deploy = `.github/workflows/deploy-vps.yml` → Docker + Caddy on the
+> VPS; runbook in `deploy/vps/README.md`. **Never re-enable usage-billed hosting**
+> (Cloud Run, Vercel Pro, Firebase Blaze, EC2/App Runner) without a hard budget cap.
+> Every Vercel/Cloud Run instruction below is **historical**.
 
 LeadBellus is LIVE and **charges real customers via Stripe**. Treat every change
 as a production change. Do not assume "it's done" without live verification
