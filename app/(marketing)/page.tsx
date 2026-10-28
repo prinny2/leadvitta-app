@@ -24,6 +24,7 @@ import { RevealAfter } from "@/components/reveal-after";
 import { EMPRESA } from "@/lib/empresa";
 import { pageMetadata } from "@/lib/seo";
 import { TrackLink } from "@/components/track-link";
+import { WaitlistForm } from "@/components/waitlist-form";
 import { WhatsAppCta } from "@/components/whatsapp-cta";
 
 const SIGNUP = "/onboarding";
@@ -45,9 +46,9 @@ const DEPOIMENTOS: { nome: string; clinica: string; texto: string }[] = [
 
 export const metadata: Metadata = pageMetadata({
   path: "/",
-  title: "LeadBellus — Respostas de WhatsApp para Clínicas de Estética",
+  title: "LeadBellus — A secretária de WhatsApp da clínica de estética",
   description:
-    "Cole a mensagem da cliente e receba 3 respostas no tom da sua clínica de estética para preço, objeção e follow-up no WhatsApp. Teste grátis, sem cartão.",
+    "A secretária que responde no tom da sua clínica enquanto a cliente está quente e traz de volta quem fez procedimento e sumiu. Ela escreve, a equipe envia.",
 });
 
 function StructuredDataTags() {
@@ -68,7 +69,7 @@ function StructuredDataTags() {
     operatingSystem: "Web",
     url: "https://www.leadbellus.com.br",
     description:
-      "LeadBellus entende a mensagem, o contexto da conversa e o jeito da sua clínica de estética para sugerir respostas no WhatsApp — a equipe revisa e conduz cada cliente ao próximo passo.",
+      "Secretária de WhatsApp para clínicas de estética: escreve a resposta no tom da clínica enquanto a cliente está quente e traz de volta quem fez procedimento e não voltou. A equipe revisa e envia.",
     inLanguage: "pt-BR",
     offers: {
       "@type": "Offer",
@@ -144,7 +145,7 @@ function SectionTitle({ children, onNavy }: { children: React.ReactNode; onNavy?
 function Navbar() {
   const links = [
     { label: "Como funciona", href: "#como-funciona" },
-    { label: "Para quem é", href: "#para-quem" },
+    { label: "Piloto", href: "#piloto" },
     { label: "Demo", href: "#demo" },
     { label: "Preços", href: "#precos" },
   ];
@@ -311,7 +312,7 @@ export default function LandingPage() {
             }}
           >
             <FadeUp className="hero-copy-col" style={{ minWidth: 0 }}>
-              <Eyebrow onNavy>Clínicas de estética · WhatsApp</Eyebrow>
+              <Eyebrow onNavy>Secretária de WhatsApp · Estética</Eyebrow>
               <h1
                 className="hero-title"
                 style={{
@@ -325,12 +326,12 @@ export default function LandingPage() {
                   overflowWrap: "break-word",
                 }}
               >
-                Cada conversa no WhatsApp{" "}
-                <span className="hero-title-highlight" style={{ background: `linear-gradient(100deg, ${GOLD_HOT}, ${GOLD} 55%, #D18A1F)`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", fontStyle: "italic" }}>pode terminar em um agendamento.</span>
+                A secretária que responde no tom da sua clínica{" "}
+                <span className="hero-title-highlight" style={{ background: `linear-gradient(100deg, ${GOLD_HOT}, ${GOLD} 55%, #D18A1F)`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", fontStyle: "italic" }}>enquanto a cliente ainda está quente.</span>
               </h1>
               <p className="hero-subtitle" style={{ fontSize: "18px", lineHeight: 1.6, color: "rgba(255,255,255,0.78)", maxWidth: "500px", margin: "0 0 26px" }}>
-                O LeadBellus entende a mensagem, o contexto da conversa e o jeito da sua clínica de estética — e sugere respostas para{" "}
-                <strong style={{ color: "#FFFFFF" }}>sua equipe revisar, enviar e conduzir cada cliente ao próximo passo</strong>.
+                Preço, medo, indecisão, cliente que sumiu e quem fez procedimento e não voltou: o LeadBellus escreve a próxima mensagem em segundos.{" "}
+                <strong style={{ color: "#FFFFFF" }}>Ela escreve, sua equipe revisa e envia.</strong>
               </p>
 
               <div id="hero-ctas" className="hero-cta-row" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
@@ -353,7 +354,7 @@ export default function LandingPage() {
                     boxShadow: "0 18px 44px rgba(228,168,77,0.35), inset 0 1px 0 rgba(255,255,255,0.35)",
                   }}
                 >
-                  Testar grátis (sem cartão) <ArrowRight size={17} />
+                  Testar a secretária grátis <ArrowRight size={17} />
                 </TrackLink>
                 <a
                   href="#demo"
@@ -377,11 +378,11 @@ export default function LandingPage() {
                 </a>
               </div>
               <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", margin: "0 0 26px" }}>
-                A IA sugere, <strong style={{ color: "rgba(255,255,255,0.85)" }}>sua equipe decide o que enviar</strong> · funciona no celular · cancele quando quiser
+                Sem cartão · <strong style={{ color: "rgba(255,255,255,0.85)" }}>nada sai sem a sua equipe</strong> · funciona no celular · cancele quando quiser
               </p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                {["Preço", "Objeção", "Medo", "Silêncio", "Decisão"].map((t) => (
+                {["Preço", "Medo", "Indecisão", "Sumiu", "Não voltou"].map((t) => (
                   <span
                     key={t}
                     style={{
@@ -423,7 +424,7 @@ export default function LandingPage() {
           >
             {[
               { icon: <Lock size={15} />, t: "Pagamento seguro" },
-              { icon: <ShieldCheck size={15} />, t: "Você revisa antes de enviar" },
+              { icon: <ShieldCheck size={15} />, t: "Nada sai sem a sua equipe" },
               { icon: <Smartphone size={15} />, t: "Funciona no celular" },
               { icon: <Check size={15} />, t: "Sem cartão pra testar" },
             ].map((s) => (
@@ -439,21 +440,21 @@ export default function LandingPage() {
           <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
             <div className="rotina-grid" style={{ display: "grid", gridTemplateColumns: "1fr", gap: "44px", alignItems: "center" }}>
               <FadeUp>
-                <Eyebrow>Um dia comum de atendimento</Eyebrow>
-                <SectionTitle>14h37 na sua clínica</SectionTitle>
+                <Eyebrow>Onde a clínica perde a cliente</Eyebrow>
+                <SectionTitle>Não é o preço. É a espera — antes e depois do procedimento.</SectionTitle>
                 <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: "0 0 16px", maxWidth: "480px" }}>
-                  Alguém da equipe está em procedimento. Outra pessoa atende na recepção. E o WhatsApp continua recebendo mensagens — cada uma em um momento diferente da decisão.
+                  Enquanto a equipe está na cadeira, a cliente espera no WhatsApp — e a clínica que responde primeiro leva. Depois do procedimento, ninguém pergunta por ela, e o retorno que pagaria o mês não acontece.
                 </p>
                 <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0, maxWidth: "480px" }}>
-                  O LeadBellus lê a mensagem, entende o momento da conversa e sugere respostas no tom da sua clínica —{" "}
-                  <strong style={{ color: INK }}>para a equipe responder com segurança, sem parecer apressada nem robótica</strong>.
+                  A secretária do LeadBellus escreve a próxima mensagem de cada uma, no tom da clínica —{" "}
+                  <strong style={{ color: INK }}>a equipe só revisa e envia, sem parecer apressada nem robótica</strong>.
                 </p>
               </FadeUp>
 
               <FadeUp delay={0.1}>
                 <div
                   role="list"
-                  aria-label="Conversas chegando no WhatsApp da clínica"
+                  aria-label="Clientes esperando a clínica no WhatsApp"
                   style={{
                     background: "#ffffff",
                     border: "1px solid rgba(16,35,59,0.08)",
@@ -465,10 +466,10 @@ export default function LandingPage() {
                   }}
                 >
                   {[
-                    { h: "14h37", nome: "Mariana", msg: "Oi! Quanto custa o botox?", momento: "quer entender o valor" },
+                    { h: "14h37", nome: "Mariana", msg: "Oi! Quanto custa o botox?", momento: "esperando resposta há 40 min" },
                     { h: "14h41", nome: "Paula", msg: "Tenho medo de ficar com o rosto artificial…", momento: "precisa de segurança" },
-                    { h: "14h48", nome: "Renata", msg: "Recebeu as informações ontem e ainda não respondeu", momento: "hora do follow-up" },
-                    { h: "14h52", nome: "Camila", msg: "Consigo um horário ainda essa semana?", momento: "pronta para agendar" },
+                    { h: "14h48", nome: "Renata", msg: "Recebeu as informações ontem e não respondeu", momento: "sumiu · hora do follow-up" },
+                    { h: "15h02", nome: "Juliana", msg: "Fez preenchimento há 5 meses e não voltou", momento: "hora do retorno" },
                   ].map((c) => (
                     <div
                       key={c.h}
@@ -502,10 +503,10 @@ export default function LandingPage() {
           <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
             <FadeUp>
             <div style={{ maxWidth: "640px", marginBottom: "34px" }}>
-              <Eyebrow>Situações de atendimento</Eyebrow>
-              <SectionTitle>A mesma resposta não serve para todas as conversas</SectionTitle>
+              <Eyebrow>O que a secretária escreve</Eyebrow>
+              <SectionTitle>A mensagem certa para cada momento da cliente</SectionTitle>
               <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-                Cada cliente chega em um momento diferente da decisão. O LeadBellus reconhece esse momento e sugere a resposta adequada — sempre no tom da sua clínica.
+                Do primeiro “quanto custa?” ao retorno de quem já fez. Ela reconhece o momento e escreve a resposta adequada — sempre no tom da sua clínica.
               </p>
             </div>
             </FadeUp>
@@ -515,7 +516,8 @@ export default function LandingPage() {
                 { t: "Preço", c: "Contextualiza o valor e o cuidado envolvido antes de falar em número — e convida para a avaliação." },
                 { t: "Objeção", c: "Responde a comparações e ao “achei caro” sem partir direto para o desconto." },
                 { t: "Medo", c: "Acolhe a insegurança com naturalidade, sem prometer resultados que não podem ser prometidos." },
-                { t: "Silêncio", c: "Sugere um follow-up contextual e leve, que retoma a conversa sem parecer insistente." },
+                { t: "Sumiu", c: "Retoma a conversa com um follow-up leve, do ponto em que parou, sem parecer insistente." },
+                { t: "Não voltou", c: "Traz de volta quem fez procedimento: fala de manutenção e convida para o retorno com cuidado." },
                 { t: "Decisão", c: "Oferece um próximo passo claro — uma avaliação ou um horário — quando a pessoa está pronta." },
               ].map((card) => (
                 <article
@@ -544,13 +546,13 @@ export default function LandingPage() {
             <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 40px" }}>
               <Eyebrow>Como funciona</Eyebrow>
-              <SectionTitle>Simples de encaixar na rotina</SectionTitle>
+              <SectionTitle>Uma secretária que cabe na rotina de hoje</SectionTitle>
             </div>
             </FadeUp>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
               {[
-                { n: "01", icon: <MessageCircle size={20} />, t: "Cole a mensagem", c: "Copie o que a pessoa mandou no WhatsApp e cole no LeadBellus." },
-                { n: "02", icon: <Sparkles size={20} />, t: "Ele entende o contexto", c: "O LeadBellus interpreta o momento da conversa e sugere 3 respostas no tom da sua clínica." },
+                { n: "01", icon: <MessageCircle size={20} />, t: "Cole a conversa", c: "Copie o que a cliente mandou — ou escolha a situação: sumiu, orçou e não fechou, fez e não voltou." },
+                { n: "02", icon: <Sparkles size={20} />, t: "A secretária escreve", c: "Em segundos, 3 versões da resposta no tom da sua clínica, com o próximo passo claro." },
                 { n: "03", icon: <Copy size={20} />, t: "A equipe revisa e envia", c: "Você lê, ajusta se quiser e cola na conversa — com o próximo passo claro." },
               ].map((s) => (
                 <div key={s.n} className="lp-card" style={{ background: CREAM_2, border: "1px solid rgba(16,35,59,0.07)", borderRadius: "18px", padding: "26px" }}>
@@ -567,9 +569,43 @@ export default function LandingPage() {
             </div>
             <FadeUp>
               <p style={{ textAlign: "center", margin: "28px auto 0", maxWidth: "520px", fontSize: "16px", lineHeight: 1.6, color: INK_SOFT }}>
-                <strong style={{ color: INK }}>A IA sugere. A clínica decide.</strong> O LeadBellus não envia mensagens sozinho — nada sai sem passar pela sua equipe.
+                <strong style={{ color: INK }}>Ela escreve. A clínica decide.</strong> O LeadBellus não envia mensagens sozinho — nada sai sem passar pela sua equipe.
               </p>
             </FadeUp>
+          </div>
+        </section>
+
+        {/* ── PILOTO: SECRETÁRIA CONECTADA ──────────────────────────────────── */}
+        <section id="piloto" style={{ padding: "78px 24px", background: NAVY }}>
+          <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+            <FadeUp>
+              <div style={{ textAlign: "center", maxWidth: "660px", margin: "0 auto 36px" }}>
+                <Eyebrow onNavy>Programa piloto</Eyebrow>
+                <SectionTitle onNavy>Conectada ao WhatsApp, ela mostra quem a clínica está deixando escapar</SectionTitle>
+                <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
+                  Estamos abrindo a versão conectada para poucas clínicas: um painel que acompanha as conversas e avisa a equipe antes de a cliente esfriar.
+                </p>
+              </div>
+            </FadeUp>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
+              {[
+                { icon: <Clock size={20} />, t: "Quem está esperando", c: "Quem mandou mensagem e ainda não teve resposta — e há quanto tempo." },
+                { icon: <MessageCircle size={20} />, t: "Quem sumiu", c: "Quem perguntou o preço ou orçou e parou de responder, com a retomada já escrita." },
+                { icon: <Sparkles size={20} />, t: "Quem fez e não voltou", c: "Quem já passou pela cadeira e está no tempo de retorno ou manutenção." },
+              ].map((s) => (
+                <div key={s.t} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(201,160,96,0.28)", borderRadius: "18px", padding: "24px" }}>
+                  <span style={{ display: "inline-flex", color: GOLD, marginBottom: "12px" }}>{s.icon}</span>
+                  <h3 style={{ fontSize: "17px", fontWeight: 700, color: "#FFFFFF", margin: "0 0 6px" }}>{s.t}</h3>
+                  <p style={{ fontSize: "14px", lineHeight: 1.6, color: "rgba(255,255,255,0.72)", margin: 0 }}>{s.c}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ maxWidth: "460px", margin: "30px auto 0", textAlign: "center" }}>
+              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.78)", margin: "0 0 12px" }}>
+                Quer a sua clínica no piloto? Deixe o e-mail e falamos com você.
+              </p>
+              <WaitlistForm plan="premium" />
+            </div>
           </div>
         </section>
 
@@ -653,7 +689,7 @@ export default function LandingPage() {
             <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
               <Eyebrow>Experimente o raciocínio</Eyebrow>
-              <SectionTitle>Veja como o LeadBellus responderia essa conversa</SectionTitle>
+              <SectionTitle>Veja como a secretária responderia essa conversa</SectionTitle>
               <p style={{ color: INK_SOFT, fontSize: "15px", lineHeight: 1.7, margin: 0 }}>
                 Escolha uma situação real do seu WhatsApp e acompanhe o caminho: mensagem recebida → contexto da conversa → sugestões de resposta → próximo passo.
               </p>
@@ -675,7 +711,7 @@ export default function LandingPage() {
               }}
             >
               <p style={{ fontSize: "15px", color: INK, lineHeight: 1.6, margin: "0 0 18px", fontWeight: 600 }}>
-                Gostou do raciocínio? Crie sua conta grátis e use no atendimento real, com o tom da sua clínica.
+                Gostou? Crie sua conta grátis e coloque a secretária no atendimento real, com o tom da sua clínica.
               </p>
               <TrackLink
                 event="cta_click"
@@ -710,16 +746,16 @@ export default function LandingPage() {
             <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 40px" }}>
               <Eyebrow>Preço simples</Eyebrow>
-              <SectionTitle>Uma assinatura, atendimento consistente</SectionTitle>
+              <SectionTitle>Um retorno recuperado paga meses de secretária</SectionTitle>
               <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-                Sem contrato longo, sem implantação, sem treinamento demorado. O valor está na rotina: menos tempo travado em resposta difícil, mais consistência em cada conversa.
+                Sem contrato longo, sem implantação, sem treinamento. Em clínica de ticket alto, uma cliente que volta para a manutenção já cobre a assinatura.
               </p>
             </div>
             </FadeUp>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "18px" }}>
               {[
                 { n: "R$97", t: "por mês", c: "O plano Start, depois de 5 respostas grátis. Cancele quando quiser, direto no painel." },
-                { n: "Segundos", t: "por sugestão", c: "Da mensagem colada às 3 sugestões de resposta — mesmo nos horários mais cheios." },
+                { n: "Segundos", t: "por resposta", c: "Da mensagem colada à resposta pronta — enquanto a cliente ainda está no WhatsApp." },
                 { n: "Um tom", t: "para a equipe toda", c: "Quem responder, responde no jeito da clínica. A conversa mantém o mesmo padrão." },
               ].map((s) => (
                 <div key={s.n} className="lp-card" style={{ background: "#ffffff", border: "1px solid rgba(11,27,51,0.07)", borderRadius: "20px", padding: "30px", textAlign: "center" }}>
@@ -739,9 +775,9 @@ export default function LandingPage() {
             <FadeUp>
             <div style={{ textAlign: "center", marginBottom: "40px" }}>
               <Eyebrow onNavy>Escolha o seu plano</Eyebrow>
-              <SectionTitle onNavy>Comece pelo plano que resolve hoje</SectionTitle>
+              <SectionTitle onNavy>Comece pela secretária que escreve</SectionTitle>
               <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
-                Gere 5 respostas grátis primeiro e assine quando fizer sentido para a rotina da sua clínica.
+                5 respostas grátis primeiro. Assine o Start quando fizer sentido — a versão conectada ao WhatsApp entra pelo piloto.
               </p>
             </div>
             </FadeUp>
@@ -755,9 +791,9 @@ export default function LandingPage() {
             <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 36px" }}>
               <Eyebrow>Confiança</Eyebrow>
-              <SectionTitle>Sua equipe no controle, sempre</SectionTitle>
+              <SectionTitle>Secretária, não robô: sua equipe no controle</SectionTitle>
               <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-                O LeadBellus não envia mensagens sozinho e não se conecta ao seu WhatsApp. Ele sugere — quem revisa e envia é a sua equipe.
+                Hoje o LeadBellus não envia mensagens sozinho nem se conecta ao seu WhatsApp. Ela escreve — quem revisa e envia é a sua equipe.
               </p>
             </div>
             </FadeUp>
@@ -803,7 +839,9 @@ export default function LandingPage() {
             <div style={{ display: "grid", gap: "10px" }}>
               {[
                 { q: "Tem risco de banir meu WhatsApp?", a: "Não. O LeadBellus não envia nada sozinho nem se conecta ao seu WhatsApp. Ele só sugere a resposta — você lê, ajusta e cola na conversa. Seu número fica seguro." },
-                { q: "É um robô que responde sozinho?", a: "Não. Quem responde é a sua equipe. A IA sugere o texto e o próximo passo; a clínica decide o que enviar. O controle é todo seu." },
+                { q: "A secretária responde sozinha?", a: "Não. Ela escreve a resposta e o próximo passo; quem envia é a sua equipe. O controle é todo da clínica." },
+                { q: "Ajuda depois do procedimento?", a: "Sim. Ela escreve a mensagem para quem fez procedimento e não voltou ou para cliente antiga — manutenção e convite de retorno, no tom da clínica. Não faz diagnóstico nem orientação clínica à distância." },
+                { q: "Vai se conectar ao meu WhatsApp?", a: "Hoje você copia e cola, sem risco para o seu número. A versão conectada, com o painel de quem está esperando e quem não voltou, está em piloto com poucas clínicas — entre na lista na seção do piloto." },
                 { q: "Serve pra público masculino também?", a: "Sim. Botox masculino, barba, sobrancelha, queda capilar, skincare… as sugestões se adaptam ao procedimento e ao cliente." },
                 { q: "Funciona no celular?", a: "Sim. No celular, tablet ou computador, direto no navegador. Dá pra gerar a sugestão e colar no WhatsApp na mesma tela." },
                 { q: "Preciso de cartão pra testar?", a: "Não. Você testa de graça e só assina o Start (R$97/mês) se fizer sentido pra sua rotina." },
@@ -835,10 +873,10 @@ export default function LandingPage() {
                 lineHeight: 1.12,
               }}
             >
-              Sua equipe já sabe cuidar da cliente. O LeadBellus ajuda a cuidar da conversa.
+              Sua equipe cuida da cliente na cadeira. A secretária cuida da conversa — antes e depois.
             </h2>
             <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
-              Veja como o LeadBellus se encaixa no atendimento da sua clínica. Comece hoje, de graça.
+              Coloque a secretária no atendimento da sua clínica hoje. As 5 primeiras respostas são por nossa conta.
             </p>
             <TrackLink
               event="cta_click"
