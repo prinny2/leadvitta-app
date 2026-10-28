@@ -108,7 +108,10 @@ chaves no `app.env` + Variable no GitHub + CNAMEs do Clerk no Registro.br.
 
 - **Firebase:** manter no **Spark**. Não religar faturamento no projeto `leadvitta-app`.
 - **OpenAI / Anthropic:** definir limite mensal de gasto no painel de cada um.
-- **Gemini:** não configurar (`GEMINI_API_KEY` vazia) — cobrava na conta GCP.
+- **Gemini:** só chave do AI Studio criada num projeto Google **sem faturamento** (tier
+  grátis, não cobra). `GEMINI_MODEL` aceita lista com vírgula; o app tenta o próximo
+  modelo quando um responde 503/429. No tier grátis o Google pode usar as mensagens
+  para treino — trocar por chave paga quando houver receita (LGPD).
 - **WhatsApp:** desligado. Se reativar o Z-API, o parser já ignora grupos,
   canais, listas e mensagens do próprio número.
 

@@ -93,9 +93,22 @@ export const anthropicModel =
   process.env.ANTHROPIC_MODEL ||
   (aiModel.startsWith("claude") ? aiModel : "claude-haiku-4-5");
 
-export const geminiModel =
+/**
+ * Modelos Gemini em ordem de preferência. GEMINI_MODEL aceita lista separada
+ * por vírgula: no tier gratuito um modelo pode responder 503 ("high demand") ou
+ * 429 enquanto outro está livre, então o provider tenta um de cada vez.
+ */
+export const geminiModels = (
   process.env.GEMINI_MODEL ||
-  (aiModel.startsWith("gemini") ? aiModel : "gemini-2.5-flash");
+  (aiModel.startsWith("gemini")
+    ? aiModel
+    : "gemini-3.5-flash,gemini-flash-latest,gemini-flash-lite-latest")
+)
+  .split(",")
+  .map((m) => m.trim())
+  .filter(Boolean);
+
+export const geminiModel = geminiModels[0];
 
 /** URL pública do site. */
 export const siteUrl =
