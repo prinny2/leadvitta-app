@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
@@ -20,6 +21,8 @@ import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MarketingMobileMenu } from "@/components/marketing-mobile-menu";
 import { RevealAfter } from "@/components/reveal-after";
+import { EMPRESA } from "@/lib/empresa";
+import { pageMetadata } from "@/lib/seo";
 import { TrackLink } from "@/components/track-link";
 import { WhatsAppCta } from "@/components/whatsapp-cta";
 
@@ -40,10 +43,26 @@ const DEPOIMENTOS: { nome: string; clinica: string; texto: string }[] = [
   // { nome: "Dra. Fulana", clinica: "Clínica X — Curitiba", texto: "..." },
 ];
 
+export const metadata: Metadata = pageMetadata({
+  path: "/",
+  title: "LeadBellus — Respostas de WhatsApp para Clínicas de Estética",
+  description:
+    "Cole a mensagem da cliente e receba 3 respostas no tom da sua clínica de estética para preço, objeção e follow-up no WhatsApp. Teste grátis, sem cartão.",
+});
+
 function StructuredDataTags() {
-  const data = {
-    "@context": "https://schema.org",
+  const organization = {
+    "@type": "Organization",
+    "@id": "https://www.leadbellus.com.br/#organization",
+    name: EMPRESA.marca,
+    url: "https://www.leadbellus.com.br",
+    logo: "https://www.leadbellus.com.br/LEADBELLUS.png",
+    email: EMPRESA.email,
+    taxID: EMPRESA.cnpj,
+  };
+  const app = {
     "@type": "SoftwareApplication",
+    publisher: { "@id": organization["@id"] },
     name: "LeadBellus",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
@@ -63,6 +82,7 @@ function StructuredDataTags() {
       audienceType: "Clínicas de estética e profissionais de beleza",
     },
   };
+  const data = { "@context": "https://schema.org", "@graph": [organization, app] };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
 }
 

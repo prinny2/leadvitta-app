@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { Sidebar, MobileNav } from "@/components/nav";
+import { NOINDEX } from "@/lib/seo";
 import { DemoBanner } from "@/components/demo-banner";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ThemeProvider } from "@/components/theme-provider";
+
+// Painel logado: nada aqui deve aparecer no Google.
+export const metadata: Metadata = NOINDEX;
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (

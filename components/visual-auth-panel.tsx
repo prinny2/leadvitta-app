@@ -225,9 +225,9 @@ export function VisualAuthPanel({
 
       <div className="space-y-4">
         <div>
-          <h2 className="font-serif text-xl font-semibold text-ink">
+          <h1 className="font-serif text-xl font-semibold text-ink">
             {isSignup ? "Só falta sua conta" : "Bem-vinda de volta"}
-          </h2>
+          </h1>
           <p className="mt-1 text-sm text-muted">
             {isSignup
               ? "E-mail e senha só para pagar e entrar. Nada disso bloqueia o teste."
