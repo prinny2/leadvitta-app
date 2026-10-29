@@ -18,6 +18,9 @@ export type SocialPost = {
 };
 
 const LP = "https://www.leadbellus.com.br";
+const HASHTAGS =
+  "#clinicaestetica #estetica #whatsappdaclinica #atendimento #harmonizacaofacial #botox #leadbellus #secretariadaclinica";
+const ARTE = "https://www.leadbellus.com.br/social";
 const utm = (campanha: string, source: string) =>
   `${LP}/?utm_source=${source}&utm_medium=organic&utm_campaign=${campanha}`;
 
@@ -86,4 +89,158 @@ export const SOCIAL_POSTS: SocialPost[] = [
       "Entre um procedimento e outro, o WhatsApp acumula. 📱\n\nCada mensagem sem resposta é uma cliente esfriando. Com o LeadBellus, você cola a mensagem, recebe 3 respostas prontas e resolve a fila no intervalo do café.\n\nR$97/mês, teste grátis sem cartão 👇",
     link: utm("calendario_julho", "facebook"),
   },
+  ...secretariaPosts(),
 ];
+
+function secretaria(post: {
+  id: string;
+  data: string;
+  arte: string;
+  texto: string;
+}): SocialPost {
+  return {
+    id: post.id,
+    data: post.data,
+    canais: ["facebook", "instagram"],
+    texto: post.texto.includes(LP)
+      ? `${post.texto.trim()}\n\n${HASHTAGS}`
+      : `${post.texto.trim()}\n${LP}\n\n${HASHTAGS}`,
+    imagemUrl: `${ARTE}/${post.arte}`,
+    link: utm("secretaria", "facebook"),
+  };
+}
+
+/** Pack manual de 2026-10-29 a 2026-11-20. Ela escreve; a equipe envia. */
+function secretariaPosts(): SocialPost[] {
+  return [
+    secretaria({
+      id: "2026-10-29-quente",
+      data: "2026-10-29",
+      arte: "01-quente.png",
+      texto: `A secretária que responde no tom da sua clínica enquanto a cliente ainda está quente.
+
+Preço, medo, indecisão, cliente que sumiu e quem fez o procedimento e não voltou: o LeadBellus escreve a próxima mensagem em segundos.
+
+Ela escreve. Sua equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-10-31-espera",
+      data: "2026-10-31",
+      arte: "02-espera.png",
+      texto: `Não é o preço. É a espera — antes e depois do procedimento.
+
+Enquanto a equipe está na cadeira, a cliente espera no WhatsApp. A clínica que responde primeiro leva.
+
+Depois do procedimento, ninguém pergunta por ela. E o retorno que pagaria o mês não acontece.
+
+A secretária escreve a próxima mensagem. A equipe só revisa e envia.`,
+    }),
+    secretaria({
+      id: "2026-11-02-fila",
+      data: "2026-11-02",
+      arte: "03-fila.png",
+      texto: `Enquanto a equipe está na cadeira, o WhatsApp não para.
+
+Mariana pergunta o preço do botox há 40 minutos.
+Paula tem medo de ficar com o rosto artificial.
+Renata recebeu as informações ontem e sumiu.
+Juliana fez preenchimento há 5 meses e não voltou.
+
+A secretária do LeadBellus escreve a próxima mensagem de cada uma, no tom da clínica. A equipe revisa e envia.`,
+    }),
+    secretaria({
+      id: "2026-11-04-equipe",
+      data: "2026-11-04",
+      arte: "04-equipe.png",
+      texto: `A secretária não responde sozinha.
+
+Ela escreve a resposta e o próximo passo. Quem revisa e envia é a sua equipe. O LeadBellus não se conecta ao WhatsApp e não manda nada no seu número.
+
+Preço, promessa e diagnóstico não saem sozinhos.`,
+    }),
+    secretaria({
+      id: "2026-11-06-preco",
+      data: "2026-11-06",
+      arte: "05-preco.png",
+      texto: `“Quanto custa o botox?”
+
+Responder só o número é o jeito mais rápido de perder a cliente. A secretária contextualiza o valor e o cuidado antes de falar em preço — e convida para a avaliação.
+
+Três versões, no tom da sua clínica. Você escolhe, ajusta e envia.`,
+    }),
+    secretaria({
+      id: "2026-11-08-medo",
+      data: "2026-11-08",
+      arte: "06-medo.png",
+      texto: `“Tenho medo de ficar com o rosto artificial.”
+
+Isso não se resolve com desconto. A secretária acolhe a insegurança com naturalidade, sem prometer resultado, cura ou preço fixo.
+
+A equipe lê e envia no tom da clínica.`,
+    }),
+    secretaria({
+      id: "2026-11-10-sumiu",
+      data: "2026-11-10",
+      arte: "07-sumiu.png",
+      texto: `“Vou ver e te falo.”
+
+Não é um não. É silêncio. A secretária retoma do ponto em que parou, com um próximo passo claro, sem parecer insistente.
+
+Sua equipe revisa e envia.`,
+    }),
+    secretaria({
+      id: "2026-11-12-retorno",
+      data: "2026-11-12",
+      arte: "08-retorno.png",
+      texto: `Juliana fez preenchimento há 5 meses e não voltou.
+
+A secretária escreve a mensagem de manutenção e o convite de retorno, no tom da clínica. Não faz diagnóstico nem orientação clínica à distância.
+
+Um retorno recuperado paga meses de secretária.`,
+    }),
+    secretaria({
+      id: "2026-11-14-rotina",
+      data: "2026-11-14",
+      arte: "09-rotina.png",
+      texto: `Uma secretária que cabe na rotina de hoje.
+
+1. Cole a conversa — ou escolha a situação: sumiu, orçou e não fechou, fez e não voltou.
+2. A secretária escreve 3 versões, no tom da clínica, com o próximo passo claro.
+3. A equipe revisa e envia.
+
+No celular, no intervalo do procedimento.`,
+    }),
+    secretaria({
+      id: "2026-11-16-mes",
+      data: "2026-11-16",
+      arte: "10-mes.png",
+      texto: `Um retorno recuperado paga meses de secretária.
+
+Start por R$97/mês, depois de 5 respostas grátis. Sem cartão para testar. Cancele quando quiser, direto no painel, sem multa.
+
+Em clínica de ticket alto, uma cliente que volta para a manutenção já cobre a assinatura.`,
+    }),
+    secretaria({
+      id: "2026-11-18-piloto",
+      data: "2026-11-18",
+      arte: "11-piloto.png",
+      texto: `Hoje a secretária escreve e a equipe envia.
+
+Estamos abrindo a versão conectada ao WhatsApp para poucas clínicas: um painel de quem está esperando, quem sumiu e quem fez e não voltou — com o aviso antes de a cliente esfriar.
+
+Quer a sua clínica no piloto? Deixe o e-mail em
+https://www.leadbellus.com.br/#piloto`,
+    }),
+    secretaria({
+      id: "2026-11-20-cadeira",
+      data: "2026-11-20",
+      arte: "12-cadeira.png",
+      texto: `Sua equipe cuida da cliente na cadeira.
+A secretária cuida da conversa — antes e depois.
+
+Coloque o LeadBellus no atendimento da clínica hoje. As 5 primeiras respostas são por nossa conta. Sem cartão.`,
+    }),
+  ];
+}
