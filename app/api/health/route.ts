@@ -9,6 +9,8 @@ import {
   isGeminiConfigured,
   isNlpServiceConfigured,
   isOpenAIConfigured,
+  isOpsEmailConfigured,
+  isOpsWhatsAppConfigured,
   isStripeConfigured,
 } from "@/lib/config";
 import { isWhatsappConfigured } from "@/lib/whatsapp";
@@ -32,6 +34,8 @@ export async function GET() {
       firebase_admin: isFirebaseAdminConfigured(),
       ga4_server: isGa4ServerConfigured,
       nlp: isNlpServiceConfigured,
+      ops_email: isOpsEmailConfigured,
+      ops_whatsapp: isOpsWhatsAppConfigured,
       stripe: isStripeConfigured,
       whatsapp: isWhatsappConfigured(),
       whatsapp_provider: "zapi",

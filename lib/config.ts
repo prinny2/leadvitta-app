@@ -1,3 +1,5 @@
+import { EMPRESA } from "@/lib/empresa";
+
 // Detecta o que está configurado para alternar entre "modo real" e
 // "modo demonstração" (sem nenhuma chave o app ainda roda).
 
@@ -127,10 +129,26 @@ export const opsNotifyPhone = (
 ).replace(/\D/g, "");
 
 /** True quando Z-API + número de alerta estão configurados. */
-export const isOpsNotifyConfigured =
+export const isOpsWhatsAppConfigured =
   !!process.env.ZAPI_INSTANCE_ID?.trim() &&
   !!process.env.ZAPI_TOKEN?.trim() &&
   !!opsNotifyPhone;
+
+/** Chave da API do Resend (e-mail transacional; plano gratuito). */
+export const resendApiKey = process.env.RESEND_API_KEY?.trim() || "";
+
+/** Caixa que recebe alertas operacionais por e-mail. Padrão: e-mail público da empresa. */
+export const opsNotifyEmail = (process.env.OPS_EMAIL_TO || EMPRESA.email).trim();
+
+/** Remetente dos alertas; o domínio precisa estar verificado no Resend. */
+export const opsEmailFrom =
+  process.env.OPS_EMAIL_FROM?.trim() || "LeadBellus <alertas@leadbellus.com.br>";
+
+/** True quando o canal de e-mail (Resend) dos alertas está configurado. */
+export const isOpsEmailConfigured = !!resendApiKey && !!opsNotifyEmail;
+
+/** True quando ao menos um canal de alerta operacional (WhatsApp ou e-mail) está ativo. */
+export const isOpsNotifyConfigured = isOpsWhatsAppConfigured || isOpsEmailConfigured;
 
 /** True quando o WhatsApp (Z-API) está configurado. */
 export const isZApiConfigured =
