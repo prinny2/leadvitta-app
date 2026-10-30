@@ -7,6 +7,7 @@ import type {
 
 const ACCESS_TOKEN = () => process.env.WHATSAPP_CLOUD_ACCESS_TOKEN?.trim();
 const PHONE_NUMBER_ID = () => process.env.WHATSAPP_CLOUD_PHONE_NUMBER_ID?.trim();
+const DISPLAY_PHONE_NUMBER = () => digits(process.env.WHATSAPP_CLOUD_DISPLAY_PHONE_NUMBER);
 const APP_SECRET = () => process.env.WHATSAPP_CLOUD_APP_SECRET?.trim();
 const VERIFY_TOKEN = () => process.env.WHATSAPP_CLOUD_VERIFY_TOKEN?.trim();
 const API_VERSION = () => process.env.WHATSAPP_CLOUD_API_VERSION?.trim();
@@ -37,6 +38,7 @@ export const metaCloudProvider: WhatsAppProvider = {
     return !!(
       ACCESS_TOKEN() &&
       PHONE_NUMBER_ID() &&
+      DISPLAY_PHONE_NUMBER() &&
       APP_SECRET() &&
       VERIFY_TOKEN() &&
       API_VERSION() &&

@@ -28,10 +28,12 @@ out-of-window follow-ups are not implemented yet.
    `https://www.leadbellus.com.br/api/whatsapp/webhook` and the exact verify
    token stored in `WHATSAPP_CLOUD_VERIFY_TOKEN`. Subscribe to the `messages`
    field and subscribe the app to the WABA.
-4. Copy the phone number ID (not the visible phone number), app secret, and
-   Graph API version supported by the app into the VPS runtime environment.
+4. Copy the phone number ID, the visible business number in international
+   format, app secret, and Graph API version supported by the app into the VPS
+   runtime environment.
 5. Associate the same visible business number with the clinic account in
-   LeadBellus settings. Send and answer a test message; the inbound message
+   LeadBellus settings. Only that clinic can send through this deployment's
+   Meta number. Send and answer a test message; the inbound message
    should appear in `/conversas`, and sending should happen only after a person
    presses Send in the thread.
 
@@ -43,6 +45,7 @@ Set these values in the VPS `app.env` and select the provider:
 WHATSAPP_PROVIDER=meta-cloud
 WHATSAPP_CLOUD_ACCESS_TOKEN=
 WHATSAPP_CLOUD_PHONE_NUMBER_ID=
+WHATSAPP_CLOUD_DISPLAY_PHONE_NUMBER=
 WHATSAPP_CLOUD_APP_SECRET=
 WHATSAPP_CLOUD_VERIFY_TOKEN=
 WHATSAPP_CLOUD_API_VERSION=

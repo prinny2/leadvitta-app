@@ -159,6 +159,7 @@ export const isZApiConfigured =
 export const isMetaCloudWhatsAppConfigured =
   !!process.env.WHATSAPP_CLOUD_ACCESS_TOKEN?.trim() &&
   !!process.env.WHATSAPP_CLOUD_PHONE_NUMBER_ID?.trim() &&
+  !!process.env.WHATSAPP_CLOUD_DISPLAY_PHONE_NUMBER?.replace(/\D/g, "") &&
   !!process.env.WHATSAPP_CLOUD_APP_SECRET?.trim() &&
   !!process.env.WHATSAPP_CLOUD_VERIFY_TOKEN?.trim() &&
   /^v\d+\.\d+$/.test(process.env.WHATSAPP_CLOUD_API_VERSION?.trim() || "");

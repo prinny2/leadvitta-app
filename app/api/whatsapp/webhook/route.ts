@@ -77,14 +77,17 @@ export async function POST(req: Request) {
   const inbound = provider.parseInbound(raw, req);
   const messages = !inbound ? [] : Array.isArray(inbound) ? inbound : [inbound];
   if (messages.length) {
-    after(() => Promise.all(messages.map((msg) =>
-      processarMensagem(msg).catch(async (e) => {
-        console.error("[whatsapp] erro no processamento:", e);
-        // Crash após a reserva: devolve, senão o retry vira "duplicata" e a
-        // mensagem se perde (o provedor já recebeu 200).
-        await liberarProcessamento(msg.providerMessageId);
-      })
-    )));
+    after(async () => {
+      // Preserve provider order; concurrent writes can reverse the thread and preview.
+      for (const msg of messages) {
+        await processarMensagem(msg).catch(async (e) => {
+          console.error("[whatsapp] erro no processamento:", e);
+          // Crash após a reserva: devolve, senão o retry vira "duplicata" e a
+          // mensagem se perde (o provedor já recebeu 200).
+          await liberarProcessamento(msg.providerMessageId);
+        });
+      }
+    });
   }
 
   // Provedores esperam 200 rápido.
