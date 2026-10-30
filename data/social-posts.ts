@@ -284,7 +284,7 @@ Sem preço fechado por mensagem, sem promessa de resultado. Três versões: voc�
       id: "2026-11-26-espera",
       data: "2026-11-26",
       arte: "02-espera.png",
-      texto: `Na semana mais cheia do ano, quem responde primeiro leva.
+      texto: `Na semana da Black Friday, cada minuto sem resposta pode esfriar uma conversa.
 
 A cliente que pergunta na Black Friday está conversando com várias clínicas ao mesmo tempo. Enquanto a equipe está na cadeira, a mensagem dela espera.
 
@@ -296,9 +296,9 @@ A secretária deixa a resposta pronta em segundos. A equipe só revisa e envia n
       id: "2026-11-28-orcou-nao-fechou",
       data: "2026-11-28",
       arte: "07-sumiu.png",
-      texto: `A Black Friday passou. E quem pediu orçamento e não fechou?
+      texto: `A Black Friday passou. E quem pediu orçamento e ainda não fechou?
 
-“Vou ver e te falo” não é um não. A secretária retoma a conversa do ponto em que parou, sem pressionar e com um próximo passo claro: uma avaliação, um horário, uma dúvida respondida.
+“Vou ver e te falo” nem sempre é um não. A secretária retoma a conversa do ponto em que parou, sem pressionar e com um próximo passo claro: uma avaliação, um horário, uma dúvida respondida.
 
 Sua equipe revisa e envia.
 
@@ -334,7 +334,7 @@ A equipe lê, ajusta se quiser e envia.
       arte: "01-quente.png",
       texto: `“Vou pensar. Depois das festas eu vejo.”
 
-Indecisão não é desinteresse. A cliente ainda está quente — só precisa de uma resposta que tire a dúvida e deixe a porta aberta, sem empurrar.
+Às vezes, falta uma informação para a cliente decidir. Uma resposta que tire a dúvida e deixe a porta aberta pode ajudar, sem empurrar.
 
 A secretária escreve essa mensagem em segundos, no tom da sua clínica. A equipe revisa e envia.
 
@@ -348,7 +348,7 @@ A secretária escreve essa mensagem em segundos, no tom da sua clínica. A equip
 
 Dezembro é um bom momento para lembrar da manutenção. A secretária escreve o convite de retorno no tom da clínica — sem diagnóstico e sem orientação clínica à distância.
 
-A equipe revisa e envia. Um retorno recuperado paga meses de secretária.
+A equipe revisa e envia. Um retorno pode ajudar a pagar meses de secretária.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -358,7 +358,7 @@ A equipe revisa e envia. Um retorno recuperado paga meses de secretária.
       arte: "04-equipe.png",
       texto: `Fim de ano, equipe reduzida, WhatsApp cheio.
 
-A secretária não responde sozinha: ela escreve a resposta e o próximo passo, e quem revisa e envia é a sua equipe. O LeadBellus não se conecta ao WhatsApp e não manda nada no seu número.
+A secretária não responde sozinha: ela escreve a resposta e o próximo passo. Sua equipe revisa e envia; o LeadBellus não manda mensagens automaticamente.
 
 Menos tempo digitando, o mesmo cuidado em cada conversa.
 
@@ -372,7 +372,7 @@ Menos tempo digitando, o mesmo cuidado em cada conversa.
 
 Start por R$97/mês. Cancele quando quiser, direto no painel, sem multa.
 
-Em clínica de ticket alto, uma cliente que volta para a manutenção em dezembro já cobre a assinatura.
+Em uma clínica de ticket alto, uma cliente que volta para a manutenção em dezembro pode cobrir a assinatura.
 
 5 respostas grátis, sem cartão.`,
     }),
