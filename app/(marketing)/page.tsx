@@ -46,9 +46,9 @@ const DEPOIMENTOS: { nome: string; clinica: string; texto: string }[] = [
 
 export const metadata: Metadata = pageMetadata({
   path: "/",
-  title: "LeadBellus — A secretária de WhatsApp da clínica de estética",
+  title: "Respostas de WhatsApp para clínicas de estética | LeadBellus",
   description:
-    "A secretária que responde no tom da sua clínica enquanto a cliente está quente e traz de volta quem fez procedimento e sumiu. Ela escreve, a equipe envia.",
+    "Transforme mensagens de clientes em três respostas no tom da sua clínica. A equipe revisa e envia pelo WhatsApp, com 5 respostas grátis e sem cartão.",
 });
 
 function StructuredDataTags() {
@@ -69,7 +69,7 @@ function StructuredDataTags() {
     operatingSystem: "Web",
     url: "https://www.leadbellus.com.br",
     description:
-      "Secretária de WhatsApp para clínicas de estética: escreve a resposta no tom da clínica enquanto a cliente está quente e traz de volta quem fez procedimento e não voltou. A equipe revisa e envia.",
+      "Assistente de escrita para clínicas de estética: cria três respostas no tom da clínica para a equipe revisar e enviar pelo WhatsApp.",
     inLanguage: "pt-BR",
     offers: {
       "@type": "Offer",
@@ -312,7 +312,7 @@ export default function LandingPage() {
             }}
           >
             <FadeUp className="hero-copy-col" style={{ minWidth: 0 }}>
-              <Eyebrow onNavy>Secretária de WhatsApp · Estética</Eyebrow>
+              <Eyebrow onNavy>Respostas para WhatsApp · Clínicas de estética</Eyebrow>
               <h1
                 className="hero-title"
                 style={{
@@ -326,12 +326,12 @@ export default function LandingPage() {
                   overflowWrap: "break-word",
                 }}
               >
-                A secretária que responde no tom da sua clínica{" "}
-                <span className="hero-title-highlight" style={{ background: `linear-gradient(100deg, ${GOLD_HOT}, ${GOLD} 55%, #D18A1F)`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", fontStyle: "italic" }}>enquanto a cliente ainda está quente.</span>
+                Sua equipe no comando. Respostas{" "}
+                <span className="hero-title-highlight" style={{ background: `linear-gradient(100deg, ${GOLD_HOT}, ${GOLD} 55%, #D18A1F)`, WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", fontStyle: "italic" }}> no tom da sua clínica, em segundos.</span>
               </h1>
               <p className="hero-subtitle" style={{ fontSize: "18px", lineHeight: 1.6, color: "rgba(255,255,255,0.78)", maxWidth: "500px", margin: "0 0 26px" }}>
-                Preço, medo, indecisão, cliente que sumiu e quem fez procedimento e não voltou: o LeadBellus escreve a próxima mensagem em segundos.{" "}
-                <strong style={{ color: "#FFFFFF" }}>Ela escreve, sua equipe revisa e envia.</strong>
+                Cole uma mensagem ou escolha uma situação — preço, dúvida, indecisão ou retorno. O LeadBellus cria três sugestões para a conversa.{" "}
+                <strong style={{ color: "#FFFFFF" }}>Sua equipe revisa, ajusta e envia pelo WhatsApp.</strong>
               </p>
 
               <div id="hero-ctas" className="hero-cta-row" style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "14px" }}>
@@ -354,7 +354,7 @@ export default function LandingPage() {
                     boxShadow: "0 18px 44px rgba(228,168,77,0.35), inset 0 1px 0 rgba(255,255,255,0.35)",
                   }}
                 >
-                  Testar a secretária grátis <ArrowRight size={17} />
+                  Testar grátis <ArrowRight size={17} />
                 </TrackLink>
                 <a
                   href="#demo"
@@ -378,7 +378,7 @@ export default function LandingPage() {
                 </a>
               </div>
               <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", margin: "0 0 26px" }}>
-                Sem cartão · <strong style={{ color: "rgba(255,255,255,0.85)" }}>nada sai sem a sua equipe</strong> · funciona no celular · cancele quando quiser
+                Sem cartão · <strong style={{ color: "rgba(255,255,255,0.85)" }}>sua equipe decide o que enviar</strong> · funciona no celular · cancele quando quiser
               </p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
@@ -711,7 +711,7 @@ export default function LandingPage() {
               }}
             >
               <p style={{ fontSize: "15px", color: INK, lineHeight: 1.6, margin: "0 0 18px", fontWeight: 600 }}>
-                Gostou? Crie sua conta grátis e coloque a secretária no atendimento real, com o tom da sua clínica.
+                Gostou? Crie sua conta grátis e prepare respostas no tom da sua clínica para usar no atendimento.
               </p>
               <TrackLink
                 event="cta_click"
@@ -746,9 +746,9 @@ export default function LandingPage() {
             <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 40px" }}>
               <Eyebrow>Preço simples</Eyebrow>
-              <SectionTitle>Um retorno recuperado paga meses de secretária</SectionTitle>
+              <SectionTitle>Mais consistência nas conversas da clínica</SectionTitle>
               <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-                Sem contrato longo, sem implantação, sem treinamento. Em clínica de ticket alto, uma cliente que volta para a manutenção já cobre a assinatura.
+                Comece sem cartão, personalize o tom da clínica e use as sugestões quando fizer sentido para a conversa.
               </p>
             </div>
             </FadeUp>
@@ -791,9 +791,9 @@ export default function LandingPage() {
             <FadeUp>
             <div style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 36px" }}>
               <Eyebrow>Confiança</Eyebrow>
-              <SectionTitle>Secretária, não robô: sua equipe no controle</SectionTitle>
+              <SectionTitle>Sua equipe no controle de cada mensagem</SectionTitle>
               <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-                Hoje o LeadBellus não envia mensagens sozinho nem se conecta ao seu WhatsApp. Ela escreve — quem revisa e envia é a sua equipe.
+                O LeadBellus não se conecta à sua conta nem envia mensagens pelo WhatsApp. Ele prepara as sugestões; sua equipe escolhe, revisa e envia cada mensagem.
               </p>
             </div>
             </FadeUp>
@@ -838,10 +838,10 @@ export default function LandingPage() {
             </FadeUp>
             <div style={{ display: "grid", gap: "10px" }}>
               {[
-                { q: "Tem risco de banir meu WhatsApp?", a: "Não. O LeadBellus não envia nada sozinho nem se conecta ao seu WhatsApp. Ele só sugere a resposta — você lê, ajusta e cola na conversa. Seu número fica seguro." },
+                { q: "O LeadBellus envia mensagens pelo meu WhatsApp?", a: "Não. O LeadBellus não se conecta à sua conta nem envia mensagens. Você decide o que usar e envia pelo seu próprio WhatsApp, seguindo as regras da plataforma." },
                 { q: "A secretária responde sozinha?", a: "Não. Ela escreve a resposta e o próximo passo; quem envia é a sua equipe. O controle é todo da clínica." },
                 { q: "Ajuda depois do procedimento?", a: "Sim. Ela escreve a mensagem para quem fez procedimento e não voltou ou para cliente antiga — manutenção e convite de retorno, no tom da clínica. Não faz diagnóstico nem orientação clínica à distância." },
-                { q: "Vai se conectar ao meu WhatsApp?", a: "Hoje você copia e cola, sem risco para o seu número. A versão conectada, com o painel de quem está esperando e quem não voltou, está em piloto com poucas clínicas — entre na lista na seção do piloto." },
+                { q: "Vai se conectar ao meu WhatsApp?", a: "Hoje você copia e cola as sugestões no WhatsApp. A versão conectada, com o painel de quem está esperando e quem não voltou, está em piloto com poucas clínicas — entre na lista na seção do piloto." },
                 { q: "Serve pra público masculino também?", a: "Sim. Botox masculino, barba, sobrancelha, queda capilar, skincare… as sugestões se adaptam ao procedimento e ao cliente." },
                 { q: "Funciona no celular?", a: "Sim. No celular, tablet ou computador, direto no navegador. Dá pra gerar a sugestão e colar no WhatsApp na mesma tela." },
                 { q: "Preciso de cartão pra testar?", a: "Não. Você testa de graça e só assina o Start (R$97/mês) se fizer sentido pra sua rotina." },
@@ -873,10 +873,10 @@ export default function LandingPage() {
                 lineHeight: 1.12,
               }}
             >
-              Sua equipe cuida da cliente na cadeira. A secretária cuida da conversa — antes e depois.
+              Dê à sua equipe respostas melhores para cada conversa — antes e depois do procedimento.
             </h2>
             <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "16px", lineHeight: 1.7, margin: "0 auto 28px", maxWidth: "520px" }}>
-              Coloque a secretária no atendimento da sua clínica hoje. As 5 primeiras respostas são por nossa conta.
+              Comece com 5 respostas grátis e veja como o LeadBellus ajuda sua equipe a responder no tom da clínica.
             </p>
             <TrackLink
               event="cta_click"
