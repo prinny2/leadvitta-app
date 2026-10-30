@@ -90,6 +90,7 @@ export const SOCIAL_POSTS: SocialPost[] = [
     link: utm("calendario_julho", "facebook"),
   },
   ...secretariaPosts(),
+  ...secretariaPostsDezembro(),
 ];
 
 function secretaria(post: {
@@ -241,6 +242,162 @@ https://www.leadbellus.com.br/#piloto`,
 A secretária cuida da conversa — antes e depois.
 
 Coloque o LeadBellus no atendimento da clínica hoje. As 5 primeiras respostas são por nossa conta. Sem cartão.`,
+    }),
+  ];
+}
+
+/**
+ * Pack de fim de ano, de 2026-11-22 a 2026-12-14 (a cada 2 dias): Black
+ * Friday, agenda de dezembro, festas e retomada de janeiro. Reaproveita as
+ * artes do pack anterior (sem repetir a mesma arte em posts seguidos).
+ * Ela escreve; a equipe revisa e envia.
+ */
+function secretariaPostsDezembro(): SocialPost[] {
+  return [
+    secretaria({
+      id: "2026-11-22-black-friday-fila",
+      data: "2026-11-22",
+      arte: "03-fila.png",
+      texto: `Semana de Black Friday: o WhatsApp da clínica enche antes da agenda.
+
+Camila quer saber se tem condição especial no botox.
+Bruna pergunta se ainda tem horário em dezembro.
+Lívia pediu informações na sexta e não respondeu mais.
+
+A secretária do LeadBellus escreve a próxima mensagem de cada uma, no tom da clínica. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-11-24-tem-desconto",
+      data: "2026-11-24",
+      arte: "05-preco.png",
+      texto: `“Tem desconto na Black Friday?”
+
+Responder só com um número é o jeito mais rápido de virar comparação de preço. A secretária mostra o cuidado e o valor da avaliação antes de falar em condição — e convida para o próximo passo.
+
+Sem preço fechado por mensagem, sem promessa de resultado. Três versões: você escolhe, ajusta e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-11-26-espera",
+      data: "2026-11-26",
+      arte: "02-espera.png",
+      texto: `Na semana mais cheia do ano, quem responde primeiro leva.
+
+A cliente que pergunta na Black Friday está conversando com várias clínicas ao mesmo tempo. Enquanto a equipe está na cadeira, a mensagem dela espera.
+
+A secretária deixa a resposta pronta em segundos. A equipe só revisa e envia no intervalo.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-11-28-orcou-nao-fechou",
+      data: "2026-11-28",
+      arte: "07-sumiu.png",
+      texto: `A Black Friday passou. E quem pediu orçamento e não fechou?
+
+“Vou ver e te falo” não é um não. A secretária retoma a conversa do ponto em que parou, sem pressionar e com um próximo passo claro: uma avaliação, um horário, uma dúvida respondida.
+
+Sua equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-11-30-agenda-dezembro",
+      data: "2026-11-30",
+      arte: "09-rotina.png",
+      texto: `Dezembro chega e a agenda aperta.
+
+Cliente querendo horário antes das festas, cliente remarcando, cliente perguntando se ainda dá tempo. A secretária escreve cada resposta no tom da clínica, sem prometer prazo nem resultado.
+
+Cole a conversa, escolha a versão, envie. No celular, entre um procedimento e outro.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-12-02-medo-festas",
+      data: "2026-12-02",
+      arte: "06-medo.png",
+      texto: `“Quero ficar bem para as festas, mas tenho medo de ficar artificial.”
+
+Pressa e medo na mesma mensagem. A secretária acolhe a insegurança com naturalidade, lembra que tudo começa pela avaliação e não promete resultado nem data.
+
+A equipe lê, ajusta se quiser e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-12-04-vou-pensar",
+      data: "2026-12-04",
+      arte: "01-quente.png",
+      texto: `“Vou pensar. Depois das festas eu vejo.”
+
+Indecisão não é desinteresse. A cliente ainda está quente — só precisa de uma resposta que tire a dúvida e deixe a porta aberta, sem empurrar.
+
+A secretária escreve essa mensagem em segundos, no tom da sua clínica. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-12-06-retorno",
+      data: "2026-12-06",
+      arte: "08-retorno.png",
+      texto: `Quem fez o procedimento no meio do ano e não voltou?
+
+Dezembro é um bom momento para lembrar da manutenção. A secretária escreve o convite de retorno no tom da clínica — sem diagnóstico e sem orientação clínica à distância.
+
+A equipe revisa e envia. Um retorno recuperado paga meses de secretária.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-12-08-equipe",
+      data: "2026-12-08",
+      arte: "04-equipe.png",
+      texto: `Fim de ano, equipe reduzida, WhatsApp cheio.
+
+A secretária não responde sozinha: ela escreve a resposta e o próximo passo, e quem revisa e envia é a sua equipe. O LeadBellus não se conecta ao WhatsApp e não manda nada no seu número.
+
+Menos tempo digitando, o mesmo cuidado em cada conversa.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-12-10-assinatura",
+      data: "2026-12-10",
+      arte: "10-mes.png",
+      texto: `Quanto custa uma secretária que escreve no tom da sua clínica?
+
+Start por R$97/mês. Cancele quando quiser, direto no painel, sem multa.
+
+Em clínica de ticket alto, uma cliente que volta para a manutenção em dezembro já cobre a assinatura.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-12-12-janeiro",
+      data: "2026-12-12",
+      arte: "03-fila.png",
+      texto: `Janeiro começa agora.
+
+Toda clínica tem uma lista de “depois das festas eu vejo”: quem pediu orçamento, quem ficou de pensar, quem fez e não voltou.
+
+A secretária escreve a mensagem de cada uma para retomar a conversa em janeiro, no tom da clínica. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretaria({
+      id: "2026-12-14-cadeira-festas",
+      data: "2026-12-14",
+      arte: "12-cadeira.png",
+      texto: `Nas festas, sua equipe cuida da cliente na cadeira.
+A secretária cuida da conversa — antes e depois.
+
+Coloque o LeadBellus no atendimento da clínica antes da virada do ano. Ela escreve; a equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
     }),
   ];
 }
