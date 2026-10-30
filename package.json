@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:emulate": "NEXT_PUBLIC_USE_FIREBASE_EMULATOR=true NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-leadbellus FIREBASE_PROJECT_ID=demo-leadbellus FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 firebase emulators:exec --only firestore,auth --project demo-leadbellus \"next dev\"",
+    "dev:emulate": "NEXT_PUBLIC_USE_FIREBASE_EMULATOR=true NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-leadbellus FIREBASE_PROJECT_ID=demo-leadbellus FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 npx --yes firebase-tools emulators:exec --only firestore,auth --project demo-leadbellus \"next dev\"",
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
