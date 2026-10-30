@@ -1,5 +1,6 @@
-// WhatsApp via Z-API (único provedor em produção).
+// Seleção de provedor. Z-API permanece como padrão legado; Cloud API é opt-in.
 import { zapiProvider } from "@/lib/whatsapp-zapi";
+import { metaCloudProvider } from "@/lib/whatsapp-meta-cloud";
 import type {
   WhatsAppProvider,
   WhatsAppResult,
@@ -13,13 +14,20 @@ export type {
   InboundMessage,
 } from "@/lib/whatsapp-types";
 
-export function getWhatsAppProvider(): WhatsAppProvider {
-  return zapiProvider;
+function activeProvider(): WhatsAppProvider {
+  const selected = process.env.WHATSAPP_PROVIDER?.trim().toLowerCase();
+  if (!selected || selected === "zapi") return zapiProvider;
+  if (selected === "meta-cloud") return metaCloudProvider;
+  throw new Error(`WHATSAPP_PROVIDER não suportado: ${selected}`);
 }
 
-/** True quando Z-API está configurada (ZAPI_INSTANCE_ID + ZAPI_TOKEN). */
+export function getWhatsAppProvider(): WhatsAppProvider {
+  return activeProvider();
+}
+
+/** True quando o provedor selecionado tem as credenciais necessárias. */
 export function isWhatsappConfigured(): boolean {
-  return zapiProvider.isConfigured();
+  return activeProvider().isConfigured();
 }
 
 export async function sendWhatsAppText(
@@ -27,5 +35,5 @@ export async function sendWhatsAppText(
   body: string,
   opts?: WhatsAppSendOptions
 ): Promise<WhatsAppResult> {
-  return zapiProvider.sendText(to, body, opts);
+  return activeProvider().sendText(to, body, opts);
 }

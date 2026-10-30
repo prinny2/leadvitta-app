@@ -65,7 +65,7 @@ deploy.
 ## Extraction order (when one deploy is not enough)
 
 1. `growth` — no auth, no money, no customer-facing latency.
-2. `whatsapp` — isolates inbound bursts from the UI; register the new URL at Z-API.
+2. `whatsapp` — isolates inbound bursts from the UI; register the callback with the selected WhatsApp provider (Z-API or Meta Cloud API).
 3. `ai` — the only CPU/latency hot path; scales independently of pages.
 4. `billing` — last, because Stripe webhook URL changes need care (idempotency
    is already in `lib/stripe/billing-sync.ts`).

@@ -56,6 +56,7 @@ export default function ConfiguracoesPage() {
   const [salvando, setSalvando] = useState(false);
   const [ok, setOk] = useState(false);
   const [erro, setErro] = useState("");
+  const [whatsappProvider, setWhatsappProvider] = useState<"zapi" | "meta-cloud">("zapi");
 
   const [novaSenha, setNovaSenha] = useState("");
   const [senhaMsg, setSenhaMsg] = useState("");
@@ -67,6 +68,12 @@ export default function ConfiguracoesPage() {
   useEffect(() => {
     getClinica().then((v) => { setC(v); setCarregando(false); });
     getBillingStatus().then(setBilling);
+    fetch("/api/config")
+      .then((res) => res.json())
+      .then((data: { whatsapp_provider?: string }) => {
+        setWhatsappProvider(data.whatsapp_provider === "meta-cloud" ? "meta-cloud" : "zapi");
+      })
+      .catch(() => setWhatsappProvider("zapi"));
 
     const params = new URLSearchParams(window.location.search);
     const checkoutStatus = params.get("checkout");
@@ -195,9 +202,11 @@ export default function ConfiguracoesPage() {
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ 
               numero: c.whatsapp, 
-              zapi_instance_id: c.zapi_instance_id, 
-              zapi_token: c.zapi_token, 
-              zapi_client_token: c.zapi_client_token, 
+              ...(whatsappProvider === "zapi" ? {
+                zapi_instance_id: c.zapi_instance_id,
+                zapi_token: c.zapi_token,
+                zapi_client_token: c.zapi_client_token,
+              } : {}),
               firebaseIdToken 
             }),
           });
@@ -334,22 +343,30 @@ export default function ConfiguracoesPage() {
 
               {/* Campos avancados para conectar o WhatsApp da clinica. */}
               <div className="sm:col-span-2 border-t border-navy-600 pt-4">
-                <Label htmlFor="zapi">Conexão do WhatsApp</Label>
-                <p className="text-xs text-navy-100 mb-2">Cole os dados da sua conexão para a LeadBellus receber e responder mensagens automaticamente.</p>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div>
-                    <Label htmlFor="zapi-inst" className="text-xs">Instance ID</Label>
-                    <Input id="zapi-inst" value={c.zapi_instance_id || ""} onChange={(e) => set("zapi_instance_id", e.target.value)} placeholder="Sua instância" />
-                  </div>
-                  <div>
-                    <Label htmlFor="zapi-token" className="text-xs">Token</Label>
-                    <Input id="zapi-token" value={c.zapi_token || ""} onChange={(e) => set("zapi_token", e.target.value)} placeholder="Token" type="password" />
-                  </div>
-                  <div>
-                    <Label htmlFor="zapi-client" className="text-xs">Client-Token (se usar)</Label>
-                    <Input id="zapi-client" value={c.zapi_client_token || ""} onChange={(e) => set("zapi_client_token", e.target.value)} placeholder="Opcional" type="password" />
-                  </div>
-                </div>
+                <Label>Conexão do WhatsApp</Label>
+                {whatsappProvider === "meta-cloud" ? (
+                  <p className="text-xs text-navy-100 mb-2">
+                    A Cloud API da Meta está configurada no servidor para um número. Informe acima o mesmo número registrado na Meta. As mensagens entram na caixa de conversas; sua equipe revisa e envia cada resposta.
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-xs text-navy-100 mb-2">Credenciais do provedor conectado. Mensagens recebidas aparecem na caixa de conversas; sua equipe revisa e envia cada resposta.</p>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div>
+                        <Label htmlFor="zapi-inst" className="text-xs">Instance ID</Label>
+                        <Input id="zapi-inst" value={c.zapi_instance_id || ""} onChange={(e) => set("zapi_instance_id", e.target.value)} placeholder="Sua instância" />
+                      </div>
+                      <div>
+                        <Label htmlFor="zapi-token" className="text-xs">Token</Label>
+                        <Input id="zapi-token" value={c.zapi_token || ""} onChange={(e) => set("zapi_token", e.target.value)} placeholder="Token" type="password" />
+                      </div>
+                      <div>
+                        <Label htmlFor="zapi-client" className="text-xs">Client-Token (se usar)</Label>
+                        <Input id="zapi-client" value={c.zapi_client_token || ""} onChange={(e) => set("zapi_client_token", e.target.value)} placeholder="Opcional" type="password" />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               <div>
                 <Label htmlFor="tom">Tom de voz padrão</Label>

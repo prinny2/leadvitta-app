@@ -7,6 +7,7 @@ import {
   getCanalClinica,
 } from "@/lib/conversas";
 import { enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import { resolverClinicaPorNumero } from "@/lib/numeros";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -49,8 +50,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Sem permissão." }, { status: 403 });
   }
 
+  const provider = getWhatsAppProvider();
+  if (provider.name === "meta-cloud") {
+    const numeroConfigurado = process.env.WHATSAPP_CLOUD_DISPLAY_PHONE_NUMBER?.trim();
+    const clinicaDoNumero = numeroConfigurado
+      ? await resolverClinicaPorNumero(numeroConfigurado)
+      : null;
+    if (!clinicaDoNumero || clinicaDoNumero !== decoded.uid) {
+      return NextResponse.json(
+        { error: "O número Cloud API configurado não está associado a esta clínica." },
+        { status: 409 }
+      );
+    }
+  }
+
   const channelApiKey = await getCanalClinica(decoded.uid);
-  const envio = await getWhatsAppProvider().sendText(conversa.cliente_numero, texto.trim(), {
+  const envio = await provider.sendText(conversa.cliente_numero, texto.trim(), {
     channelApiKey,
   });
   if (!envio.ok) {

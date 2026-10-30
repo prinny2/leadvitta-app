@@ -1,6 +1,6 @@
-// Contrato do provedor WhatsApp (Z-API).
-// A lógica de negócio (receber → pontuar → guardar → responder) não conhece o
-// provedor — fala só com esta interface. Trocar de provedor = trocar a impl.
+// Contrato compartilhado pelos provedores WhatsApp.
+// A lógica de negócio (receber → guardar → responder manualmente) não conhece
+// o provedor — fala só com esta interface.
 
 export type WhatsAppResult = { ok: boolean; status: number; data: unknown };
 
@@ -27,7 +27,7 @@ export type InboundMessage = {
 };
 
 export interface WhatsAppProvider {
-  readonly name: "zapi";
+  readonly name: "zapi" | "meta-cloud";
 
   /** True quando há credenciais suficientes para operar. */
   isConfigured(): boolean;
@@ -35,8 +35,11 @@ export interface WhatsAppProvider {
   /** Valida a autenticidade do webhook (assinatura/token). */
   validateWebhook(req: Request, rawBody: string): Promise<boolean>;
 
-  /** Converte o payload bruto do webhook do provedor numa InboundMessage. */
-  parseInbound(rawBody: string, req: Request): InboundMessage | null;
+  /** Retorna o desafio assinado pelo provedor durante o handshake GET, se houver. */
+  webhookChallenge?(req: Request): string | null;
+
+  /** Converte o payload bruto do webhook do provedor numa ou mais mensagens. */
+  parseInbound(rawBody: string, req: Request): InboundMessage | InboundMessage[] | null;
 
   /**
    * Envia uma mensagem de texto.

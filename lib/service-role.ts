@@ -4,7 +4,7 @@
 //   SERVICE_ROLE=web      → tudo (comportamento atual, default)
 //   SERVICE_ROLE=ai       → só rotas de geração/IA
 //   SERVICE_ROLE=billing  → só Stripe/Clerk/billing
-//   SERVICE_ROLE=whatsapp → só webhooks/Z-API
+//   SERVICE_ROLE=whatsapp → webhook e conexão WhatsApp (Z-API ou Meta Cloud API)
 //   SERVICE_ROLE=growth   → waitlist, notificações, Zapier, social
 //
 // Um papel que não seja `web` responde 404 para qualquer caminho fora da sua
