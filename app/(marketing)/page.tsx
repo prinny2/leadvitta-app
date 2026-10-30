@@ -575,15 +575,15 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ── PILOTO: SECRETÁRIA CONECTADA ──────────────────────────────────── */}
+        {/* ── LISTA DE INTERESSE: WHATSAPP CONECTADO ────────────────────────── */}
         <section id="piloto" style={{ padding: "78px 24px", background: NAVY }}>
           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
             <FadeUp>
               <div style={{ textAlign: "center", maxWidth: "660px", margin: "0 auto 36px" }}>
-                <Eyebrow onNavy>Programa piloto</Eyebrow>
-                <SectionTitle onNavy>Conectada ao WhatsApp, ela mostra quem a clínica está deixando escapar</SectionTitle>
+                <Eyebrow onNavy>Em preparação</Eyebrow>
+                <SectionTitle onNavy>Acompanhe a próxima etapa: conectar o WhatsApp da clínica</SectionTitle>
                 <p style={{ color: "rgba(255,255,255,0.72)", fontSize: "16px", lineHeight: 1.7, margin: 0 }}>
-                  Estamos abrindo a versão conectada para poucas clínicas: um painel que acompanha as conversas e avisa a equipe antes de a cliente esfriar.
+                  Estamos preparando um piloto com uma caixa de entrada para acompanhar conversas e organizar sugestões de retorno. Deixe seu e-mail para receber novidades sobre o acesso.
                 </p>
               </div>
             </FadeUp>
@@ -602,7 +602,7 @@ export default function LandingPage() {
             </div>
             <div style={{ maxWidth: "460px", margin: "30px auto 0", textAlign: "center" }}>
               <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.78)", margin: "0 0 12px" }}>
-                Quer a sua clínica no piloto? Deixe o e-mail e falamos com você.
+                Quer saber quando o piloto abrir? Deixe o seu e-mail.
               </p>
               <WaitlistForm plan="premium" />
             </div>
@@ -777,7 +777,7 @@ export default function LandingPage() {
               <Eyebrow onNavy>Escolha o seu plano</Eyebrow>
               <SectionTitle onNavy>Comece pela secretária que escreve</SectionTitle>
               <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "16px", maxWidth: "540px", margin: "0 auto" }}>
-                5 respostas grátis primeiro. Assine o Start quando fizer sentido — a versão conectada ao WhatsApp entra pelo piloto.
+                5 respostas grátis primeiro. Assine o Start quando fizer sentido — a conexão com o WhatsApp está em preparação.
               </p>
             </div>
             </FadeUp>
@@ -841,7 +841,7 @@ export default function LandingPage() {
                 { q: "O LeadBellus envia mensagens pelo meu WhatsApp?", a: "Não. O LeadBellus não se conecta à sua conta nem envia mensagens. Você decide o que usar e envia pelo seu próprio WhatsApp, seguindo as regras da plataforma." },
                 { q: "A secretária responde sozinha?", a: "Não. Ela escreve a resposta e o próximo passo; quem envia é a sua equipe. O controle é todo da clínica." },
                 { q: "Ajuda depois do procedimento?", a: "Sim. Ela escreve a mensagem para quem fez procedimento e não voltou ou para cliente antiga — manutenção e convite de retorno, no tom da clínica. Não faz diagnóstico nem orientação clínica à distância." },
-                { q: "Vai se conectar ao meu WhatsApp?", a: "Hoje você copia e cola as sugestões no WhatsApp. A versão conectada, com o painel de quem está esperando e quem não voltou, está em piloto com poucas clínicas — entre na lista na seção do piloto." },
+                { q: "Vai se conectar ao meu WhatsApp?", a: "Hoje você copia e cola as sugestões no WhatsApp. A versão conectada está em preparação; deixe seu e-mail na lista para receber novidades sobre o piloto." },
                 { q: "Serve pra público masculino também?", a: "Sim. Botox masculino, barba, sobrancelha, queda capilar, skincare… as sugestões se adaptam ao procedimento e ao cliente." },
                 { q: "Funciona no celular?", a: "Sim. No celular, tablet ou computador, direto no navegador. Dá pra gerar a sugestão e colar no WhatsApp na mesma tela." },
                 { q: "Preciso de cartão pra testar?", a: "Não. Você testa de graça e só assina o Start (R$97/mês) se fizer sentido pra sua rotina." },
