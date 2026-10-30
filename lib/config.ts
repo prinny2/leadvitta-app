@@ -132,7 +132,8 @@ export const opsNotifyPhone = (
 export const isOpsWhatsAppConfigured =
   !!process.env.ZAPI_INSTANCE_ID?.trim() &&
   !!process.env.ZAPI_TOKEN?.trim() &&
-  !!opsNotifyPhone;
+  !!opsNotifyPhone &&
+  process.env.WHATSAPP_PROVIDER?.trim().toLowerCase() !== "meta-cloud";
 
 /** Chave da API do Resend (e-mail transacional; plano gratuito). */
 export const resendApiKey = process.env.RESEND_API_KEY?.trim() || "";
@@ -154,6 +155,14 @@ export const isOpsNotifyConfigured = isOpsWhatsAppConfigured || isOpsEmailConfig
 export const isZApiConfigured =
   !!process.env.ZAPI_INSTANCE_ID?.trim() && !!process.env.ZAPI_TOKEN?.trim();
 
+/** True quando a Meta Cloud API tem credenciais de envio e webhook. */
+export const isMetaCloudWhatsAppConfigured =
+  !!process.env.WHATSAPP_CLOUD_ACCESS_TOKEN?.trim() &&
+  !!process.env.WHATSAPP_CLOUD_PHONE_NUMBER_ID?.trim() &&
+  !!process.env.WHATSAPP_CLOUD_APP_SECRET?.trim() &&
+  !!process.env.WHATSAPP_CLOUD_VERIFY_TOKEN?.trim() &&
+  /^v\d+\.\d+$/.test(process.env.WHATSAPP_CLOUD_API_VERSION?.trim() || "");
+
 /** Página do Facebook + Instagram Business para publicação automática. */
 export const metaPageId = process.env.META_PAGE_ID?.trim() || "";
 export const metaPageAccessToken =
@@ -167,5 +176,10 @@ export const isMetaPublishConfigured = !!metaPageId && !!metaPageAccessToken;
 export const isInstagramPublishConfigured =
   isMetaPublishConfigured && !!metaIgUserId;
 
-/** Alias legado — sempre Z-API. */
-export const isWhatsappConfigured = isZApiConfigured;
+/** Provedor WhatsApp selecionado para o runtime atual. */
+export const isWhatsappConfigured =
+  process.env.WHATSAPP_PROVIDER?.trim().toLowerCase() === "meta-cloud"
+    ? isMetaCloudWhatsAppConfigured
+    : !process.env.WHATSAPP_PROVIDER?.trim() || process.env.WHATSAPP_PROVIDER?.trim().toLowerCase() === "zapi"
+      ? isZApiConfigured
+      : false;

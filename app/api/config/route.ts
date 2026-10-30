@@ -42,6 +42,7 @@ export async function GET() {
     ga4_server_enabled: isGa4ServerConfigured,
     ops_notify_enabled: isOpsNotifyConfigured,
     zapi_enabled: isZApiConfigured,
+    whatsapp_enabled: getWhatsAppProvider().isConfigured(),
     whatsapp_provider: getWhatsAppProvider().name,
   });
 }
