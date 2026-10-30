@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:emulate": "NEXT_PUBLIC_USE_FIREBASE_EMULATOR=true NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-leadbellus FIREBASE_PROJECT_ID=demo-leadbellus FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 firebase emulators:exec --only firestore,auth --project demo-leadbellus \"next dev\"",
+    "dev:emulate": "NEXT_PUBLIC_USE_FIREBASE_EMULATOR=true NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-leadbellus FIREBASE_PROJECT_ID=demo-leadbellus FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 npx --yes firebase-tools emulators:exec --only firestore,auth --project demo-leadbellus \"next dev\"",
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
@@ -30,7 +30,7 @@
     "firebase-admin": "^14.0.0",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.17.0",
-    "next": "^15.5.19",
+    "next": "^15.5.28",
     "openai": "^6.42.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

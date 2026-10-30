@@ -27,6 +27,7 @@ import {
   denylistHits,
 } from "@/lib/ai/prompts";
 import { mockGerador, mockRefine, mockFollowup, softenText } from "@/lib/ai/mock";
+import { openaiChatParams } from "@/lib/ai/openai-chat";
 import type {
   AIProviderId,
   GerarInput,
@@ -138,14 +139,12 @@ async function callAI(
     try {
       const resp = await withTimeout(
         getOpenAI().chat.completions.create({
-          model: openaiModel,
+          ...openaiChatParams(openaiModel, 1024),
           messages: [
             { role: "system", content: system },
             { role: "user", content: user },
           ],
-          temperature: 0.7,
-          max_tokens: 1024,
-          response_format: { type: "json_object" }
+          response_format: { type: "json_object" },
         }),
         TIMEOUT_MS
       );
