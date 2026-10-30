@@ -136,8 +136,8 @@ export default function TermosPage() {
             <h2 className="font-serif text-xl font-semibold text-champagne-200">12. Contato</h2>
             <p className="mt-2">
               Dúvidas sobre estes Termos:{" "}
-              <a href="mailto:contato@leadbellus.com.br" className="text-gold-400 hover:text-gold-300 underline">
-                contato@leadbellus.com.br
+              <a href={`mailto:${EMPRESA.email}`} className="text-gold-400 hover:text-gold-300 underline">
+                {EMPRESA.email}
               </a>
               .
             </p>

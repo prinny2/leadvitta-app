@@ -5,5 +5,5 @@
 export const EMPRESA = {
   marca: "LeadBellus",
   cnpj: "60.562.652/0001-41",
-  email: "contato@leadbellus.com.br",
+  email: "suporte@leadbellus.com.br",
 } as const;

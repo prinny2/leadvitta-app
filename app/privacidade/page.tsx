@@ -29,8 +29,8 @@ export default function PrivacidadePage() {
             <p className="mt-2">
               O controlador dos dados é o LeadBellus, CNPJ {EMPRESA.cnpj}.
               Contato:{" "}
-              <a href="mailto:contato@leadbellus.com.br" className="text-gold-400 hover:text-gold-300 underline">
-                contato@leadbellus.com.br
+              <a href={`mailto:${EMPRESA.email}`} className="text-gold-400 hover:text-gold-300 underline">
+                {EMPRESA.email}
               </a>
               .
             </p>
@@ -93,8 +93,8 @@ export default function PrivacidadePage() {
               Você pode solicitar acesso, correção, exclusão, anonimização,
               portabilidade dos seus dados e revogação de consentimento, conforme o
               art. 18 da LGPD. Para exercê-los, escreva para{" "}
-              <a href="mailto:contato@leadbellus.com.br" className="text-gold-400 hover:text-gold-300 underline">
-                contato@leadbellus.com.br
+              <a href={`mailto:${EMPRESA.email}`} className="text-gold-400 hover:text-gold-300 underline">
+                {EMPRESA.email}
               </a>
               .
             </p>
