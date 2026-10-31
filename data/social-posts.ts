@@ -5,6 +5,9 @@
 
 export type CanalSocial = "facebook" | "instagram";
 
+/** Horário do cron: manhã = 11:00, noite = 19:00 (America/Belem). */
+export type TurnoSocial = "manha" | "noite";
+
 export type SocialPost = {
   id: string;
   /** Data de publicação (YYYY-MM-DD, fuso America/Belem). */
@@ -15,7 +18,13 @@ export type SocialPost = {
   imagemUrl?: string;
   /** Link anexado ao post do Facebook (feed). */
   link?: string;
+  /** Qual disparo do cron publica o post. Sem valor = "manha". */
+  turno?: TurnoSocial;
 };
+
+export function turnoDoPost(post: SocialPost): TurnoSocial {
+  return post.turno ?? "manha";
+}
 
 const LP = "https://www.leadbellus.com.br";
 const HASHTAGS =
@@ -98,10 +107,12 @@ function secretaria(post: {
   data: string;
   arte: string;
   texto: string;
+  turno?: TurnoSocial;
 }): SocialPost {
   return {
     id: post.id,
     data: post.data,
+    turno: post.turno,
     canais: ["facebook", "instagram"],
     texto: post.texto.includes(LP)
       ? `${post.texto.trim()}\n\n${HASHTAGS}`
