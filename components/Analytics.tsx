@@ -55,26 +55,8 @@ function AnalyticsContent() {
 export default function Analytics() {
   return (
     <>
-      {/* Google Analytics 4 — só carrega se GA4 estiver configurado via env */}
-      {GA4_ID && (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="google-analytics" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA4_ID}', {
-                page_path: window.location.pathname + window.location.search
-              });
-            `}
-          </Script>
-        </>
-      )}
-
+      {/* A tag base do GA4 fica no <head> (Ga4HeadTag em app/layout.tsx);
+          aqui só os page_views das navegações seguintes. */}
       {/* Meta Pixel — só carrega se houver Pixel ID */}
       {META_PIXEL_ID && (
         <>
@@ -151,3 +133,25 @@ export const trackEvent = (
     // Falha de analytics é silenciosa por design.
   }
 };
+
+/**
+ * Snippet oficial do Google (gtag.js) renderizado no servidor dentro do
+ * <head>, como o GA4 pede na instalação — assim a tag aparece no HTML e o
+ * "testar instalação" do Google a encontra. Só existe com NEXT_PUBLIC_GA4_ID.
+ */
+export function Ga4HeadTag() {
+  if (!GA4_ID) return null;
+  return (
+    <>
+      <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA4_ID}');`,
+        }}
+      />
+    </>
+  );
+}

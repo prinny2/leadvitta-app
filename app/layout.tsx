@@ -4,7 +4,7 @@ import localFont from "next/font/local";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ptBR } from "@clerk/localizations";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
-import Ga4Analytics from "@/components/Analytics";
+import Ga4Analytics, { Ga4HeadTag } from "@/components/Analytics";
 import { FirebaseSessionSync } from "@/components/firebase-session-sync";
 import { isClerkClientConfigured } from "@/lib/config";
 
@@ -94,6 +94,9 @@ export default function RootLayout({
 
   return (
     <html lang="pt-BR" className={`${inter.variable} ${fraunces.variable}`}>
+      <head>
+        <Ga4HeadTag />
+      </head>
       <body className="min-h-screen bg-navy-900 font-sans text-ink antialiased">
         {isClerkClientConfigured ? (
           <ClerkProvider localization={ptBR}>{app}</ClerkProvider>
