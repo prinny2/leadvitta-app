@@ -466,6 +466,48 @@ describe("provider — cadeia customizada (LP: OpenAI → Gemini)", () => {
   });
 });
 
+describe("provider — fallback entre modelos Gemini", () => {
+  beforeEach(() => {
+    vi.stubEnv("OPENAI_API_KEY", "");
+    vi.stubEnv("ANTHROPIC_API_KEY", "");
+    vi.stubEnv("GEMINI_API_KEY", "gem-key");
+    vi.stubEnv("GEMINI_MODEL", "gemini-ocupado,gemini-livre");
+  });
+
+  it("passa para o próximo modelo quando o primeiro responde 503", async () => {
+    const json = JSON.stringify({
+      resposta_curta: "curta",
+      resposta_consultiva: "consultiva",
+      resposta_persuasiva: "persuasiva",
+    });
+    geminiGenerate.mockImplementation((args: any) =>
+      args.model === "gemini-ocupado"
+        ? Promise.reject(new Error('{"error":{"code":503,"status":"UNAVAILABLE"}}'))
+        : Promise.resolve({ text: json })
+    );
+
+    const { gerarRespostas } = await loadProvider();
+    const res = await gerarRespostas({ ...geradorInput, providerChain: ["gemini"] });
+
+    expect(res.mock).toBe(false);
+    expect(res.respostas.curta).toBe("curta");
+    const modelos = geminiGenerate.mock.calls.map((c: any[]) => c[0].model);
+    expect(modelos).toContain("gemini-ocupado");
+    expect(modelos).toContain("gemini-livre");
+  });
+
+  it("cai no mock só quando todos os modelos falham", async () => {
+    geminiGenerate.mockRejectedValue(new Error("503"));
+
+    const { gerarRespostas } = await loadProvider();
+    const res = await gerarRespostas({ ...geradorInput, providerChain: ["gemini"] });
+
+    expect(res.mock).toBe(true);
+    const modelos = new Set(geminiGenerate.mock.calls.map((c: any[]) => c[0].model));
+    expect(modelos).toEqual(new Set(["gemini-ocupado", "gemini-livre"]));
+  });
+});
+
 describe("provider — Anthropic configurada", () => {
   beforeEach(configureAnthropicOnly);
 

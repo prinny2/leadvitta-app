@@ -111,7 +111,14 @@ describe("lib/config", () => {
     // AI_MODEL é claude-*, então só o anthropicModel o herda; os demais usam default.
     expect(anthropicModel).toBe("claude-haiku-4-5");
     expect(openaiModel).toBe("gpt-4o-mini");
-    expect(geminiModel).toBe("gemini-2.5-flash");
+    expect(geminiModel).toBe("gemini-3.5-flash");
+  });
+
+  it("GEMINI_MODEL aceita lista de fallback separada por vírgula", async () => {
+    vi.stubEnv("GEMINI_MODEL", " gemini-a , gemini-b,,gemini-c ");
+    const { geminiModels, geminiModel } = await loadConfig();
+    expect(geminiModels).toEqual(["gemini-a", "gemini-b", "gemini-c"]);
+    expect(geminiModel).toBe("gemini-a");
   });
 
   it("isZApiConfigured exige ZAPI_INSTANCE_ID + ZAPI_TOKEN", async () => {
@@ -184,16 +191,38 @@ describe("lib/config", () => {
     expect(cfg2.isZApiConfigured).toBe(false);
   });
 
-  it("isOpsNotifyConfigured exige Z-API + número de alerta", async () => {
+  it("isOpsWhatsAppConfigured exige Z-API + número de alerta", async () => {
+    vi.stubEnv("RESEND_API_KEY", "");
     vi.stubEnv("ZAPI_INSTANCE_ID", "inst");
     vi.stubEnv("ZAPI_TOKEN", "tok");
     vi.stubEnv("OPS_WHATSAPP_NUMBER", "55 (91) 98888-7777");
     const cfg = await loadConfig();
+    expect(cfg.isOpsWhatsAppConfigured).toBe(true);
     expect(cfg.isOpsNotifyConfigured).toBe(true);
     expect(cfg.opsNotifyPhone).toBe("5591988887777");
 
     vi.stubEnv("OPS_WHATSAPP_NUMBER", "");
     const cfg2 = await loadConfig();
+    expect(cfg2.isOpsWhatsAppConfigured).toBe(false);
     expect(cfg2.isOpsNotifyConfigured).toBe(false);
+  });
+
+  it("alerta por e-mail só com RESEND_API_KEY; destino padrão é o e-mail da empresa", async () => {
+    vi.stubEnv("ZAPI_INSTANCE_ID", "");
+    vi.stubEnv("OPS_EMAIL_TO", "");
+    vi.stubEnv("RESEND_API_KEY", "re_123");
+    const cfg = await loadConfig();
+    expect(cfg.isOpsEmailConfigured).toBe(true);
+    expect(cfg.isOpsNotifyConfigured).toBe(true);
+    expect(cfg.opsNotifyEmail).toBe("suporte@leadbellus.com.br");
+
+    vi.stubEnv("OPS_EMAIL_TO", "outra@exemplo.com");
+    const cfg2 = await loadConfig();
+    expect(cfg2.opsNotifyEmail).toBe("outra@exemplo.com");
+
+    vi.stubEnv("RESEND_API_KEY", "");
+    const cfg3 = await loadConfig();
+    expect(cfg3.isOpsEmailConfigured).toBe(false);
+    expect(cfg3.isOpsNotifyConfigured).toBe(false);
   });
 });

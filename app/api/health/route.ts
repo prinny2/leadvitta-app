@@ -9,10 +9,13 @@ import {
   isGeminiConfigured,
   isNlpServiceConfigured,
   isOpenAIConfigured,
+  isOpsEmailConfigured,
+  isOpsWhatsAppConfigured,
   isStripeConfigured,
 } from "@/lib/config";
-import { isWhatsappConfigured } from "@/lib/whatsapp";
+import { getWhatsAppProvider, isWhatsappConfigured } from "@/lib/whatsapp";
 import { isFirebaseAdminConfigured } from "@/lib/firebase/admin";
+import { getServiceRole } from "@/lib/service-role";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +24,7 @@ export async function GET() {
   return NextResponse.json({
     status: "ok",
     service: "leadbellus",
+    service_role: getServiceRole(),
     time: new Date().toISOString(),
     readiness: {
       ai: isAnyAIConfigured,
@@ -30,9 +34,11 @@ export async function GET() {
       firebase_admin: isFirebaseAdminConfigured(),
       ga4_server: isGa4ServerConfigured,
       nlp: isNlpServiceConfigured,
+      ops_email: isOpsEmailConfigured,
+      ops_whatsapp: isOpsWhatsAppConfigured,
       stripe: isStripeConfigured,
       whatsapp: isWhatsappConfigured(),
-      whatsapp_provider: "zapi",
+      whatsapp_provider: getWhatsAppProvider().name,
     },
     ai_providers: {
       openai: isOpenAIConfigured,

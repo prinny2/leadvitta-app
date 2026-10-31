@@ -119,7 +119,7 @@ function PricingCard({
         >
           {plan.priceLabel}
         </span>
-        <span style={{ fontSize: "16px", color: "rgba(255,255,255,0.45)" }}>{plan.periodLabel}</span>
+        <span style={{ fontSize: "16px", color: "rgba(255,255,255,0.72)" }}>{plan.periodLabel}</span>
       </div>
 
       <p

@@ -64,7 +64,7 @@ export function CheckoutButton({
         {loading ? <Loader2 size={16} className="animate-spin" /> : <CreditCard size={16} />}
         {children}
       </Button>
-      {erro && <p className="text-xs text-red-600">{erro}</p>}
+      {erro && <p className="text-xs font-medium text-red-300" role="alert">{erro}</p>}
     </div>
   );
 }

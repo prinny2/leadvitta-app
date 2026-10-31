@@ -11,6 +11,7 @@ import {
   isFirebaseConfigured,
 } from "@/lib/config";
 import { getFirebaseAuth } from "@/lib/firebase/client";
+import { reconcileBillingClient } from "@/lib/billing-client";
 
 function setFirebaseAuthCookie(enabled: boolean) {
   document.cookie = enabled
@@ -56,8 +57,16 @@ export function FirebaseSessionSync() {
       }
 
       if (cancelled) return;
-      await signInWithCustomToken(firebaseAuth, data.token);
-      if (!cancelled) setFirebaseAuthCookie(true);
+      const credential = await signInWithCustomToken(firebaseAuth, data.token);
+      if (cancelled) return;
+      setFirebaseAuthCookie(true);
+
+      // Quem pagou como visitante (checkout sem login) fica em
+      // `billing_pending/{email}` até alguém ligar ao uid. Na rota Clerk esse
+      // era o único ponto onde ninguém chamava o reconcile — a pessoa pagava,
+      // criava a conta e continuava no plano grátis.
+      const idToken = await credential.user.getIdToken().catch(() => null);
+      if (idToken && !cancelled) await reconcileBillingClient(idToken);
     }
 
     syncFirebaseSession().catch((error) => {

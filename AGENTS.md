@@ -34,3 +34,19 @@ Public webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`,
   (returns `respostas.{curta,consultiva,persuasiva}` and `"mock": true`).
 - **Node version:** the production `Dockerfile` uses Node 20, but Node 22 (the VM
   default) builds, tests, and runs the app fine for development.
+
+## Agent lanes (Claude Code / Codex / Xcode) — no overlap
+
+Full rules: `docs/agents/tool-roles.md`. Summary for Codex:
+
+- **You (Codex) own:** scoped single-issue work — one route, one component, one
+  test file, perf tweaks, PR review comments. Branch prefix `codex/*`.
+- **Claude Code owns:** architecture, multi-file refactors, infra/deploy/env,
+  `middleware.ts`, `lib/stripe/*`, `lib/billing*`, any `*/webhook` route,
+  `Dockerfile`, `cloudbuild.yaml`, `vercel.json`. If a task needs those, stop and
+  leave a note in the PR instead of editing them.
+- **Xcode owns:** native Apple targets only (none in this repo).
+- Never push to a branch you did not create. Never edit `~/leadvitta-app`
+  directly — work in your own clone/worktree.
+- New `/api/*` routes must be registered in exactly one role in
+  `lib/service-role.ts` (see `services.yaml`); `npm test` fails on overlap.

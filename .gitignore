@@ -55,6 +55,7 @@ WhatsApp Image*
 .env
 .env.*
 !.env.local.example
+app.env
 # Google Ads / GA OAuth desktop client secrets
 ads/**/.env*
 scripts/.ga-*.json
@@ -65,3 +66,11 @@ scripts/.ga-*.json
 
 # Clerk local dev (keyless mode writes secretKey here — never commit)
 .clerk/
+.env*
+
+# Supabase CLI cache
+supabase/.temp/
+
+# Dumps de páginas/ferramentas de agentes
+/agent-tools/
+.ipynb_checkpoints/

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 const ETAPAS = [
   "Lendo a mensagem da cliente…",
@@ -19,12 +18,9 @@ const ETAPAS = [
  */
 export function LoadingRespostas({
   etapas = ETAPAS,
-  tone = "light",
 }: {
   etapas?: string[];
-  tone?: "light" | "dark";
 }) {
-  const dark = tone === "dark";
   const [i, setI] = useState(0);
   const etapasAtivas = etapas.length > 0 ? etapas : ETAPAS;
   const etapasSignature = etapasAtivas.join("\u0000");
@@ -50,18 +46,10 @@ export function LoadingRespostas({
   const pct = Math.round(((i + 1) / etapasForRun.length) * 100);
 
   return (
-    <Card
-      className={cn(
-        "animate-fade-in",
-        dark ? "border-white/10 bg-brand-dark" : "border-brand-200"
-      )}
-    >
+    <Card className="animate-fade-in">
       <CardBody className="py-8">
         <div
-          className={cn(
-            "mb-4 flex items-center gap-2.5",
-            dark ? "text-nude-200" : "text-brand-700"
-          )}
+          className="mb-4 flex items-center gap-2.5 text-gold-300"
           role="status"
           aria-live="polite"
         >
@@ -69,10 +57,7 @@ export function LoadingRespostas({
           <span className="text-sm font-semibold transition-opacity">{etapasForRun[i]}</span>
         </div>
         <div
-          className={cn(
-            "h-1.5 w-full overflow-hidden rounded-full",
-            dark ? "bg-white/15" : "bg-nude-200"
-          )}
+          className="h-1.5 w-full overflow-hidden rounded-full bg-gold-500/15"
           role="progressbar"
           aria-label="Progresso da geração"
           aria-valuemin={0}
@@ -80,7 +65,7 @@ export function LoadingRespostas({
           aria-valuenow={pct}
         >
           <div
-            className="h-full rounded-full bg-gradient-to-r from-brand-400 to-gold-500 transition-[width] duration-700 ease-out"
+            className="h-full rounded-full bg-gradient-to-r from-gold-700 to-gold-400 transition-[width] duration-700 ease-out"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -88,10 +73,7 @@ export function LoadingRespostas({
           {[0, 1, 2].map((n) => (
             <div
               key={n}
-              className={cn(
-                "h-12 animate-pulse rounded-xl",
-                dark ? "bg-white/10" : "bg-nude-100"
-              )}
+              className="h-12 animate-pulse rounded-xl bg-gold-500/10"
               style={{ animationDelay: `${n * 150}ms` }}
             />
           ))}

@@ -144,17 +144,17 @@ export default function ConversaThreadPage() {
   return (
     <div className="mx-auto flex h-[calc(100vh-7rem)] max-w-2xl flex-col">
       {/* cabeçalho */}
-      <div className="flex items-center gap-3 border-b border-brand-100 pb-3">
+      <div className="flex items-center gap-3 border-b border-navy-500 pb-3">
         <Link
           href="/conversas"
-          className="flex h-9 w-9 items-center justify-center rounded-xl text-muted hover:bg-nude-100 hover:text-ink"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-navy-50 transition-colors hover:bg-navy-600 hover:text-champagne-300"
           aria-label="Voltar"
         >
           <ArrowLeft size={18} />
         </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate font-semibold text-ink">
+            <span className="truncate font-semibold text-champagne-300">
               {conversa?.cliente_nome || conversa?.cliente_numero || "Conversa"}
             </span>
             {prio && (
@@ -165,7 +165,7 @@ export default function ConversaThreadPage() {
             )}
           </div>
           {conversa?.cliente_nome && (
-            <span className="text-xs text-muted">{conversa.cliente_numero}</span>
+            <span className="text-xs text-navy-50">{conversa.cliente_numero}</span>
           )}
         </div>
       </div>
@@ -174,7 +174,7 @@ export default function ConversaThreadPage() {
       <div className="flex-1 space-y-3 overflow-y-auto py-5">
         {mensagens === null && (
           <div className="flex justify-center py-10">
-            <Loader2 className="animate-spin text-brand-400" />
+            <Loader2 className="animate-spin text-gold-400" />
           </div>
         )}
         {mensagens?.map((m) => (
@@ -186,8 +186,8 @@ export default function ConversaThreadPage() {
               className={cn(
                 "max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-card",
                 m.direcao === "out"
-                  ? "rounded-br-md bg-brand-600 text-white"
-                  : "rounded-bl-md border border-brand-100 bg-white text-ink"
+                  ? "rounded-br-md border border-gold-500/15 bg-[rgba(94,224,160,0.10)] text-champagne-300"
+                  : "rounded-bl-md border border-navy-500 bg-navy-700 text-champagne-300"
               )}
             >
               <span className="sr-only">
@@ -198,19 +198,19 @@ export default function ConversaThreadPage() {
           </div>
         ))}
         {erroCarregamento && (
-          <div className="flex flex-col items-center gap-3 py-10 text-center text-sm text-muted">
+          <div className="flex flex-col items-center gap-3 py-10 text-center text-sm text-navy-50">
             <p>Não foi possível carregar esta conversa agora.</p>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="rounded-xl border border-brand-300 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50"
+              className="rounded-xl border border-gold-500/40 px-4 py-2 text-sm font-medium text-gold-300 transition-colors hover:bg-gold-500/10"
             >
               Tentar de novo
             </button>
           </div>
         )}
         {!erroCarregamento && mensagens && mensagens.length === 0 && (
-          <p className="py-10 text-center text-sm text-muted">
+          <p className="py-10 text-center text-sm text-navy-50">
             Sem mensagens nesta conversa ainda.
           </p>
         )}
@@ -218,14 +218,14 @@ export default function ConversaThreadPage() {
       </div>
 
       {/* responder */}
-      <div className="border-t border-brand-100 pt-3">
+      <div className="border-t border-navy-500 pt-3">
         {erro && <p className="mb-2 text-xs text-red-600">{erro}</p>}
         {aguardandoResposta && (
           <button
             type="button"
             onClick={sugerir}
             disabled={sugerindo}
-            className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-100 disabled:opacity-60"
+            className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-gold-500/40 bg-gold-500/10 px-3 py-1.5 text-xs font-semibold text-gold-300 transition-colors hover:bg-gold-500/20 disabled:opacity-60"
           >
             {sugerindo ? (
               <Loader2 size={13} className="animate-spin" />
@@ -247,13 +247,13 @@ export default function ConversaThreadPage() {
             }}
             rows={1}
             placeholder="Escreva a resposta…"
-            className="max-h-32 min-h-[44px] flex-1 resize-none rounded-xl border border-brand-200 bg-white px-4 py-2.5 text-sm text-ink outline-none focus:border-brand-400"
+            className="max-h-32 min-h-[44px] flex-1 resize-none rounded-xl border border-navy-500 bg-navy-800 px-4 py-2.5 text-sm text-champagne-300 placeholder:text-navy-100/60 outline-none focus:border-gold-500/50"
           />
           <button
             type="button"
             onClick={enviar}
             disabled={enviando || !texto.trim()}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-500 text-white transition-colors hover:bg-brand-600 disabled:opacity-50"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold-500 text-navy-900 transition-colors hover:bg-gold-400 disabled:opacity-50"
             aria-label="Enviar"
           >
             {enviando ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}

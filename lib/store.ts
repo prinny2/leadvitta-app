@@ -115,7 +115,7 @@ export async function saveClinica(c: Clinica): Promise<void> {
  */
 // Espera o Firebase restaurar a sessão antes de ler (no mount, currentUser
 // costuma estar null por um instante). Resolve na hora se já houver usuário.
-function waitForAuthUser(): Promise<User | null> {
+export function waitForAuthUser(): Promise<User | null> {
   const auth = getFirebaseAuth();
   if (auth.currentUser) return Promise.resolve(auth.currentUser);
   const timeoutMs = isClerkClientConfigured ? 4000 : 0;
@@ -138,6 +138,39 @@ function waitForAuthUser(): Promise<User | null> {
       timer = setTimeout(() => finish(auth.currentUser), timeoutMs);
     }
   });
+}
+
+/** Status de assinatura que liberam o app (espelha `lib/usage-limit.ts`). */
+const PAID_BILLING_STATUSES = new Set(["active", "trialing", "past_due"]);
+
+export type BillingStatus = {
+  plan: "start" | "pro" | "premium" | null;
+  status: string | null;
+  /** True quando o webhook do Stripe já marcou a assinatura como paga. */
+  paid: boolean;
+};
+
+const semAssinatura: BillingStatus = { plan: null, status: null, paid: false };
+
+/**
+ * Lê `clinicas/{uid}.billing` (gravado só pelo webhook do Stripe) para a UI
+ * saber se a pessoa já paga. Em modo demonstração devolve "sem assinatura".
+ */
+export async function getBillingStatus(): Promise<BillingStatus> {
+  if (!isFirebaseConfigured) return semAssinatura;
+  try {
+    const user = await waitForAuthUser();
+    if (!user) return semAssinatura;
+    const d = await getClinicaDocCached(user.uid);
+    const rawPlan = d?.billing?.plan;
+    const status = typeof d?.billing?.status === "string" ? d.billing.status : null;
+    const plan =
+      rawPlan === "start" || rawPlan === "pro" || rawPlan === "premium" ? rawPlan : null;
+    return { plan, status, paid: !!status && PAID_BILLING_STATUSES.has(status) };
+  } catch (err) {
+    console.warn("[store] falha ao ler status de billing:", err instanceof Error ? err.message : err);
+    return semAssinatura;
+  }
 }
 
 export async function getBillingPlan(): Promise<"start" | "pro" | "premium"> {

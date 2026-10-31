@@ -37,9 +37,10 @@ import {
   formalidadeLabel,
 } from "@/data/opcoes";
 import {
+  ctaLabel,
   fallbackResponse,
-  getStepFromUrl,
   getTreatment,
+  resolveUrlStep,
 } from "@/app/(marketing)/onboarding/helpers";
 
 type Step = "clinica" | "resposta" | "planos";
@@ -90,22 +91,31 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generateFailed, setGenerateFailed] = useState(false);
   const [generatedResponse, setGeneratedResponse] = useState("");
+
+  // Nome da clínica JÁ GRAVADO (rascunho local ou Firestore). A navegação por
+  // URL usa este valor, nunca o campo em edição.
+  const [storedName, setStoredName] = useState("");
 
   useEffect(() => {
     const draft = loadDraft();
-    if (draft) setClinic((prev) => ({ ...prev, ...draft }));
+    if (!draft) return;
+    setClinic((prev) => ({ ...prev, ...draft }));
+    setStoredName(draft.nome_clinica ?? "");
   }, []);
 
+  // `?plan=` / `?aba=` só reposicionam o funil UMA vez e a partir do que já
+  // estava salvo. Antes o efeito acompanhava o que a pessoa estava digitando e
+  // pulava para os planos na primeira tecla do nome da clínica.
   const urlStepApplied = useRef(false);
   useEffect(() => {
     if (urlStepApplied.current) return;
-    const nextStep = getStepFromUrl(tabFromUrl, clinic.nome_clinica);
-    if (nextStep !== "clinica") {
-      urlStepApplied.current = true;
-      setStep(nextStep);
-    }
-  }, [tabFromUrl, clinic.nome_clinica]);
+    const nextStep = resolveUrlStep(planFromUrl, tabFromUrl, storedName);
+    if (nextStep === "clinica") return;
+    urlStepApplied.current = true;
+    setStep(nextStep);
+  }, [planFromUrl, tabFromUrl, storedName]);
 
   useEffect(() => {
     saveDraft(clinic);
@@ -118,16 +128,13 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
       .then((saved) => {
         if (saved.nome_clinica || saved.onboarded) {
           setClinic((prev) => ({ ...prev, ...saved }));
+          if (saved.nome_clinica) setStoredName(saved.nome_clinica);
         }
       })
       .catch(() => {
         // Mantem o rascunho local se a sessao Firebase ainda nao sincronizou.
       });
   }, [authLoaded, canPersist]);
-
-  useEffect(() => {
-    if (planFromUrl && clinic.nome_clinica.trim()) setStep("planos");
-  }, [planFromUrl, clinic.nome_clinica]);
 
   useEffect(() => {
     if (!checkoutSuccess) return;
@@ -143,7 +150,9 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
   }, [checkoutSuccess, searchParams]);
 
   const currentStepIndex = STEPS.findIndex((item) => item.id === step);
-  const progress = `${Math.round(((currentStepIndex + 1) / STEPS.length) * 100)}%`;
+  const progressPercent = Math.round(
+    ((currentStepIndex + 1) / STEPS.length) * 100
+  );
   const canContinue = clinic.nome_clinica.trim().length > 0;
   const visibleProcedures = useMemo(
     () =>
@@ -170,21 +179,40 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
     }));
   }
 
+  /** Único caminho de gravação do DNA — evita salvar duas vezes o mesmo estado. */
+  async function persistClinic(): Promise<boolean> {
+    if (!canPersist || !canContinue) return false;
+    try {
+      await saveClinica({ ...clinic, onboarded: true });
+      return true;
+    } catch {
+      setSaveFailed(true);
+      return false;
+    }
+  }
+
   function goTo(nextStep: Step) {
     setStep(nextStep);
     setSaveFailed(false);
 
-    if (nextStep === "planos" && canPersist && canContinue) {
-      saveClinica({ ...clinic, onboarded: true }).catch(() =>
-        setSaveFailed(true)
-      );
-    }
+    if (nextStep === "planos") void persistClinic();
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  // Sequência da requisição: se a pessoa clicar em "gerar de novo" antes da
+  // anterior responder, só a última resposta pode vencer a corrida.
+  const generationSeq = useRef(0);
+
   async function generateResponse() {
+    const seq = ++generationSeq.current;
     setGenerating(true);
+    setGenerateFailed(false);
+    // Limpa a resposta anterior: se ESTA tentativa falhar, o aviso diz que o
+    // texto na tela é o exemplo local — e aí ele precisa mesmo ser o exemplo,
+    // não a geração antiga (que ainda por cima pode ser de um DNA já editado).
+    setGeneratedResponse("");
+
     try {
       const result = await fetch("/api/generate", {
         method: "POST",
@@ -194,7 +222,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
           procedimento: "botox",
           situacao: "preco",
           tom: "acolhedor",
-          objetivo: "direcionar para a avaliacao",
+          objetivo: "direcionar para a avaliação",
           nomeCliente: getTreatment(clinic.como_chamar) || "Ana",
           mensagemCliente: "Oi! Quanto custa o botox?",
           clinica: {
@@ -202,22 +230,27 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
             formalidade: clinic.formalidade,
             como_chamar: clinic.como_chamar,
             cta_preferido:
-              clinic.cta_preferido || "marcar uma avaliacao",
+              clinic.cta_preferido || "marcar uma avaliação",
           },
         }),
       });
       const data = (await result.json().catch(() => ({}))) as {
         respostas?: { consultiva?: string; curta?: string };
       };
-      setGeneratedResponse(
-        data.respostas?.consultiva ||
-          data.respostas?.curta ||
-          fallbackResponse(clinic)
-      );
+      if (seq !== generationSeq.current) return;
+
+      const texto = data.respostas?.consultiva || data.respostas?.curta || "";
+      if (!result.ok || !texto) {
+        // Sem resposta da IA seguimos mostrando o exemplo local (que acompanha
+        // as edições do DNA), mas dizemos que a geração ao vivo falhou.
+        setGenerateFailed(true);
+        return;
+      }
+      setGeneratedResponse(texto);
     } catch {
-      setGeneratedResponse(fallbackResponse(clinic));
+      if (seq === generationSeq.current) setGenerateFailed(true);
     } finally {
-      setGenerating(false);
+      if (seq === generationSeq.current) setGenerating(false);
     }
   }
 
@@ -225,7 +258,8 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
     setSaving(true);
     setSaveFailed(false);
     try {
-      await saveClinica({ ...clinic, onboarded: true });
+      const ok = await persistClinic();
+      if (!ok) return;
       trackEvent("sign_up", {
         method: "Onboarding",
         city: clinic.cidade || undefined,
@@ -233,24 +267,23 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
       });
       router.push("/gerador");
       router.refresh();
-    } catch {
-      setSaveFailed(true);
     } finally {
       setSaving(false);
     }
   }
 
+  const autoGenerated = useRef(false);
   useEffect(() => {
-    if (step === "resposta" && !generatedResponse && !generating) {
-      generateResponse();
-    }
+    if (step !== "resposta" || autoGenerated.current) return;
+    autoGenerated.current = true;
+    generateResponse();
     // A resposta deve ser gerada uma vez ao entrar na etapa.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
   return (
-    <div className="min-h-screen bg-nude-50">
-      <header className="border-b border-brand-100 bg-white/75 backdrop-blur">
+    <div className="min-h-screen bg-navy-900">
+      <header className="border-b border-navy-500/50 bg-navy-900/80 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <Logo href="/" textClass="text-lg text-ink" />
           {signedIn ? (
@@ -273,7 +306,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
 
       <main className="mx-auto max-w-4xl px-4 py-10 sm:py-14">
         {checkoutSuccess && (
-          <div className="mb-8 rounded-2xl border border-brand-200 bg-brand-50 px-5 py-4 text-center text-sm text-brand-800">
+          <div className="mb-8 rounded-2xl border border-gold-500/30 bg-gold-500/10 px-5 py-4 text-center text-sm text-champagne-200">
             <p className="font-semibold text-ink">Pagamento confirmado.</p>
             <p className="mt-1">
               Crie ou entre com o mesmo e-mail do pagamento para liberar o
@@ -283,29 +316,29 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
         )}
 
         {checkoutCanceled && (
-          <div className="mb-8 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-center text-sm text-amber-800">
+          <div className="mb-8 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-center text-sm text-amber-200">
             Pagamento cancelado. Nada foi cobrado.
           </div>
         )}
 
         <section className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-500">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
             Etapa {currentStepIndex + 1} de {STEPS.length}
           </p>
           <h1 className="mx-auto mt-3 max-w-2xl font-serif text-3xl font-semibold leading-tight text-ink sm:text-5xl">
-            Ela perguntou o preco.{" "}
+            Ela perguntou o preço.{" "}
             <span className="text-gold-gradient">
               Veja como responder diferente.
             </span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-            Monte o DNA da clinica, veja a resposta mudar no seu tom e escolha
-            como comecar.
+            Monte o DNA da clínica, veja a resposta mudar no seu tom e escolha
+            como começar.
           </p>
         </section>
 
-        <nav className="mt-9 flex justify-center">
-          <div className="inline-flex w-full max-w-md gap-1 rounded-2xl bg-nude-100 p-1.5 sm:w-auto">
+        <nav className="mt-9 flex justify-center" aria-label="Etapas do cadastro">
+          <div className="inline-flex w-full max-w-md gap-1 rounded-2xl border border-navy-500 bg-navy-700 p-1.5 sm:w-auto">
             {STEPS.map((item) => {
               const active = step === item.id;
               const enabled = item.id === "clinica" || canContinue;
@@ -315,12 +348,13 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                   key={item.id}
                   type="button"
                   disabled={!enabled}
+                  aria-current={active ? "step" : undefined}
                   onClick={() => enabled && goTo(item.id)}
                   className={cn(
                     "flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 text-center text-[11px] font-medium transition-colors sm:flex-row sm:gap-2 sm:px-5 sm:text-sm",
                     active
-                      ? "bg-white text-gold-700 shadow-sm"
-                      : "text-muted hover:text-ink",
+                      ? "border border-gold-500/40 bg-navy-600 text-champagne-100 shadow-sm"
+                      : "border border-transparent text-muted hover:text-ink",
                     !enabled && "cursor-not-allowed opacity-40"
                   )}
                 >
@@ -329,7 +363,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                       "flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold",
                       active
                         ? "bg-gold-500 text-brand-900"
-                        : "bg-brand-100 text-brand-600"
+                        : "bg-navy-600 text-navy-50"
                     )}
                   >
                     {item.n}
@@ -341,21 +375,35 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
           </div>
         </nav>
 
-        <div className="mx-auto mt-4 h-2 w-full max-w-md overflow-hidden rounded-full bg-brand-100">
+        <div
+          className="mx-auto mt-4 h-2 w-full max-w-md overflow-hidden rounded-full bg-navy-600"
+          role="progressbar"
+          aria-label="Progresso do cadastro"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progressPercent}
+        >
           <div
             className="h-full rounded-full bg-gold-500 transition-all duration-300"
-            style={{ width: progress }}
+            style={{ width: `${progressPercent}%` }}
           />
         </div>
 
         <div className="mt-8">
           {step === "clinica" && (
             <Card>
-              <CardBody className="space-y-8 p-6 sm:p-8">
-                <div className="rounded-3xl border border-brand-100 bg-gradient-to-br from-white to-brand-50 p-5 shadow-card">
+              <CardBody className="p-6 sm:p-8">
+                <form
+                  className="space-y-8"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    if (canContinue) goTo("resposta");
+                  }}
+                >
+                <div className="rounded-3xl border border-navy-500 bg-navy-700 p-5 shadow-card">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-500">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
                         Seu estilo no LeadBellus
                       </p>
                       <h2 className="mt-2 text-lg font-semibold text-ink">
@@ -363,7 +411,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         {clinic.nome_clinica.trim() || "sua clinica"}.
                       </h2>
                     </div>
-                    <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-700">
+                    <span className="rounded-full border border-gold-500/30 bg-gold-500/15 px-3 py-1 text-xs font-semibold text-gold-300">
                       {clinic.procedimentos.length} procedimentos
                     </span>
                   </div>
@@ -378,7 +426,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         )?.label || "Linda"
                       }
                     />
-                    <MiniStat label="CTA" value={clinic.cta_preferido} />
+                    <MiniStat label="CTA" value={ctaLabel(clinic.cta_preferido)} />
                   </div>
                 </div>
 
@@ -394,7 +442,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                       onChange={(event) =>
                         setClinicField("nome_clinica", event.target.value)
                       }
-                      placeholder="Ex.: Espaco Beleza & Cuidado"
+                      placeholder="Ex.: Espaço Beleza & Cuidado"
                       autoFocus
                     />
                   </div>
@@ -410,7 +458,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                       onChange={(event) =>
                         setClinicField("cidade", event.target.value)
                       }
-                      placeholder="Ex.: Sao Paulo - SP"
+                      placeholder="Ex.: São Paulo - SP"
                     />
                   </div>
                 </div>
@@ -432,8 +480,8 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                           className={cn(
                             "rounded-2xl border p-4 text-left transition-all",
                             active
-                              ? "border-brand-400 bg-brand-50 text-brand-700 shadow-sm"
-                              : "border-brand-200 bg-white text-muted hover:bg-nude-100"
+                              ? "border-gold-500 bg-gold-500/10 text-champagne-100 shadow-sm"
+                              : "border-navy-500 bg-navy-700 text-champagne-300 hover:border-navy-300 hover:bg-navy-600"
                           )}
                         >
                           <div className="flex items-start justify-between gap-3">
@@ -450,8 +498,8 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                               className={cn(
                                 "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
                                 active
-                                  ? "border-brand-400 bg-brand-500 text-white"
-                                  : "border-brand-200 bg-white text-muted"
+                                  ? "border-gold-500 bg-gold-500 text-navy-900"
+                                  : "border-navy-400 bg-navy-600 text-champagne-300"
                               )}
                             >
                               {active ? <Check size={14} /> : "+"}
@@ -465,7 +513,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                     <button
                       type="button"
                       onClick={() => setShowAllProcedures((value) => !value)}
-                      className="text-sm font-semibold text-brand-600 hover:text-brand-700"
+                      className="text-sm font-semibold text-gold-400 hover:text-gold-300"
                     >
                       {showAllProcedures
                         ? "Ver menos procedimentos"
@@ -476,20 +524,21 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
 
                 <div className="space-y-5">
                   <div>
-                    <Label>Como voce chama a cliente?</Label>
+                    <Label>Como você chama a cliente?</Label>
                     <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
                       {comoChamarOptions.map((option) => (
                         <button
                           key={option.value}
                           type="button"
+                          aria-pressed={clinic.como_chamar === option.value}
                           onClick={() =>
                             setClinicField("como_chamar", option.value)
                           }
                           className={cn(
                             "rounded-xl border px-4 py-3 text-sm font-medium transition-colors",
                             clinic.como_chamar === option.value
-                              ? "border-brand-400 bg-brand-50 text-brand-600"
-                              : "border-brand-200 bg-white text-ink hover:bg-nude-100"
+                              ? "border-gold-500 bg-gold-500/15 text-champagne-100"
+                              : "border-navy-500 bg-navy-700 text-champagne-300 hover:border-navy-300 hover:bg-navy-600"
                           )}
                         >
                           {option.label}
@@ -512,11 +561,11 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                       onChange={(event) =>
                         setClinicField("formalidade", Number(event.target.value))
                       }
-                      className="mt-2 h-11 w-full accent-brand-500"
+                      className="mt-2 h-11 w-full accent-gold-500"
                     />
                     <div className="flex justify-between text-xs text-muted">
-                      <span>Bem proximo</span>
-                      <span className="font-medium text-brand-600">
+                      <span>Bem próximo</span>
+                      <span className="font-medium text-gold-400">
                         {formalidadeLabel(clinic.formalidade)}
                       </span>
                       <span>Mais formal</span>
@@ -524,20 +573,21 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                   </div>
 
                   <div>
-                    <Label>Como voce fecha?</Label>
+                    <Label>Como você fecha?</Label>
                     <div className="mt-2 grid gap-2 sm:grid-cols-3">
                       {ctaOptions.map((option) => (
                         <button
                           key={option.value}
                           type="button"
+                          aria-pressed={clinic.cta_preferido === option.value}
                           onClick={() =>
                             setClinicField("cta_preferido", option.value)
                           }
                           className={cn(
                             "rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors",
                             clinic.cta_preferido === option.value
-                              ? "border-brand-400 bg-brand-50 text-brand-700"
-                              : "border-brand-200 bg-white text-ink hover:bg-nude-100"
+                              ? "border-gold-500 bg-gold-500/15 text-champagne-100"
+                              : "border-navy-500 bg-navy-700 text-champagne-300 hover:border-navy-300 hover:bg-navy-600"
                           )}
                         >
                           {option.label}
@@ -547,9 +597,10 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                   </div>
                 </div>
 
-                <div className="flex flex-col items-stretch gap-3 border-t border-brand-100 pt-6 sm:flex-row sm:items-center sm:justify-end">
+                <div className="flex flex-col items-stretch gap-3 border-t border-navy-500 pt-6 sm:flex-row sm:items-center sm:justify-end">
                   {canPersist && (
                     <Button
+                      type="button"
                       variant="ghost"
                       onClick={saveAndEnter}
                       disabled={saving || !canContinue}
@@ -561,8 +612,8 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                     </Button>
                   )}
                   <Button
+                    type="submit"
                     variant="cta"
-                    onClick={() => goTo("resposta")}
                     disabled={!canContinue}
                     className="sm:min-w-[220px]"
                   >
@@ -572,10 +623,11 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
 
                 {!canContinue && (
                   <p className="text-center text-xs text-muted sm:text-right">
-                    Coloque o nome da clinica para continuar.
+                    Coloque o nome da clínica para continuar.
                   </p>
                 )}
                 {saveFailed && <SaveError onRetry={saveAndEnter} />}
+                </form>
               </CardBody>
             </Card>
           )}
@@ -602,16 +654,20 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                       <X size={13} /> Resposta qualquer
                     </>
                   }
-                  body="Botox e R$900. Qualquer duvida, estou a disposicao."
-                  caption="Joga o preco, nao cria valor. A cliente compara com a concorrente mais barata e some."
+                  body="Botox é R$900. Qualquer dúvida, estou à disposição."
+                  caption="Joga o preço, não cria valor. A cliente compara com a concorrente mais barata e some."
                 />
 
-                <div className="relative flex flex-col overflow-hidden rounded-3xl border-2 border-gold-300 bg-gradient-to-br from-white to-gold-50 p-6 shadow-cta">
-                  <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-gold-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-700">
+                <div className="relative flex flex-col overflow-hidden rounded-3xl border-2 border-gold-500/50 bg-navy-700 p-6 shadow-cta">
+                  <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-gold-500/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-300">
                     <Check size={13} /> A resposta da{" "}
                     {clinic.nome_clinica.trim() || "sua clinica"}
                   </div>
-                  <div className="rounded-2xl rounded-br-md bg-brand-500 px-4 py-3 text-sm leading-relaxed text-white shadow-soft">
+                  <div
+                    className="rounded-2xl rounded-br-md bg-navy-500 px-4 py-3 text-sm leading-relaxed text-champagne-100 shadow-soft"
+                    aria-live="polite"
+                    aria-busy={generating}
+                  >
                     {generating ? (
                       <span className="inline-flex items-center gap-2 text-white/90">
                         <Loader2 size={15} className="animate-spin" />
@@ -621,33 +677,39 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                       <span className="whitespace-pre-wrap">{response}</span>
                     )}
                   </div>
-                  <p className="mt-4 text-sm leading-relaxed text-brand-800">
-                    Acolhe, mostra valor e conduz para avaliacao no seu jeito
+                  <p className="mt-4 text-sm leading-relaxed text-champagne-300">
+                    Acolhe, mostra valor e conduz para avaliação no seu jeito
                     de falar.
                   </p>
+                  {generateFailed && !generating && (
+                    <p className="mt-3 text-xs text-pain-300">
+                      Não conseguimos gerar ao vivo agora — este é um exemplo no
+                      seu tom. Tente de novo em instantes.
+                    </p>
+                  )}
                   <button
                     type="button"
                     onClick={generateResponse}
                     disabled={generating}
-                    className="mt-4 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-brand-700 hover:text-brand-800 disabled:opacity-60"
+                    className="mt-4 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-gold-400 hover:text-gold-300 disabled:opacity-60"
                   >
                     <Sparkles size={14} />
                     {generating
                       ? "Gerando..."
-                      : "Gerar de novo com a cara da minha clinica"}
+                      : "Gerar de novo com a cara da minha clínica"}
                   </button>
                 </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-3">
                 {[
-                  ["Acolhe", "A cliente sente atencao real."],
-                  ["Cria valor", "A avaliacao vira parte da conversa."],
-                  ["Conduz", "O proximo passo fica claro."],
+                  ["Acolhe", "A cliente sente atenção real."],
+                  ["Cria valor", "A avaliação vira parte da conversa."],
+                  ["Conduz", "O próximo passo fica claro."],
                 ].map(([title, description]) => (
                   <div
                     key={title}
-                    className="rounded-2xl border border-brand-100 bg-white p-4 shadow-card"
+                    className="rounded-2xl border border-navy-500 bg-navy-700 p-4 shadow-card"
                   >
                     <p className="text-sm font-semibold text-ink">{title}</p>
                     <p className="mt-1 text-sm leading-relaxed text-muted">
@@ -676,10 +738,10 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
             <div className="space-y-6">
               <div className="text-center">
                 <h2 className="font-serif text-2xl font-semibold text-ink">
-                  Uma cliente recuperada ja paga o mes inteiro.
+                  Uma cliente recuperada já paga o mês inteiro.
                 </h2>
                 <p className="mx-auto mt-2 max-w-xl text-sm text-muted">
-                  Comece pelo Start. Voce cancela quando quiser.
+                  Comece pelo Start. Você cancela quando quiser.
                 </p>
               </div>
 
@@ -690,10 +752,10 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                   <div
                     key={plan.id}
                     className={cn(
-                      "relative flex flex-col rounded-3xl border bg-white p-6",
+                      "relative flex flex-col rounded-3xl border bg-navy-700 p-6",
                       plan.destaque
-                        ? "border-2 border-brand-300 bg-gradient-to-br from-white to-brand-50 shadow-soft"
-                        : "border-brand-100"
+                        ? "border-2 border-gold-500/60 bg-navy-600 shadow-soft"
+                        : "border-navy-500"
                     )}
                   >
                     {plan.selo && (
@@ -701,8 +763,8 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         className={cn(
                           "absolute -top-3 right-5 rounded-full px-3 py-1 text-xs font-semibold",
                           plan.destaque
-                            ? "bg-brand-500 text-white"
-                            : "bg-brand-100 text-brand-700"
+                            ? "bg-gold-500 text-navy-900"
+                            : "bg-navy-600 text-champagne-300"
                         )}
                       >
                         {plan.selo}
@@ -734,7 +796,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                         >
                           <Check
                             size={16}
-                            className="mt-0.5 shrink-0 text-brand-500"
+                            className="mt-0.5 shrink-0 text-gold-400"
                           />
                           {feature}
                         </li>
@@ -759,13 +821,13 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
               </div>
 
               {!signedIn && (
-                <div className="rounded-2xl border border-brand-100 bg-white px-5 py-4 text-center text-sm text-muted shadow-card">
+                <div className="rounded-2xl border border-navy-500 bg-navy-700 px-5 py-4 text-center text-sm text-champagne-300 shadow-card">
                   Quer criar conta antes de pagar?{" "}
                   <Link
                     href="/signup?plan=start"
-                    className="font-semibold text-brand-600 hover:text-brand-700"
+                    className="font-semibold text-gold-400 hover:text-gold-300"
                   >
-                    Criar conta gratis
+                    Criar conta grátis
                   </Link>
                 </div>
               )}
@@ -773,14 +835,14 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
               <div className="flex items-start gap-3 rounded-2xl border border-lavender-200 bg-lavender-50 p-4 text-xs text-lavender-700">
                 <ShieldCheck size={18} className="mt-0.5 shrink-0" />
                 <p>
-                  Respostas feitas para estetica: sem promessa de resultado,
-                  sem diagnostico e sempre valorizando a avaliacao.
+                  Respostas feitas para estética: sem promessa de resultado,
+                  sem diagnóstico e sempre valorizando a avaliação.
                 </p>
               </div>
 
               <div className="flex justify-center">
                 <Button variant="ghost" onClick={() => goTo("resposta")}>
-                  <ArrowLeft size={16} /> Ver a diferenca de novo
+                  <ArrowLeft size={16} /> Ver a diferença de novo
                 </Button>
               </div>
             </div>
@@ -797,11 +859,11 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
 
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-white/80 px-4 py-3">
+    <div className="rounded-2xl border border-navy-500 bg-navy-600/70 px-4 py-3">
       <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
         {label}
       </p>
-      <p className="mt-1 text-sm font-medium capitalize text-ink">{value}</p>
+      <p className="mt-1 text-sm font-medium text-ink first-letter:uppercase">{value}</p>
     </div>
   );
 }
@@ -825,7 +887,7 @@ function ResponsePanel({
       )}
     >
       <div className="badge-pain mb-4 w-fit">{badge}</div>
-      <div className="rounded-2xl rounded-bl-md border border-pain-200 bg-white px-4 py-3 text-sm leading-relaxed text-ink">
+      <div className="rounded-2xl rounded-bl-md border border-pain-500/40 bg-pain-500/10 px-4 py-3 text-sm leading-relaxed text-champagne-100">
         "{body}"
       </div>
       <p className="mt-4 text-sm leading-relaxed text-pain-600/90">
@@ -838,7 +900,7 @@ function ResponsePanel({
 function SaveError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-      Nao conseguimos salvar o perfil da sua clinica agora.
+      Não conseguimos salvar o perfil da sua clínica agora.
       <button
         type="button"
         onClick={onRetry}

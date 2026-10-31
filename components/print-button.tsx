@@ -16,7 +16,7 @@ export function PrintButton({
       type="button"
       onClick={() => window.print()}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-lg border border-brand-200 bg-white px-3 py-1.5 text-xs font-medium text-brand-600 transition-colors hover:bg-brand-50",
+        "inline-flex items-center gap-1.5 rounded-lg border border-navy-500 bg-navy-700 px-3 py-1.5 text-xs font-medium text-champagne-300 transition-colors hover:bg-navy-600",
         className
       )}
     >

@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EMPRESA } from "@/lib/empresa";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
+  path: "/privacidade",
   title: "Política de Privacidade — LeadBellus",
-  description: "Política de Privacidade do LeadBellus (LGPD).",
-};
+  description:
+    "Política de Privacidade do LeadBellus conforme a LGPD: quais dados coletamos, para que usamos, com quem compartilhamos e como exercer seus direitos de titular.",
+});
 
 export default function PrivacidadePage() {
   return (
@@ -17,25 +21,16 @@ export default function PrivacidadePage() {
         <h1 className="mt-6 font-serif text-3xl font-semibold text-champagne-300 sm:text-4xl">
           Política de Privacidade
         </h1>
-        <p className="mt-2 text-xs text-navy-100">Última atualização: junho de 2026</p>
-
-        <div className="mt-6 rounded-2xl border border-gold-500/30 bg-gold-500/10 px-4 py-3">
-          <p className="text-sm font-semibold text-gold-300">⚠️ Rascunho para revisão</p>
-          <p className="mt-1 text-xs leading-relaxed text-champagne-300">
-            Este documento é um modelo inicial à luz da LGPD e precisa de revisão
-            jurídica antes de valer como política definitiva. Confirme os operadores
-            e dados efetivamente usados antes de publicar.
-          </p>
-        </div>
+        <p className="mt-2 text-xs text-navy-100">Última atualização: outubro de 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-navy-50">
           <section>
             <h2 className="font-serif text-xl font-semibold text-champagne-200">1. Controlador</h2>
             <p className="mt-2">
-              O tratamento dos dados é realizado por Vinicius Paes da Serra Freire
-              (MEI), responsável pelo LeadBellus. Contato:{" "}
-              <a href="mailto:contato@leadbellus.com.br" className="text-gold-400 hover:text-gold-300 underline">
-                contato@leadbellus.com.br
+              O controlador dos dados é o LeadBellus, CNPJ {EMPRESA.cnpj}.
+              Contato:{" "}
+              <a href={`mailto:${EMPRESA.email}`} className="text-gold-400 hover:text-gold-300 underline">
+                {EMPRESA.email}
               </a>
               .
             </p>
@@ -66,9 +61,11 @@ export default function PrivacidadePage() {
             <h2 className="font-serif text-xl font-semibold text-champagne-200">4. Compartilhamento com operadores</h2>
             <p className="mt-2">
               Compartilhamos dados apenas com operadores necessários ao funcionamento
-              do Serviço, como: provedores de IA (para gerar as respostas),
-              processador de pagamento (Stripe), infraestrutura de autenticação e
-              banco de dados (Google Firebase) e provedor de mensageria do WhatsApp.
+              do Serviço: provedores de IA para gerar as respostas (Google Gemini e,
+              quando habilitados, OpenAI e Anthropic), processador de pagamento
+              (Stripe), autenticação e banco de dados (Google Firebase), hospedagem
+              (Amazon Web Services) e, quando a integração estiver ativa, o provedor
+              de mensageria do WhatsApp.
               Cada operador trata os dados conforme suas próprias políticas.
             </p>
           </section>
@@ -96,8 +93,8 @@ export default function PrivacidadePage() {
               Você pode solicitar acesso, correção, exclusão, anonimização,
               portabilidade dos seus dados e revogação de consentimento, conforme o
               art. 18 da LGPD. Para exercê-los, escreva para{" "}
-              <a href="mailto:contato@leadbellus.com.br" className="text-gold-400 hover:text-gold-300 underline">
-                contato@leadbellus.com.br
+              <a href={`mailto:${EMPRESA.email}`} className="text-gold-400 hover:text-gold-300 underline">
+                {EMPRESA.email}
               </a>
               .
             </p>

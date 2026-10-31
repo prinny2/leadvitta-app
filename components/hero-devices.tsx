@@ -22,12 +22,12 @@ const intentRows = [
 const replyOptions = [
   {
     label: "Consultiva",
-    text: "Ana, consigo te passar uma base sim. Antes, me conta se voce busca suavizar linhas ou prevenir?",
+    text: "Ana, consigo te passar uma base sim. Antes, me conta se você busca suavizar linhas ou prevenir?",
     color: C.gold,
   },
   {
     label: "Fechamento leve",
-    text: "Se quiser, eu vejo um horario para avaliacao e te explico o valor certinho para o seu caso.",
+    text: "Se quiser, eu vejo um horário para avaliação e te explico o valor certinho para o seu caso.",
     color: C.mint,
   },
 ];
@@ -202,7 +202,7 @@ export function HeroDevices() {
                 Central ao vivo
               </div>
               <div style={{ color: C.muted, fontSize: 11, marginTop: 2 }}>
-                WhatsApp da clinica, leitura de intencao e resposta pronta
+                WhatsApp da clínica, leitura de intenção e resposta pronta
               </div>
             </div>
             <div
@@ -242,7 +242,7 @@ export function HeroDevices() {
                 <div style={{ display: "grid", gap: 9 }}>
                   <ChatBubble>Oi! Quanto fica o botox? Tenho medo de ficar artificial.</ChatBubble>
                   <ChatBubble mine>
-                    Ana, consigo te orientar sim. Para ficar natural, o valor depende dos pontos e da avaliacao.
+                    Ana, consigo te orientar sim. Para ficar natural, o valor depende dos pontos e da avaliação.
                   </ChatBubble>
                 </div>
               </div>

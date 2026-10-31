@@ -1,0 +1,13 @@
+# HTTPS automático (Let's Encrypt). O certificado só sai depois que o DNS no
+# Registro.br apontar leadbellus.com.br e www para o IP deste servidor — até lá
+# o Caddy fica tentando sozinho, não precisa reiniciar.
+
+www.leadbellus.com.br {
+	encode zstd gzip
+	reverse_proxy app:8080
+}
+
+# Domínio canônico é o www (CANONICAL_SITE em next.config.mjs).
+leadbellus.com.br {
+	redir https://www.leadbellus.com.br{uri} permanent
+}

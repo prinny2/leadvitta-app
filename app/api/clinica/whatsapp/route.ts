@@ -3,14 +3,15 @@ import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { verifyFirebaseIdToken } from "@/lib/firebase/admin";
 import { reivindicarNumero, liberarNumero } from "@/lib/numeros";
 import { enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
+import { getWhatsAppProvider } from "@/lib/whatsapp";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Conecta um número de WhatsApp à clínica logada, com unicidade garantida
- * (um número pertence a no máximo uma conta). É por aqui que o fluxo do
- * Z-API: grava o número da clínica no mapa canônico (numeros_whatsapp).
+ * Associa um número de WhatsApp à clínica logada, com unicidade garantida.
+ * Credenciais Z-API continuam opcionais no modo legado; a Cloud API usa
+ * credenciais configuradas no servidor.
  * Body: { numero, firebaseIdToken }
  */
 export async function POST(req: Request) {
@@ -66,18 +67,20 @@ export async function POST(req: Request) {
     );
   }
 
-  // Save ZAPI creds and number to clinica (server only for secrets ideally)
+  const zapiSelected = getWhatsAppProvider().name === "zapi";
+
+  // Salva o número em ambos os modos; credenciais legadas apenas no Z-API.
   const db = getFirebaseAdminDb();
   if (db) {
     const update: any = { whatsapp: r.numero || "" };
-    if (zapiInstance) update.zapi_instance_id = zapiInstance;
-    if (zapiToken) update.zapi_token = zapiToken;
-    if (zapiClient) update.zapi_client_token = zapiClient;
+    if (zapiSelected && zapiInstance) update.zapi_instance_id = zapiInstance;
+    if (zapiSelected && zapiToken) update.zapi_token = zapiToken;
+    if (zapiSelected && zapiClient) update.zapi_client_token = zapiClient;
     await db.collection("clinicas").doc(decoded.uid).set(update, { merge: true });
   }
 
-  // AUTOMATION: if ZAPI creds provided, auto-configure the webhook for this clinic's instance
-  if (zapiInstance && zapiToken && r.numero) {
+  // Z-API: se as credenciais vierem, configura o webhook desta instância.
+  if (zapiSelected && zapiInstance && zapiToken && r.numero) {
     try {
       await setupZapiWebhookForInstance(zapiInstance, zapiToken, zapiClient);
       console.log(`[zapi-auto] webhook configurado para instância ${zapiInstance}`);

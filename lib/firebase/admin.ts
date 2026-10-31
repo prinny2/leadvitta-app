@@ -47,6 +47,22 @@ function parseServiceAccount(): ServiceAccount | null {
 }
 
 function getFirebaseAdminOptions(): AppOptions | null {
+  // Emulador local: o Admin SDK honra FIRESTORE_EMULATOR_HOST e não precisa de
+  // credencial real — só de um projectId. Fica antes do service account para que
+  // o dev local nunca escreva no Firestore de produção por engano. O guard de
+  // NODE_ENV impede que este caminho exista em build de produção.
+  if (
+    process.env.NODE_ENV !== "production" &&
+    process.env.FIRESTORE_EMULATOR_HOST
+  ) {
+    return {
+      projectId:
+        process.env.FIREBASE_PROJECT_ID ||
+        process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
+        "demo-leadbellus",
+    };
+  }
+
   const serviceAccount = parseServiceAccount();
   if (serviceAccount) {
     // cert() valida e LANÇA com credencial malformada (campo faltando, PEM

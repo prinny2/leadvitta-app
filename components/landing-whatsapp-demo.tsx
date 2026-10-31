@@ -338,14 +338,14 @@ export function LandingWhatsAppDemo() {
                   className={cn(
                     "rounded-full border px-3 py-1.5 text-xs font-bold",
                     demoExhausted
-                      ? "border-[#C9A060] bg-[#C9A060]/10 text-[#7A5108]"
-                      : "border-brand-100 bg-nude-50 text-muted"
+                      ? "border-gold-500 bg-gold-500/10 text-gold-300"
+                      : "border-navy-500 bg-navy-800 text-navy-50"
                   )}
                 >
                   {demoRemaining} de {DEMO_LIMIT} restantes
                 </button>
               </div>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-nude-100">
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-navy-700">
                 <motion.div
                   className="h-full rounded-full bg-[#C9A060]"
                   initial={false}
@@ -510,9 +510,9 @@ export function LandingWhatsAppDemo() {
                 placeholder="Cole uma mensagem real do WhatsApp…"
                 className="simulator-input"
               />
-              {erro && <p className="mt-2 text-sm text-red-600">{erro}</p>}
+              {erro && <p className="mt-2 text-sm text-pain-300">{erro}</p>}
               {demoExhausted ? (
-                <p className="mt-2 text-sm font-medium text-[#7A5108]">
+                <p className="mt-2 text-sm font-medium text-gold-300">
                   Você já usou as 5 respostas da demo. O Start libera o uso no
                   atendimento real.
                 </p>
@@ -531,20 +531,20 @@ export function LandingWhatsAppDemo() {
         viewport={{ once: true, amount: 0.15 }}
         transition={{ duration: 0.65, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="relative overflow-hidden rounded-[2.25rem] border border-brand-100 bg-white shadow-soft">
-          <div className="absolute inset-0 bg-[radial-gradient(700px_420px_at_10%_-10%,rgba(205,163,71,0.18),transparent_55%),radial-gradient(700px_420px_at_100%_0%,rgba(14,58,48,0.16),transparent_55%)] opacity-70" />
+        <div className="relative overflow-hidden rounded-[2.25rem] border border-navy-500 bg-navy-800 shadow-soft">
+          <div className="absolute inset-0 bg-[radial-gradient(700px_420px_at_10%_-10%,rgba(201,160,96,0.18),transparent_55%),radial-gradient(700px_420px_at_100%_0%,rgba(19,31,53,0.55),transparent_55%)] opacity-70" />
           <div className="relative">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-brand-100 bg-white/70 px-5 py-4 backdrop-blur">
+            <div className="flex items-center justify-between border-b border-navy-500 bg-navy-700/70 px-5 py-4 backdrop-blur">
               <div>
-                <div className="text-sm font-semibold text-ink">{contato}</div>
-                <div className="text-xs text-muted">WhatsApp · demo</div>
+                <div className="text-sm font-semibold text-champagne-200">{contato}</div>
+                <div className="text-xs text-navy-50">WhatsApp · demo</div>
               </div>
               {respostaAtual ? <CopyButton text={respostaAtual} /> : null}
             </div>
 
             {/* Messages area */}
-            <div className="space-y-3 bg-nude-100/70 px-5 py-5">
+            <div className="space-y-3 bg-navy-900/60 px-5 py-5">
               {/* Client bubble */}
               <motion.div
                 className="flex justify-start"
@@ -553,7 +553,7 @@ export function LandingWhatsAppDemo() {
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.45, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
               >
-                <div className="max-w-[85%] rounded-2xl rounded-bl-md border border-brand-100 bg-white px-4 py-3 text-sm leading-relaxed text-ink shadow-card">
+                <div className="max-w-[85%] rounded-2xl rounded-bl-md border border-navy-500 bg-navy-700 px-4 py-3 text-sm leading-relaxed text-champagne-300 shadow-card">
                   <AnimatePresence mode="wait">
                     <motion.span
                       key={mensagemCliente}
@@ -563,7 +563,7 @@ export function LandingWhatsAppDemo() {
                       transition={{ duration: 0.2 }}
                     >
                       {mensagemCliente.trim() || (
-                        <span className="text-muted">
+                        <span className="text-navy-50">
                           Digite uma mensagem para começar…
                         </span>
                       )}
@@ -574,7 +574,7 @@ export function LandingWhatsAppDemo() {
 
               {/* Response bubble */}
               <div className="flex justify-end">
-                <div className="max-w-[85%] rounded-2xl rounded-br-md bg-brand-600 px-4 py-3 text-sm leading-relaxed text-white shadow-soft">
+                <div className="max-w-[85%] rounded-2xl rounded-br-md border border-gold-500/15 bg-[rgba(94,224,160,0.10)] px-4 py-3 text-sm leading-relaxed text-champagne-200 shadow-soft">
                   <AnimatePresence mode="wait">
                     {loading ? (
                       <motion.span
@@ -583,7 +583,7 @@ export function LandingWhatsAppDemo() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="inline-flex items-center gap-2 text-white/90"
+                        className="inline-flex items-center gap-2 text-champagne-300"
                       >
                         <Loader2 size={14} className="animate-spin flex-shrink-0" />
                         <AnimatePresence mode="wait">
@@ -627,7 +627,7 @@ export function LandingWhatsAppDemo() {
             </div>
 
             {/* Variant tabs + copy hint */}
-            <div className="border-t border-brand-100 bg-white/80 px-4 py-4 backdrop-blur">
+            <div className="border-t border-navy-500 bg-navy-800/80 px-4 py-4 backdrop-blur">
               <div className="grid grid-cols-3 gap-2">
                 {VARIANTES.map((v) => (
                   <motion.button
@@ -639,18 +639,18 @@ export function LandingWhatsAppDemo() {
                     className={cn(
                       "rounded-xl border px-3 py-2 text-left text-xs font-semibold transition-colors",
                       variante === v.key
-                        ? "border-brand-300 bg-brand-50 text-brand-700"
-                        : "border-brand-100 bg-white text-ink hover:bg-nude-50"
+                        ? "border-gold-500/50 bg-gold-500/10 text-champagne-200"
+                        : "border-navy-500 bg-navy-700 text-navy-50 hover:bg-navy-600"
                     )}
                   >
                     <div>{v.label}</div>
-                    <div className="mt-0.5 text-[11px] font-medium text-muted">
+                    <div className="mt-0.5 text-[11px] font-medium text-navy-50">
                       {v.hint}
                     </div>
                   </motion.button>
                 ))}
               </div>
-              <p className="mt-3 text-center text-[11px] text-muted">
+              <p className="mt-3 text-center text-[11px] text-navy-50">
                 Você pode copiar e colar direto no WhatsApp.
               </p>
             </div>

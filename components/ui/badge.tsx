@@ -4,13 +4,13 @@ type Variant = "pain" | "brand" | "gold" | "neutral";
 
 const variants: Record<Variant, string> = {
   // Gancho de dor / perda — equivale ao `.badge-pain` do globals.css.
-  pain: "bg-pain-100 text-pain-600",
+  pain: "bg-pain-500/15 text-pain-300",
   // Marca / informativo.
-  brand: "bg-brand-100 text-brand-700",
+  brand: "bg-navy-600 text-champagne-300",
   // Destaque / conversão.
-  gold: "bg-gold-100 text-gold-700",
+  gold: "bg-gold-500/15 text-gold-300",
   // Neutro / metadado.
-  neutral: "bg-nude-100 text-muted",
+  neutral: "bg-navy-700 text-navy-50",
 };
 
 export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {

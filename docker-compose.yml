@@ -1,0 +1,75 @@
+# LeadBellus — sobe o mesmo build como serviços separados (SERVICE_ROLE) +
+# emuladores Firebase. Uso local / demo de arquitetura; produção segue na Vercel.
+#
+#   docker compose up --build              # todos
+#   docker compose up --build web          # só o monólito (comportamento atual)
+#   curl localhost:3001/api/health         # {"service_role":"ai", ...}
+#   curl localhost:3001/                   # 404 not_served_by_this_service
+#
+# Segredos: crie um .env (não commitado) com as chaves que cada serviço precisa;
+# sem nenhuma chave tudo roda em modo demonstração (AI mock, sem login).
+x-app: &app
+  build:
+    context: .
+    args:
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    NODE_ENV: production
+    NEXT_TELEMETRY_DISABLED: "1"
+    NEXT_PUBLIC_USE_FIREBASE_EMULATOR: "true"
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID: demo-leadbellus
+    FIREBASE_PROJECT_ID: demo-leadbellus
+    FIRESTORE_EMULATOR_HOST: firebase:8080
+    FIREBASE_AUTH_EMULATOR_HOST: firebase:9099
+  depends_on:
+    - firebase
+  restart: unless-stopped
+
+services:
+  firebase:
+    image: node:20-slim
+    working_dir: /srv
+    command: >
+      sh -c "npx --yes firebase-tools emulators:start
+      --only firestore,auth --project demo-leadbellus"
+    volumes:
+      - ./firebase.json:/srv/firebase.json:ro
+      - ./firestore.rules:/srv/firestore.rules:ro
+      - ./firestore.indexes.json:/srv/firestore.indexes.json:ro
+    ports:
+      - "4000:4000"   # Emulator UI
+      - "8080:8080"   # Firestore
+      - "9099:9099"   # Auth
+
+  web:
+    <<: *app
+    environment:
+      SERVICE_ROLE: web
+    ports: ["3000:8080"]
+
+  ai:
+    <<: *app
+    environment:
+      SERVICE_ROLE: ai
+    ports: ["3001:8080"]
+
+  billing:
+    <<: *app
+    environment:
+      SERVICE_ROLE: billing
+    ports: ["3002:8080"]
+
+  whatsapp:
+    <<: *app
+    environment:
+      SERVICE_ROLE: whatsapp
+    ports: ["3003:8080"]
+
+  growth:
+    <<: *app
+    environment:
+      SERVICE_ROLE: growth
+    ports: ["3004:8080"]

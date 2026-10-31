@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { EMPRESA } from "@/lib/empresa";
 import { HeroDevices } from "@/components/hero-devices";
 import { HeroTextContent } from "@/components/hero-text-content";
 import { PricingSection } from "@/components/pricing-section";
+import { pageMetadata } from "@/lib/seo";
 
 // ─── Logo SVG inline ───────────────────────────────────────────────────────────
 function LogoMark({ size = 32 }: { size?: number }) {
@@ -158,14 +160,30 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+// Só slugs conhecidos (os dos anúncios); qualquer outro vira 404 em vez de
+// gerar URLs duplicadas infinitas.
+export const dynamicParams = false;
+export function generateStaticParams() {
+  return [{ slug: "whatsapp-estetica" }];
+}
+
+// Landing de tráfego pago: fora do índice orgânico.
+export const metadata = pageMetadata({
+  path: "/campanha/whatsapp-estetica",
+  title: "Clientes de estética não somem pelo preço — LeadBellus",
+  description:
+    "Clientes de estética não somem pelo preço, somem pela resposta errada. O LeadBellus sugere respostas no tom da sua clínica para objeções no WhatsApp.",
+  index: false,
+});
+
 export default async function CampaignPage({ params }: Props) {
   await params;
 
   const campaignHeadline = (
     <>
-      Clientes de estética
+      Clientes de estética{" "}
       <br />
-      não somem pelo preço.
+      não somem pelo preço.{" "}
       <br />
       <span style={{ color: "#C9A060" }}>Somem pela resposta errada.</span>
     </>
@@ -266,7 +284,7 @@ export default async function CampaignPage({ params }: Props) {
             </p>
           </div>
 
-          <PricingSection ctaHref="/signup?plan=start" />
+          <PricingSection ctaHref="/signup?plan=start&next=checkout" />
         </div>
       </section>
 
@@ -286,7 +304,7 @@ export default async function CampaignPage({ params }: Props) {
             © {new Date().getFullYear()} LeadBellus. Todos os direitos reservados.
           </p>
           <p style={{ margin: 0, fontSize: "12px", color: "rgba(255,255,255,0.25)" }}>
-            LeadBellus — MEI Vinícius Paes da Serra Freire · CNPJ sob consulta.
+            {EMPRESA.marca} · CNPJ {EMPRESA.cnpj}
           </p>
         </div>
       </footer>

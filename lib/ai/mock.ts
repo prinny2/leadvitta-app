@@ -32,7 +32,7 @@ export function mockGerador(input: GerarInput): RespostaTripla {
   const p = procLabel(input.procedimento);
 
   return {
-    curta: `${ola} 😊 O valor de ${p} varia conforme o seu objetivo e a avaliação. Antes de te passar certinho, me conta: o que você gostaria de melhorar?`,
+    curta: `${ola} 😊 O valor ${p === "o procedimento" ? "do procedimento" : `de ${p}`} varia conforme o seu objetivo e a avaliação. Antes de te passar certinho, me conta: o que você gostaria de melhorar?`,
     consultiva: `${ola} Te explico sim 😊 ${capitalize(
       p
     )} não tem valor único pra todos os casos, porque depende da avaliação e do resultado que você deseja. Você busca algo mais natural ou um resultado mais marcante?`,

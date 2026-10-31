@@ -7,6 +7,10 @@ import {
 } from "@/lib/canonical-host";
 import { updateSession } from "@/lib/firebase/middleware";
 import { isClerkServerConfigured } from "@/lib/config";
+import { getServiceRole, isPathServedByRole } from "@/lib/service-role";
+
+// Papel deste deploy (SERVICE_ROLE). `web` = monólito completo (default).
+const serviceRole = getServiceRole();
 
 const isProtectedAppRoute = createRouteMatcher([
   "/dashboard(.*)",
@@ -61,6 +65,15 @@ const clerkAuthMiddleware = clerkMiddleware(async (auth, request) => {
 });
 
 export async function middleware(request: NextRequest, event: NextFetchEvent) {
+  // Deploys com papel restrito (ai/billing/whatsapp/growth) só atendem a
+  // própria superfície de API; o resto é 404 explícito, sem tocar em auth.
+  if (!isPathServedByRole(serviceRole, request.nextUrl.pathname)) {
+    return NextResponse.json(
+      { error: "not_served_by_this_service", service: serviceRole },
+      { status: 404, headers: { "Cache-Control": "no-store" } }
+    );
+  }
+
   const redirect = getCanonicalRedirect(request);
   if (redirect) return redirect;
 

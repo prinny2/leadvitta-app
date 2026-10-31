@@ -255,21 +255,29 @@ export default function GeradorPage() {
       </div>
 
       {/* Toggle modo */}
-      <div className="inline-flex rounded-xl bg-navy-700 p-1 shadow-sm">
+      <div className="flex w-full rounded-xl bg-navy-700 p-1 shadow-sm sm:inline-flex sm:w-auto">
         {(["gerar", "reescrever"] as const).map((m) => (
           <button
             key={m}
             type="button"
             onClick={() => setModo(m)}
             className={cn(
-              "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all",
+              "flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-all sm:flex-none sm:px-4",
               modo === m
                 ? "bg-navy-800 text-gold-400 shadow-sm"
                 : "text-navy-100 hover:text-champagne-300"
             )}
           >
             {m === "gerar" ? <Sparkles size={15} /> : <Wand2 size={15} />}
-            {m === "gerar" ? "Gerar resposta" : "Reescrever mensagem"}
+            {m === "gerar" ? (
+              "Gerar resposta"
+            ) : (
+              <>
+                {/* No celular o rótulo longo quebrava o botão em duas linhas. */}
+                <span className="sm:hidden">Reescrever</span>
+                <span className="hidden sm:inline">Reescrever mensagem</span>
+              </>
+            )}
           </button>
         ))}
       </div>

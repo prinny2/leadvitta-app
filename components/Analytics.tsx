@@ -3,7 +3,7 @@
 import { useEffect, useRef, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
-import { ga4MeasurementId } from "@/lib/config";
+import { publicGa4MeasurementId } from "@/lib/config";
 
 // Meta Pixel: só carrega quando há um ID REAL configurado via env
 // (NEXT_PUBLIC_META_PIXEL_ID). Sem fallback fixo.
@@ -11,26 +11,35 @@ const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "";
 
 // GA4 agora vem do config (sem fallback mágico).
 // Defina NEXT_PUBLIC_GA4_ID no Vercel para ativar analytics.
-const GA4_ID = ga4MeasurementId;
+// Precisa ser o ID *público*: GA4_MEASUREMENT_ID é server-only, então existe no
+// SSR mas some no bundle do browser. Usar aquele aqui fazia a tag renderizar com
+// um ID e hidratar com outro — dois gtag.js e page_view duplicado.
+const GA4_ID = publicGa4MeasurementId;
 
 // Google Ads: as conversões agora entram pelo vínculo GA4/Google Ads.
 
 function AnalyticsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const didHandleInitialRender = useRef(false);
+  const lastTrackedUrl = useRef<string | null>(null);
 
   // PageView a cada mudança de rota (App Router não recarrega a página).
   useEffect(() => {
     if (!pathname) return;
-    const isInitialRender = !didHandleInitialRender.current;
-    didHandleInitialRender.current = true;
-
-    // O pageview inicial é disparado no script base, quando o gtag/fbq já existe.
-    if (isInitialRender) return;
 
     const url =
       pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
+
+    // O pageview inicial é disparado no script base, quando o gtag/fbq já existe.
+    // Guardamos a URL em vez de um booleano porque o Strict Mode reexecuta este
+    // efeito no mesmo mount — com booleano a segunda execução disparava um
+    // page_view extra na carga inicial.
+    if (lastTrackedUrl.current === null) {
+      lastTrackedUrl.current = url;
+      return;
+    }
+    if (lastTrackedUrl.current === url) return;
+    lastTrackedUrl.current = url;
 
     if (typeof window !== "undefined" && (window as any).gtag && GA4_ID) {
       (window as any).gtag("config", GA4_ID, { page_path: url });
@@ -46,26 +55,8 @@ function AnalyticsContent() {
 export default function Analytics() {
   return (
     <>
-      {/* Google Analytics 4 — só carrega se GA4 estiver configurado via env */}
-      {GA4_ID && (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="google-analytics" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA4_ID}', {
-                page_path: window.location.pathname + window.location.search
-              });
-            `}
-          </Script>
-        </>
-      )}
-
+      {/* A tag base do GA4 fica no <head> (Ga4HeadTag em app/layout.tsx);
+          aqui só os page_views das navegações seguintes. */}
       {/* Meta Pixel — só carrega se houver Pixel ID */}
       {META_PIXEL_ID && (
         <>
@@ -121,18 +112,46 @@ export const trackEvent = (
 ) => {
   if (typeof window === "undefined") return;
 
-  if ((window as any).gtag && GA4_ID) {
-    (window as any).gtag("event", eventName, params);
-  }
+  // Analytics nunca pode quebrar o clique: se gtag/fbq lançarem (bloqueador de
+  // anúncios, script adulterado), o CTA segue navegando normalmente.
+  try {
+    if ((window as any).gtag && GA4_ID) {
+      (window as any).gtag("event", eventName, params);
+    }
 
-  if ((window as any).fbq && META_PIXEL_ID) {
-    const standardEvents: Record<string, string> = {
-      sign_up: "Lead",
-      checkout_click: "InitiateCheckout",
-      purchase: "Purchase",
-      contact_whatsapp: "Contact",
-    };
-    const metaEvent = standardEvents[eventName] || eventName;
-    (window as any).fbq("track", metaEvent, params);
+    if ((window as any).fbq && META_PIXEL_ID) {
+      const standardEvents: Record<string, string> = {
+        sign_up: "Lead",
+        checkout_click: "InitiateCheckout",
+        purchase: "Purchase",
+        contact_whatsapp: "Contact",
+      };
+      const metaEvent = standardEvents[eventName] || eventName;
+      (window as any).fbq("track", metaEvent, params);
+    }
+  } catch {
+    // Falha de analytics é silenciosa por design.
   }
 };
+
+/**
+ * Snippet oficial do Google (gtag.js) renderizado no servidor dentro do
+ * <head>, como o GA4 pede na instalação — assim a tag aparece no HTML e o
+ * "testar instalação" do Google a encontra. Só existe com NEXT_PUBLIC_GA4_ID.
+ */
+export function Ga4HeadTag() {
+  if (!GA4_ID) return null;
+  return (
+    <>
+      <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${GA4_ID}');`,
+        }}
+      />
+    </>
+  );
+}

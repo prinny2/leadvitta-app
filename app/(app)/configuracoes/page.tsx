@@ -9,7 +9,15 @@ import { Select } from "@/components/ui/select";
 import { procedimentos } from "@/data/procedimentos";
 import { tons } from "@/data/tons";
 import { comoChamarOptions, ctaOptions, formalidadeLabel } from "@/data/opcoes";
-import { getClinica, saveClinica } from "@/lib/store";
+import {
+  getBillingStatus,
+  getClinica,
+  invalidateClinicaCache,
+  saveClinica,
+  waitForAuthUser,
+  type BillingStatus,
+} from "@/lib/store";
+import { reconcileBillingClient } from "@/lib/billing-client";
 import { onAuthStateChanged, updatePassword } from "firebase/auth";
 import {
   isClerkClientConfigured,
@@ -48,14 +56,24 @@ export default function ConfiguracoesPage() {
   const [salvando, setSalvando] = useState(false);
   const [ok, setOk] = useState(false);
   const [erro, setErro] = useState("");
+  const [whatsappProvider, setWhatsappProvider] = useState<"zapi" | "meta-cloud">("zapi");
 
   const [novaSenha, setNovaSenha] = useState("");
   const [senhaMsg, setSenhaMsg] = useState("");
   const [abrindoCheckout, setAbrindoCheckout] = useState(false);
   const [checkoutNotice, setCheckoutNotice] = useState<"sucesso" | "cancelado" | null>(null);
+  const [billing, setBilling] = useState<BillingStatus>({ plan: null, status: null, paid: false });
+  const [liberandoPlano, setLiberandoPlano] = useState(false);
 
   useEffect(() => {
     getClinica().then((v) => { setC(v); setCarregando(false); });
+    getBillingStatus().then(setBilling);
+    fetch("/api/config")
+      .then((res) => res.json())
+      .then((data: { whatsapp_provider?: string }) => {
+        setWhatsappProvider(data.whatsapp_provider === "meta-cloud" ? "meta-cloud" : "zapi");
+      })
+      .catch(() => setWhatsappProvider("zapi"));
 
     const params = new URLSearchParams(window.location.search);
     const checkoutStatus = params.get("checkout");
@@ -77,6 +95,35 @@ export default function ConfiguracoesPage() {
       if (!already) trackEvent("checkout_returned", { stripe_session_id: sid });
     }
   }, []);
+
+  // Volta do Stripe: o webhook grava `billing` alguns segundos depois. Em vez
+  // de pedir "recarregue a página", liga o pagamento (reconcile, caso tenha sido
+  // checkout de visitante) e relê o status até o plano aparecer como ativo.
+  useEffect(() => {
+    if (checkoutNotice !== "sucesso" || !isFirebaseConfigured) return;
+    let cancelled = false;
+    const esperas = [0, 2000, 4000, 6000, 9000, 13000];
+    setLiberandoPlano(true);
+
+    (async () => {
+      for (const ms of esperas) {
+        if (ms) await new Promise((r) => setTimeout(r, ms));
+        if (cancelled) return;
+        const user = await waitForAuthUser();
+        if (!user) continue;
+        const idToken = await user.getIdToken().catch(() => null);
+        if (idToken) await reconcileBillingClient(idToken);
+        invalidateClinicaCache();
+        const status = await getBillingStatus();
+        if (cancelled) return;
+        setBilling(status);
+        if (status.paid) break;
+      }
+      if (!cancelled) setLiberandoPlano(false);
+    })();
+
+    return () => { cancelled = true; };
+  }, [checkoutNotice]);
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
@@ -155,9 +202,11 @@ export default function ConfiguracoesPage() {
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ 
               numero: c.whatsapp, 
-              zapi_instance_id: c.zapi_instance_id, 
-              zapi_token: c.zapi_token, 
-              zapi_client_token: c.zapi_client_token, 
+              ...(whatsappProvider === "zapi" ? {
+                zapi_instance_id: c.zapi_instance_id,
+                zapi_token: c.zapi_token,
+                zapi_client_token: c.zapi_client_token,
+              } : {}),
               firebaseIdToken 
             }),
           });
@@ -249,10 +298,16 @@ export default function ConfiguracoesPage() {
 
       {checkoutNotice === "sucesso" && (
         <div className="rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3">
-          <p className="text-sm font-semibold text-green-300">Pagamento recebido.</p>
+          <p className="flex items-center gap-2 text-sm font-semibold text-green-300">
+            {billing.paid ? <Check size={16} /> : liberandoPlano ? <Loader2 size={16} className="animate-spin" /> : null}
+            {billing.paid ? "Pagamento confirmado — seu plano está ativo." : "Pagamento recebido."}
+          </p>
           <p className="mt-1 text-xs leading-relaxed text-champagne-300">
-            Seu plano está sendo liberado. Se ainda não aparecer atualizado,
-            aguarde alguns segundos e recarregue a página.
+            {billing.paid
+              ? "Gerações liberadas. Vá para o gerador e responda sua próxima cliente."
+              : liberandoPlano
+              ? "Liberando seu plano… isso leva só alguns segundos."
+              : "Ainda não recebemos a confirmação do Stripe. Recarregue a página em instantes; se continuar assim, fale com suporte@leadbellus.com.br."}
           </p>
         </div>
       )}
@@ -288,22 +343,30 @@ export default function ConfiguracoesPage() {
 
               {/* Campos avancados para conectar o WhatsApp da clinica. */}
               <div className="sm:col-span-2 border-t border-navy-600 pt-4">
-                <Label htmlFor="zapi">Conexão do WhatsApp</Label>
-                <p className="text-xs text-navy-100 mb-2">Cole os dados da sua conexão para a LeadBellus receber e responder mensagens automaticamente.</p>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div>
-                    <Label htmlFor="zapi-inst" className="text-xs">Instance ID</Label>
-                    <Input id="zapi-inst" value={c.zapi_instance_id || ""} onChange={(e) => set("zapi_instance_id", e.target.value)} placeholder="Sua instância" />
-                  </div>
-                  <div>
-                    <Label htmlFor="zapi-token" className="text-xs">Token</Label>
-                    <Input id="zapi-token" value={c.zapi_token || ""} onChange={(e) => set("zapi_token", e.target.value)} placeholder="Token" type="password" />
-                  </div>
-                  <div>
-                    <Label htmlFor="zapi-client" className="text-xs">Client-Token (se usar)</Label>
-                    <Input id="zapi-client" value={c.zapi_client_token || ""} onChange={(e) => set("zapi_client_token", e.target.value)} placeholder="Opcional" type="password" />
-                  </div>
-                </div>
+                <Label>Conexão do WhatsApp</Label>
+                {whatsappProvider === "meta-cloud" ? (
+                  <p className="text-xs text-navy-100 mb-2">
+                    A Cloud API da Meta está configurada no servidor para um número. Informe acima o mesmo número registrado na Meta. As mensagens entram na caixa de conversas; sua equipe revisa e envia cada resposta.
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-xs text-navy-100 mb-2">Credenciais do provedor conectado. Mensagens recebidas aparecem na caixa de conversas; sua equipe revisa e envia cada resposta.</p>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div>
+                        <Label htmlFor="zapi-inst" className="text-xs">Instance ID</Label>
+                        <Input id="zapi-inst" value={c.zapi_instance_id || ""} onChange={(e) => set("zapi_instance_id", e.target.value)} placeholder="Sua instância" />
+                      </div>
+                      <div>
+                        <Label htmlFor="zapi-token" className="text-xs">Token</Label>
+                        <Input id="zapi-token" value={c.zapi_token || ""} onChange={(e) => set("zapi_token", e.target.value)} placeholder="Token" type="password" />
+                      </div>
+                      <div>
+                        <Label htmlFor="zapi-client" className="text-xs">Client-Token (se usar)</Label>
+                        <Input id="zapi-client" value={c.zapi_client_token || ""} onChange={(e) => set("zapi_client_token", e.target.value)} placeholder="Opcional" type="password" />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               <div>
                 <Label htmlFor="tom">Tom de voz padrão</Label>
@@ -448,9 +511,23 @@ export default function ConfiguracoesPage() {
         <SectionHeader icon={CreditCard} title="Plano e pagamento" subtitle="Cobrança segura" />
 
         <div className="space-y-4 p-5 sm:p-6">
-          <p className="text-sm text-navy-100">
-            No lançamento, o Start está disponível. Os demais planos entram por lista de espera.
-          </p>
+          {billing.paid && billing.plan ? (
+            <div className="flex items-center gap-3 rounded-2xl border border-green-500/30 bg-green-500/10 px-4 py-3">
+              <Check size={18} className="shrink-0 text-green-300" />
+              <div>
+                <p className="text-sm font-semibold text-green-300">
+                  Plano {billingPlans[billing.plan].label} ativo
+                </p>
+                <p className="text-xs text-champagne-300">
+                  Gerações ilimitadas. Cartão e cancelamento pelo portal abaixo.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-navy-100">
+              No lançamento, o Start está disponível. Os demais planos entram por lista de espera.
+            </p>
+          )}
 
           <div className="grid gap-3 sm:grid-cols-3">
             {billingPlanList.map((plano) => (
@@ -469,9 +546,13 @@ export default function ConfiguracoesPage() {
                   <span className="text-sm font-normal text-navy-100">{plano.periodLabel}</span>
                 </p>
                 <p className="mt-1 text-xs text-navy-100">{plano.tagline}</p>
-                {plano.disponivel ? (
+                {billing.paid && billing.plan === plano.id ? (
+                  <p className="mt-4 flex items-center justify-center gap-1.5 rounded-xl border border-green-500/30 bg-green-500/10 px-3 py-2 text-center text-xs font-semibold text-green-300">
+                    <Check size={14} /> Seu plano atual
+                  </p>
+                ) : plano.disponivel ? (
                   <CheckoutButton plan={plano.id} variant={plano.destaque ? "primary" : "outline"} className="mt-4 w-full">
-                    Assinar {plano.label}
+                    {billing.paid ? `Mudar para ${plano.label}` : `Assinar ${plano.label}`}
                   </CheckoutButton>
                 ) : (
                   <p className="mt-4 rounded-xl bg-navy-700 px-3 py-2 text-center text-xs font-medium text-navy-100">

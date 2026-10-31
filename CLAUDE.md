@@ -2,19 +2,21 @@
 
 Guidance for AI assistants (and humans) working in this repository.
 
-> **Authoritative rulebook:** if an `AGENTS.md` is present, it wins on agent
-> roles/deployment/safety where the two overlap. ⚠️ Note: `AGENTS.md` and
-> `ESTADO.md` are **referenced but not committed in this checkout** — treat this
-> CLAUDE.md as the de-facto guide unless those files actually exist. The live
-> workspace project-state file lives at `C:\Users\vpaes\status.md`.
+> **Authoritative rulebook:** `AGENTS.md` wins on agent roles/deployment/safety
+> where the two overlap; this file is the day-to-day guide.
 
 ## ⚠️ This app is LIVE and billing in production
 
-> **Production host = Vercel** (as of 2026-06-19). The live site
-> `https://www.leadbellus.com.br` is served by Vercel (project `vini1/leadvitta-app`,
-> `Server: Vercel`). Cloud Run still exists but only handles redirects + legacy
-> webhooks. The "Cloud Run only / No Vercel" wording further down is **superseded** —
-> kept for historical context.
+> **Production host = one fixed-price VPS** (relaunch, 2026-10-28). Vercel and
+> Z-API subscriptions are **cancelled**; the GCP billing account of `leadvitta-app`
+> is **closed** (Cloud Run is gone; Firebase stays on the free **Spark** plan as the
+> data layer). Deploy = `.github/workflows/deploy-vps.yml` → Docker + Caddy on the
+> VPS (AWS EC2 t3.micro, us-east-2, `3.12.9.125`, free-plan credits until
+> 2027-04-28); runbook in `deploy/vps/README.md`. **Clerk is not configured** on the
+> relaunch → login runs on the Firebase Auth fallback (dual-mode code kept intact).
+> **Never re-enable usage-billed hosting**
+> (Cloud Run, Vercel Pro, Firebase Blaze, EC2/App Runner) without a hard budget cap.
+> Vercel/Cloud Run/Z-API/Clerk appear below only as **legacy** paths still in code.
 
 LeadBellus is LIVE and **charges real customers via Stripe**. Treat every change
 as a production change. Do not assume "it's done" without live verification
@@ -41,26 +43,31 @@ env vars are set.
 
 - **Next.js 15 (App Router)** + **React 19** + **TypeScript (strict)** +
   **TailwindCSS 3.4**.
-- **AI:** OpenAI (`gpt-4o-mini` default) with **Anthropic Claude fallback**
-  (`claude-haiku-4-5`). All calls are server-side with timeout/retry; Anthropic
-  uses ephemeral prompt caching.
-- **Auth + data:** **Clerk** is the public auth (login/signup, since 2026-07-01,
-  PR #98); Firebase provides the internal session bridge (custom token via
-  `/api/auth/firebase-token`) and **Cloud Firestore** remains the data store;
-  Firebase Admin SDK for server-side webhook writes.
+- **AI:** provider chain **OpenAI → Anthropic → Gemini** (`lib/ai/provider.ts`
+  `DEFAULT_PROVIDER_CHAIN`); each provider is skipped when its key is missing.
+  Defaults: `gpt-4o-mini`, `claude-haiku-4-5`, and `GEMINI_MODEL` as a
+  comma-separated list that falls back when a model is overloaded. All calls are
+  server-side with timeout/retry; Anthropic uses ephemeral prompt caching.
+  Live 2026-10-30: OpenAI + Gemini configured, Anthropic not.
+- **Auth + data:** login runs on **Firebase Auth** in production (Clerk keys are
+  not set on the relaunch); the dual-mode Clerk code stays intact (see "Current
+  Authentication"). **Cloud Firestore** is the data store; Firebase Admin SDK
+  for server-side webhook writes.
 - **Billing:** Stripe (subscription mode), reconciled into Firestore via webhook.
-- **Integrations:** **WhatsApp via Z-API** (`ZAPI_INSTANCE_ID` / `ZAPI_TOKEN`;
-  see `lib/whatsapp-zapi.ts`, `lib/whatsapp-types.ts` where `getWhatsAppProvider().name ===
-  "zapi"`). Z-API **also replaced Zapier** for operational alerts
-  (`lib/ops-notify.ts`). The old Meta WhatsApp Cloud API path is **legacy** — not
-  the active provider. Verified live 2026-06-23: `GET /api/health` →
-  `whatsapp_provider: "zapi"`.
-- **Deploy:** **Production runs on Vercel** (`vini1/leadvitta-app`); env vars are
-  baked at build time there. The Cloud Run path — Docker (Node 20,
-  `output: "standalone"`) → Cloud Build → Cloud Run (region `southamerica-east1`,
-  service `leadbellus`) — is **legacy** (redirects + old webhooks only); the
-  Dockerfile/`cloudbuild.yaml` are kept for it.
-- **Analytics:** GA4 via NEXT_PUBLIC_GA4_ID (see `lib/config.ts` `isGA4Configured` and `components/Analytics.tsx`). No longer a hardcoded fallback — only loads when the env var is explicitly set on Vercel.
+- **Integrations:** WhatsApp code targets **Z-API** (`lib/whatsapp-zapi.ts`,
+  `ZAPI_INSTANCE_ID` / `ZAPI_TOKEN`), but the subscription is **cancelled** —
+  live `GET /api/health` shows `whatsapp: false`. The Meta WhatsApp Cloud API
+  path and Zapier are **legacy**.
+- **Ops alerts** (`lib/ops-notify.ts`: signup, checkout, payment, waitlist): sent
+  by **e-mail via Resend** (`RESEND_API_KEY`, to `OPS_EMAIL_TO`, default
+  `suporte@leadbellus.com.br`) and/or WhatsApp (Z-API + `OPS_WHATSAPP_NUMBER`).
+  Each channel is used when configured; `/api/health` → `ops_email` / `ops_whatsapp`.
+- **Deploy:** one fixed-price **VPS** — Docker (Node 20, `output: "standalone"`)
+  behind Caddy, shipped by `.github/workflows/deploy-vps.yml` on push to `main`.
+  Runbook: `deploy/vps/README.md`. `cloudbuild.yaml` is the legacy Cloud Run path.
+- **Analytics:** GA4 via `NEXT_PUBLIC_GA4_ID` (see `lib/config.ts` `isGA4Configured`
+  and `components/Analytics.tsx`). It only loads when the variable is set at build
+  time (GitHub Variables for the VPS build).
 
 > **Use Node 20** to match the Dockerfile. If the VM ships Node 22:
 > `export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use 20`.
@@ -103,7 +110,8 @@ lib/
   stripe/server.ts
 data/                        # PT-BR content: procedimentos, objecoes, followups, scripts, tons…
 firestore.rules, firestore.indexes.json, firebase.json, .firebaserc
-Dockerfile, cloudbuild.yaml  # Cloud Run build/deploy
+Dockerfile                   # production image (VPS); cloudbuild.yaml = legacy Cloud Run
+deploy/vps/                  # VPS compose, Caddyfile, app.env template, runbook
 .env.local.example           # env var template (source of truth for var names)
 ```
 
@@ -121,7 +129,7 @@ Dockerfile, cloudbuild.yaml  # Cloud Run build/deploy
 ## Dev commands
 
 There is **no lint script**; do not invent one. Available scripts: `dev`, `build`,
-`start`, `test`, `test:watch`, `test:coverage` (Vitest, ~275 tests, all mocked —
+`start`, `test`, `test:watch`, `test:coverage` (Vitest, 418 tests in 37 files, all mocked —
 no network or keys needed).
 
 ```bash
@@ -137,7 +145,7 @@ curl -sS -X POST http://localhost:3000/api/generate \
   -d '{"mensagemCliente":"Olá, quanto custa o botox?"}' | jq .mock
 ```
 
-Container parity with Cloud Run (serves on `:8080` via `node server.js`):
+Container parity with production (serves on `:8080` via `node server.js`):
 
 ```bash
 docker build -t leadbellus . && docker run --rm -p 8080:8080 leadbellus
@@ -145,27 +153,29 @@ docker build -t leadbellus . && docker run --rm -p 8080:8080 leadbellus
 
 ## Deploy
 
-**Production = Vercel** (project `vini1/leadvitta-app`). Pushing to the deploy
-branch builds & deploys on Vercel; `NEXT_PUBLIC_*` are **build-time**, so changing
-them needs a new Vercel build. After deploy, validate `GET /api/health` on the
-live host.
+**Production = VPS** (AWS EC2 t3.micro, `3.12.9.125`, Docker + Caddy). A push to
+`main` runs `.github/workflows/deploy-vps.yml`: it builds the image in CI (with
+`NEXT_PUBLIC_*` from GitHub **Variables** — they are build-time), ships it over
+SSH and restarts the stack. Runtime secrets live only in `/opt/leadbellus/app.env`
+on the server (template: `deploy/vps/app.env.example`); adding or changing one
+means editing that file on the VPS and restarting — see `deploy/vps/README.md`.
+After deploy, validate `GET https://www.leadbellus.com.br/api/health`.
 
-**Legacy Cloud Run path** (redirects + old webhooks only):
+Legacy, not running: Vercel (cancelled) and Cloud Run (`cloudbuild.yaml`; GCP
+billing closed).
 
-```bash
-gcloud builds submit --config cloudbuild.yaml
-gcloud run services update <SERVICE> --region <REGION> --set-env-vars NEXT_PUBLIC_SITE_URL=https://<HOST>
-gcloud run services update <SERVICE> --region <REGION> --set-secrets ANTHROPIC_API_KEY=anthropic-api-key:latest
-```
-
-Public webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`) must point at the
-**active production host** (Vercel).
+Public webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`) must point at
+`https://www.leadbellus.com.br`.
 
 ## Domains & DNS
 
-- The canonical public host is **`leadbellus.com.br`** (+ `www`), served by
-  **Vercel**. Point `NEXT_PUBLIC_SITE_URL`, OAuth authorized domains, and
-  Stripe/WhatsApp webhooks at it (or at the active Vercel production URL).
+- The canonical public host is **`www.leadbellus.com.br`**; the apex
+  `leadbellus.com.br` 301-redirects to it (Caddy on the VPS). DNS is at
+  **Registro.br**. Point `NEXT_PUBLIC_SITE_URL`, OAuth authorized domains, and
+  Stripe/WhatsApp webhooks at `https://www.leadbellus.com.br`.
+- Public contact e-mail is `suporte@leadbellus.com.br` (`lib/empresa.ts`). As of
+  2026-10-30 the domain has **no MX records**, so that address does not receive
+  mail until a mailbox or forwarder is set up at Registro.br.
 - ⛔ **Never use `leadvitta.com`.** Despite the repo/GCP project being named
   `leadvitta-app`, the domain `leadvitta.com` is **not** this app — it resolves
   to a parked HostGator placeholder page. Do not point DNS, `NEXT_PUBLIC_SITE_URL`,
@@ -175,35 +185,33 @@ Public webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`) must point at t
 
 Copy `.env.local.example` → `.env.local`; it is the source of truth for names.
 Groups: **Firebase** (`NEXT_PUBLIC_FIREBASE_*` + Admin `FIREBASE_SERVICE_ACCOUNT_JSON`
-or `FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY`),
-**AI** (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `AI_MODEL`),
+or `FIREBASE_SERVICE_ACCOUNT_JSON_BASE64` or
+`FIREBASE_PROJECT_ID`/`FIREBASE_CLIENT_EMAIL`/`FIREBASE_PRIVATE_KEY`),
+**AI** (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `AI_MODEL`,
+`GEMINI_MODEL`),
 **Stripe** (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CHECKOUT_MODE`,
 `STRIPE_PRICE_ID_{START,PRO,PREMIUM}`),
+**Ops alerts** (`RESEND_API_KEY`, `OPS_EMAIL_TO`, `OPS_EMAIL_FROM`,
+`OPS_WHATSAPP_NUMBER`; see `isOpsEmailConfigured` / `isOpsWhatsAppConfigured`),
 **WhatsApp via Z-API** (`ZAPI_INSTANCE_ID`, `ZAPI_TOKEN`, `ZAPI_SECURITY_TOKEN`;
-see `lib/config.ts` `isZApiConfigured`), **Ops Alerts** (`OPS_WHATSAPP_NUMBER`;
-see `isOpsNotifyConfigured`). The Meta WhatsApp Cloud API vars
-(`WHATSAPP_TOKEN`/`WHATSAPP_PHONE_NUMBER_ID`/`WHATSAPP_VERIFY_TOKEN`/`WHATSAPP_APP_SECRET`)
-and Zapier vars (`ZAPIER_*`) are **legacy** — Z-API is the active provider
-(`.env.local.example` remains the source of truth for current names),
-and optional analytics (`NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_META_PIXEL_ID`),
-plus `NEXT_PUBLIC_SITE_URL`.
+off in production), optional **Clerk** (off in production), and optional
+analytics (`NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_META_PIXEL_ID`), plus
+`NEXT_PUBLIC_SITE_URL`. The Meta WhatsApp Cloud API vars (`WHATSAPP_*`) and
+Zapier vars (`ZAPIER_*`) are **legacy**.
 
-> `NEXT_PUBLIC_*` are **build-time** — changing them requires a rebuild
-> (`gcloud builds submit`), not just `services update`.
+> `NEXT_PUBLIC_*` are **build-time** — changing them means updating the GitHub
+> Variable and re-running the deploy workflow, not just editing `app.env`.
 
 ## Conventions & hard rules (from AGENTS.md)
 
 - **Never commit secrets** (not in code, chat, or `cloudbuild.yaml`). Local
-  secrets live outside the repo; production secrets live in Secret Manager.
-- **Deploy host = Vercel** (current production, as of 2026-06-19). This rule
-  historically said "Cloud Run only / No Vercel" after a Vercel domain
-  split-brain; production has since moved (back) to Vercel. If you change the
-  production host, do it deliberately and update this file + `status.md`
-  together. **No Auth0** — `feat/auth0` is intentionally parked; Firebase
-  Auth provides the internal session bridge (Clerk→Firebase custom token) +
-  Firestore data layer. Clerk is the public auth (login/signup) since PR #98.
-  Don't add `AUTH0_*`, Auth0 deps, or new `/auth/*` routes without a
-  dedicated migration.
+  secrets live outside the repo; production secrets live only in
+  `/opt/leadbellus/app.env` on the VPS (and deploy SSH keys in GitHub Secrets).
+- **Deploy host = the fixed-price VPS** (since the 2026-10-28 relaunch). If you
+  change the production host, do it deliberately and update this file,
+  `AGENTS.md` and `deploy/vps/README.md` together. **No Auth0** — `feat/auth0`
+  is intentionally parked; don't add `AUTH0_*`, Auth0 deps, or new `/auth/*`
+  routes without a dedicated migration.
 - Each agent works on its **own branch**; never commit directly to the branch
   that deploys.
 - New API routes should follow the `lib/api-security.ts` pattern: origin check +
@@ -212,14 +220,13 @@ plus `NEXT_PUBLIC_SITE_URL`.
 - New observable/UI content goes in `data/` (PT-BR); AI guardrails (compliance
   denylist) live in `lib/ai/prompts.ts`.
 
-## Git workflow for this task
 
-Develop on branch `claude/claude-md-docs-yydjie`, commit with clear messages,
-push with `git push -u origin claude/claude-md-docs-yydjie`, and open a draft PR.
+## Current Authentication (updated 2026-10-30)
 
-## Current Authentication (updated 2026-07-02)
-
-**Public auth = Clerk** (live since 2026-07-01, PR #98 `fbf64dc`).
+**Production login = Firebase Auth** — the relaunch on the VPS has no Clerk keys
+(live `/api/health`: `clerk: false`), so every Clerk branch below is dormant.
+Clerk was the public auth from 2026-07-01 (PR #98 `fbf64dc`) until the relaunch;
+setting the Clerk keys again turns it back on:
 
 - `middleware.ts` imports `clerkMiddleware` from `@clerk/nextjs/server` (active
   when `isClerkServerConfigured` is true; falls back to Firebase cookie guard
@@ -239,3 +246,16 @@ See `docs/clerk-auth-migration.md` for full history and architecture.
 - Webhooks (`/api/stripe/webhook`, `/api/whatsapp/webhook`, `/api/clerk/webhook`) must remain completely public (outside `auth.protect()`).
 - Do **not** set `ENABLE_API_PROXY=true` — it breaks the Clerk→Firebase bridge.
 - Current dual-mode design (Clerk when configured, Firebase fallback otherwise) must be preserved.
+
+## Service roles & agent lanes (added 2026-09-26)
+
+- The app is a **modular monolith**: one build, deployable as `web` (default,
+  what the VPS runs) or as `ai` / `billing` / `whatsapp` / `growth` via `SERVICE_ROLE`.
+  Gate lives in `middleware.ts` → `lib/service-role.ts`; catalog in
+  `services.yaml`; design + extraction order in `docs/architecture/services.md`.
+  `docker-compose.yml` runs all five + Firebase emulators.
+- Every new `/api/*` route goes in exactly one role; the test suite fails on
+  overlap.
+- Tool ownership (Claude Code vs Codex vs Xcode) is in `docs/agents/tool-roles.md`.
+  Claude Code owns architecture/infra/billing/auth/webhooks; Codex owns scoped
+  single-issue work; Xcode owns native Apple targets only.
