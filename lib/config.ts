@@ -1,3 +1,5 @@
+import { EMPRESA } from "@/lib/empresa";
+
 // Detecta o que está configurado para alternar entre "modo real" e
 // "modo demonstração" (sem nenhuma chave o app ainda roda).
 
@@ -93,9 +95,22 @@ export const anthropicModel =
   process.env.ANTHROPIC_MODEL ||
   (aiModel.startsWith("claude") ? aiModel : "claude-haiku-4-5");
 
-export const geminiModel =
+/**
+ * Modelos Gemini em ordem de preferência. GEMINI_MODEL aceita lista separada
+ * por vírgula: no tier gratuito um modelo pode responder 503 ("high demand") ou
+ * 429 enquanto outro está livre, então o provider tenta um de cada vez.
+ */
+export const geminiModels = (
   process.env.GEMINI_MODEL ||
-  (aiModel.startsWith("gemini") ? aiModel : "gemini-2.5-flash");
+  (aiModel.startsWith("gemini")
+    ? aiModel
+    : "gemini-3.5-flash,gemini-flash-latest,gemini-flash-lite-latest")
+)
+  .split(",")
+  .map((m) => m.trim())
+  .filter(Boolean);
+
+export const geminiModel = geminiModels[0];
 
 /** URL pública do site. */
 export const siteUrl =
@@ -114,14 +129,40 @@ export const opsNotifyPhone = (
 ).replace(/\D/g, "");
 
 /** True quando Z-API + número de alerta estão configurados. */
-export const isOpsNotifyConfigured =
+export const isOpsWhatsAppConfigured =
   !!process.env.ZAPI_INSTANCE_ID?.trim() &&
   !!process.env.ZAPI_TOKEN?.trim() &&
-  !!opsNotifyPhone;
+  !!opsNotifyPhone &&
+  process.env.WHATSAPP_PROVIDER?.trim().toLowerCase() !== "meta-cloud";
+
+/** Chave da API do Resend (e-mail transacional; plano gratuito). */
+export const resendApiKey = process.env.RESEND_API_KEY?.trim() || "";
+
+/** Caixa que recebe alertas operacionais por e-mail. Padrão: e-mail público da empresa. */
+export const opsNotifyEmail = (process.env.OPS_EMAIL_TO || EMPRESA.email).trim();
+
+/** Remetente dos alertas; o domínio precisa estar verificado no Resend. */
+export const opsEmailFrom =
+  process.env.OPS_EMAIL_FROM?.trim() || "LeadBellus <alertas@leadbellus.com.br>";
+
+/** True quando o canal de e-mail (Resend) dos alertas está configurado. */
+export const isOpsEmailConfigured = !!resendApiKey && !!opsNotifyEmail;
+
+/** True quando ao menos um canal de alerta operacional (WhatsApp ou e-mail) está ativo. */
+export const isOpsNotifyConfigured = isOpsWhatsAppConfigured || isOpsEmailConfigured;
 
 /** True quando o WhatsApp (Z-API) está configurado. */
 export const isZApiConfigured =
   !!process.env.ZAPI_INSTANCE_ID?.trim() && !!process.env.ZAPI_TOKEN?.trim();
+
+/** True quando a Meta Cloud API tem credenciais de envio e webhook. */
+export const isMetaCloudWhatsAppConfigured =
+  !!process.env.WHATSAPP_CLOUD_ACCESS_TOKEN?.trim() &&
+  !!process.env.WHATSAPP_CLOUD_PHONE_NUMBER_ID?.trim() &&
+  !!process.env.WHATSAPP_CLOUD_DISPLAY_PHONE_NUMBER?.replace(/\D/g, "") &&
+  !!process.env.WHATSAPP_CLOUD_APP_SECRET?.trim() &&
+  !!process.env.WHATSAPP_CLOUD_VERIFY_TOKEN?.trim() &&
+  /^v\d+\.\d+$/.test(process.env.WHATSAPP_CLOUD_API_VERSION?.trim() || "");
 
 /** Página do Facebook + Instagram Business para publicação automática. */
 export const metaPageId = process.env.META_PAGE_ID?.trim() || "";
@@ -136,5 +177,10 @@ export const isMetaPublishConfigured = !!metaPageId && !!metaPageAccessToken;
 export const isInstagramPublishConfigured =
   isMetaPublishConfigured && !!metaIgUserId;
 
-/** Alias legado — sempre Z-API. */
-export const isWhatsappConfigured = isZApiConfigured;
+/** Provedor WhatsApp selecionado para o runtime atual. */
+export const isWhatsappConfigured =
+  process.env.WHATSAPP_PROVIDER?.trim().toLowerCase() === "meta-cloud"
+    ? isMetaCloudWhatsAppConfigured
+    : !process.env.WHATSAPP_PROVIDER?.trim() || process.env.WHATSAPP_PROVIDER?.trim().toLowerCase() === "zapi"
+      ? isZApiConfigured
+      : false;

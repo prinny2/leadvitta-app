@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 const SECTIONS = [
   { label: "Como funciona", href: "#como-funciona" },
+  { label: "Piloto", href: "#piloto" },
   { label: "Para quem é", href: "#para-quem" },
   { label: "Demo", href: "#demo" },
   { label: "Preços", href: "#precos" },

@@ -1,5 +1,6 @@
 import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
-import { isOpenAIConfigured, isAnthropicConfigured } from "@/lib/config";
+import { isOpenAIConfigured, isAnthropicConfigured, openaiModel } from "@/lib/config";
+import { openaiChatParams } from "@/lib/ai/openai-chat";
 
 export const runtime = "nodejs";
 
@@ -135,10 +136,9 @@ Responda APENAS com o JSON, sem explicações.`;
     const { default: OpenAI } = await import("openai");
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const res = await client.chat.completions.create({
-      model: process.env.AI_MODEL || "gpt-4o-mini",
+      ...openaiChatParams(openaiModel, 400),
       messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userMsg }],
       response_format: { type: "json_object" },
-      max_tokens: 400,
     });
     const parsed = JSON.parse(res.choices[0].message.content ?? "{}");
     return isValidAnalysis(parsed) ? parsed : mockAnalysis(msg);

@@ -1,0 +1,38 @@
+# LeadBellus no VPS: app Next.js (standalone) + Caddy (HTTPS automático).
+# Fica em /opt/leadbellus no servidor; o workflow deploy-vps.yml copia este
+# arquivo e o Caddyfile a cada deploy e grava IMAGE_TAG em /opt/leadbellus/.env.
+# Segredos de runtime ficam em /opt/leadbellus/app.env (chmod 600, fora do git).
+
+services:
+  app:
+    image: leadbellus:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: app.env
+    # Só localhost: o público entra pelo Caddy; isto serve ao health check e ao cron.
+    ports:
+      - "127.0.0.1:8080:8080"
+    mem_limit: 1g
+    logging: &logging
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging: *logging
+
+volumes:
+  caddy_data:
+  caddy_config:

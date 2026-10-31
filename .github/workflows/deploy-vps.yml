@@ -1,0 +1,106 @@
+# Deploy do LeadBellus no VPS: builda a imagem aqui no GitHub (o VPS pequeno não
+# precisa compilar Next.js), manda via SSH com `docker save | docker load` (sem
+# registry, sem custo de storage) e sobe com docker compose. Passo a passo:
+# deploy/vps/README.md.
+name: Deploy VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Desligado até o servidor existir: Settings → Variables → VPS_ENABLED=true.
+    if: vars.VPS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          provenance: false
+          tags: leadbellus:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # NEXT_PUBLIC_* são públicas e build-time → GitHub *Variables*, não Secrets.
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_FIREBASE_API_KEY=${{ vars.NEXT_PUBLIC_FIREBASE_API_KEY }}
+            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ vars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+            NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ vars.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ vars.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ vars.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+            NEXT_PUBLIC_FIREBASE_APP_ID=${{ vars.NEXT_PUBLIC_FIREBASE_APP_ID }}
+            NEXT_PUBLIC_FIREBASE_VAPID_KEY=${{ vars.NEXT_PUBLIC_FIREBASE_VAPID_KEY }}
+            NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ vars.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_CLERK_SIGN_IN_URL=${{ vars.NEXT_PUBLIC_CLERK_SIGN_IN_URL }}
+            NEXT_PUBLIC_CLERK_SIGN_UP_URL=${{ vars.NEXT_PUBLIC_CLERK_SIGN_UP_URL }}
+            NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=${{ vars.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL }}
+            NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=${{ vars.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL }}
+            NEXT_PUBLIC_SUPABASE_URL=${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_META_PIXEL_ID=${{ vars.NEXT_PUBLIC_META_PIXEL_ID }}
+            NEXT_PUBLIC_GA4_ID=${{ vars.NEXT_PUBLIC_GA4_ID }}
+            NEXT_PUBLIC_WHATSAPP_NUMBER=${{ vars.NEXT_PUBLIC_WHATSAPP_NUMBER }}
+
+      - name: Enviar e subir no VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          TAG: ${{ github.sha }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          SSH_OPTS="-i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=accept-new"
+          TARGET="$VPS_USER@$VPS_HOST"
+
+          scp $SSH_OPTS deploy/vps/docker-compose.yml "$TARGET:/opt/leadbellus/"
+          scp $SSH_OPTS deploy/vps/Caddyfile "$TARGET:/opt/leadbellus/Caddyfile.new"
+          docker save "leadbellus:$TAG" | gzip | ssh $SSH_OPTS "$TARGET" 'gunzip | docker load'
+
+          ssh $SSH_OPTS "$TARGET" "TAG=$TAG bash -s" <<'REMOTE'
+          set -e
+          cd /opt/leadbellus
+          PREV=$(sed -n 's/^IMAGE_TAG=//p' .env 2>/dev/null || true)
+
+          # O Caddyfile é bind mount de arquivo: o Caddy só lê config nova se o
+          # container for recriado — e só vale recriar quando ela mudou.
+          CADDY_CHANGED=
+          if cmp -s Caddyfile.new Caddyfile; then rm -f Caddyfile.new; else mv Caddyfile.new Caddyfile; CADDY_CHANGED=1; fi
+
+          echo "IMAGE_TAG=$TAG" > .env
+          docker compose up -d --remove-orphans
+          if [ -n "$CADDY_CHANGED" ]; then docker compose up -d --force-recreate caddy; fi
+
+          ok=
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/api/health; then ok=1; break; fi
+            sleep 2
+          done
+          if [ -z "$ok" ]; then docker compose logs --tail=100 app; exit 1; fi
+
+          # Sem registry, o rollback depende da imagem anterior no disco: mantém
+          # a atual e a anterior, apaga as demais.
+          docker images leadbellus --format '{{.Tag}}' \
+            | grep -vxF -e "$TAG" -e "${PREV:-$TAG}" \
+            | xargs -r -I{} docker rmi "leadbellus:{}" || true
+          docker image prune -f
+          REMOTE

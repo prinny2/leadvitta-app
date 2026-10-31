@@ -5,9 +5,9 @@ message ("how much is Botox?", "that's expensive", silence after a quote) become
 three ready-to-send replies in the clinic's own tone, with compliance guardrails.
 Built and operated end-to-end by one developer.
 
-- **Stack:** Next.js 15 · React 19 · TypeScript · Clerk → Firebase Auth · Firestore · Stripe · Z-API (WhatsApp) · OpenAI → Claude → Gemini
-- **Shipped:** ran in production on Vercel with live-mode Stripe subscriptions and a usage-based paywall. Production is offline since Oct 2026.
-- **Run it:** `npm install && npm run dev` → http://localhost:3000/dashboard (demo mode: no keys, AI mocked) · `npm test` → 404 Vitest tests
+- **Stack:** Next.js 16 · React 19 · TypeScript · Clerk → Firebase Auth · Firestore · Stripe · Z-API + Meta WhatsApp · OpenAI → Claude → Gemini
+- **Shipped:** ran in production on Vercel with live-mode Stripe subscriptions; a fixed-price VPS relaunch followed in Oct 2026, but the public domain is currently unreachable.
+- **Run it:** `npm install && npm run dev` → http://localhost:3000/dashboard (demo mode: no keys, AI mocked) · `npm test` → 418 Vitest tests
 
 > Product UI and copy are in Brazilian Portuguese (the target market). Code,
 > comments and this README are mixed EN/PT-BR.
@@ -27,17 +27,17 @@ Built and operated end-to-end by one developer.
 
 | Layer | What is used |
 | --- | --- |
-| Framework | **Next.js 15** (App Router, route groups, server routes) · **React 19** · **TypeScript** (strict) |
+| Framework | **Next.js 16** (App Router, route groups, server routes) · **React 19** · **TypeScript** (strict) |
 | Styling / UI | **Tailwind CSS 3.4**, custom navy/gold design system, `framer-motion`, `lucide-react`, `recharts` |
 | Auth | **Clerk** (public sign-in/sign-up, pt-BR localisation) bridged to **Firebase Auth** via server-minted custom tokens so Firestore security rules and billing keep working |
 | Data | **Cloud Firestore** (per-user rules, compound indexes) · **Firebase Admin SDK** for webhook writes · **Supabase/Postgres** as an additive analytics mirror |
 | AI | **OpenAI** (`gpt-4o-mini`) → **Anthropic Claude** (`claude-haiku-4-5`, prompt caching) → **Google Gemini** (`gemini-2.5-flash`) provider fallback chain, server-side only, with timeout/retry and a post-generation compliance denylist |
 | Payments | **Stripe Checkout** (subscription mode, promo codes, annual upsell), **Stripe Billing Portal**, signed **webhooks** reconciled into Firestore with idempotency (`stripe_events`) and guest-checkout linking by e-mail |
-| WhatsApp | **Z-API** (WhatsApp Business gateway): outbound send, inbound webhook, auto-reply for paying clinics, per-clinic number binding |
+| WhatsApp | **Z-API** (legacy) or **Meta WhatsApp Cloud API**: inbound messages are stored in the clinic inbox; a team member reviews and manually sends replies |
 | Growth / analytics | **GA4** (client + Measurement Protocol server events: `begin_checkout`, `purchase`), Meta Pixel, Meta Graph API auto-posting (FB/IG), Zapier lead intake, campaign landing pages (`/campanha/[slug]`) |
 | Security | Origin/CORS checks, in-memory rate limiting per route, body-size limits, `Cache-Control: no-store` JSON helpers, Firestore rules that keep `billing` server-only |
-| Infra | **Vercel** (production) · Dockerfile + Cloud Build config kept from an earlier deployment path (not in use) · Firebase emulators for local dev · GitHub Actions (Firestore rules/contract verification) |
-| Testing | **Vitest** — 36 files / 404 tests over prompts, guardrails, API security, billing, webhooks, config flags and data catalogues (all network mocked, no keys needed) |
+| Infra | **Fixed-price VPS** (Docker + Caddy, deployed by GitHub Actions — `deploy/vps/`) · Cloud Build config kept from an earlier deployment path (not in use) · Firebase emulators for local dev · GitHub Actions (Firestore rules/contract verification) |
+| Testing | **Vitest** — 37 files / 418 tests over prompts, guardrails, API security, billing, webhooks, config flags and data catalogues (all network mocked, no keys needed) |
 
 ## Key features
 
@@ -45,18 +45,18 @@ Built and operated end-to-end by one developer.
 - **Compliance guardrails for aesthetics** — the prompt forbids guaranteed results, diagnoses and fixed prices; a denylist post-check flags violations with severity and reason (`/api/compliance`, `/compliance` page).
 - **Objection library, follow-ups and sales scripts** — curated PT-BR playbooks for "achou caro", ghosting, "vou pensar", plus AI-generated follow-up sequences.
 - **Lead Intelligence** — intent, sentiment and a 0-100 priority score per conversation, surfaced in the generator and in a dedicated dashboard.
-- **WhatsApp Business integration (Z-API)** — inbound webhook stores messages in an inbox (`/conversas`), auto-replies for clinics with an active plan, one-click reply from the app, idempotent handling of provider redeliveries.
+- **WhatsApp integration (Z-API or Meta Cloud API)** — inbound webhook stores messages in an inbox (`/conversas`); team members can draft with AI and manually send a reviewed reply. Cloud API currently uses one server-configured business number; multi-clinic Embedded Signup is not included.
 - **Stripe subscription flow** — 3 plans (Start R$97 / Pro R$197 / Premium R$347), monthly + annual prices, guest checkout straight from the landing page, webhook → Firestore activation, billing portal for card/cancel, "pending billing" linked to the account on first login.
 - **Usage-based paywall** — 5 free generations per account enforced atomically in a Firestore transaction (no race between concurrent requests), unlimited for paying plans.
 - **Zero-config demo mode** — with no env vars the whole app runs: login skipped, data in `localStorage`, AI mocked. Real integrations switch on feature-by-feature as keys are provided (`lib/config.ts`).
 - **Clerk → Firebase session bridge** — Clerk owns the public auth UX; a server route mints Firebase custom tokens so Firestore rules, checkout and quotas still key off the Firebase uid.
 - **Conversion funnel** — 3-step onboarding (clinic DNA → "your reply vs. a generic one" → plans), campaign landing pages, waitlist for unreleased plans, GA4 + server-side purchase events, ops alerts via WhatsApp.
-- **Operational endpoints** — `/api/health` and `/api/config` report which capabilities are live (AI providers, Stripe, Clerk, Firebase Admin, Z-API) for deploy verification.
+- **Operational endpoints** — `/api/health` and `/api/config` report which capabilities are live (AI providers, Stripe, Clerk, Firebase Admin, selected WhatsApp provider) for deploy verification.
 
 ## Demo
 
 - **Local demo mode:** `npm install && npm run dev` with **no** `.env.local` → open http://localhost:3000/dashboard. Login is skipped and AI replies are mocked, so every screen is clickable offline.
-- **Production** (www.leadbellus.com.br) is offline since Oct 2026. While it ran, Stripe was in live mode and the free tier (5 generations) worked without a card.
+- **Production:** the Vercel deployment was retired in Oct 2026 and a fixed-price VPS relaunch is documented in [`deploy/vps/README.md`](deploy/vps/README.md). The public domain did not resolve at last check; Stripe was in live mode while the product was running.
 
 ## Setup
 
@@ -64,7 +64,7 @@ Built and operated end-to-end by one developer.
 git clone https://github.com/prinny2/leadvitta-app && cd leadvitta-app
 npm install            # Node 20+
 npm run dev            # http://localhost:3000 — demo mode, no keys needed
-npm test               # Vitest, 404 tests, fully mocked
+npm test               # Vitest, 418 tests, fully mocked
 ```
 
 To enable real integrations copy `.env.local.example` to `.env.local` and fill

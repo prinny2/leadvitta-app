@@ -1,32 +1,51 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
-// Controla a config (telefone/flag) e o envio Z-API por mocks, para testar o
-// formato da mensagem e o gating sem env real nem rede.
-const state = vi.hoisted(() => ({ configured: true, phone: "5511999990000" }));
+// Controla a config (canais/destinos) e os envios (Z-API e fetch do Resend) por
+// mocks, para testar o formato da mensagem e o gating sem env real nem rede.
+const state = vi.hoisted(() => ({
+  whatsapp: true,
+  email: false,
+  phone: "5511999990000",
+}));
 const sendText = vi.hoisted(() => vi.fn());
+const fetchMock = vi.fn();
 
 vi.mock("@/lib/config", () => ({
-  get isOpsNotifyConfigured() {
-    return state.configured;
+  get isOpsWhatsAppConfigured() {
+    return state.whatsapp;
+  },
+  get isOpsEmailConfigured() {
+    return state.email;
   },
   get opsNotifyPhone() {
     return state.phone;
   },
+  opsNotifyEmail: "suporte@leadbellus.com.br",
+  opsEmailFrom: "LeadBellus <alertas@leadbellus.com.br>",
+  resendApiKey: "re_test",
 }));
 vi.mock("@/lib/whatsapp", () => ({ sendWhatsAppText: sendText }));
 
 import { sendOpsNotify } from "@/lib/ops-notify";
 
 beforeEach(() => {
-  state.configured = true;
+  state.whatsapp = true;
+  state.email = false;
   state.phone = "5511999990000";
   sendText.mockReset();
   sendText.mockResolvedValue({ ok: true, status: 200 });
+  fetchMock.mockReset();
+  fetchMock.mockResolvedValue(new Response("{}", { status: 200 }));
+  vi.stubGlobal("fetch", fetchMock);
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 describe("sendOpsNotify gating", () => {
-  it("não envia quando a flag está desligada", async () => {
-    state.configured = false;
+  it("não envia quando nenhum canal está configurado", async () => {
+    state.whatsapp = false;
     const res = await sendOpsNotify("signup.created", { email: "a@b.com" });
     expect(res).toEqual({ sent: false, reason: "not_configured" });
     expect(sendText).not.toHaveBeenCalled();
@@ -84,5 +103,43 @@ describe("sendOpsNotify envio", () => {
     sendText.mockRejectedValue(new Error("network"));
     const res = await sendOpsNotify("signup.created", { email: "a@b.com" });
     expect(res).toEqual({ sent: false, reason: "failed" });
+  });
+});
+
+describe("sendOpsNotify por e-mail (Resend)", () => {
+  beforeEach(() => {
+    state.whatsapp = false;
+    state.email = true;
+  });
+
+  it("envia para a caixa de ops com assunto do evento", async () => {
+    const res = await sendOpsNotify("waitlist.joined", { email: "a@b.com", plan: "premium" });
+    expect(res).toEqual({ sent: true });
+    expect(sendText).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://api.resend.com/emails");
+    expect(init.headers.Authorization).toBe("Bearer re_test");
+    const body = JSON.parse(init.body);
+    expect(body.to).toEqual(["suporte@leadbellus.com.br"]);
+    expect(body.from).toBe("LeadBellus <alertas@leadbellus.com.br>");
+    expect(body.subject).toBe("LeadBellus · Lista de espera");
+    expect(body.text).toContain("a@b.com");
+    expect(body.text).toContain("premium");
+  });
+
+  it("reporta failed com status quando o Resend recusa", async () => {
+    fetchMock.mockResolvedValue(new Response("bad", { status: 422 }));
+    const res = await sendOpsNotify("signup.created", { email: "a@b.com" });
+    expect(res).toEqual({ sent: false, reason: "failed", status: 422 });
+  });
+
+  it("com os dois canais, basta um entregar", async () => {
+    state.whatsapp = true;
+    sendText.mockRejectedValue(new Error("z-api fora"));
+    const res = await sendOpsNotify("checkout.started", { email: "a@b.com" });
+    expect(res).toEqual({ sent: true });
+    expect(sendText).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

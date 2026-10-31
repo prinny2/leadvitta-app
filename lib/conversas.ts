@@ -1,5 +1,5 @@
 // Lógica de conversas do lado do SERVIDOR (Admin SDK — ignora as regras).
-// Usada pelo webhook (grava mensagem recebida + resposta) e pela API de resposta.
+// Usada pelo webhook (grava mensagens recebidas) e pela API de resposta manual.
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { numeroDigits } from "@/lib/utils";
 import type { Prioridade } from "@/lib/types";
@@ -132,11 +132,7 @@ export async function registrarMensagemRecebida(
   return id;
 }
 
-/**
- * Registra a mensagem ENVIADA pela clínica.
- * marcarLida=true (resposta MANUAL) zera o "não lida"; auto-resposta não zera,
- * pra a conversa continuar na triagem até um humano abrir.
- */
+/** Registra uma resposta enviada manualmente pela clínica. */
 export async function registrarMensagemEnviada(
   clinicaId: string,
   numero: string,
@@ -170,7 +166,7 @@ export async function registrarMensagemEnviada(
   });
 }
 
-/** Marca que a auto-resposta falhou, pra destacar no inbox que precisa atenção. */
+/** Marca uma mensagem recebida como pendente de atenção humana. */
 export async function marcarPrecisaAtencao(
   clinicaId: string,
   numero: string

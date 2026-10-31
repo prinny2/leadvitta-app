@@ -1,27 +1,32 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter, Fraunces } from "next/font/google";
+import localFont from "next/font/local";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ptBR } from "@clerk/localizations";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
-import Ga4Analytics from "@/components/Analytics";
+import Ga4Analytics, { Ga4HeadTag } from "@/components/Analytics";
 import { FirebaseSessionSync } from "@/components/firebase-session-sync";
 import { isClerkClientConfigured } from "@/lib/config";
 
-// next/font: self-host + fallback com métricas ajustadas (size-adjust), o que
-// zera o layout shift quando a webfont chega (CLS era 0,20 só por causa disso).
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+// Fontes versionadas em app/fonts (variáveis, subset latin — Fontsource 5.3.0,
+// licença OFL ao lado). Antes vinham do Google Fonts no build e o CI quebrava
+// quando o download falhava. next/font/local mantém o fallback com métricas
+// ajustadas (size-adjust), que zera o layout shift quando a webfont chega
+// (CLS era 0,20 só por causa disso).
+const inter = localFont({
+  src: "./fonts/inter-latin-wght.woff2",
+  weight: "100 900",
   display: "swap",
   variable: "--font-inter",
+  adjustFontFallback: "Arial",
 });
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+const fraunces = localFont({
+  src: "./fonts/fraunces-latin-wght.woff2",
+  weight: "100 900",
   display: "swap",
   variable: "--font-fraunces",
+  adjustFontFallback: "Times New Roman",
 });
 
 export const metadata: Metadata = {
@@ -38,11 +43,8 @@ export const metadata: Metadata = {
     "objeções estética",
     "LeadBellus",
   ],
-  authors: [{ name: "Vinicius Paes da Serra Freire", url: "https://leadbellus.com.br" }],
-  publisher: "Vinicius Paes da Serra Freire (MEI)",
-  alternates: {
-    canonical: "https://www.leadbellus.com.br",
-  },
+  authors: [{ name: "LeadBellus", url: "https://www.leadbellus.com.br" }],
+  publisher: "LeadBellus",
   icons: {
     icon: "/icon.svg",
     shortcut: "/favicon.ico",
@@ -51,13 +53,12 @@ export const metadata: Metadata = {
     title: "LeadBellus — Respostas para WhatsApp na Estética",
     description:
       "Transforme preço, objeção e cliente que sumiu em respostas prontas para copiar e mandar no WhatsApp.",
-    url: "https://www.leadbellus.com.br",
     siteName: "LeadBellus",
     locale: "pt_BR",
     type: "website",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "LeadBellus — Respostas para WhatsApp na Estética",
     description: "3 respostas curtas, no tom da sua clínica, para copiar e mandar no WhatsApp.",
   },
@@ -86,12 +87,16 @@ export default function RootLayout({
       {isClerkClientConfigured && <FirebaseSessionSync />}
       {children}
       <Ga4Analytics />
-      <VercelAnalytics />
+      {/* Só existe na Vercel; fora dela o script /_vercel/insights dá 404. */}
+      {process.env.VERCEL && <VercelAnalytics />}
     </>
   );
 
   return (
     <html lang="pt-BR" className={`${inter.variable} ${fraunces.variable}`}>
+      <head>
+        <Ga4HeadTag />
+      </head>
       <body className="min-h-screen bg-navy-900 font-sans text-ink antialiased">
         {isClerkClientConfigured ? (
           <ClerkProvider localization={ptBR}>{app}</ClerkProvider>
