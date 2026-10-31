@@ -64,6 +64,20 @@ describe("GET /api/marketing/social-post", () => {
     expect(mocks.publishSocialPost).not.toHaveBeenCalled();
   });
 
+  it("separa os posts por turno (manhã por padrão, ?turno=noite à noite)", async () => {
+    const auth = { authorization: "Bearer segredo-teste" };
+    const noturno = SOCIAL_POSTS.find((p) => p.turno === "noite");
+    expect(noturno, "calendário precisa ter ao menos um post da noite").toBeTruthy();
+
+    const manha = await (await call(`?date=${noturno!.data}&dry=1`, auth)).json();
+    expect(manha.turno).toBe("manha");
+    expect(manha.due.map((p: { id: string }) => p.id)).not.toContain(noturno!.id);
+
+    const noite = await (await call(`?date=${noturno!.data}&dry=1&turno=noite`, auth)).json();
+    expect(noite.turno).toBe("noite");
+    expect(noite.due.map((p: { id: string }) => p.id)).toContain(noturno!.id);
+  });
+
   it("sem Meta configurada, pula os posts do dia sem publicar", async () => {
     const res = await call(`?date=${FIRST_POST.data}`, {
       authorization: "Bearer segredo-teste",
