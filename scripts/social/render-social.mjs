@@ -20,16 +20,15 @@
 // aponte PLAYWRIGHT_MODULE para o diretório do pacote
 // (ex.: PLAYWRIGHT_MODULE=~/.npm/_npx/<hash>/node_modules/playwright).
 
-import { createRequire } from "node:module";
 import { mkdtempSync, writeFileSync, mkdirSync, statSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { loadPlaywright, esc, rich, icon, I, MAX_BYTES } from "./lib.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "../..");
 const outDir = join(root, "public/social/auto");
-const MAX_BYTES = 1024 * 1024;
 const W = 1080;
 const H = 1350;
 
@@ -45,38 +44,6 @@ const KIND = {
   agenda: "Bastidor",
   persona: "Na rotina",
   pergunta: "Enquete",
-};
-
-function loadPlaywright() {
-  const require = createRequire(import.meta.url);
-  const candidates = [process.env.PLAYWRIGHT_MODULE, "playwright", "playwright-core"].filter(Boolean);
-  for (const c of candidates) {
-    try {
-      return require(c);
-    } catch {
-      /* tenta o próximo */
-    }
-  }
-  console.error("Playwright não encontrado. Rode `npx playwright install chromium` ou defina PLAYWRIGHT_MODULE.");
-  process.exit(1);
-}
-
-const esc = (s = "") =>
-  String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-/** Escapa e converte *ênfase* em <em>. */
-const rich = (s = "") => esc(s).replace(/\*([^*]+)\*/g, "<em>$1</em>");
-
-const icon = (d, size = 30, stroke = "currentColor", width = 2.4) =>
-  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${stroke}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
-
-const I = {
-  check: '<path d="M20 6 9 17l-5-5"/>',
-  x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
-  message: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
-  sparkles: '<path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2Z"/>',
-  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
-  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
 };
 
 const chatHead = (name, status) => `
