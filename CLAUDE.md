@@ -129,7 +129,7 @@ deploy/vps/                  # VPS compose, Caddyfile, app.env template, runbook
 ## Dev commands
 
 There is **no lint script**; do not invent one. Available scripts: `dev`, `build`,
-`start`, `test`, `test:watch`, `test:coverage` (Vitest, 418 tests in 37 files, all mocked —
+`start`, `test`, `test:watch`, `test:coverage` (Vitest, 427 tests in 37 files, all mocked —
 no network or keys needed).
 
 ```bash

@@ -20,6 +20,50 @@ export type SocialPost = {
   link?: string;
   /** Qual disparo do cron publica o post. Sem valor = "manha". */
   turno?: TurnoSocial;
+  /** Spec da arte única (public/social/auto/<id>.png), lida por scripts/social/render-social.mjs. */
+  arte?: ArteSocial;
+};
+
+/** Layouts de arte do renderer (scripts/social/render-social.mjs). */
+export type LayoutArte =
+  | "chat" // mockup de WhatsApp: mensagem da cliente + resposta pronta
+  | "antesdepois" // resposta fraca × resposta da secretária
+  | "citacao" // frase grande em destaque
+  | "checklist" // lista com checks (ou X, com `negativo`)
+  | "mito" // mito × verdade
+  | "agenda" // linhas de agenda/rotina (rótulo|texto)
+  | "persona" // cartão de persona com procedimento
+  | "pergunta"; // enquete A/B/C/D
+
+/**
+ * Spec curta da arte. `hook` (≤ 8 palavras) aceita *ênfase* entre asteriscos.
+ * Os demais campos são usados conforme o layout.
+ */
+export type ArteSocial = {
+  layout: LayoutArte;
+  hook: string;
+  /** Linha de apoio ou rótulo extra (opcional). */
+  sub?: string;
+  /** Etiqueta do topo: persona · procedimento. */
+  tag?: string;
+  /** chat/antesdepois: mensagem da cliente. */
+  cliente?: string;
+  /** chat: resposta pronta; antesdepois: resposta da secretária. */
+  resposta?: string;
+  /** chat: "clinica" mostra a mensagem da clínica primeiro. */
+  ordem?: "cliente" | "clinica";
+  /** antesdepois: resposta fraca. */
+  fraca?: string;
+  /** checklist/pergunta: itens; agenda: "rótulo|texto". */
+  itens?: string[];
+  /** checklist: itens como erros (X) em vez de checks. */
+  negativo?: boolean;
+  mito?: string;
+  verdade?: string;
+  /** citacao: atribuição. */
+  autor?: string;
+  /** persona: nome da persona. */
+  persona?: string;
 };
 
 export function turnoDoPost(post: SocialPost): TurnoSocial {
@@ -29,6 +73,8 @@ export function turnoDoPost(post: SocialPost): TurnoSocial {
 const LP = "https://www.leadbellus.com.br";
 const HASHTAGS =
   "#clinicaestetica #estetica #whatsappdaclinica #atendimento #harmonizacaofacial #botox #leadbellus #secretariadaclinica";
+/** Hashtags fixas dos posts com arte única; cada post soma as suas, de nicho. */
+const HASHTAGS_BASE = "#clinicaestetica #estetica #whatsappdaclinica #secretariadaclinica #leadbellus";
 const ARTE = "https://www.leadbellus.com.br/social";
 const utm = (campanha: string, source: string) =>
   `${LP}/?utm_source=${source}&utm_medium=organic&utm_campaign=${campanha}`;
@@ -99,8 +145,8 @@ export const SOCIAL_POSTS: SocialPost[] = [
     link: utm("calendario_julho", "facebook"),
   },
   ...secretariaPosts(),
-  ...secretariaPostsDezembro(),
-  ...secretariaPostsDiarios(),
+  ...secretariaPostsInicioNovembro(),
+  ...postsArtesUnicas(),
 ];
 
 function secretaria(post: {
@@ -123,7 +169,7 @@ function secretaria(post: {
   };
 }
 
-/** Pack manual de 2026-10-29 a 2026-11-20. Ela escreve; a equipe envia. */
+/** Pack manual de 2026-10-29 a 2026-11-02 (já publicado — não editar). Ela escreve; a equipe envia. */
 function secretariaPosts(): SocialPost[] {
   return [
     secretaria({
@@ -163,266 +209,11 @@ Juliana fez preenchimento há 5 meses e não voltou.
 
 A secretária do LeadBellus escreve a próxima mensagem de cada uma, no tom da clínica. A equipe revisa e envia.`,
     }),
-    secretaria({
-      id: "2026-11-04-equipe",
-      data: "2026-11-04",
-      arte: "04-equipe.png",
-      texto: `A secretária não responde sozinha.
-
-Ela escreve a resposta e o próximo passo. Quem revisa e envia é a sua equipe. O LeadBellus não se conecta ao WhatsApp e não manda nada no seu número.
-
-Preço, promessa e diagnóstico não saem sozinhos.`,
-    }),
-    secretaria({
-      id: "2026-11-06-preco",
-      data: "2026-11-06",
-      arte: "05-preco.png",
-      texto: `“Quanto custa o botox?”
-
-Responder só o número é o jeito mais rápido de perder a cliente. A secretária contextualiza o valor e o cuidado antes de falar em preço — e convida para a avaliação.
-
-Três versões, no tom da sua clínica. Você escolhe, ajusta e envia.`,
-    }),
-    secretaria({
-      id: "2026-11-08-medo",
-      data: "2026-11-08",
-      arte: "06-medo.png",
-      texto: `“Tenho medo de ficar com o rosto artificial.”
-
-Isso não se resolve com desconto. A secretária acolhe a insegurança com naturalidade, sem prometer resultado, cura ou preço fixo.
-
-A equipe lê e envia no tom da clínica.`,
-    }),
-    secretaria({
-      id: "2026-11-10-sumiu",
-      data: "2026-11-10",
-      arte: "07-sumiu.png",
-      texto: `“Vou ver e te falo.”
-
-Não é um não. É silêncio. A secretária retoma do ponto em que parou, com um próximo passo claro, sem parecer insistente.
-
-Sua equipe revisa e envia.`,
-    }),
-    secretaria({
-      id: "2026-11-12-retorno",
-      data: "2026-11-12",
-      arte: "08-retorno.png",
-      texto: `Juliana fez preenchimento há 5 meses e não voltou.
-
-A secretária escreve a mensagem de manutenção e o convite de retorno, no tom da clínica. Não faz diagnóstico nem orientação clínica à distância.
-
-Um retorno recuperado paga meses de secretária.`,
-    }),
-    secretaria({
-      id: "2026-11-14-rotina",
-      data: "2026-11-14",
-      arte: "09-rotina.png",
-      texto: `Uma secretária que cabe na rotina de hoje.
-
-1. Cole a conversa — ou escolha a situação: sumiu, orçou e não fechou, fez e não voltou.
-2. A secretária escreve 3 versões, no tom da clínica, com o próximo passo claro.
-3. A equipe revisa e envia.
-
-No celular, no intervalo do procedimento.`,
-    }),
-    secretaria({
-      id: "2026-11-16-mes",
-      data: "2026-11-16",
-      arte: "10-mes.png",
-      texto: `Um retorno recuperado paga meses de secretária.
-
-Start por R$97/mês, depois de 5 respostas grátis. Sem cartão para testar. Cancele quando quiser, direto no painel, sem multa.
-
-Em clínica de ticket alto, uma cliente que volta para a manutenção já cobre a assinatura.`,
-    }),
-    secretaria({
-      id: "2026-11-18-piloto",
-      data: "2026-11-18",
-      arte: "11-piloto.png",
-      texto: `Hoje a secretária escreve e a equipe envia.
-
-Estamos abrindo a versão conectada ao WhatsApp para poucas clínicas: um painel de quem está esperando, quem sumiu e quem fez e não voltou — com o aviso antes de a cliente esfriar.
-
-Quer a sua clínica no piloto? Deixe o e-mail em
-https://www.leadbellus.com.br/#piloto`,
-    }),
-    secretaria({
-      id: "2026-11-20-cadeira",
-      data: "2026-11-20",
-      arte: "12-cadeira.png",
-      texto: `Sua equipe cuida da cliente na cadeira.
-A secretária cuida da conversa — antes e depois.
-
-Coloque o LeadBellus no atendimento da clínica hoje. As 5 primeiras respostas são por nossa conta. Sem cartão.`,
-    }),
   ];
 }
 
-/**
- * Pack de fim de ano, de 2026-11-22 a 2026-12-14 (a cada 2 dias): Black
- * Friday, agenda de dezembro, festas e retomada de janeiro. Reaproveita as
- * artes do pack anterior (sem repetir a mesma arte em posts seguidos).
- * Ela escreve; a equipe revisa e envia.
- */
-function secretariaPostsDezembro(): SocialPost[] {
-  return [
-    secretaria({
-      id: "2026-11-22-black-friday-fila",
-      data: "2026-11-22",
-      arte: "03-fila.png",
-      texto: `Semana de Black Friday: o WhatsApp da clínica enche antes da agenda.
-
-Camila quer saber se tem condição especial no botox.
-Bruna pergunta se ainda tem horário em dezembro.
-Lívia pediu informações na sexta e não respondeu mais.
-
-A secretária do LeadBellus escreve a próxima mensagem de cada uma, no tom da clínica. A equipe revisa e envia.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-11-24-tem-desconto",
-      data: "2026-11-24",
-      arte: "05-preco.png",
-      texto: `“Tem desconto na Black Friday?”
-
-Responder só com um número é o jeito mais rápido de virar comparação de preço. A secretária mostra o cuidado e o valor da avaliação antes de falar em condição — e convida para o próximo passo.
-
-Sem preço fechado por mensagem, sem promessa de resultado. Três versões: você escolhe, ajusta e envia.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-11-26-espera",
-      data: "2026-11-26",
-      arte: "02-espera.png",
-      texto: `Na semana da Black Friday, cada minuto sem resposta pode esfriar uma conversa.
-
-A cliente que pergunta na Black Friday está conversando com várias clínicas ao mesmo tempo. Enquanto a equipe está na cadeira, a mensagem dela espera.
-
-A secretária deixa a resposta pronta em segundos. A equipe só revisa e envia no intervalo.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-11-28-orcou-nao-fechou",
-      data: "2026-11-28",
-      arte: "07-sumiu.png",
-      texto: `A Black Friday passou. E quem pediu orçamento e ainda não fechou?
-
-“Vou ver e te falo” nem sempre é um não. A secretária retoma a conversa do ponto em que parou, sem pressionar e com um próximo passo claro: uma avaliação, um horário, uma dúvida respondida.
-
-Sua equipe revisa e envia.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-11-30-agenda-dezembro",
-      data: "2026-11-30",
-      arte: "09-rotina.png",
-      texto: `Dezembro chega e a agenda aperta.
-
-Cliente querendo horário antes das festas, cliente remarcando, cliente perguntando se ainda dá tempo. A secretária escreve cada resposta no tom da clínica, sem prometer prazo nem resultado.
-
-Cole a conversa, escolha a versão, envie. No celular, entre um procedimento e outro.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-12-02-medo-festas",
-      data: "2026-12-02",
-      arte: "06-medo.png",
-      texto: `“Quero ficar bem para as festas, mas tenho medo de ficar artificial.”
-
-Pressa e medo na mesma mensagem. A secretária acolhe a insegurança com naturalidade, lembra que tudo começa pela avaliação e não promete resultado nem data.
-
-A equipe lê, ajusta se quiser e envia.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-12-04-vou-pensar",
-      data: "2026-12-04",
-      arte: "01-quente.png",
-      texto: `“Vou pensar. Depois das festas eu vejo.”
-
-Às vezes, falta uma informação para a cliente decidir. Uma resposta que tire a dúvida e deixe a porta aberta pode ajudar, sem empurrar.
-
-A secretária escreve essa mensagem em segundos, no tom da sua clínica. A equipe revisa e envia.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-12-06-retorno",
-      data: "2026-12-06",
-      arte: "08-retorno.png",
-      texto: `Quem fez o procedimento no meio do ano e não voltou?
-
-Dezembro é um bom momento para lembrar da manutenção. A secretária escreve o convite de retorno no tom da clínica — sem diagnóstico e sem orientação clínica à distância.
-
-A equipe revisa e envia. Um retorno pode ajudar a pagar meses de secretária.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-12-08-equipe",
-      data: "2026-12-08",
-      arte: "04-equipe.png",
-      texto: `Fim de ano, equipe reduzida, WhatsApp cheio.
-
-A secretária não responde sozinha: ela escreve a resposta e o próximo passo. Sua equipe revisa e envia; o LeadBellus não manda mensagens automaticamente.
-
-Menos tempo digitando, o mesmo cuidado em cada conversa.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-12-10-assinatura",
-      data: "2026-12-10",
-      arte: "10-mes.png",
-      texto: `Quanto custa uma secretária que escreve no tom da sua clínica?
-
-Start por R$97/mês. Cancele quando quiser, direto no painel, sem multa.
-
-Em uma clínica de ticket alto, uma cliente que volta para a manutenção em dezembro pode cobrir a assinatura.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-12-12-janeiro",
-      data: "2026-12-12",
-      arte: "03-fila.png",
-      texto: `Janeiro começa agora.
-
-Toda clínica tem uma lista de “depois das festas eu vejo”: quem pediu orçamento, quem ficou de pensar, quem fez e não voltou.
-
-A secretária escreve a mensagem de cada uma para retomar a conversa em janeiro, no tom da clínica. A equipe revisa e envia.
-
-5 respostas grátis, sem cartão.`,
-    }),
-    secretaria({
-      id: "2026-12-14-cadeira-festas",
-      data: "2026-12-14",
-      arte: "12-cadeira.png",
-      texto: `Nas festas, sua equipe cuida da cliente na cadeira.
-A secretária cuida da conversa — antes e depois.
-
-Coloque o LeadBellus no atendimento da clínica antes da virada do ano. Ela escreve; a equipe revisa e envia.
-
-5 respostas grátis, sem cartão.`,
-    }),
-  ];
-}
-
-/**
- * Calendário diário de 2026-11-01 a 2026-12-14, dois posts por dia:
- * - manhã (11:00) nos dias ímpares, completando os packs acima (dias pares);
- * - noite (19:00) todos os dias, em formato curto e rotativo: dica da noite,
- *   mensagem da cliente + resposta melhor, mito ou verdade, micro-roteiro e
- *   pergunta para o público.
- * Ela escreve; a equipe revisa e envia.
- */
-function secretariaPostsDiarios(): SocialPost[] {
+/** Posts diários de 2026-11-01 e 2026-11-02 (já publicados — não editar). */
+function secretariaPostsInicioNovembro(): SocialPost[] {
   return [
     // ── 2026-11-01 ──
     secretaria({
@@ -462,778 +253,1843 @@ Resposta melhor: “Atendemos, sim! Os horários de sábado costumam sair rápid
 
 A segunda já leva para o próximo passo.`,
     }),
-    // ── 2026-11-03 ──
-    secretaria({
-      id: "2026-11-03-orcou-nao-fechou",
+  ];
+}
+
+/**
+ * Artes únicas + copy de nicho, de 2026-11-03 a 2026-12-14 (manhã e noite).
+ * Cada post tem uma arte própria em public/social/auto/<id>.png, gerada por
+ * scripts/social/render-social.mjs a partir do campo `arte`.
+ * - manhã (11:00) vende: termina em "5 respostas grátis, sem cartão.";
+ * - noite (19:00) ensina/engaja: mais curto, com pergunta ou CTA leve.
+ * Formatos (layouts) se alternam: nunca dois posts seguidos com o mesmo.
+ * Compliance: sem promessa de resultado, sem preço de procedimento (só o
+ * Start R$97/mês, raramente), sem diagnóstico e sem dizer que envia sozinha
+ * ou que conecta ao WhatsApp (isso só como piloto/lista de espera).
+ * Ela escreve; a equipe revisa e envia.
+ */
+function secretariaArte(post: {
+  id: string;
+  data: string;
+  arte: ArteSocial;
+  texto: string;
+  tags: string;
+  turno?: TurnoSocial;
+}): SocialPost {
+  return {
+    id: post.id,
+    data: post.data,
+    turno: post.turno,
+    canais: ["facebook", "instagram"],
+    texto: `${post.texto.trim()}\n${LP}\n\n${post.tags} ${HASHTAGS_BASE}`,
+    imagemUrl: `${ARTE}/auto/${post.id}.png`,
+    link: utm("secretaria", "facebook"),
+    arte: post.arte,
+  };
+}
+
+function postsArtesUnicas(): SocialPost[] {
+  return [
+    // ── 2026-11-03 (ter) ──
+    secretariaArte({
+      id: "2026-11-03-preco-sozinho",
       data: "2026-11-03",
-      arte: "07-sumiu.png",
-      texto: `Orçou e não fechou.
+      tags: "#botox #toxinabotulinica #donadeclinica",
+      arte: {
+        layout: "persona",
+        persona: "Dona de clínica",
+        tag: "Toxina botulínica",
+        hook: "Ela mandou o preço. A cliente *sumiu*.",
+        sub: "O número sozinho encerrou a conversa.",
+      },
+      texto: `Terça, 14h. A Bia, dona de clínica, está entre uma aplicação de toxina e outra. Chega: “quanto custa o botox?”.
 
-Ela pediu valores, agradeceu e a conversa parou ali. Na correria, ninguém lembra de chamar de volta — e a cliente acaba fechando com quem lembrou.
+Ela responde rápido, só com o valor. Visualizado. Nenhuma resposta.
 
-A secretária escreve o retorno no tom da clínica: sem pressão, sem desconto por impulso, com um próximo passo claro. A equipe revisa e envia.
+Não foi o preço que espantou a cliente — foi a conversa ter acabado ali. Faltou explicar que o valor depende da avaliação, acolher a dúvida e oferecer um horário.
+
+A secretária do LeadBellus escreve essa resposta no tom da sua clínica, em segundos. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-03-noite-mito-insistencia",
+    secretariaArte({
+      id: "2026-11-03-noite-mito-rapido",
       data: "2026-11-03",
       turno: "noite",
-      arte: "08-retorno.png",
-      texto: `Mito ou verdade: “Mandar follow-up é ser insistente.”
+      tags: "#atendimentoaocliente #clinicadeestetica",
+      arte: {
+        layout: "mito",
+        hook: "Rápido não é de qualquer *jeito*.",
+        mito: "Responder rápido é mandar o valor e pronto.",
+        verdade: "Rápido é acolher, explicar e sugerir o próximo passo — em minutos.",
+      },
+      texto: `Mito ou verdade: “Responder rápido é mandar o preço e pronto.”
 
-Mito. Insistente é cobrar resposta. Follow-up bom retoma do ponto em que a conversa parou e oferece algo útil: tirar uma dúvida, sugerir um horário.
+Mito. Rapidez sem contexto vira tabela de preço — e tabela não agenda ninguém.
 
-Uma mensagem leve, no momento certo, costuma ser bem recebida.`,
+Resposta rápida e boa tem três partes: acolhe, explica o que define o valor e sugere um horário de avaliação.
+
+Qual dessas três a sua equipe mais esquece?`,
     }),
-    // ── 2026-11-04 ──
-    secretaria({
-      id: "2026-11-04-noite-roteiro-preco",
+    // ── 2026-11-04 (qua) ──
+    secretariaArte({
+      id: "2026-11-04-medo-boca",
+      data: "2026-11-04",
+      tags: "#preenchimentolabial #biomedicinaestetica #biomedicaesteta",
+      arte: {
+        layout: "antesdepois",
+        tag: "Biomédica esteta · Preenchimento labial",
+        hook: "O medo dela merece mais que “relaxa”.",
+        cliente: "Tenho medo de ficar com a boca exagerada…",
+        fraca: "Relaxa, fica natural!",
+        resposta:
+          "Esse cuidado é muito comum! Na avaliação a gente conversa sobre o que você quer e planeja tudo com calma. Quer ver um horário?",
+      },
+      texto: `“Tenho medo de ficar com a boca exagerada.”
+
+Resposta fraca: “Relaxa, fica natural!”
+Resposta da secretária: “Esse cuidado é muito comum — e é ótimo você falar. Na avaliação a gente conversa sobre o que você quer e planeja tudo com calma. Quer que eu veja um horário?”
+
+A primeira tenta encerrar o medo. A segunda acolhe e leva para a avaliação, sem prometer resultado.
+
+Biomédica esteta que atende e responde ao mesmo tempo: a secretária escreve essa mensagem no seu tom. Você revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-04-noite-roteiro-quanto-custa",
       data: "2026-11-04",
       turno: "noite",
-      arte: "05-preco.png",
-      texto: `Micro-roteiro para “quanto custa?”:
+      tags: "#roteirodevendas #recepcaodeclinica",
+      arte: {
+        layout: "checklist",
+        hook: "“Quanto custa?” em *4 passos*.",
+        itens: [
+          "Agradeça pelo contato, pelo nome",
+          "Diga do que o valor depende",
+          "Conte como é a avaliação",
+          "Ofereça dois horários",
+        ],
+      },
+      texto: `Mini-roteiro para o “quanto custa?” de amanhã:
 
-1. Agradeça o contato.
-2. Explique que o valor depende da avaliação.
-3. Conte o que acontece nessa avaliação.
-4. Ofereça um horário.
+1. Agradeça pelo contato, pelo nome.
+2. Diga do que o valor depende (avaliação, área, quantidade).
+3. Conte em uma linha como é a avaliação.
+4. Ofereça dois horários — não “quando você puder”.
 
-Quatro linhas. Nenhuma delas é só o número.`,
+Salve e mande para quem responde o WhatsApp da clínica.`,
     }),
-    // ── 2026-11-05 ──
-    secretaria({
-      id: "2026-11-05-primeira-mensagem",
+    // ── 2026-11-05 (qui) ──
+    secretariaArte({
+      id: "2026-11-05-autonoma-maca",
       data: "2026-11-05",
-      arte: "02-espera.png",
-      texto: `A primeira resposta decide muita coisa.
+      tags: "#esteticista #esteticistaautonoma #limpezadepele",
+      arte: {
+        layout: "agenda",
+        tag: "Esteticista autônoma · Limpeza de pele",
+        hook: "Mãos ocupadas. WhatsApp *esperando*.",
+        itens: [
+          "09:00|Limpeza de pele — na maca",
+          "09:40|“Tem horário sábado?” — sem resposta",
+          "10:30|Limpeza de pele — na maca",
+          "11:15|“Quanto é a limpeza?” — esperando",
+        ],
+      },
+      texto: `A agenda de quinta de uma esteticista autônoma:
 
-A cliente que chama no WhatsApp quase sempre está falando com outras clínicas também. Quem responde primeiro — e responde bem — sai na frente.
+9h — limpeza de pele, mãos ocupadas.
+9h40 — “tem horário sábado?” fica sem resposta.
+10h30 — outra limpeza.
+11h15 — “quanto é a limpeza?” ainda esperando.
 
-A secretária deixa essa primeira mensagem pronta em segundos, acolhedora e com o próximo passo. A equipe só revisa e envia no intervalo.
+Quem atende sozinha não tem como parar o procedimento para digitar. Mas dá para, no intervalo, colar as mensagens e ter as respostas prontas.
+
+A secretária do LeadBellus escreve cada uma no seu tom. Você revisa e envia em poucos minutos.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-05-noite-pergunta-dificil",
+    secretariaArte({
+      id: "2026-11-05-noite-enquete-trava",
       data: "2026-11-05",
       turno: "noite",
-      arte: "03-fila.png",
-      texto: `Pergunta para quem cuida do WhatsApp da clínica:
+      tags: "#clinicadeestetica #atendimentoaocliente",
+      arte: {
+        layout: "pergunta",
+        hook: "Qual mensagem mais trava sua *equipe*?",
+        itens: ["“Quanto custa?”", "“Vou pensar.”", "“Tá caro.”", "“Dói?”"],
+      },
+      texto: `Pergunta da noite: qual mensagem mais trava a sua equipe no WhatsApp?
 
-Qual é a mensagem de cliente que você mais demora para responder?
+A) “Quanto custa?”
+B) “Vou pensar.”
+C) “Tá caro.”
+D) “Dói?”
 
-“Quanto custa?”, “Dói?”, “Vou pensar”… Conta aqui nos comentários. A gente lê todas.`,
+Responde com a letra. As mais votadas viram roteiro aqui no perfil.`,
     }),
-    // ── 2026-11-06 ──
-    secretaria({
-      id: "2026-11-06-noite-pergunta-final",
+    // ── 2026-11-06 (sex) ──
+    secretariaArte({
+      id: "2026-11-06-ta-caro-hof",
+      data: "2026-11-06",
+      tags: "#harmonizacaofacial #hof #harmonizacao",
+      arte: {
+        layout: "chat",
+        tag: "Harmonização facial",
+        hook: "“Tá caro” é pedido de *contexto*.",
+        cliente: "Achei caro… vi mais barato em outro lugar.",
+        resposta:
+          "Entendo! Comparar faz parte. Aqui a harmonização começa com uma avaliação completa e um plano pensado para você. Posso te explicar o que está incluso?",
+      },
+      texto: `“Achei caro, vi mais barato em outro lugar.”
+
+Para quem faz harmonização facial, essa frase chega toda semana. E a vontade é responder com desconto.
+
+Antes de mexer no valor, dê contexto: como é a avaliação, o planejamento, o cuidado com a segurança e o acompanhamento. Muita gente compara números sem saber o que está incluso.
+
+A secretária do LeadBellus escreve essa resposta no tom da sua clínica — firme, gentil e sem prometer resultado. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-06-noite-bastidor-recepcao",
       data: "2026-11-06",
       turno: "noite",
-      arte: "09-rotina.png",
-      texto: `Dica da noite: termine a mensagem com uma pergunta simples.
+      tags: "#recepcionista #secretariadeclinica",
+      arte: {
+        layout: "citacao",
+        hook: "Respondo entre o telefone e a *porta*.",
+        autor: "Recepcionista de clínica, numa sexta cheia",
+      },
+      texto: `Bastidor: a recepcionista atende o telefone, recebe quem chega, confirma a agenda de amanhã — e ainda responde o WhatsApp.
 
-“Prefere de manhã ou à tarde?” rende mais resposta do que “Qualquer coisa, estou à disposição.”
+Não é falta de vontade quando a resposta sai curta. É falta de tempo.
 
-A pergunta mostra para a cliente qual é o próximo passo.`,
+Se você trabalha na recepção de uma clínica, conta aqui: qual é o momento mais corrido do seu dia?`,
     }),
-    // ── 2026-11-07 ──
-    secretaria({
-      id: "2026-11-07-tom",
+    // ── 2026-11-07 (sáb) ──
+    secretariaArte({
+      id: "2026-11-07-derma-primeira-resposta",
       data: "2026-11-07",
-      arte: "04-equipe.png",
-      texto: `Toda clínica tem um jeito de falar.
+      tags: "#bioestimulador #clinicadermatologica #dermatologia",
+      arte: {
+        layout: "checklist",
+        tag: "Clínica dermatológica · Bioestimulador",
+        hook: "A primeira resposta precisa ter *isto*.",
+        itens: [
+          "O nome da cliente",
+          "Uma linha de acolhimento",
+          "O que define o plano e o valor",
+          "Um horário concreto",
+        ],
+      },
+      texto: `Na clínica dermatológica, a agenda do médico é cheia e quem responde o WhatsApp é a equipe. A cliente pergunta sobre bioestimulador e espera.
 
-Umas são mais próximas, com “querida” e emoji. Outras são mais formais e diretas. Quando cada pessoa da equipe responde de um jeito, a cliente sente.
+Checklist da primeira resposta:
+• começa pelo nome da cliente
+• acolhe a dúvida em uma linha
+• explica que o plano e o valor saem da consulta de avaliação
+• termina com um horário concreto
 
-A secretária aprende o tom da sua clínica no cadastro e escreve sempre nele. Quem revisa e envia continua sendo a equipe.
+A secretária do LeadBellus escreve essa mensagem com tudo isso, no tom da clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-07-noite-doi",
+    secretariaArte({
+      id: "2026-11-07-noite-mito-so-preco",
       data: "2026-11-07",
       turno: "noite",
-      arte: "12-cadeira.png",
-      texto: `A cliente escreve: “Dói?”
+      tags: "#vendasnaestetica #clinicadeestetica",
+      arte: {
+        layout: "mito",
+        hook: "Quem pergunta preço quer *só* preço?",
+        mito: "Quem pergunta o preço só quer saber o número.",
+        verdade: "Muitas vezes é o jeito mais fácil de puxar conversa. Responda com contexto.",
+      },
+      texto: `Mito ou verdade: “Quem pergunta o preço só quer saber o número.”
 
-Resposta fraca: “Não dói nada!”
+Mito. Para muita cliente, “quanto custa?” é só a forma mais fácil de começar a conversa.
 
-Resposta melhor: “É super normal ter essa dúvida. Na avaliação, a profissional explica cada etapa e conversa com você sobre o que esperar. Quer agendar?”
-
-Acolhe sem prometer.`,
+Responda com contexto e uma pergunta de volta: “qual área você quer cuidar?”. A conversa continua — e você entende o que ela procura.`,
     }),
-    // ── 2026-11-08 ──
-    secretaria({
-      id: "2026-11-08-noite-mito-interesse",
+    // ── 2026-11-08 (dom) ──
+    secretariaArte({
+      id: "2026-11-08-orcou-sumiu-hof",
+      data: "2026-11-08",
+      tags: "#bioestimulador #harmonizacaofacial #hof",
+      arte: {
+        layout: "persona",
+        persona: "Harmonizadora (HOF)",
+        tag: "Bioestimulador",
+        hook: "Orçou na terça. *Sumiu* na quarta.",
+        sub: "Ninguém lembrou de chamar de volta.",
+      },
+      texto: `A Carol faz harmonização e bioestimulador. Na terça, uma cliente pediu orçamento, agradeceu e disse “vou ver”.
+
+Quarta, quinta, sexta: agenda cheia. Ninguém lembrou de chamar de volta. No domingo, a Carol descobre que a cliente fechou em outro lugar.
+
+Não foi preço. Foi silêncio.
+
+A secretária do LeadBellus escreve o retorno no tom da clínica — leve, sem pressão e com um próximo passo. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-08-noite-roteiro-retorno",
       data: "2026-11-08",
       turno: "noite",
-      arte: "07-sumiu.png",
-      texto: `Mito ou verdade: “Se ela não respondeu, é porque não tem interesse.”
+      tags: "#followup #roteirodevendas",
+      arte: {
+        layout: "chat",
+        tag: "Follow-up · 2 dias depois",
+        hook: "O retorno que não soa como *cobrança*.",
+        cliente: "Obrigada pelas informações! Vou ver e te falo.",
+        resposta:
+          "Oi, Carla! Passando só para saber se ficou alguma dúvida sobre o bioestimulador. Se quiser, te mostro os horários da semana que vem.",
+      },
+      texto: `Mini-roteiro de retorno, dois dias depois do orçamento:
 
-Mito. Muita gente lê no meio do trabalho, pensa em responder depois e esquece.
+“Oi, Carla! Passando só para saber se ficou alguma dúvida sobre o bioestimulador. Se quiser, te mostro os horários da semana que vem.”
 
-Um follow-up curto, um ou dois dias depois, lembra a cliente sem pressionar.`,
+Sem “e aí, decidiu?”. Sem desconto. Só a porta aberta.
+
+Salve para usar na segunda.`,
     }),
-    // ── 2026-11-09 ──
-    secretaria({
-      id: "2026-11-09-tres-versoes",
+    // ── 2026-11-09 (seg) ──
+    secretariaArte({
+      id: "2026-11-09-vou-pensar-toxina",
       data: "2026-11-09",
-      arte: "09-rotina.png",
-      texto: `Por que a secretária escreve 3 versões?
+      tags: "#botox #toxinabotulinica #biomedicinaestetica",
+      arte: {
+        layout: "citacao",
+        tag: "Biomédica esteta · Toxina botulínica",
+        hook: "“Vou pensar” ainda não é um *não*.",
+        autor: "É uma dúvida que ainda não foi dita",
+      },
+      texto: `“Vou pensar.”
 
-Porque cada cliente pede um tom. Tem quem precisa de acolhimento (Suave), quem quer entender o processo (Consultiva) e quem só precisa de um convite claro (Fechamento).
+Para a biomédica esteta, essa resposta depois do orçamento de toxina parece um fim de conversa. Quase sempre não é.
 
-A equipe lê a conversa, escolhe a versão certa, ajusta se quiser e envia.
+Por trás do “vou pensar” costuma ter uma dúvida que não foi dita: medo de ficar artificial, receio de doer, insegurança sobre o valor.
+
+Em vez de “ok, fico no aguardo”, pergunte com leveza: “claro! Ficou alguma dúvida que eu possa te ajudar a pensar?”.
+
+A secretária do LeadBellus escreve essa resposta no seu tom. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-09-noite-roteiro-vespera",
+    secretariaArte({
+      id: "2026-11-09-noite-enquete-vou-pensar",
       data: "2026-11-09",
       turno: "noite",
-      arte: "12-cadeira.png",
-      texto: `Micro-roteiro para confirmar o horário na véspera:
+      tags: "#vendasnaestetica #clinicadeestetica",
+      arte: {
+        layout: "pergunta",
+        hook: "O que você responde no “vou pensar”?",
+        itens: ["“Ok, fico no aguardo”", "“Ficou alguma dúvida?”", "Um desconto", "Nada — a conversa para"],
+      },
+      texto: `Pergunta da noite: quando a cliente diz “vou pensar”, o que costuma sair daí?
 
-“Oi, Ana! Passando para confirmar sua avaliação amanhã às 15h. Está tudo certo para você? Se precisar remarcar, me avise por aqui.”
+A) “Ok, fico no aguardo.”
+B) “Ficou alguma dúvida?”
+C) Um desconto.
+D) Nada — a conversa para.
 
-Curto, gentil e com espaço para a cliente responder.`,
+Sem julgamento. Comenta a letra e amanhã a gente fala sobre isso.`,
     }),
-    // ── 2026-11-10 ──
-    secretaria({
-      id: "2026-11-10-noite-pergunta-tempo",
+    // ── 2026-11-10 (ter) ──
+    secretariaArte({
+      id: "2026-11-10-laser-tabela",
+      data: "2026-11-10",
+      tags: "#depilacaoalaser #depilacao #clinicadeestetica",
+      arte: {
+        layout: "antesdepois",
+        tag: "Depilação a laser",
+        hook: "Duas respostas. Só uma *agenda*.",
+        cliente: "Quanto custa o laser na axila?",
+        fraca: "Segue a tabela em PDF.",
+        resposta:
+          "Oi, Ju! O valor depende do número de sessões, que a gente define na avaliação. Quer que eu reserve um horário para você esta semana?",
+      },
+      texto: `“Quanto custa o laser na axila?”
+
+Resposta fraca: mandar a tabela inteira em PDF.
+Resposta da secretária: “Oi, Ju! O valor depende do número de sessões, que a gente define na avaliação. Quer que eu reserve um horário para você esta semana?”
+
+A tabela faz a cliente comparar número com número. A conversa faz a cliente vir até a clínica.
+
+A secretária do LeadBellus escreve essa resposta no tom da sua clínica de depilação a laser. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-10-noite-mito-desconto",
       data: "2026-11-10",
       turno: "noite",
-      arte: "02-espera.png",
-      texto: `Pergunta sincera: quanto tempo a sua clínica leva, em média, para responder uma mensagem nova no WhatsApp?
+      tags: "#vendasnaestetica #gestaodeclinica",
+      arte: {
+        layout: "mito",
+        hook: "Desconto fecha venda? *Nem sempre*.",
+        mito: "Se ela achou caro, é só dar desconto.",
+        verdade: "Desconto por impulso ensina a cliente a esperar o próximo. Primeiro, contexto.",
+      },
+      texto: `Mito ou verdade: “Se a cliente achou caro, é só dar desconto.”
 
-Menos de 10 minutos? Uma hora? Só no fim do dia?
+Mito. Desconto por impulso resolve a conversa de hoje e ensina a cliente a esperar o próximo.
 
-Sem julgamento — a correria da cadeira é real. Conta aqui.`,
+Antes de mexer no valor, explique o que está incluso: avaliação, planejamento, retorno. Muitas vezes, era isso que faltava.`,
     }),
-    // ── 2026-11-11 ──
-    secretaria({
-      id: "2026-11-11-fora-do-horario",
+    // ── 2026-11-11 (qua) ──
+    secretariaArte({
+      id: "2026-11-11-recepcao-remarcacoes",
       data: "2026-11-11",
-      arte: "03-fila.png",
-      texto: `Muita cliente escreve fora do horário.
+      tags: "#recepcionista #agendadeclinica #secretariadeclinica",
+      arte: {
+        layout: "agenda",
+        tag: "Recepção · Remarcações",
+        hook: "Quarta de manhã: três *remarcações*.",
+        itens: [
+          "08:10|“Preciso desmarcar amanhã”",
+          "08:45|“Dá para trocar para sexta?”",
+          "09:20|“Surgiu um imprevisto”",
+          "09:30|A recepção ainda abrindo a clínica",
+        ],
+      },
+      texto: `Quarta, antes das 9h30, na recepção:
 
-Às 22h, no domingo, no meio do expediente dela. Na manhã seguinte, a equipe abre o WhatsApp e encontra uma fila inteira esperando.
+8h10 — “Preciso desmarcar amanhã.”
+8h45 — “Dá para trocar para sexta?”
+9h20 — “Surgiu um imprevisto.”
 
-A secretária ajuda a zerar essa fila: cole cada conversa, receba a resposta pronta no tom da clínica e envie. Cada uma continua sendo revisada por alguém da equipe.
+E a recepção ainda está abrindo a clínica.
+
+Remarcação bem respondida segura a cliente na agenda: acolhe, oferece duas opções de horário e confirma. Mal respondida, vira cancelamento.
+
+A secretária do LeadBellus escreve essas mensagens no tom da clínica. A recepção revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-11-noite-retome",
+    secretariaArte({
+      id: "2026-11-11-noite-roteiro-desmarcou",
       data: "2026-11-11",
       turno: "noite",
-      arte: "01-quente.png",
-      texto: `Dica da noite: retome o que a cliente perguntou.
+      tags: "#agendadeclinica #roteirodevendas",
+      arte: {
+        layout: "chat",
+        tag: "Remarcação",
+        hook: "Desmarcou? Ofereça *duas* opções.",
+        cliente: "Oi, vou precisar desmarcar amanhã…",
+        resposta:
+          "Sem problema, Lu! Imprevistos acontecem. Tenho quinta às 15h ou sábado às 10h — qual fica melhor para você?",
+      },
+      texto: `Mini-roteiro para quando a cliente desmarca:
 
-Se ela falou de olheiras, não responda com a lista de todos os procedimentos. “Sobre as olheiras que você comentou…” mostra que alguém leu de verdade.
+“Sem problema, Lu! Imprevistos acontecem. Tenho quinta às 15h ou sábado às 10h — qual fica melhor para você?”
 
-Atenção vale mais do que texto longo.`,
+Duas opções concretas. Nada de “me avisa quando puder” — esse quase nunca volta.`,
     }),
-    // ── 2026-11-12 ──
-    secretaria({
-      id: "2026-11-12-noite-horario-semana",
+    // ── 2026-11-12 (qui) ──
+    secretariaArte({
+      id: "2026-11-12-microagulhamento-nao-voltou",
+      data: "2026-11-12",
+      tags: "#microagulhamento #donadeclinica #posprocedimento",
+      arte: {
+        layout: "persona",
+        persona: "Dona de clínica",
+        tag: "Microagulhamento",
+        hook: "Ela fez. Gostou. E *não voltou*.",
+        sub: "Ninguém mandou o “como você está?”.",
+      },
+      texto: `Uma cliente fez microagulhamento, saiu feliz e elogiou o atendimento. O plano previa novas sessões. Ela não voltou.
+
+Não houve reclamação. Só faltou alguém perguntar, alguns dias depois: “como você está? Ficou alguma dúvida sobre os cuidados?”.
+
+A mensagem de pós-procedimento é a mais fácil de esquecer — e a que mais aproxima a cliente da próxima sessão.
+
+A secretária do LeadBellus escreve essa mensagem no tom da sua clínica. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-12-noite-tres-mensagens-pos",
       data: "2026-11-12",
       turno: "noite",
-      arte: "04-equipe.png",
-      texto: `A cliente escreve: “Tem horário essa semana?”
+      tags: "#posprocedimento #relacionamentocomcliente",
+      arte: {
+        layout: "checklist",
+        hook: "Pós-procedimento: três mensagens que *aproximam*.",
+        itens: ["No dia: “chegou bem?”", "Dias depois: “como você está?”", "Perto do retorno: “vamos agendar?”"],
+      },
+      texto: `Três mensagens de pós-procedimento que aproximam a cliente:
 
-Resposta fraca: “Só sexta.”
+• No mesmo dia: “Chegou bem? Qualquer dúvida, estou por aqui.”
+• Alguns dias depois: “Como você está se sentindo?”
+• Perto do retorno: “Quer que eu já reserve o seu horário?”
 
-Resposta melhor: “Tenho sexta às 10h ou às 16h. Qual fica melhor para você? Já deixo reservado.”
-
-Duas opções concretas facilitam a decisão.`,
+Nenhuma vende. Todas cuidam. Os prazos certos são os que o profissional da clínica orientar.`,
     }),
-    // ── 2026-11-13 ──
-    secretaria({
-      id: "2026-11-13-comparando",
+    // ── 2026-11-13 (sex) ──
+    secretariaArte({
+      id: "2026-11-13-derma-nao-envia-sozinha",
       data: "2026-11-13",
-      arte: "05-preco.png",
-      texto: `“Estou vendo com outras clínicas também.”
+      tags: "#clinicadermatologica #dermatologia #iaparaclinicas",
+      arte: {
+        layout: "mito",
+        tag: "Clínica dermatológica",
+        hook: "Ela escreve. Sua equipe *decide*.",
+        mito: "IA no WhatsApp fala sozinha com as pacientes.",
+        verdade: "No LeadBellus, a secretária só escreve. A equipe revisa, ajusta e decide o que enviar.",
+      },
+      texto: `Mito ou verdade: “Usar IA no WhatsApp da clínica é deixar um robô falando com as pacientes.”
 
-Ela está comparando — e isso é normal. Entrar em guerra de preço por mensagem raramente ajuda. O que diferencia é mostrar o cuidado: avaliação, segurança, atenção ao que ela quer.
+No LeadBellus, mito. A secretária só escreve: você cola a mensagem e recebe 3 opções — Suave, Consultiva e Fechamento. Quem revisa, ajusta e envia é a equipe.
 
-A secretária escreve essa resposta sem atacar ninguém e sem prometer resultado. A equipe revisa e envia.
+Para a clínica dermatológica, isso importa: nada sai sem alguém da equipe ler antes, e as respostas evitam promessa de resultado e diagnóstico pelo WhatsApp.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-13-noite-mito-desconto",
+    secretariaArte({
+      id: "2026-11-13-noite-doi",
       data: "2026-11-13",
       turno: "noite",
-      arte: "07-sumiu.png",
-      texto: `Mito ou verdade: “Follow-up só funciona se eu oferecer desconto.”
+      tags: "#botox #toxinabotulinica",
+      arte: {
+        layout: "antesdepois",
+        tag: "Toxina botulínica",
+        hook: "“Dói?” pede acolhimento, não *pressa*.",
+        cliente: "Dói muito aplicar botox?",
+        fraca: "Não dói nada!",
+        resposta:
+          "É uma dúvida super comum! A sensação varia de pessoa para pessoa, e na avaliação o profissional explica tudo sobre o conforto no procedimento.",
+      },
+      texto: `A cliente escreve: “Dói muito aplicar botox?”
 
-Mito. Na maioria das vezes, a cliente não sumiu por causa do preço — sumiu porque a vida aconteceu.
+Resposta fraca: “Não dói nada!”
+Resposta melhor: “É uma dúvida super comum! A sensação varia de pessoa para pessoa, e na avaliação o profissional explica tudo sobre o conforto no procedimento.”
 
-Retomar com atenção e um horário sugerido costuma funcionar melhor do que baixar o valor.`,
+A primeira promete. A segunda acolhe — e é honesta.`,
     }),
-    // ── 2026-11-14 ──
-    secretaria({
-      id: "2026-11-14-noite-roteiro-orcamento",
+    // ── 2026-11-14 (sáb) ──
+    secretariaArte({
+      id: "2026-11-14-sabado-hof",
+      data: "2026-11-14",
+      tags: "#harmonizacaofacial #preenchimento #hof",
+      arte: {
+        layout: "citacao",
+        tag: "Harmonização · Sábado",
+        hook: "Sábado é o dia que mais chega *mensagem*.",
+        autor: "Harmonizadora, entre um atendimento e outro",
+      },
+      texto: `Sábado na clínica de harmonização: agenda cheia, sala ocupada — e o WhatsApp recebendo pergunta de quem só tem tempo de pesquisar no fim de semana.
+
+“Quanto fica o preenchimento?” “Tem horário semana que vem?” “Vocês fazem bioestimulador?”
+
+Quem responde segunda de manhã chega depois de quem respondeu no sábado.
+
+A secretária do LeadBellus deixa as respostas prontas no intervalo, no tom da sua clínica. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-14-noite-roteiro-fora-horario",
       data: "2026-11-14",
       turno: "noite",
-      arte: "01-quente.png",
-      texto: `Micro-roteiro para retomar um orçamento depois de 3 dias:
+      tags: "#limpezadepele #roteirodevendas",
+      arte: {
+        layout: "chat",
+        tag: "Fora do horário",
+        hook: "Mensagem às 22h? Responda assim *amanhã*.",
+        cliente: "Oi! Vocês fazem limpeza de pele? Queria marcar.",
+        resposta:
+          "Bom dia, Rê! Vi sua mensagem de ontem. Fazemos sim — tenho terça às 14h ou quinta às 10h. Qual prefere?",
+      },
+      texto: `Mini-roteiro para a mensagem que chegou tarde da noite:
 
-“Oi, Fernanda! Ficou alguma dúvida sobre o que conversamos? Se quiser, posso ver um horário de avaliação para você esta semana.”
+“Bom dia, Rê! Vi sua mensagem de ontem. Fazemos limpeza de pele, sim — tenho terça às 14h ou quinta às 10h. Qual prefere?”
 
-Sem cobrança, sem “e aí, vai fechar?”.`,
+Ela mostra que a mensagem foi vista, responde a dúvida e já oferece horário. Logo cedo, antes de a cliente procurar outra clínica.`,
     }),
-    // ── 2026-11-15 ──
-    secretaria({
-      id: "2026-11-15-feriado",
+    // ── 2026-11-15 (dom, feriado) ──
+    secretariaArte({
+      id: "2026-11-15-feriado-autonoma",
       data: "2026-11-15",
-      arte: "02-espera.png",
-      texto: `Feriado: a clínica descansa, o WhatsApp não.
+      tags: "#esteticistaautonoma #esteticista #organizacao",
+      arte: {
+        layout: "checklist",
+        tag: "Feriado · Esteticista autônoma",
+        hook: "Feriado: deixe o WhatsApp em *ordem*.",
+        itens: [
+          "Avise o horário da semana",
+          "Responda quem ficou esperando",
+          "Confirme as clientes de segunda",
+          "Anote quem orçou e não fechou",
+        ],
+      },
+      texto: `Feriado de domingo, segunda chegando. Para a esteticista autônoma, é a hora de deixar o WhatsApp em ordem:
 
-Muita cliente aproveita o dia livre para pesquisar e mandar mensagem. Na volta, a pergunta dela está lá, esperando há horas.
+• avisar o horário de funcionamento da semana
+• responder quem ficou esperando
+• confirmar as clientes de segunda
+• anotar quem pediu orçamento e não fechou
 
-Com a secretária, a equipe responde a fila do feriado em minutos: a mensagem já vem pronta, no tom da clínica. É só revisar e enviar.
+Quinze minutos hoje evitam uma segunda inteira apagando incêndio.
+
+A secretária do LeadBellus escreve todas essas mensagens no seu tom. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-15-noite-pergunta-feriado",
+    secretariaArte({
+      id: "2026-11-15-noite-enquete-folga",
       data: "2026-11-15",
       turno: "noite",
-      arte: "03-fila.png",
-      texto: `Pergunta de feriado: alguém da sua clínica olha o WhatsApp em dia de folga?
+      tags: "#rotinadeclinica #clinicadeestetica",
+      arte: {
+        layout: "pergunta",
+        hook: "Você responde WhatsApp no *feriado*?",
+        itens: ["Sim, normalmente", "Só o que é urgente", "Deixo para o dia seguinte", "Aviso que estou de folga"],
+      },
+      texto: `Pergunta de feriado: você responde o WhatsApp da clínica em dia de folga?
 
-Ou a regra é responder tudo no próximo dia útil?
+A) Sim, normalmente.
+B) Só o que é urgente.
+C) Deixo para o dia seguinte.
+D) Aviso que estou de folga.
 
-Não existe resposta certa — mas existe a que funciona para a sua equipe. Conta como é aí.`,
+Não tem resposta certa — tem a que cabe na sua rotina. Conta aqui.`,
     }),
-    // ── 2026-11-16 ──
-    secretaria({
-      id: "2026-11-16-noite-preco-sozinho",
+    // ── 2026-11-16 (seg) ──
+    secretariaArte({
+      id: "2026-11-16-medo-artificial-hof",
+      data: "2026-11-16",
+      tags: "#harmonizacaofacial #biomedicinaestetica #naturalidade",
+      arte: {
+        layout: "chat",
+        tag: "Biomédica esteta · Harmonização facial",
+        hook: "Medo de ficar artificial? *Comece por aí*.",
+        cliente: "Quero fazer harmonização, mas morro de medo de ficar artificial.",
+        resposta:
+          "Faz todo sentido esse cuidado! Na avaliação a gente conversa sobre o que você quer manter no seu rosto e planeja junto, com calma. Quer ver um horário?",
+      },
+      texto: `“Quero fazer harmonização, mas morro de medo de ficar artificial.”
+
+Essa frase não é uma objeção a vencer. É o motivo de a cliente ter escrito para você.
+
+A biomédica esteta que responde “fica natural, pode confiar” perde a chance de conversar. A que acolhe o medo — e explica que tudo começa por uma avaliação e um planejamento conjunto — abre espaço para a confiança.
+
+A secretária do LeadBellus escreve essa resposta no tom da sua clínica, sem prometer resultado. Você revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-16-noite-mito-audio",
       data: "2026-11-16",
       turno: "noite",
-      arte: "05-preco.png",
-      texto: `Dica da noite: nunca mande o preço sozinho.
+      tags: "#atendimentoaocliente #whatsappbusiness",
+      arte: {
+        layout: "mito",
+        hook: "Áudio resolve mais rápido? *Depende*.",
+        mito: "Mandar áudio é sempre mais rápido e mais pessoal.",
+        verdade: "Muita cliente lê no trabalho. Texto curto e claro funciona melhor no primeiro contato.",
+      },
+      texto: `Mito ou verdade: “Áudio é sempre mais rápido e mais pessoal.”
 
-Um número solto na tela vira comparação. Antes dele, uma frase sobre o cuidado da avaliação. Depois dele, um convite para o próximo passo.
+Depende. Muita cliente lê o WhatsApp no trabalho ou no transporte e não consegue ouvir na hora.
 
-O valor faz mais sentido quando vem com contexto.`,
+No primeiro contato, texto curto e claro costuma funcionar melhor. O áudio pode vir depois, se ela preferir — pergunte.`,
     }),
-    // ── 2026-11-17 ──
-    secretaria({
-      id: "2026-11-17-dia-seguinte",
+    // ── 2026-11-17 (ter) ──
+    secretariaArte({
+      id: "2026-11-17-cinco-conversas-paradas",
       data: "2026-11-17",
-      arte: "12-cadeira.png",
-      texto: `O atendimento não termina quando a cliente sai da cadeira.
+      tags: "#donadeclinica #gestaodeclinica #clinicadeestetica",
+      arte: {
+        layout: "agenda",
+        tag: "Dona de clínica · Terça cedo",
+        hook: "Cinco conversas paradas desde *sábado*.",
+        itens: [
+          "Ana|Preenchimento labial — pediu valor",
+          "Bruna|Limpeza de pele — quer sábado",
+          "Cris|Toxina — “vou pensar”",
+          "Dani|Drenagem — sem resposta",
+          "Eli|Bioestimulador — “dói?”",
+        ],
+      },
+      texto: `Terça cedo. A dona da clínica abre o WhatsApp e encontra cinco conversas paradas desde sábado:
 
-Uma mensagem no dia seguinte — “Oi, tudo bem? Qualquer dúvida, a equipe está aqui” — mostra cuidado e abre espaço para o retorno.
+Ana quer saber o valor do preenchimento labial.
+Bruna quer limpeza de pele no sábado.
+Cris disse “vou pensar” sobre a toxina.
+Dani perguntou da drenagem e ninguém respondeu.
+Eli quer saber se o bioestimulador dói.
 
-A secretária escreve essa mensagem no tom da clínica, sem orientação clínica à distância. Quem revisa e envia é a equipe.
+Cinco conversas, cinco respostas diferentes. A secretária do LeadBellus escreve cada uma no tom da clínica. A equipe revisa e envia — em minutos.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-17-noite-gostei",
+    secretariaArte({
+      id: "2026-11-17-noite-termine-com-pergunta",
       data: "2026-11-17",
       turno: "noite",
-      arte: "08-retorno.png",
-      texto: `A cliente escreve: “Amei o atendimento de vocês!”
+      tags: "#dicadeatendimento #vendasnaestetica",
+      arte: {
+        layout: "citacao",
+        hook: "Resposta boa termina com uma *pergunta*.",
+        autor: "Dica da noite",
+      },
+      texto: `Dica da noite: toda resposta boa termina com uma pergunta.
 
-Resposta fraca: “Obrigada!”
+“Quer que eu veja um horário?” “Qual área você quer cuidar?” “Prefere manhã ou tarde?”
 
-Resposta melhor: “Que alegria ler isso, Bia! Foi um prazer cuidar de você. Quando quiser, já deixamos seu retorno combinado.”
-
-Agradecer também é um próximo passo.`,
+Sem pergunta, a conversa acaba em você. Com pergunta, a próxima mensagem é dela.`,
     }),
-    // ── 2026-11-18 ──
-    secretaria({
-      id: "2026-11-18-noite-mito-longo",
+    // ── 2026-11-18 (qua) ──
+    secretariaArte({
+      id: "2026-11-18-pacote-drenagem",
+      data: "2026-11-18",
+      tags: "#drenagemlinfatica #esteticistaautonoma #esteticacorporal",
+      arte: {
+        layout: "antesdepois",
+        tag: "Esteticista autônoma · Drenagem",
+        hook: "Pacote de drenagem: venda o *cuidado*.",
+        cliente: "Quanto fica o pacote de drenagem?",
+        fraca: "10 sessões, valor na tabela.",
+        resposta:
+          "Oi, Dani! A gente monta o pacote de acordo com a sua rotina e o seu objetivo. Posso te fazer duas perguntas rápidas para indicar o melhor formato?",
+      },
+      texto: `“Quanto fica o pacote de drenagem?”
+
+Resposta fraca: “10 sessões, valor na tabela.”
+Resposta da secretária: “Oi, Dani! A gente monta o pacote de acordo com a sua rotina e o seu objetivo. Posso te fazer duas perguntas rápidas para indicar o melhor formato?”
+
+A primeira entrega um número. A segunda começa um atendimento.
+
+Esteticista autônoma não tem tempo de pensar em cada resposta entre uma sessão e outra. A secretária do LeadBellus escreve no seu tom. Você revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-18-noite-enquete-quem-responde",
       data: "2026-11-18",
       turno: "noite",
-      arte: "09-rotina.png",
-      texto: `Mito ou verdade: “Follow-up precisa ser longo para convencer.”
+      tags: "#rotinadeclinica #recepcionista",
+      arte: {
+        layout: "pergunta",
+        hook: "Quem responde o WhatsApp da sua *clínica*?",
+        itens: ["Eu mesma, entre atendimentos", "A recepção", "Quem estiver livre", "Cada dia é um"],
+      },
+      texto: `Pergunta da noite: quem responde o WhatsApp da sua clínica?
 
-Mito. No WhatsApp, mensagem comprida costuma ficar para depois — e depois vira nunca.
+A) Eu mesma, entre um atendimento e outro.
+B) A recepção.
+C) Quem estiver livre na hora.
+D) Cada dia é um.
 
-Duas ou três linhas, com uma pergunta no final, funcionam melhor para retomar a conversa.`,
+Comenta a letra — a resposta muda muito o tipo de ajuda que faz sentido.`,
     }),
-    // ── 2026-11-19 ──
-    secretaria({
-      id: "2026-11-19-indicacao",
+    // ── 2026-11-19 (qui) ──
+    secretariaArte({
+      id: "2026-11-19-recepcao-indicacao",
       data: "2026-11-19",
-      arte: "01-quente.png",
-      texto: `“Uma amiga me indicou vocês.”
+      tags: "#recepcionista #indicacao #limpezadepele",
+      arte: {
+        layout: "persona",
+        persona: "Recepcionista",
+        tag: "Indicação de cliente",
+        hook: "“Foi a Paula que me indicou.” E *agora*?",
+        sub: "Indicação pede uma resposta à altura.",
+      },
+      texto: `A Lia é recepcionista de uma clínica de estética. Chega a mensagem: “Oi! A Paula me indicou vocês. Queria saber sobre limpeza de pele.”
 
-Essa cliente chega mais quente do que qualquer anúncio. Ela já confia — e espera ser atendida com o mesmo cuidado que a amiga recebeu.
+Indicação é a cliente mais fácil de agendar — e a mais fácil de decepcionar com um “segue a tabela”.
 
-A secretária escreve uma resposta que valoriza a indicação e convida para a avaliação, no tom da clínica. A equipe revisa e envia.
+Uma boa resposta agradece a indicação, chama pelo nome, mostra que a clínica está feliz em receber e já oferece um horário.
+
+A secretária do LeadBellus escreve essa mensagem no tom da clínica. A recepção revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-19-noite-roteiro-remarcou",
+    secretariaArte({
+      id: "2026-11-19-noite-mito-emoji",
       data: "2026-11-19",
       turno: "noite",
-      arte: "02-espera.png",
-      texto: `Micro-roteiro para quem remarcou pela segunda vez:
+      tags: "#comunicacao #clinicadeestetica",
+      arte: {
+        layout: "mito",
+        hook: "Emoji deixa a clínica pouco *profissional*?",
+        mito: "Clínica séria não usa emoji no WhatsApp.",
+        verdade: "Um emoji bem colocado deixa a conversa leve. O que pesa é exagero e erro de digitação.",
+      },
+      texto: `Mito ou verdade: “Clínica séria não usa emoji no WhatsApp.”
 
-“Oi, Luana! Sem problema, a rotina às vezes aperta mesmo. Quer que eu deixe dois horários reservados para você escolher com calma?”
+Mito. Um emoji bem colocado deixa a conversa mais leve e próxima. O que pesa é exagero — e erro de digitação na pressa.
 
-Compreensão primeiro, opção concreta depois.`,
+A regra: o tom da clínica primeiro, o emoji depois.`,
     }),
-    // ── 2026-11-20 ──
-    secretaria({
-      id: "2026-11-20-noite-pergunta-objecao",
+    // ── 2026-11-20 (sex, feriado) ──
+    secretariaArte({
+      id: "2026-11-20-feriadao-quatro-mensagens",
+      data: "2026-11-20",
+      tags: "#harmonizacaofacial #agendadeclinica #feriado",
+      arte: {
+        layout: "checklist",
+        tag: "Feriado prolongado",
+        hook: "Feriadão: 4 mensagens para deixar *prontas*.",
+        itens: [
+          "Aviso de horário do feriado",
+          "“Tem horário semana que vem?”",
+          "Retorno para quem orçou",
+          "Confirmação de segunda",
+        ],
+      },
+      texto: `Feriado de sexta, fim de semana prolongado. As mensagens não tiram folga.
+
+Quatro respostas para deixar prontas antes de sair:
+• o aviso de horário do feriado
+• o “tem horário semana que vem?”
+• o retorno para quem pediu orçamento
+• a confirmação das clientes de segunda
+
+A secretária do LeadBellus escreve as quatro no tom da sua clínica. A equipe revisa e envia quando for a hora.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-20-noite-roteiro-abre-feriado",
       data: "2026-11-20",
       turno: "noite",
-      arte: "06-medo.png",
-      texto: `Pergunta para encerrar a semana:
+      tags: "#agendadeclinica #roteirodevendas",
+      arte: {
+        layout: "chat",
+        tag: "Feriado",
+        hook: "“Abre no feriado?” Não termine no *não*.",
+        cliente: "Vocês abrem amanhã? É feriado, né?",
+        resposta:
+          "Oi, Bel! No feriado a clínica fecha, mas segunda tenho horário às 11h e às 16h. Quer que eu reserve um para você?",
+      },
+      texto: `Mini-roteiro para “vocês abrem no feriado?”:
 
-Qual objeção você mais ouve no WhatsApp da clínica?
+“Oi, Bel! No feriado a clínica fecha, mas segunda tenho horário às 11h e às 16h. Quer que eu reserve um para você?”
 
-Achou caro, medo de ficar artificial, “vou falar com meu marido”, “depois eu vejo”… Deixa aqui embaixo. Pode virar dica nas próximas noites.`,
+Um não que já vira agendamento.`,
     }),
-    // ── 2026-11-21 ──
-    secretaria({
-      id: "2026-11-21-pre-black-friday",
+    // ── 2026-11-21 (sáb) ──
+    secretariaArte({
+      id: "2026-11-21-semana-black-friday",
       data: "2026-11-21",
-      arte: "09-rotina.png",
-      texto: `A Black Friday é na próxima sexta. O WhatsApp esquenta antes.
+      tags: "#blackfriday #donadeclinica #clinicadeestetica",
+      arte: {
+        layout: "agenda",
+        tag: "Semana da Black Friday",
+        hook: "A semana mais cheia do *WhatsApp*.",
+        itens: [
+          "SEG|“Vai ter promoção?”",
+          "TER|“Quanto fica com desconto?”",
+          "QUA|“Dá para parcelar?”",
+          "SEX|Black Friday — fila de mensagens",
+        ],
+      },
+      texto: `Semana que vem é Black Friday. No WhatsApp da clínica, costuma ser assim:
 
-Vale se preparar agora: quem vai responder, o que a clínica vai oferecer (ou não) e como falar de condição sem virar só preço.
+Segunda: “vai ter promoção?”
+Terça: “quanto fica com desconto?”
+Quarta: “dá para parcelar?”
+Sexta: fila de mensagens.
 
-A secretária ajuda nessa semana: cole a conversa, receba 3 versões no tom da clínica e envie. Sem prometer resultado, sem preço fechado por mensagem.
+Tendo promoção ou não, cada pergunta pede uma resposta clara — sem prometer o que a clínica não vai fazer.
+
+Com a secretária do LeadBellus, a equipe tem as respostas prontas no tom da clínica. Revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-21-noite-blocos",
+    secretariaArte({
+      id: "2026-11-21-noite-promocao-conversa",
       data: "2026-11-21",
       turno: "noite",
-      arte: "04-equipe.png",
-      texto: `Dica da noite: quebre a mensagem em parágrafos curtos.
+      tags: "#blackfriday #vendasnaestetica",
+      arte: {
+        layout: "citacao",
+        hook: "Promoção não substitui uma boa *conversa*.",
+        autor: "Dica da noite · Black Friday",
+      },
+      texto: `Dica da noite: promoção atrai mensagem, mas quem agenda é a conversa.
 
-Um bloco de texto gigante no WhatsApp cansa antes de ser lido. Duas ou três frases, um espaço, mais duas.
+Se a sua clínica vai ter condição especial na Black Friday, explique as regras com clareza: o que entra, até quando, como agendar.
 
-No celular, o respiro entre as linhas faz diferença.`,
+Se não vai ter, diga com gentileza — e ofereça a avaliação mesmo assim.`,
     }),
-    // ── 2026-11-22 ──
-    secretaria({
-      id: "2026-11-22-noite-valor-por-aqui",
+    // ── 2026-11-22 (dom) ──
+    secretariaArte({
+      id: "2026-11-22-sem-black-friday",
+      data: "2026-11-22",
+      tags: "#blackfriday #donadeclinica #gestaodeclinica",
+      arte: {
+        layout: "antesdepois",
+        tag: "Black Friday sem promoção",
+        hook: "Sem promoção? Ainda dá para *agendar*.",
+        cliente: "Vai ter Black Friday aí?",
+        fraca: "Não vamos ter promoção.",
+        resposta:
+          "Oi, Mari! Este ano não teremos promoção, mas posso te explicar como funciona a avaliação e reservar um horário com calma. Quer ver as opções?",
+      },
+      texto: `Sua clínica não vai fazer Black Friday? Tudo bem. A pergunta vai chegar mesmo assim.
+
+“Vai ter Black Friday aí?”
+
+Resposta fraca: “Não vamos ter promoção.”
+Resposta da secretária: “Oi, Mari! Este ano não teremos promoção, mas posso te explicar como funciona a avaliação e reservar um horário com calma. Quer ver as opções?”
+
+Um não que mantém a conversa viva. A secretária do LeadBellus escreve no tom da sua clínica. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-22-noite-enquete-black-friday",
       data: "2026-11-22",
       turno: "noite",
-      arte: "05-preco.png",
-      texto: `A cliente escreve: “Me passa o valor por aqui mesmo.”
+      tags: "#blackfriday #clinicadeestetica",
+      arte: {
+        layout: "pergunta",
+        hook: "Sua clínica vai fazer *Black Friday*?",
+        itens: ["Sim, com condição especial", "Só para clientes da casa", "Não este ano", "Ainda estou decidindo"],
+      },
+      texto: `Pergunta da noite: sua clínica vai fazer Black Friday este ano?
 
-Resposta fraca: só o número.
+A) Sim, com condição especial.
+B) Só para clientes da casa.
+C) Não este ano.
+D) Ainda estou decidindo.
 
-Resposta melhor: “Claro! O valor depende do que a profissional indicar na avaliação, que é rapidinha. Posso te explicar como funciona e já ver um horário?”
-
-Atende o pedido sem perder a conversa.`,
+Comenta a letra. Esta semana vamos postar roteiros para cada caso.`,
     }),
-    // ── 2026-11-23 ──
-    secretaria({
-      id: "2026-11-23-domingo",
+    // ── 2026-11-23 (seg) ──
+    secretariaArte({
+      id: "2026-11-23-promocao-clara",
       data: "2026-11-23",
-      arte: "02-espera.png",
-      texto: `Domingo à noite é quando muita cliente decide cuidar de si.
+      tags: "#blackfriday #harmonizacaofacial #hof",
+      arte: {
+        layout: "checklist",
+        tag: "Black Friday com promoção",
+        hook: "Promoção clara evita conversa *travada*.",
+        itens: [
+          "O que entra na condição",
+          "Até quando vale",
+          "Como reservar o horário",
+          "O que depende da avaliação",
+        ],
+      },
+      texto: `Vai ter condição especial na Black Friday? Então a mensagem precisa ser clara antes de ser bonita.
 
-Ela rola o Instagram, salva um post, abre o WhatsApp da clínica e pergunta. Na segunda de manhã, a mensagem já esfriou um pouco.
+Checklist da resposta:
+• o que entra na condição
+• até quando vale
+• como reservar o horário
+• o que continua dependendo da avaliação
 
-A secretária deixa a resposta pronta para a equipe enviar logo cedo, no tom da clínica.
+Sem isso, cada cliente faz cinco perguntas — e a equipe responde cinco vezes.
+
+A secretária do LeadBellus escreve essas respostas no tom da clínica, sem promessa de resultado. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-23-noite-mito-so-preco",
+    secretariaArte({
+      id: "2026-11-23-noite-mito-menor-preco",
       data: "2026-11-23",
       turno: "noite",
-      arte: "01-quente.png",
-      texto: `Mito ou verdade: “Quem pergunta preço e some não quer mais.”
+      tags: "#blackfriday #vendasnaestetica",
+      arte: {
+        layout: "mito",
+        hook: "Na Black Friday, só o preço *importa*?",
+        mito: "Na Black Friday, a cliente só quer o menor preço.",
+        verdade: "Ela também quer segurança. Quem explica o cuidado se destaca no meio das promoções.",
+      },
+      texto: `Mito ou verdade: “Na Black Friday, a cliente só quer o menor preço.”
 
-Mito. Muitas vezes, ela recebeu o valor sem contexto e ficou sem saber o próximo passo.
+Mito. Em estética, ela também quer se sentir segura com quem vai cuidar dela.
 
-Um follow-up que explica como funciona a avaliação pode reabrir a conversa.`,
+No meio de tantas promoções, a clínica que explica a avaliação e o cuidado se destaca — mesmo sem ser a mais barata.`,
     }),
-    // ── 2026-11-24 ──
-    secretaria({
-      id: "2026-11-24-noite-roteiro-tres-linhas",
+    // ── 2026-11-24 (ter) ──
+    secretariaArte({
+      id: "2026-11-24-tres-clinicas",
+      data: "2026-11-24",
+      tags: "#preenchimentolabial #harmonizacaofacial #hof",
+      arte: {
+        layout: "persona",
+        persona: "Harmonizadora (HOF)",
+        tag: "Preenchimento labial",
+        hook: "Ela está conversando com *três* clínicas.",
+        sub: "Sai na frente quem responde rápido — e bem.",
+      },
+      texto: `Semana de Black Friday. Uma cliente quer preenchimento labial e mandou a mesma mensagem para três clínicas.
+
+A primeira respondeu só o valor. A segunda respondeu no dia seguinte. A terceira respondeu em minutos, chamou pelo nome, explicou a avaliação e ofereceu dois horários.
+
+Adivinha qual ela foi conhecer.
+
+A secretária do LeadBellus deixa a sua resposta pronta em segundos, no tom da sua clínica. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-24-noite-roteiro-parcelar",
       data: "2026-11-24",
       turno: "noite",
-      arte: "03-fila.png",
-      texto: `Micro-roteiro para a primeira resposta da semana de Black Friday:
+      tags: "#roteirodevendas #formasdepagamento",
+      arte: {
+        layout: "chat",
+        tag: "Forma de pagamento",
+        hook: "“Posso parcelar?” é sinal de *interesse*.",
+        cliente: "Dá para parcelar o preenchimento?",
+        resposta:
+          "Dá sim, Nina! As formas de pagamento a gente combina depois da avaliação. Quer que eu veja um horário para você esta semana?",
+      },
+      texto: `Mini-roteiro para “posso parcelar?”:
 
-Linha 1: “Oi, [nome]! Obrigada por chamar.”
-Linha 2: o que a clínica oferece nesta semana, sem número solto.
-Linha 3: “Quer que eu veja um horário de avaliação?”
+“Dá sim, Nina! As formas de pagamento a gente combina depois da avaliação. Quer que eu veja um horário para você esta semana?”
 
-Três linhas. Resposta enviada.`,
+Quem pergunta como pagar já está imaginando fazer. Responda e leve para o próximo passo — sempre de acordo com a política da sua clínica.`,
     }),
-    // ── 2026-11-25 ──
-    secretaria({
-      id: "2026-11-25-lista-outubro",
+    // ── 2026-11-25 (qua) ──
+    secretariaArte({
+      id: "2026-11-25-lista-que-vale-ouro",
       data: "2026-11-25",
-      arte: "07-sumiu.png",
-      texto: `Antes da sexta, olhe para trás.
+      tags: "#blackfriday #followup #donadeclinica",
+      arte: {
+        layout: "agenda",
+        tag: "Antes da Black Friday",
+        hook: "A lista que vale ouro esta *semana*.",
+        itens: [
+          "OUT|Pediu valor do bioestimulador",
+          "OUT|Disse “vou pensar” na toxina",
+          "SET|Fez limpeza e não voltou",
+          "SET|Perguntou de laser e sumiu",
+        ],
+      },
+      texto: `Antes de gastar com anúncio na Black Friday, abra o WhatsApp e faça uma lista:
 
-Quem pediu orçamento em outubro e não fechou? Quem disse “vou ver” e não voltou? Essas clientes já conhecem a clínica — e podem estar só esperando um motivo.
+• quem pediu valor do bioestimulador em outubro
+• quem disse “vou pensar” na toxina
+• quem fez limpeza de pele em setembro e não voltou
+• quem perguntou de laser e sumiu
 
-A secretária escreve a mensagem de retomada de cada uma, sem pressão. A equipe revisa e envia.
+Essas clientes já conhecem a sua clínica. Uma mensagem bem escrita, sem pressão, pode reabrir a conversa.
+
+A secretária do LeadBellus escreve cada retomada no tom da clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-25-noite-pergunta-bf",
+    secretariaArte({
+      id: "2026-11-25-noite-retomar-nao-cobrar",
       data: "2026-11-25",
       turno: "noite",
-      arte: "12-cadeira.png",
-      texto: `Pergunta da semana: a sua clínica faz Black Friday?
+      tags: "#followup #dicadeatendimento",
+      arte: {
+        layout: "citacao",
+        hook: "Retomar a conversa não é *cobrar* resposta.",
+        autor: "Dica da noite",
+      },
+      texto: `Dica da noite: retomar a conversa não é cobrar resposta.
 
-Condição especial, brinde, agenda estendida… ou prefere ficar de fora?
+“E aí, decidiu?” pressiona.
+“Lembrei de você porque abrimos horários na semana que vem” ajuda.
 
-Os dois caminhos fazem sentido. O importante é a equipe saber responder bem quando a cliente perguntar. Conta como é aí.`,
+Mesma intenção, sensação completamente diferente.`,
     }),
-    // ── 2026-11-26 ──
-    secretaria({
-      id: "2026-11-26-noite-palavras",
+    // ── 2026-11-26 (qui) ──
+    secretariaArte({
+      id: "2026-11-26-mito-cara-de-robo",
+      data: "2026-11-26",
+      tags: "#recepcionista #iaparaclinicas #secretariadeclinica",
+      arte: {
+        layout: "mito",
+        tag: "Recepção",
+        hook: "Resposta de IA tem cara de *robô*?",
+        mito: "Resposta escrita com IA sempre parece robô.",
+        verdade: "A secretária usa o tom da sua clínica — e a equipe ajusta o que quiser antes de enviar.",
+      },
+      texto: `Mito ou verdade: “Resposta escrita com IA sempre parece robô.”
+
+Mito — quando a ferramenta conhece a clínica. No LeadBellus, você cadastra o tom, os procedimentos e o jeito de falar da clínica. A secretária escreve 3 opções nesse tom: Suave, Consultiva e Fechamento.
+
+A recepção escolhe uma, ajusta o que quiser e envia. Fica com cara de gente, porque quem decide é gente.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-26-noite-cliente-da-casa",
       data: "2026-11-26",
       turno: "noite",
-      arte: "09-rotina.png",
-      texto: `Dica da noite: use as palavras da cliente.
+      tags: "#relacionamentocomcliente #clinicadeestetica",
+      arte: {
+        layout: "antesdepois",
+        tag: "Cliente da casa",
+        hook: "Cliente antiga pedindo desconto? *Valorize*.",
+        cliente: "Já sou cliente, tem algum desconto para mim?",
+        fraca: "Não temos desconto.",
+        resposta:
+          "Oi, Tati! Que bom te ver por aqui de novo. Vou ver com a equipe o que temos para clientes da casa e já te falo. Reservo seu horário enquanto isso?",
+      },
+      texto: `A cliente escreve: “Já sou cliente, tem algum desconto para mim?”
 
-Se ela escreveu “bigode chinês”, responda falando de bigode chinês — não com o nome técnico que só a equipe conhece.
+Resposta fraca: “Não temos desconto.”
+Resposta melhor: “Oi, Tati! Que bom te ver por aqui de novo. Vou ver com a equipe o que temos para clientes da casa e já te falo. Quer que eu reserve seu horário enquanto isso?”
 
-A cliente se sente entendida quando reconhece as próprias palavras.`,
+Mesmo que a resposta final seja não, ela se sente lembrada.`,
     }),
-    // ── 2026-11-27 ──
-    secretaria({
-      id: "2026-11-27-black-friday",
+    // ── 2026-11-27 (sex, Black Friday) ──
+    secretariaArte({
+      id: "2026-11-27-black-friday-hoje",
       data: "2026-11-27",
-      arte: "01-quente.png",
-      texto: `É hoje.
+      tags: "#blackfriday #clinicadeestetica #harmonizacaofacial",
+      arte: {
+        layout: "citacao",
+        tag: "Black Friday",
+        hook: "Hoje o WhatsApp da clínica não *para*.",
+        autor: "Sexta, 27 de novembro",
+        sub: "Plano Start R$97/mês",
+      },
+      texto: `Hoje é Black Friday. O WhatsApp da clínica não vai parar.
 
-Na Black Friday, a cliente abre várias conversas ao mesmo tempo e responde para quem chega primeiro com uma resposta clara. Demorar é perder lugar na fila dela.
+“Vai ter promoção?” “Quanto fica?” “Dá para parcelar?” “Tem horário amanhã?” — tudo ao mesmo tempo, enquanto a equipe atende.
 
-A secretária escreve cada resposta em segundos, no tom da clínica e sem preço fechado por mensagem. A equipe revisa e envia entre um atendimento e outro.
+A secretária do LeadBellus escreve a próxima mensagem de cada conversa no tom da sua clínica, em segundos. A equipe só revisa e envia.
+
+Plano Start por R$97/mês. Para conhecer, as primeiras são por nossa conta: 5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-27-noite-enquete-mais-chegou",
+      data: "2026-11-27",
+      turno: "noite",
+      tags: "#blackfriday #rotinadeclinica",
+      arte: {
+        layout: "pergunta",
+        hook: "Qual pergunta mais chegou *hoje*?",
+        itens: ["“Vai ter promoção?”", "“Quanto fica?”", "“Dá para parcelar?”", "“Tem horário amanhã?”"],
+      },
+      texto: `Pergunta de Black Friday: qual mensagem mais chegou hoje no WhatsApp da clínica?
+
+A) “Vai ter promoção?”
+B) “Quanto fica?”
+C) “Dá para parcelar?”
+D) “Tem horário amanhã?”
+
+Comenta a letra. Amanhã tem roteiro para quem não fechou.`,
+    }),
+    // ── 2026-11-28 (sáb) ──
+    secretariaArte({
+      id: "2026-11-28-perdi-a-promocao",
+      data: "2026-11-28",
+      tags: "#esteticistaautonoma #limpezadepele #blackfriday",
+      arte: {
+        layout: "chat",
+        tag: "Esteticista autônoma · Depois da Black Friday",
+        hook: "“Perdi a promoção?” Não perca a *cliente*.",
+        cliente: "Vi a promoção ontem, ainda dá tempo?",
+        resposta:
+          "Oi, Lê! A condição era até ontem, mas posso te encaixar numa avaliação esta semana e explicar as opções com calma. Quer ver um horário?",
+      },
+      texto: `Sábado depois da Black Friday. Chega: “Vi a promoção ontem, ainda dá tempo?”
+
+Se a condição acabou, diga com clareza — e não feche a porta. “A condição era até ontem, mas posso te encaixar numa avaliação esta semana e explicar as opções com calma. Quer ver um horário?”
+
+Para a esteticista autônoma, cada conversa dessas é uma cliente que já levantou a mão.
+
+A secretária do LeadBellus escreve essa resposta no seu tom. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-27-noite-mais-barato",
-      data: "2026-11-27",
-      turno: "noite",
-      arte: "05-preco.png",
-      texto: `A cliente escreve: “Na outra clínica está mais barato.”
-
-Resposta fraca: “Então faço o mesmo valor.”
-
-Resposta melhor: “Entendo! Cada clínica trabalha de um jeito. Aqui, tudo começa pela avaliação, com calma. Quer conhecer antes de decidir?”
-
-Valor antes de desconto.`,
-    }),
-    // ── 2026-11-28 ──
-    secretaria({
-      id: "2026-11-28-noite-mito-depois-bf",
+    secretariaArte({
+      id: "2026-11-28-noite-mito-agenda-esfria",
       data: "2026-11-28",
       turno: "noite",
-      arte: "08-retorno.png",
-      texto: `Mito ou verdade: “Passou a Black Friday, ninguém mais fecha.”
+      tags: "#followup #blackfriday",
+      arte: {
+        layout: "mito",
+        hook: "Depois da Black Friday, a agenda *esfria*?",
+        mito: "Passou a Black Friday, a agenda esfria.",
+        verdade: "Quem conversou e não fechou continua interessada. É hora do follow-up leve.",
+      },
+      texto: `Mito ou verdade: “Passou a Black Friday, a agenda esfria.”
 
-Mito. Muita cliente pesquisou na sexta e vai decidir com calma nos próximos dias.
+Mito. Quem conversou com a clínica nesta semana e não fechou continua interessada — só não decidiu ainda.
 
-Um follow-up gentil nesta semana pode ser exatamente o lembrete que faltava.`,
+Na segunda, um follow-up leve, sem pressão, retoma de onde parou.`,
     }),
-    // ── 2026-11-29 ──
-    secretaria({
-      id: "2026-11-29-organizar-semana",
+    // ── 2026-11-29 (dom) ──
+    secretariaArte({
+      id: "2026-11-29-derma-quem-responde",
       data: "2026-11-29",
-      arte: "04-equipe.png",
-      texto: `Domingo pós-Black Friday: hora de organizar a semana.
+      tags: "#clinicadermatologica #dermatologia #equipedeatendimento",
+      arte: {
+        layout: "persona",
+        persona: "Dermatologista com clínica",
+        tag: "Equipe de atendimento",
+        hook: "O médico atende. Quem *responde*?",
+        sub: "A equipe toda no mesmo tom da clínica.",
+      },
+      texto: `Na clínica dermatológica, o médico está no consultório. O WhatsApp fica com a equipe — e a equipe muda: recepção de manhã, outra pessoa à tarde, alguém cobrindo férias.
 
-Quem perguntou e ainda não recebeu resposta? Quem recebeu e não respondeu? Quem agendou e precisa de confirmação?
+Resultado: cada uma responde de um jeito. Uma é curta, outra promete demais, outra esquece de oferecer horário.
 
-Com a secretária, cada uma dessas mensagens sai pronta no tom da clínica. A equipe revisa e envia, sem começar do zero a cada conversa.
+A secretária do LeadBellus dá à equipe inteira respostas no tom da clínica, sem diagnóstico e sem promessa de resultado. Cada pessoa revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-11-29-noite-roteiro-agendou",
+    secretariaArte({
+      id: "2026-11-29-noite-domingo-tres-minutos",
       data: "2026-11-29",
       turno: "noite",
-      arte: "12-cadeira.png",
-      texto: `Micro-roteiro para quem acabou de agendar:
+      tags: "#organizacao #rotinadeclinica",
+      arte: {
+        layout: "checklist",
+        hook: "Domingo: três minutos que salvam a *segunda*.",
+        itens: ["Veja quem ficou sem resposta", "Separe quem orçou e não fechou", "Confirme as clientes de segunda"],
+      },
+      texto: `Três minutos de domingo que salvam a segunda:
 
-“Prontinho, Rafa! Sua avaliação está marcada para quinta, às 14h. Vou te mandar um lembrete na véspera. Qualquer dúvida até lá, é só chamar.”
+• veja quem ficou sem resposta no fim de semana
+• separe quem pediu orçamento e não fechou
+• confirme as clientes de segunda cedo
 
-Confirma, combina o lembrete e deixa a porta aberta.`,
+Segunda começa com lista pronta, não com susto.`,
     }),
-    // ── 2026-11-30 ──
-    secretaria({
-      id: "2026-11-30-noite-pergunta-novembro",
+    // ── 2026-11-30 (seg) ──
+    secretariaArte({
+      id: "2026-11-30-pronta-para-o-natal",
+      data: "2026-11-30",
+      tags: "#botox #biomedicinaestetica #dezembro",
+      arte: {
+        layout: "antesdepois",
+        tag: "Biomédica esteta · Antes das festas",
+        hook: "“Quero ficar pronta para o *Natal*.”",
+        cliente: "Quero fazer o botox antes do Natal, dá tempo?",
+        fraca: "Dá sim, pode vir.",
+        resposta:
+          "Que bom que você se planejou! O melhor momento a gente define na avaliação. Dezembro costuma lotar — que tal reservar já? Tenho quinta às 10h.",
+      },
+      texto: `Dezembro chegando e com ele a mensagem: “Quero fazer o botox antes do Natal, dá tempo?”
+
+Resposta fraca: “Dá sim, pode vir.”
+Resposta da secretária: “Que bom que você se planejou! O melhor momento a gente define na avaliação. Dezembro costuma lotar, então que tal reservar já? Tenho quinta às 10h.”
+
+A primeira promete. A segunda orienta, sem prometer, e já reserva o horário.
+
+A secretária do LeadBellus escreve no seu tom. Você revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-11-30-noite-enquete-novembro",
       data: "2026-11-30",
       turno: "noite",
-      arte: "03-fila.png",
-      texto: `Último dia de novembro. Pergunta honesta:
+      tags: "#rotinadeclinica #clinicadeestetica",
+      arte: {
+        layout: "pergunta",
+        hook: "Como foi novembro no seu *WhatsApp*?",
+        itens: ["Mais mensagens que o normal", "Igual aos outros meses", "Mais parado", "Nem consegui contar"],
+      },
+      texto: `Pergunta da noite: como foi novembro no WhatsApp da sua clínica?
 
-Quantas conversas ficaram sem resposta no WhatsApp da clínica este mês?
+A) Mais mensagens que o normal.
+B) Igual aos outros meses.
+C) Mais parado.
+D) Nem consegui contar.
 
-Não precisa contar aqui. Mas vale olhar com calma — e escolher pelo menos uma para retomar amanhã cedo.`,
+Conta aqui — e diz qual mensagem foi a mais difícil de responder.`,
     }),
-    // ── 2026-12-01 ──
-    secretaria({
+    // ── 2026-12-01 (ter) ──
+    secretariaArte({
       id: "2026-12-01-cliente-antiga",
       data: "2026-12-01",
-      arte: "08-retorno.png",
-      texto: `Cliente nova e cliente antiga não pedem a mesma mensagem.
+      tags: "#bioestimulador #donadeclinica #relacionamentocomcliente",
+      arte: {
+        layout: "persona",
+        persona: "Dona de clínica",
+        tag: "Cliente antiga · Bioestimulador",
+        hook: "Seis meses sem notícia. Uma mensagem *reabre*.",
+        sub: "Ela não foi embora. Só ninguém chamou.",
+      },
+      texto: `A Re fez bioestimulador em junho. Gostou, elogiou, disse que voltaria. Seis meses depois, nenhuma notícia.
 
-Para quem chega agora, acolhimento e explicação. Para quem já é da casa, proximidade e lembrança do histórico. Responder as duas igual soa frio.
+Ela não foi para outra clínica. Só ninguém chamou.
 
-A secretária ajusta o tom para cada situação, sempre no jeito da clínica. A equipe revisa e envia.
+Em dezembro, uma mensagem simples reabre a conversa: “Oi, Re! Lembrei de você esta semana. Como você está? Se quiser, temos horários antes das festas.”
+
+A secretária do LeadBellus escreve essa retomada no tom da clínica — sem pressão, sem promessa. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-12-01-noite-vespera",
+    secretariaArte({
+      id: "2026-12-01-noite-roteiro-vespera",
       data: "2026-12-01",
       turno: "noite",
-      arte: "02-espera.png",
-      texto: `Dica da noite: em dezembro, confirme todo horário na véspera.
+      tags: "#agendadeclinica #roteirodevendas",
+      arte: {
+        layout: "chat",
+        ordem: "clinica",
+        tag: "Confirmação de véspera",
+        hook: "Confirmação que a cliente *responde*.",
+        cliente: "Tudo certo! Obrigada por lembrar.",
+        resposta: "Oi, Gabi! Passando para confirmar sua limpeza de pele amanhã às 15h. Está tudo certo para você?",
+      },
+      texto: `Mini-roteiro de confirmação de véspera:
 
-Agenda cheia, compras, confraternização: é o mês em que a cliente mais esquece.
+“Oi, Gabi! Passando para confirmar sua limpeza de pele amanhã às 15h. Está tudo certo para você?”
 
-Uma mensagem curta no dia anterior ajuda a evitar cadeira vazia e libera o horário para outra pessoa, se for o caso.`,
+Termina com pergunta — e a cliente responde. “Lembrete: consulta amanhã” ninguém responde.`,
     }),
-    // ── 2026-12-02 ──
-    secretaria({
-      id: "2026-12-02-noite-parcela",
+    // ── 2026-12-02 (qua) ──
+    secretariaArte({
+      id: "2026-12-02-festas-planejamento",
+      data: "2026-12-02",
+      tags: "#harmonizacaofacial #hof #dezembro",
+      arte: {
+        layout: "checklist",
+        tag: "Harmonização · Dezembro",
+        hook: "Antes das festas, responda com *planejamento*.",
+        itens: [
+          "Pergunte a data do evento",
+          "Explique que o plano sai da avaliação",
+          "Ofereça os horários mais próximos",
+          "Não prometa prazo de resultado",
+        ],
+      },
+      texto: `Dezembro é o mês do “quero ficar bonita para a festa”. Para quem faz harmonização, é também o mês de responder com cuidado.
+
+Checklist da resposta:
+• pergunte a data do evento
+• explique que o plano sai da avaliação
+• ofereça os horários mais próximos
+• não prometa prazo de resultado
+
+Planejamento passa segurança. Promessa vira problema.
+
+A secretária do LeadBellus escreve essas respostas no tom da clínica. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-12-02-noite-mito-mensagem-longa",
       data: "2026-12-02",
       turno: "noite",
-      arte: "05-preco.png",
-      texto: `A cliente escreve: “Vocês parcelam?”
+      tags: "#comunicacao #dicadeatendimento",
+      arte: {
+        layout: "mito",
+        hook: "Mensagem longa ninguém *lê*?",
+        mito: "Mensagem longa ninguém lê no WhatsApp.",
+        verdade: "Ninguém lê mensagem confusa. Três frases claras, com um próximo passo, funcionam.",
+      },
+      texto: `Mito ou verdade: “Mensagem longa ninguém lê.”
 
-Resposta fraca: “Sim.”
+Meia verdade. Ninguém lê mensagem confusa. Três frases claras — acolhe, explica, sugere um horário — são lidas até o fim.
 
-Resposta melhor: “Temos algumas opções de pagamento, sim! Na avaliação a equipe te mostra tudo com calma. Quer que eu veja um horário para você?”
-
-A dúvida respondida vira convite.`,
+O problema nunca foi o tamanho. É não ter um próximo passo.`,
     }),
-    // ── 2026-12-03 ──
-    secretaria({
-      id: "2026-12-03-relacionamento",
+    // ── 2026-12-03 (qui) ──
+    secretariaArte({
+      id: "2026-12-03-recepcao-dezembro",
       data: "2026-12-03",
-      arte: "12-cadeira.png",
-      texto: `Nem toda mensagem precisa vender.
+      tags: "#recepcionista #agendadeclinica #dezembro",
+      arte: {
+        layout: "agenda",
+        tag: "Recepção · Dezembro",
+        hook: "Dezembro: a agenda fecha antes do *mês*.",
+        itens: [
+          "SEG|“Tem horário dia 20?”",
+          "TER|“E dia 22?”",
+          "QUA|“Qualquer dia antes do Natal!”",
+          "QUI|Agenda de dezembro quase cheia",
+        ],
+      },
+      texto: `Na recepção, dezembro tem um roteiro conhecido:
 
-Um parabéns no aniversário, um “como você está?” depois do procedimento, um obrigado por indicar uma amiga. É esse tipo de mensagem que faz a cliente lembrar da clínica quando decidir voltar.
+Segunda: “tem horário dia 20?”
+Terça: “e dia 22?”
+Quarta: “qualquer dia antes do Natal!”
+Quinta: agenda quase cheia.
 
-A secretária escreve essas mensagens também, no tom da clínica. A equipe revisa e envia.
+Quem responde rápido e oferece horário concreto preenche a agenda com quem já estava decidida. Quem demora passa dezembro dizendo “não tenho mais”.
+
+A secretária do LeadBellus escreve essas respostas no tom da clínica. A recepção revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-12-03-noite-mito-chato",
+    secretariaArte({
+      id: "2026-12-03-noite-agenda-cheia",
       data: "2026-12-03",
       turno: "noite",
-      arte: "07-sumiu.png",
-      texto: `Mito ou verdade: “Chamar quem não voltou é chato.”
+      tags: "#agendadeclinica #dicadeatendimento",
+      arte: {
+        layout: "antesdepois",
+        tag: "Agenda cheia",
+        hook: "Agenda cheia não é fim de *conversa*.",
+        cliente: "Tem horário antes do Natal?",
+        fraca: "Não tenho mais.",
+        resposta:
+          "Antes do Natal está tudo reservado, Bia, mas posso te colocar na lista de encaixe e já reservar a primeira semana de janeiro. Pode ser?",
+      },
+      texto: `A cliente escreve: “Tem horário antes do Natal?”
 
-Mito — desde que a mensagem seja sobre ela, não sobre a agenda da clínica.
+Resposta fraca: “Não tenho mais.”
+Resposta melhor: “Antes do Natal está tudo reservado, Bia, mas posso te colocar na lista de encaixe e já reservar a primeira semana de janeiro. Pode ser?”
 
-“Lembrei de você e queria saber como está” abre conversa. “Temos horário livre” parece cobrança.`,
+Agenda cheia não é fim de conversa.`,
     }),
-    // ── 2026-12-04 ──
-    secretaria({
-      id: "2026-12-04-noite-roteiro-natal",
+    // ── 2026-12-04 (sex) ──
+    secretariaArte({
+      id: "2026-12-04-vou-pensar-dezembro",
+      data: "2026-12-04",
+      tags: "#microagulhamento #esteticistaautonoma #esteticista",
+      arte: {
+        layout: "chat",
+        tag: "Esteticista autônoma · Microagulhamento",
+        hook: "“Vou pensar” em dezembro tem *prazo*.",
+        cliente: "Gostei, mas vou pensar e te falo.",
+        resposta:
+          "Claro, Fê! Fica à vontade. Só te aviso que os horários de dezembro estão acabando — se quiser, seguro um para você até amanhã, sem compromisso.",
+      },
+      texto: `“Gostei, mas vou pensar e te falo.”
+
+Em dezembro, “vou pensar” tem prazo: a agenda fecha. Avisar isso não é pressão — é informação.
+
+“Claro, Fê! Fica à vontade. Só te aviso que os horários de dezembro estão acabando. Se quiser, seguro um para você até amanhã, sem compromisso.”
+
+Para a esteticista autônoma que faz microagulhamento, é uma frase que ajuda a cliente a decidir sem empurrar.
+
+A secretária do LeadBellus escreve essa resposta no seu tom. Você revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-12-04-noite-aviso-fim-de-ano",
       data: "2026-12-04",
       turno: "noite",
-      arte: "09-rotina.png",
-      texto: `Micro-roteiro para “dá tempo antes do Natal?”:
+      tags: "#recesso #roteirodevendas",
+      arte: {
+        layout: "checklist",
+        hook: "Aviso de fim de ano em *3 linhas*.",
+        itens: ["Últimos dias de atendimento", "Data de volta", "Como reservar janeiro"],
+      },
+      texto: `Mini-roteiro do aviso de fim de ano:
 
-“Oi, Gabi! Vamos ver juntas. O primeiro passo é a avaliação, e a profissional te explica tudo com calma por lá. Tenho horário na terça ou na quinta. Qual prefere?”
+1. Últimos dias de atendimento.
+2. Data de volta.
+3. Como reservar janeiro.
 
-Sem prometer prazo, com um próximo passo claro.`,
+“Oi! Atendemos até dia 23 e voltamos dia 5. Quer que eu já reserve seu horário de janeiro?”
+
+Curto, claro e já com o próximo passo.`,
     }),
-    // ── 2026-12-05 ──
-    secretaria({
-      id: "2026-12-05-fila-segunda",
+    // ── 2026-12-05 (sáb) ──
+    secretariaArte({
+      id: "2026-12-05-mito-contratar",
       data: "2026-12-05",
-      arte: "03-fila.png",
-      texto: `A fila de segunda-feira começa no sábado.
+      tags: "#donadeclinica #gestaodeclinica #secretariadeclinica",
+      arte: {
+        layout: "mito",
+        tag: "Dona de clínica",
+        hook: "WhatsApp lotado pede mais uma *contratação*?",
+        mito: "Se o WhatsApp acumula, preciso contratar mais gente.",
+        verdade: "Muitas vezes falta tempo de escrever, não gente. Respostas prontas aceleram a equipe que você já tem.",
+      },
+      texto: `Mito ou verdade: “Se o WhatsApp está acumulando, preciso contratar mais uma pessoa.”
 
-Quem escreve no fim de semana e só recebe resposta dias depois pode já ter agendado em outro lugar. Em dezembro, isso acontece ainda mais rápido.
+Às vezes é verdade. Mas muitas vezes o que falta não é gente — é tempo de pensar em cada resposta.
 
-A secretária ajuda a responder a fila do fim de semana em minutos: a mensagem vem pronta, no tom da clínica, e a equipe revisa e envia.
+Com a secretária do LeadBellus, a equipe que você já tem cola a mensagem, recebe 3 respostas no tom da clínica, revisa e envia. A fila anda mais rápido sem mudar o time.
+
+Plano Start: R$97/mês. Para começar, 5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-12-05-noite-enquete-recesso",
+      data: "2026-12-05",
+      turno: "noite",
+      tags: "#recesso #rotinadeclinica",
+      arte: {
+        layout: "pergunta",
+        hook: "Sua clínica vai ter *recesso*?",
+        itens: ["Sim, entre Natal e Ano Novo", "Só nos feriados", "Não, atendemos direto", "Ainda não decidi"],
+      },
+      texto: `Pergunta da noite: sua clínica vai ter recesso no fim do ano?
+
+A) Sim, entre o Natal e o Ano Novo.
+B) Só nos feriados.
+C) Não, atendemos direto.
+D) Ainda não decidi.
+
+Comenta a letra. Semana que vem tem roteiro de aviso para cada caso.`,
+    }),
+    // ── 2026-12-06 (dom) ──
+    secretariaArte({
+      id: "2026-12-06-pos-preenchimento",
+      data: "2026-12-06",
+      tags: "#preenchimentolabial #hof #posprocedimento",
+      arte: {
+        layout: "antesdepois",
+        tag: "Harmonizadora · Pós-preenchimento",
+        hook: "Três dias depois, ela *escreveu*.",
+        cliente: "Oi! Fiz o preenchimento terça, é normal estar assim?",
+        fraca: "É normal, relaxa.",
+        resposta:
+          "Oi, Ká! Que bom que você chamou. Vou passar sua mensagem para a profissional agora e ela te orienta. Pode me contar como está se sentindo?",
+      },
+      texto: `Três dias depois do preenchimento labial, chega: “É normal estar assim?”
+
+Resposta fraca: “É normal, relaxa.”
+Resposta da secretária: “Oi, Ká! Que bom que você chamou. Vou passar sua mensagem para a profissional agora e ela te orienta. Pode me contar como está se sentindo?”
+
+No pós-procedimento, quem responde não avalia pelo WhatsApp: acolhe e encaminha para quem fez o procedimento. A segunda resposta faz isso — e a cliente se sente cuidada.
+
+A secretária do LeadBellus escreve respostas assim, sempre dentro dessas regras. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-12-05-noite-quem-responde",
-      data: "2026-12-05",
-      turno: "noite",
-      arte: "04-equipe.png",
-      texto: `Pergunta de sábado: quem responde o WhatsApp na sua clínica?
-
-A recepção? A própria profissional, entre um atendimento e outro? Cada dia uma pessoa?
-
-Conta aqui embaixo. Queremos entender como é a rotina de verdade.`,
-    }),
-    // ── 2026-12-06 ──
-    secretaria({
-      id: "2026-12-06-noite-proximo-passo",
+    secretariaArte({
+      id: "2026-12-06-noite-quem-cuida-depois",
       data: "2026-12-06",
       turno: "noite",
-      arte: "02-espera.png",
-      texto: `Dica da noite: toda mensagem precisa de um próximo passo.
+      tags: "#posprocedimento #relacionamentocomcliente",
+      arte: {
+        layout: "citacao",
+        hook: "Quem cuida depois é lembrada *antes*.",
+        autor: "Dica da noite · Pós-procedimento",
+      },
+      texto: `Dica da noite: quem cuida depois é lembrada antes.
 
-Agendar, tirar uma dúvida, confirmar um horário. Se a cliente termina de ler e não sabe o que fazer, a conversa para ali.
+A mensagem de pós-procedimento é a que a cliente menos espera receber. Por isso ela marca tanto.
 
-Antes de enviar, pergunte: o que eu quero que ela responda?`,
+Uma pergunta simples — “como você está?” — vale mais que qualquer promoção de dezembro.`,
     }),
-    // ── 2026-12-07 ──
-    secretaria({
-      id: "2026-12-07-tres-erros",
+    // ── 2026-12-07 (seg) ──
+    secretariaArte({
+      id: "2026-12-07-tres-erros-preco",
       data: "2026-12-07",
-      arte: "05-preco.png",
-      texto: `Três erros comuns no WhatsApp da clínica:
+      tags: "#depilacaoalaser #recepcionista #vendasnaestetica",
+      arte: {
+        layout: "checklist",
+        negativo: true,
+        tag: "Recepção · Depilação a laser",
+        hook: "Três erros na resposta de *preço*.",
+        itens: ["Mandar só o número", "Mandar a tabela inteira", "Terminar sem um horário"],
+      },
+      texto: `Três erros que a recepção comete na resposta de preço — e que fazem a cliente sumir:
 
-1. Responder só o preço, sem contexto.
-2. Demorar horas na primeira resposta.
-3. Prometer resultado para convencer.
+1. Mandar só o número. A conversa acaba ali.
+2. Mandar a tabela inteira. A cliente compara e vai embora.
+3. Terminar sem oferecer horário. Ninguém agenda sozinho.
 
-O terceiro é o mais perigoso. A secretária escreve respostas persuasivas sem promessa de resultado, sem preço fechado e sem diagnóstico. A equipe revisa e envia.
+Na depilação a laser, em que o pacote depende da avaliação, isso pesa ainda mais.
+
+A secretária do LeadBellus escreve a resposta de preço no tom da clínica, evitando os três. A recepção revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-12-07-noite-garante",
+    secretariaArte({
+      id: "2026-12-07-noite-resultado-certo",
       data: "2026-12-07",
       turno: "noite",
-      arte: "06-medo.png",
-      texto: `A cliente escreve: “Vocês garantem o resultado?”
+      tags: "#eticanaestetica #atendimentoaocliente",
+      arte: {
+        layout: "chat",
+        tag: "Promessa de resultado",
+        hook: "Quando perguntam se o resultado é *certo*.",
+        cliente: "Vocês garantem que vai ficar bom?",
+        resposta:
+          "Entendo a dúvida, Lia! Cada organismo responde de um jeito, então ninguém sério promete resultado. O que a gente oferece é avaliação cuidadosa e acompanhamento.",
+      },
+      texto: `A cliente escreve: “Vocês garantem que vai ficar bom?”
 
-Resposta arriscada: “Garantimos, sim!”
+A resposta honesta: “Entendo a dúvida, Lia! Cada organismo responde de um jeito, então ninguém sério promete resultado. O que a gente oferece é avaliação cuidadosa e acompanhamento. Quer conhecer?”
 
-Resposta melhor: “Cada pessoa responde de um jeito, então ninguém deveria garantir resultado. O que oferecemos é uma avaliação cuidadosa e um plano pensado para você.”
-
-Honestidade também convence.`,
+Prometer resultado é risco para a clínica. Explicar o cuidado é o que passa confiança.`,
     }),
-    // ── 2026-12-08 ──
-    secretaria({
-      id: "2026-12-08-noite-mito-robo",
+    // ── 2026-12-08 (ter) ──
+    secretariaArte({
+      id: "2026-12-08-sozinha-na-maca",
+      data: "2026-12-08",
+      tags: "#esteticistaautonoma #drenagemlinfatica #limpezadepele",
+      arte: {
+        layout: "persona",
+        persona: "Esteticista autônoma",
+        tag: "Limpeza de pele · Drenagem",
+        hook: "Sozinha na maca, não no *WhatsApp*.",
+        sub: "3 respostas no seu tom, entre uma cliente e outra.",
+      },
+      texto: `A Jé é esteticista autônoma: faz limpeza de pele e drenagem, atende, cobra, agenda e responde o WhatsApp. Tudo sozinha.
+
+Entre uma cliente e outra, sobram poucos minutos. E cada mensagem pede uma resposta pensada: preço, horário, medo, “vou pensar”.
+
+Com a secretária do LeadBellus, ela cola a mensagem e recebe 3 respostas no tom dela — Suave, Consultiva e Fechamento. Escolhe, ajusta se quiser e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-12-08-noite-enquete-tom",
       data: "2026-12-08",
       turno: "noite",
-      arte: "09-rotina.png",
-      texto: `Mito ou verdade: “Follow-up escrito com ajuda de IA soa robótico.”
+      tags: "#comunicacao #clinicadeestetica",
+      arte: {
+        layout: "pergunta",
+        hook: "Qual tom combina com a sua *clínica*?",
+        itens: ["Suave e acolhedor", "Consultivo, explicando tudo", "Direto ao ponto", "Depende da cliente"],
+      },
+      texto: `Pergunta da noite: qual tom combina mais com o WhatsApp da sua clínica?
 
-Depende. Texto genérico soa robótico, venha de onde vier. Por isso a secretária escreve no tom da clínica — e alguém da equipe sempre revisa antes de enviar.
+A) Suave e acolhedor.
+B) Consultivo, explicando tudo.
+C) Direto ao ponto.
+D) Depende da cliente.
 
-Quer testar? As 5 primeiras respostas são grátis.`,
+Se você respondeu D, é exatamente por isso que a secretária entrega 3 versões.`,
     }),
-    // ── 2026-12-09 ──
-    secretaria({
-      id: "2026-12-09-teste-agora",
+    // ── 2026-12-09 (qua) ──
+    secretariaArte({
+      id: "2026-12-09-como-funciona",
       data: "2026-12-09",
-      arte: "02-espera.png",
-      texto: `Faça um teste agora.
+      tags: "#preenchimento #iaparaclinicas #clinicadeestetica",
+      arte: {
+        layout: "agenda",
+        tag: "Como funciona",
+        hook: "Do “quanto custa?” à resposta, sem *travar*.",
+        itens: [
+          "1|Cole a mensagem da cliente",
+          "2|Receba 3 respostas no tom da clínica",
+          "3|Escolha e ajuste se quiser",
+          "4|Sua equipe envia, como sempre",
+        ],
+      },
+      texto: `Como funciona a secretária do LeadBellus, no meio de um dia corrido:
 
-Abra o WhatsApp da clínica e pegue a conversa mais antiga sem resposta. Cole no LeadBellus. Em segundos, a secretária escreve 3 versões no tom da clínica, com o próximo passo claro.
+1. Chegou “quanto custa o preenchimento?” — você cola a mensagem.
+2. Em segundos, aparecem 3 respostas no tom da clínica: Suave, Consultiva e Fechamento.
+3. Você escolhe a que combina com a cliente e ajusta se quiser.
+4. A equipe envia pelo WhatsApp da clínica, como sempre.
 
-Escolha uma, ajuste se quiser e envie. Uma cliente a menos esperando.
+Sem trocar de número, sem robô falando sozinho.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-12-09-noite-roteiro-cancelou",
+    secretariaArte({
+      id: "2026-12-09-noite-mito-sumiu",
       data: "2026-12-09",
       turno: "noite",
-      arte: "12-cadeira.png",
-      texto: `Micro-roteiro para quem cancelou em cima da hora:
+      tags: "#followup #vendasnaestetica",
+      arte: {
+        layout: "mito",
+        hook: "Cliente que some já *desistiu*?",
+        mito: "Se ela parou de responder, é porque desistiu.",
+        verdade: "Muitas vezes ela só se distraiu. Uma mensagem leve, dias depois, reabre a conversa.",
+      },
+      texto: `Mito ou verdade: “Se a cliente parou de responder, é porque desistiu.”
 
-“Oi, Dani! Tudo bem, imprevistos acontecem. Quando quiser remarcar, me chama que eu vejo os próximos horários para você.”
+Mito, na maioria das vezes. Ela se distraiu, ficou sem tempo ou esperou para ver a agenda.
 
-Sem cobrança, sem culpa. A porta continua aberta.`,
+Uma mensagem leve, alguns dias depois, costuma reabrir a conversa. O silêncio não é um não.`,
     }),
-    // ── 2026-12-10 ──
-    secretaria({
-      id: "2026-12-10-noite-pergunta-painel",
+    // ── 2026-12-10 (qui) ──
+    secretariaArte({
+      id: "2026-12-10-vale-presente",
+      data: "2026-12-10",
+      tags: "#limpezadepele #presentedenatal #donadeclinica",
+      arte: {
+        layout: "chat",
+        tag: "Presente de fim de ano",
+        hook: "“Quero dar de presente.” Facilite o *sim*.",
+        cliente: "Vocês têm vale-presente? Queria dar uma limpeza de pele para a minha mãe.",
+        resposta:
+          "Que presente lindo, Carol! Temos sim. Me conta o nome dela que eu te explico como funciona o agendamento. Quer que eu já prepare?",
+      },
+      texto: `Dezembro traz uma mensagem diferente: “Vocês têm vale-presente? Queria dar uma limpeza de pele para a minha mãe.”
+
+É uma venda praticamente pronta — e muita clínica perde por responder “temos, é só passar aqui”.
+
+Facilite: agradeça, explique em uma frase como funciona e ofereça preparar na hora.
+
+A secretária do LeadBellus escreve essa resposta no tom da sua clínica. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
+      id: "2026-12-10-noite-zere-a-fila",
       data: "2026-12-10",
       turno: "noite",
-      arte: "11-piloto.png",
-      texto: `Pergunta da noite: se a clínica tivesse um painel mostrando quem está esperando resposta e quem sumiu, o que você olharia primeiro?
+      tags: "#recesso #organizacao",
+      arte: {
+        layout: "checklist",
+        hook: "Antes do recesso, zere a *fila*.",
+        itens: ["Responda quem está esperando", "Avise a data de volta", "Ofereça horário em janeiro"],
+      },
+      texto: `Dica da noite: antes do recesso, zere a fila.
 
-Estamos testando isso em um piloto conectado ao WhatsApp, com lista de espera. Conta aqui o que não pode faltar.`,
+• Responda todo mundo que está esperando.
+• Avise a data de volta.
+• Ofereça um horário em janeiro.
+
+Ninguém gosta de ficar no vácuo nas festas — e janeiro começa com agenda.`,
     }),
-    // ── 2026-12-11 ──
-    secretaria({
-      id: "2026-12-11-recesso",
+    // ── 2026-12-11 (sex) ──
+    secretariaArte({
+      id: "2026-12-11-recepcao-recesso",
       data: "2026-12-11",
-      arte: "09-rotina.png",
-      texto: `Sua clínica vai ter recesso no fim do ano?
+      tags: "#recepcionista #recesso #secretariadeclinica",
+      arte: {
+        layout: "citacao",
+        tag: "Recepção · Recesso",
+        hook: "Avisar o recesso também é *atender* bem.",
+        autor: "Recepção de clínica, sexta antes das festas",
+      },
+      texto: `Avisar o recesso também é atender bem.
 
-Avise antes. Uma mensagem clara com os dias de pausa e a data de volta evita cliente esperando sem resposta — e já abre espaço para agendar janeiro.
+Uma mensagem clara — últimos dias de atendimento, data de volta, como reservar janeiro — evita cliente esperando resposta no meio das festas e já abre a agenda do ano novo.
 
-A secretária escreve esse aviso e as respostas da semana no tom da clínica. A equipe revisa e envia.
+Para a recepção, é um texto a mais numa semana já cheia. A secretária do LeadBellus escreve esse aviso e as respostas da semana no tom da clínica. A recepção revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
-      id: "2026-12-11-noite-zerar",
+    secretariaArte({
+      id: "2026-12-11-noite-abrem-nas-festas",
       data: "2026-12-11",
       turno: "noite",
-      arte: "02-espera.png",
-      texto: `Dica da noite: antes do recesso, zere a fila.
-
-Responda todo mundo que está esperando, mesmo que seja para dizer “voltamos dia 5, posso já reservar um horário para você?”.
-
-Ninguém gosta de ficar no vácuo nas festas.`,
-    }),
-    // ── 2026-12-12 ──
-    secretaria({
-      id: "2026-12-12-noite-abrem",
-      data: "2026-12-12",
-      turno: "noite",
-      arte: "04-equipe.png",
+      tags: "#recesso #agendadeclinica",
+      arte: {
+        layout: "antesdepois",
+        tag: "Recesso",
+        hook: "Um não que vira *agendamento*.",
+        cliente: "Vocês abrem entre o Natal e o Ano Novo?",
+        fraca: "Não.",
+        resposta:
+          "Nesse período a clínica faz uma pausa, mas voltamos dia 5. Quer que eu já reserve um horário na primeira semana de janeiro?",
+      },
       texto: `A cliente escreve: “Vocês abrem entre o Natal e o Ano Novo?”
 
 Resposta fraca: “Não.”
-
 Resposta melhor: “Nesse período a clínica faz uma pausa, mas voltamos dia 5. Quer que eu já reserve um horário na primeira semana de janeiro?”
 
 Um não que vira agendamento.`,
     }),
-    // ── 2026-12-13 ──
-    secretaria({
-      id: "2026-12-13-balanco",
-      data: "2026-12-13",
-      arte: "01-quente.png",
-      texto: `Um balanço rápido do ano.
+    // ── 2026-12-12 (sáb) ──
+    secretariaArte({
+      id: "2026-12-12-janeiro-agora",
+      data: "2026-12-12",
+      tags: "#donadeclinica #agendadeclinica #janeiro",
+      arte: {
+        layout: "agenda",
+        tag: "Planejamento de janeiro",
+        hook: "Janeiro começa a ser agendado *agora*.",
+        itens: [
+          "DEZ|Retome quem disse “vou pensar”",
+          "DEZ|Combine “te chamo dia 6”",
+          "JAN|Chame quem fez e não voltou",
+          "JAN|Confirme a primeira semana",
+        ],
+      },
+      texto: `Janeiro começa a ser agendado agora.
 
-Quantas clientes perguntaram e não receberam resposta a tempo? Quantas pediram orçamento e ficaram no “vou pensar”? Quantas fizeram e não voltaram?
+Em dezembro: retome quem disse “vou pensar” e combine “te chamo dia 6, pode ser?”.
+Em janeiro: chame quem fez procedimento e não voltou, e confirme a primeira semana.
 
-Não é para se culpar — é para começar 2027 diferente. A secretária escreve a próxima mensagem de cada uma, no tom da clínica. A equipe revisa e envia.
+Quem chega em janeiro com conversas abertas não começa o ano do zero.
+
+A secretária do LeadBellus escreve cada uma dessas mensagens no tom da clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
-    secretaria({
+    secretariaArte({
+      id: "2026-12-12-noite-enquete-painel",
+      data: "2026-12-12",
+      turno: "noite",
+      tags: "#piloto #gestaodeclinica",
+      arte: {
+        layout: "pergunta",
+        tag: "Piloto · lista de espera",
+        hook: "O que não pode faltar num *painel*?",
+        itens: ["Quem espera resposta", "Quem sumiu após o orçamento", "Quem precisa de retorno", "Quem remarcou"],
+      },
+      texto: `Pergunta da noite: se a sua clínica tivesse um painel mostrando as conversas do WhatsApp, o que você olharia primeiro?
+
+A) Quem está esperando resposta.
+B) Quem sumiu depois do orçamento.
+C) Quem precisa de retorno pós-procedimento.
+D) Quem remarcou.
+
+Estamos preparando um piloto conectado ao WhatsApp, com lista de espera no site. Conta aqui o que não pode faltar.`,
+    }),
+    // ── 2026-12-13 (dom) ──
+    secretariaArte({
+      id: "2026-12-13-balanco-do-ano",
+      data: "2026-12-13",
+      tags: "#donadeclinica #gestaodeclinica #planejamento",
+      arte: {
+        layout: "checklist",
+        tag: "Dona de clínica · Balanço do ano",
+        hook: "Três perguntas para fechar o *ano*.",
+        itens: [
+          "Quem perguntou e não teve resposta?",
+          "Quem ficou no “vou pensar”?",
+          "Quem fez e não voltou?",
+        ],
+      },
+      texto: `Três perguntas para a dona de clínica fechar o ano:
+
+• Quantas clientes perguntaram e não tiveram resposta a tempo?
+• Quantas ficaram no “vou pensar” depois do orçamento?
+• Quantas fizeram o procedimento e não voltaram?
+
+Não é para se culpar. É para começar 2027 diferente.
+
+A secretária do LeadBellus escreve a próxima mensagem de cada uma, no tom da clínica. A equipe revisa e envia.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
       id: "2026-12-13-noite-mito-janeiro",
       data: "2026-12-13",
       turno: "noite",
-      arte: "08-retorno.png",
+      tags: "#janeiro #followup",
+      arte: {
+        layout: "mito",
+        hook: "Janeiro é mês *parado*?",
+        mito: "Janeiro é mês parado na clínica.",
+        verdade: "Depende de dezembro. Quem combina os retornos agora começa o ano com conversa aberta.",
+      },
       texto: `Mito ou verdade: “Janeiro é mês parado na clínica.”
 
-Depende de dezembro. Quem deixa os follow-ups combinados agora — “te chamo dia 6, combinado?” — começa janeiro com conversas já abertas.
+Depende de dezembro. Quem combina os retornos agora — “te chamo dia 6, combinado?” — começa janeiro com conversas já abertas.
 
 Anote os nomes antes das festas.`,
     }),
-    // ── 2026-12-14 ──
-    secretaria({
+    // ── 2026-12-14 (seg) ──
+    secretariaArte({
+      id: "2026-12-14-cadeira-e-conversa",
+      data: "2026-12-14",
+      tags: "#harmonizacaofacial #limpezadepele #clinicadeestetica",
+      arte: {
+        layout: "chat",
+        tag: "Fim de ano · Toda a equipe",
+        hook: "Na cadeira, a equipe. Na conversa, a *secretária*.",
+        cliente: "Oi! Queria marcar uma avaliação de harmonização antes do Ano Novo.",
+        resposta:
+          "Oi, Duda! Que bom que você chamou. Tenho quarta às 16h ou sexta às 10h — qual fica melhor? Na avaliação a gente conversa com calma.",
+      },
+      texto: `Nas festas, a equipe cuida de quem está na cadeira. E o WhatsApp continua chegando: avaliação de harmonização, horário de limpeza de pele, “ainda dá tempo?”.
+
+A secretária do LeadBellus escreve a próxima mensagem de cada conversa no tom da sua clínica. A equipe revisa e envia — sem trocar de número e sem nada sair sozinho.
+
+Comece antes da virada do ano.
+
+5 respostas grátis, sem cartão.`,
+    }),
+    secretariaArte({
       id: "2026-12-14-noite-boas-festas",
       data: "2026-12-14",
       turno: "noite",
-      arte: "09-rotina.png",
-      texto: `Micro-roteiro de boas festas, sem vender nada:
+      tags: "#boasfestas #relacionamentocomcliente",
+      arte: {
+        layout: "citacao",
+        hook: "Às vezes, a melhor mensagem é um *obrigado*.",
+        autor: "Mini-roteiro de boas festas",
+      },
+      texto: `Mini-roteiro de boas festas, sem vender nada:
 
 “Oi, Paula! Passando para agradecer por ter escolhido a gente este ano. Desejamos festas leves e um 2027 cheio de cuidado com você.”
 
