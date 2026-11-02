@@ -40,6 +40,34 @@ async function graphPost(
   return { ok: res.ok, status: res.status, data };
 }
 
+async function graphGet(
+  path: string,
+  params: Record<string, string>
+): Promise<{ ok: boolean; status: number; data: any }> {
+  const qs = new URLSearchParams({ ...params, access_token: metaPageAccessToken });
+  const res = await fetch(`${GRAPH_BASE}/${path}?${qs}`, {
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
+  const data = await res.json().catch(() => null);
+  return { ok: res.ok, status: res.status, data };
+}
+
+// O Instagram processa a imagem do container de forma assíncrona; publicar
+// antes de status_code=FINISHED dá "Media ID is not available".
+const IG_CONTAINER_POLL_MS = 2_000;
+const IG_CONTAINER_MAX_TRIES = 15;
+
+async function waitForInstagramContainer(containerId: string): Promise<string | null> {
+  for (let i = 0; i < IG_CONTAINER_MAX_TRIES; i++) {
+    const res = await graphGet(containerId, { fields: "status_code" });
+    const status = res.data?.status_code;
+    if (status === "FINISHED") return null;
+    if (status === "ERROR" || status === "EXPIRED") return `container ${status}`;
+    await new Promise((r) => setTimeout(r, IG_CONTAINER_POLL_MS));
+  }
+  return "container não ficou pronto a tempo";
+}
+
 function graphError(data: any): string {
   return data?.error?.message || "erro desconhecido da Graph API";
 }
@@ -74,6 +102,9 @@ async function publishToInstagram(post: SocialPost): Promise<PublishChannelResul
   if (!container.ok || !container.data?.id) {
     return { ok: false, reason: "failed", status: container.status, error: graphError(container.data) };
   }
+
+  const notReady = await waitForInstagramContainer(String(container.data.id));
+  if (notReady) return { ok: false, reason: "failed", error: notReady };
 
   const published = await graphPost(`${metaIgUserId}/media_publish`, {
     creation_id: String(container.data.id),
