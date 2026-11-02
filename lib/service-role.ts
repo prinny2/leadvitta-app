@@ -39,6 +39,7 @@ export const SERVICE_ROUTE_PREFIXES: Record<
   billing: [
     "/api/stripe/checkout",
     "/api/stripe/portal",
+    "/api/stripe/session",
     "/api/stripe/webhook",
     "/api/billing/reconcile",
     "/api/clerk/webhook",

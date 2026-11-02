@@ -32,7 +32,7 @@ import { CheckoutButton } from "@/components/checkout-button";
 import { BillingPortalButton } from "@/components/billing-portal-button";
 import { NotificacoesToggle } from "@/components/notificacoes-toggle";
 import { billingPlanList, billingPlans, parseBillingPlan } from "@/lib/billing";
-import { getGaClientId, trackEvent } from "@/components/Analytics";
+import { getGaClientId, trackCheckoutReturn, trackEvent } from "@/components/Analytics";
 
 const tomOptions = tons.map((t) => ({ value: t.id, label: t.label }));
 
@@ -81,18 +81,9 @@ export default function ConfiguracoesPage() {
       setCheckoutNotice(checkoutStatus);
     }
     if (checkoutStatus === "sucesso") {
-      // O purchase real vem do webhook assinado do Stripe. Aqui só marcamos
-      // retorno de checkout para UX/diagnóstico, sem receita duplicada.
-      const sid = params.get("session_id");
-      const key = `lb_checkout_returned_${sid ?? "sem_sessao"}`;
-      let already = false;
-      try {
-        already = !!localStorage.getItem(key);
-        if (!already) localStorage.setItem(key, "1");
-      } catch {
-        // localStorage indisponível: dispara mesmo assim.
-      }
-      if (!already) trackEvent("checkout_returned", { stripe_session_id: sid });
+      // O purchase do GA4 vem do webhook assinado do Stripe; o helper registra
+      // a volta e o Purchase do Meta, uma vez por session_id.
+      void trackCheckoutReturn(params.get("session_id"));
     }
   }, []);
 

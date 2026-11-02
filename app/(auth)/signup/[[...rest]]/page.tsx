@@ -6,7 +6,7 @@ import { SignUp } from "@clerk/nextjs";
 import { parseBillingPlan } from "@/lib/billing";
 import { VisualAuthPanel } from "@/components/visual-auth-panel";
 import { Card, CardBody } from "@/components/ui/card";
-import { trackEvent } from "@/components/Analytics";
+import { trackCheckoutReturn } from "@/components/Analytics";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { isClerkClientConfigured } from "@/lib/config";
 
@@ -39,18 +39,11 @@ function SignupInner() {
   }`;
 
   // Guest checkout: o pagamento acontece antes da conta existir e o Stripe
-  // devolve aqui. O purchase real vem do webhook assinado; aqui só marcamos
-  // retorno de checkout uma única vez por session_id.
+  // devolve aqui. O purchase do GA4 vem do webhook; o helper registra a volta e
+  // o Purchase do Meta uma única vez por session_id.
   useEffect(() => {
     if (!checkoutSucesso) return;
-    const key = `lb_checkout_returned_${sessionId ?? "sem_sessao"}`;
-    try {
-      if (localStorage.getItem(key)) return;
-      localStorage.setItem(key, "1");
-    } catch {
-      // localStorage indisponível: dispara mesmo assim
-    }
-    trackEvent("checkout_returned", { stripe_session_id: sessionId });
+    void trackCheckoutReturn(sessionId);
   }, [checkoutSucesso, sessionId]);
 
   return (

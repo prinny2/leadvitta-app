@@ -36,6 +36,7 @@ services:
     routes:
       - /api/stripe/checkout
       - /api/stripe/portal
+      - /api/stripe/session
       - /api/stripe/webhook
       - /api/billing/reconcile
       - /api/clerk/webhook

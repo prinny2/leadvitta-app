@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { trackEvent } from "@/components/Analytics";
+import { trackCheckoutReturn, trackEvent } from "@/components/Analytics";
 import { billingPlanList, parseBillingPlan } from "@/lib/billing";
 import {
   isClerkClientConfigured,
@@ -139,14 +139,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
   useEffect(() => {
     if (!checkoutSuccess) return;
     const sessionId = searchParams.get("session_id");
-    const key = `lb_checkout_returned_${sessionId ?? "sem_sessao"}`;
-    try {
-      if (window.localStorage.getItem(key)) return;
-      window.localStorage.setItem(key, "1");
-    } catch {
-      // Se localStorage falhar, ainda registramos o retorno no GA client.
-    }
-    trackEvent("checkout_returned", { stripe_session_id: sessionId });
+    void trackCheckoutReturn(sessionId);
   }, [checkoutSuccess, searchParams]);
 
   const currentStepIndex = STEPS.findIndex((item) => item.id === step);

@@ -49,8 +49,10 @@ média depois de ~R$15 gastos.
 carrega quando `NEXT_PUBLIC_META_PIXEL_ID` existe nas GitHub **Variables** — é
 build-time, então depois de criar a variável rode o deploy de novo. Eventos
 enviados: `PageView`, `Lead` (cadastro), `InitiateCheckout` (clique em assinar),
-`Contact` (botão do WhatsApp) e `Purchase` (volta do Stripe com sucesso, uma vez
-por `session_id`, em BRL). No GA4 o `purchase` continua vindo do webhook.
+`Contact` (botão do WhatsApp) e `Purchase` (volta do Stripe com a sessão paga,
+uma vez por `session_id`, com o valor cobrado de fato, consultado em
+`/api/stripe/session`; se o Pixel ainda não carregou, o evento espera na fila).
+No GA4 o `purchase` continua vindo do webhook.
 
 ---
 
