@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>LeadBellus — criativo {{SLUG}}</title>
+<style>
+  /* Fontes da LP (app/fonts) — injetadas como file:// pelo render-ads.mjs */
+  @font-face { font-family: "Inter"; src: url("{{FONT_INTER}}") format("woff2"); font-weight: 100 900; font-style: normal; }
+  @font-face { font-family: "Fraunces"; src: url("{{FONT_FRAUNCES}}") format("woff2"); font-weight: 100 900; font-style: normal; }
+</style>
+<link rel="stylesheet" href="{{CSS}}" />
+</head>
+<body class="fmt-{{FMT}} c-{{SLUG}}">
+  <div class="canvas">
+    <div class="glow glow-a"></div>
+    <div class="glow glow-b"></div>
+    <div class="safe">
+      <p class="eyebrow">{{EYEBROW}}</p>
+      <h1 class="hook">{{HOOK}}</h1>
+      <p class="support">{{SUPPORT}}</p>
+      <div class="visual">{{VISUAL}}</div>
+      <div class="bottom">
+        <span class="cta">{{CTA}} <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></span>
+        <div class="brand">
+          <svg class="logo" viewBox="0 0 80 96" fill="none" aria-hidden="true">
+            <path d="M40 6 C26 14, 10 32, 10 54 C10 70, 22 82, 40 90" stroke="#E4A84D" stroke-width="5" stroke-linecap="round"/>
+            <path d="M40 6 C54 14, 70 32, 70 54 C70 70, 58 82, 40 90" stroke="#E4A84D" stroke-width="5" stroke-linecap="round"/>
+            <line x1="40" y1="32" x2="40" y2="86" stroke="#E4A84D" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="40" cy="27" r="6" fill="#E4A84D"/>
+          </svg>
+          <div>
+            <p class="wordmark">LeadBellus</p>
+            <p class="url">www.leadbellus.com.br</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
