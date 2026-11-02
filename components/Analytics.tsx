@@ -4,6 +4,10 @@ import { useEffect, useRef, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { publicGa4MeasurementId } from "@/lib/config";
+import {
+  META_PENDING_KEY,
+  recordCheckoutReturn,
+} from "@/lib/analytics/checkout-return";
 
 // Meta Pixel: só carrega quando há um ID REAL configurado via env
 // (NEXT_PUBLIC_META_PIXEL_ID). Sem fallback fixo.
@@ -72,6 +76,9 @@ export default function Analytics() {
               'https://connect.facebook.net/en_US/fbevents.js');
               fbq('init', '${META_PIXEL_ID}');
               fbq('track', 'PageView');
+              (window.${META_PENDING_KEY} || []).splice(0).forEach(function(a){
+                fbq('track', a[0], a[1], a[2]);
+              });
             `}
           </Script>
           <noscript>
@@ -154,4 +161,9 @@ gtag('config', '${GA4_ID}');`,
       />
     </>
   );
+}
+
+// Volta do Stripe Checkout com sucesso (ver lib/analytics/checkout-return.ts).
+export function trackCheckoutReturn(sessionId: string | null) {
+  return recordCheckoutReturn(sessionId, trackEvent);
 }
