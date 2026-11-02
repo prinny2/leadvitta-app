@@ -143,6 +143,8 @@ async function renderTour(browser, work) {
   const site = await ctx.newPage();
   await site.goto(SITE, { waitUntil: "networkidle", timeout: 60000 });
   await site.evaluate(() => document.fonts.ready);
+  // Com REELS_SITE apontando para `next dev`, esconde o indicador do Next.
+  await site.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
 
   // Aquece: rola a página toda para disparar as animações de entrada (FadeUp)
   // e volta ao topo. Nada é clicado nem enviado.

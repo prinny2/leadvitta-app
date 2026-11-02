@@ -125,9 +125,15 @@ export const trackEvent = (
         checkout_click: "InitiateCheckout",
         purchase: "Purchase",
         contact_whatsapp: "Contact",
+        // No GA4 o purchase vem do webhook (Measurement Protocol); o Pixel não
+        // tem esse caminho, então a volta do Stripe (já deduplicada por
+        // session_id) vira o Purchase do Meta.
+        checkout_returned: "Purchase",
       };
       const metaEvent = standardEvents[eventName] || eventName;
-      (window as any).fbq("track", metaEvent, params);
+      const metaParams =
+        metaEvent === "Purchase" ? { currency: "BRL", ...params } : params;
+      (window as any).fbq("track", metaEvent, metaParams);
     }
   } catch {
     // Falha de analytics é silenciosa por design.

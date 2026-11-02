@@ -249,7 +249,7 @@ function ChatProof() {
           Oi! Quanto fica o botox? Tenho um pouco de medo de ficar artificial…
         </div>
         <div style={{ alignSelf: "flex-end", maxWidth: "88%", background: "#DCF6E6", color: "#0B3D2A", borderRadius: "14px 14px 4px 14px", padding: "10px 12px", fontSize: "13px", lineHeight: 1.45 }}>
-          Oi! Que bom que você perguntou 😊 O valor depende da avaliação, porque cada rosto pede uma quantidade diferente — e quando é bem indicado, o resultado fica natural. Quer que eu veja um horário pra você conhecer a clínica essa semana?
+          Oi! Que bom que você perguntou 😊 O valor depende da avaliação, porque cada rosto pede uma quantidade diferente, e isso a profissional define na avaliação com você. Quer que eu veja um horário pra você conhecer a clínica essa semana?
         </div>
       </div>
 

@@ -45,6 +45,13 @@ criativo: CTR do link, custo por visualização da LP e — no GA4 — `cta_clic
 contas criadas por `utm_content`. Pausar quem estiver com custo por LPV > 2× a
 média depois de ~R$15 gastos.
 
+**Meta Pixel:** o código já está pronto (`components/Analytics.tsx`) e só
+carrega quando `NEXT_PUBLIC_META_PIXEL_ID` existe nas GitHub **Variables** — é
+build-time, então depois de criar a variável rode o deploy de novo. Eventos
+enviados: `PageView`, `Lead` (cadastro), `InitiateCheckout` (clique em assinar),
+`Contact` (botão do WhatsApp) e `Purchase` (volta do Stripe com sucesso, uma vez
+por `session_id`, em BRL). No GA4 o `purchase` continua vindo do webhook.
+
 ---
 
 ## 2. Textos por criativo
