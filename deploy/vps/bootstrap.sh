@@ -42,10 +42,12 @@ chmod 600 /home/deploy/.ssh/authorized_keys
 install -d -m 750 -o deploy -g deploy "$APP_DIR"
 [ -f "$APP_DIR/app.env" ] || install -m 600 -o deploy -g deploy /dev/null "$APP_DIR/app.env"
 
-# Cron diário dos posts FB/IG (substitui o cron da vercel.json; 14:00 UTC —
+# Cron dos posts FB/IG: 14:00 UTC = 11:00 Belém (manhã) e 22:00 UTC = 19:00
+# Belém (?turno=noite). Substitui o cron da vercel.json (UTC —
 # fuso padrão dos VPS). Sem CRON_SECRET no app.env a rota responde 503.
 cat > /etc/cron.d/leadbellus <<'EOF'
 0 14 * * * deploy curl -fsS -m 120 -H "Authorization: Bearer $(grep -E '^CRON_SECRET=' /opt/leadbellus/app.env | cut -d= -f2-)" http://127.0.0.1:8080/api/marketing/social-post >/dev/null 2>&1
+0 22 * * * deploy curl -fsS -m 120 -H "Authorization: Bearer $(grep -E '^CRON_SECRET=' /opt/leadbellus/app.env | cut -d= -f2-)" "http://127.0.0.1:8080/api/marketing/social-post?turno=noite" >/dev/null 2>&1
 EOF
 
 echo "Pronto. Agora preencha $APP_DIR/app.env (modelo: deploy/vps/app.env.example) e rode o workflow 'Deploy VPS'."

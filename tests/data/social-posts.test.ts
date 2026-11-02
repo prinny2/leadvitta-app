@@ -38,3 +38,10 @@ describe("data/social-posts", () => {
     }
   });
 });
+
+describe("data/social-posts — cadência", () => {
+  it("no máximo um post por data e turno", () => {
+    const chaves = SOCIAL_POSTS.map((p) => `${p.data}|${p.turno ?? "manha"}`);
+    expect(new Set(chaves).size).toBe(chaves.length);
+  });
+});

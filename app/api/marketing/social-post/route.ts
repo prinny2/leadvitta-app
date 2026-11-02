@@ -9,7 +9,7 @@ import { jsonNoStore } from "@/lib/api-security";
 import { isMetaPublishConfigured } from "@/lib/config";
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { publishSocialPost, type PublishResult } from "@/lib/social/meta-publisher";
-import { SOCIAL_POSTS } from "@/data/social-posts";
+import { SOCIAL_POSTS, turnoDoPost } from "@/data/social-posts";
 
 export const dynamic = "force-dynamic";
 
@@ -75,12 +75,15 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const date = url.searchParams.get("date") || todayInBelem();
   const dryRun = url.searchParams.get("dry") === "1";
+  // Dois disparos por dia: ?turno=noite às 19:00; sem parâmetro = manhã (11:00).
+  const turno = url.searchParams.get("turno") === "noite" ? "noite" : "manha";
 
-  const due = SOCIAL_POSTS.filter((p) => p.data === date);
+  const due = SOCIAL_POSTS.filter((p) => p.data === date && turnoDoPost(p) === turno);
 
   if (dryRun) {
     return jsonNoStore({
       date,
+      turno,
       dry_run: true,
       configured: isMetaPublishConfigured,
       due: due.map((p) => ({ id: p.id, canais: p.canais })),
