@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 // Imagem de prévia ao compartilhar o link (WhatsApp, Instagram, Facebook, X).
 // Arquivo na raiz do app → vale para todas as rotas.
-export const alt = "LeadBellus — a secretária de WhatsApp da clínica de estética";
+export const alt = "LeadBellus — assistente de escrita para o WhatsApp da clínica de estética";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -49,7 +49,7 @@ export default function OpengraphImage() {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ fontSize: 60, fontWeight: 800, lineHeight: 1.1 }}>
-            A secretária que responde no tom da sua clínica
+            O assistente que escreve no tom da sua clínica
           </div>
           <div style={{ fontSize: 60, fontWeight: 800, lineHeight: 1.1, color: GOLD_HOT }}>
             enquanto a cliente ainda está quente.

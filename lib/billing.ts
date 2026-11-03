@@ -76,7 +76,7 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
     price: 347,
     priceLabel: "R$347",
     periodLabel: "/mês",
-    tagline: "Em breve: a secretária conectada ao WhatsApp da clínica.",
+    tagline: "Em breve: o assistente conectado ao WhatsApp da clínica.",
     selo: process.env.STRIPE_PRICE_ID_PREMIUM ? undefined : "Em breve",
     disponivel: !!process.env.STRIPE_PRICE_ID_PREMIUM,
     features: [

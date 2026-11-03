@@ -10,7 +10,7 @@ const WHATSAPP_NUMBER = (
 ).replace(/\D/g, "");
 
 const DEFAULT_MESSAGE =
-  "Oi! Vi o LeadBellus e quero testar a secretária de WhatsApp na minha clínica.";
+  "Oi! Vi o LeadBellus e quero testar o assistente de escrita para WhatsApp na minha clínica.";
 
 /**
  * Botão flutuante "falar no WhatsApp" da landing.
