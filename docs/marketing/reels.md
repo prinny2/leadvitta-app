@@ -1,8 +1,8 @@
 # Reels de demonstração — LeadBellus
 
-Sete vídeos verticais (1080x1920, H.264, 30 fps, sem áudio) para Instagram
-Reels, Facebook e anúncios. Todos abrem com um gancho na tela nos primeiros
-1,5 s e terminam no mesmo cartão final: **LeadBellus · assistente de escrita
+Sete vídeos verticais (1080x1920, H.264, 30 fps, com faixa AAC em silêncio)
+para Instagram Reels, Facebook e anúncios. Todos abrem com um gancho na tela
+nos primeiros 1,5 s e terminam no mesmo cartão final: **LeadBellus · assistente de escrita
 para o WhatsApp da clínica de estética · 5 respostas grátis, sem cartão ·
 leadbellus.com.br**. Nos R5–R7, feitos para o perfil, a última linha vira
 **Link na bio · leadbellus.com.br**.
@@ -17,19 +17,30 @@ leadbellus.com.br**. Nos R5–R7, feitos para o perfil, a última linha vira
 | R6 · Tenho medo de ficar artificial | `public/reels/r6-medo-artificial.mp4` | 22,4 s | `r6-medo-artificial-capa.png` |
 | R7 · Perguntou o preço e sumiu | `public/reels/r7-sumiu-retomada.mp4` | 21 s | `r7-sumiu-retomada-capa.png` |
 
-R5–R7 são os Reels A/B/C de `docs/marketing/instagram-pack.md` (nicho
-injetáveis: toxina, preenchimento, harmonização), animados no mesmo padrão
-dos R1–R3. Ordem sugerida no perfil: R5 → R6 → R7, um por semana, com o
-carrossel "Como funciona" entre eles.
+R5–R7 são os Reels do perfil (nicho injetáveis: toxina, preenchimento,
+harmonização), animados no mesmo padrão dos R1–R3. Ordem sugerida no perfil:
+R5 → R6 → R7, um por semana, com o carrossel "Como funciona" entre eles.
 
-**Áudio:** os vídeos saem mudos de propósito — escolha um áudio em alta direto
-no app (Instagram/Facebook) na hora de postar. As legendas já estão gravadas no
-vídeo, então funcionam sem som.
+**Fonte única:** este arquivo é a fonte das legendas, roteiros e horários de
+todos os Reels. Ao mudar um vídeo em `scripts/reels/reels.mjs`, atualize a
+seção dele aqui.
+
+**Áudio:** cada vídeo leva uma faixa AAC em silêncio (a API de publicação de
+Reels recusa vídeo sem faixa de áudio). Escolha um áudio em alta direto no app
+(Instagram/Facebook) na hora de postar. As legendas já estão gravadas no vídeo,
+então funcionam sem som.
 
 **Regenerar:** `node scripts/reels/render-reels.mjs` (ou `... r1 r4` para só
 alguns). Roteiros em `scripts/reels/reels.mjs`; precisa de Playwright +
 Chromium e ffmpeg (veja o cabeçalho de `scripts/reels/render-reels.mjs`). O R4
-grava o site ao vivo — regrave depois de mudanças na landing.
+grava o site ao vivo — regrave depois de mudanças na landing. O render sai
+sem áudio; depois dele, adicione a faixa em silêncio a cada `.mp4` regravado:
+
+```bash
+ffmpeg -i in.mp4 -f lavfi -i anullsrc=r=48000:cl=stereo \
+  -c:v copy -c:a aac -b:a 64k -shortest -movflags +faststart out.mp4
+# depois substitua in.mp4 por out.mp4
+```
 
 ## Regras de conteúdo (valem para legenda e vídeo)
 
@@ -140,14 +151,17 @@ grava o site ao vivo — regrave depois de mudanças na landing.
 
 ## R4 · Tour do produto
 
-- **Texto do primeiro quadro:** "Tour de 20 segundos — Responda antes dela
-  desistir." sobre o topo do site.
+- **Texto do primeiro quadro:** "Tour rápido — Responda antes dela desistir."
+  sobre o topo do site.
 - **Roteiro (site ao vivo, celular):** segue o caminho do CTA principal do
   hero. Topo do site → botão **"Colar mensagem e ver 3 respostas grátis"**
   (contornado em dourado: "Toque em 'Colar mensagem'") → corte seco para o
   simulador da demo (#demo), como o salto do botão → campo "Situação" →
-  "Mensagem da cliente" e prévia do WhatsApp com as 3 abas → plano Start
-  R$ 97/mês → 5 respostas grátis, sem cartão → cartão final. Só rolagem e o
+  "Mensagem da cliente" e prévia do WhatsApp com as 3 abas (legenda "3 abas:
+  Suave, Explica e Fechamento · você revisa e envia") → plano Start R$ 97/mês
+  → 5 respostas grátis, sem cartão → cartão final. Os rótulos das abas são os
+  da demo da landing (`components/landing-whatsapp-demo.tsx`: Suave / Explica /
+  Fechamento); no app, a do meio se chama Consultiva. Só rolagem e o
   contorno: nada é clicado, enviado ou logado.
 - **Áudio sugerido:** trend instrumental animado/"tutorial", batidas nos cortes
   de legenda (≈ a cada 2,5–3 s).
@@ -156,12 +170,12 @@ grava o site ao vivo — regrave depois de mudanças na landing.
 
 **Legenda:**
 
-> 20 segundos para conhecer o LeadBellus por dentro 👇
+> Um tour rápido pelo LeadBellus 👇
 >
 > 1. No site, toque em "Colar mensagem e ver 3 respostas grátis"
 > 2. Escolha a situação e cole a mensagem da cliente
-> 3. Veja 3 sugestões no tom da sua clínica: sua equipe revisa e envia pelo
->    WhatsApp
+> 3. Veja 3 sugestões no tom da sua clínica (Suave, Explica e Fechamento): sua
+>    equipe revisa e envia pelo WhatsApp
 >
 > Dá para testar ali mesmo, sem criar conta. Plano Start R$ 97/mês, depois de
 > 5 respostas grátis — sem cartão para testar.
@@ -204,7 +218,7 @@ nos Stories, use `utm_medium=stories` e `utm_content=r5` / `r6` / `r7`.
 | 8,2–10 s | App: cola "Oi! Quanto custa o botox?" | Cole a mensagem. |
 | 10–12,2 s | Situação **Perguntou o preço** → Gerar 3 respostas | Escolha: Perguntou o preço |
 | 12,2–14,8 s | Suave / Consultiva / Fechamento; a equipe escolhe a Consultiva | 3 respostas no tom da clínica. |
-| 14,8–18,4 s | "Consultiva copiada" → enviada às 14:09 → cliente responde | Revise, copie e envie. / Na pausa entre clientes. |
+| 14,8–18,4 s | Chip "☕ Intervalo · 14:08" → "Consultiva copiada" → enviada às 14:09 → cliente responde às 14:11 | Revise, copie e envie. / Na pausa entre clientes. |
 | 18,4–21,6 s | Cartão final | 5 respostas grátis, sem cartão · Link na bio |
 
 - **Respostas na tela:** Suave "Oi! Que bom que você chamou 😊 O valor depende
@@ -247,10 +261,10 @@ nos Stories, use `utm_medium=stories` e `utm_content=r5` / `r6` / `r7`.
 | 0–2,8 s | "Oi! Tenho medo de ficar artificial 😬" | O que você responde? / "Tenho medo de ficar artificial." |
 | 2,8–5,6 s | Rascunho sendo digitado: "kkk relaxa, fica super natural, garanto!" | A resposta que assusta mais: |
 | 5,6–8,6 s | O rascunho é riscado + "✕ Promete resultado · não envie" | Prometer resultado é problema. |
-| 8,6–10,4 s | App: cola a mensagem | Cole a mensagem. |
+| 8,6–10,4 s | App: cola a mesma mensagem, com o 😬 | Cole a mensagem. |
 | 10,4–12,6 s | Situação **Tem medo do procedimento** → Gerar 3 respostas | Escolha: Tem medo do procedimento |
 | 12,6–15,4 s | Suave / Consultiva / Fechamento; a equipe escolhe a Consultiva | 3 respostas que acolhem o medo. |
-| 15,4–19,2 s | "Consultiva copiada" → enviada → "Como marco a avaliação?" | Ela leva para a avaliação. / Sem promessa. Você revisa e envia. |
+| 15,4–19,2 s | "Consultiva copiada" → enviada exatamente como a Consultiva → "Como marco a avaliação?" | Ela leva para a avaliação. / Sem promessa. Você revisa e envia. |
 | 19,2–22,4 s | Cartão final | 5 respostas grátis, sem cartão · Link na bio |
 
 - **Respostas na tela:** Suave "Faz todo sentido ter esse receio 💛 Aqui a
@@ -294,10 +308,10 @@ nos Stories, use `utm_medium=stories` e `utm_content=r5` / `r6` / `r7`.
 | 0–2,8 s | Lista de conversas: a clínica respondeu, a cliente visualizou (nomes borrados) | Perguntou o preço e sumiu / Quantas estão paradas aí? |
 | 2,8–5 s | "Visualizadas · sem resposta" | Pediu o valor. Visualizou. Sumiu. |
 | 5–7,4 s | Uma conversa em destaque | E você não sabe o que mandar. |
-| 7,4–9,2 s | App: cola "Oi! Quanto fica o preenchimento labial?" | Cole a última mensagem. |
+| 7,4–9,2 s | App: cola "Oi! Quanto fica o preenchimento labial?" | Cole a mensagem dela. |
 | 9,2–11,4 s | Situação **Sumiu / não respondeu** → Gerar 3 respostas | Escolha: Sumiu / não respondeu |
 | 11,4–14 s | Suave / Consultiva / Fechamento; a equipe escolhe a Suave | 3 jeitos leves de retomar. |
-| 14–17,8 s | "3 dias depois" → "Suave copiada" → enviada → a cliente volta a perguntar | Sem cobrança. Sem culpa. / Com um próximo passo. |
+| 14–17,8 s | Pergunta dela (seg · 10:12) → resposta da clínica "O valor depende da avaliação 😊 Posso te explicar como funciona?" (seg · 10:15, ✓✓ azul) → "3 dias depois" → "Suave copiada" → enviada às 09:30 → a cliente volta a perguntar | Sem cobrança. Sem culpa. / Com um próximo passo. |
 | 17,8–21 s | Cartão final | 5 respostas grátis, sem cartão · Link na bio |
 
 - **Respostas na tela:** Suave "Oi, Ana! Passando só pra saber se ficou alguma
@@ -319,7 +333,7 @@ nos Stories, use `utm_medium=stories` e `utm_content=r5` / `r6` / `r7`.
 > segunda mensagem nunca sai, porque ninguém sabe o que mandar sem parecer
 > insistente. 🙈
 >
-> No LeadBellus você cola a última mensagem, escolhe "Sumiu / não respondeu" e
+> No LeadBellus você cola a mensagem dela, escolhe "Sumiu / não respondeu" e
 > recebe 3 retomadas leves no tom da sua clínica: sem cobrança, sem culpa, com
 > um próximo passo. Você copia, revisa e envia quando quiser.
 >

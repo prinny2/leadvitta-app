@@ -53,6 +53,7 @@ body { font-family: "Inter", system-ui, sans-serif; color: var(--cream); -webkit
   letter-spacing: -0.015em; color: var(--cream);
 }
 .cap .mid { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 80px; line-height: 1.06; letter-spacing: -0.01em; }
+.cap .sub { font-size: 46px; font-weight: 700; line-height: 1.2; color: var(--muted); margin-top: 18px; }
 em, .gold {
   font-style: italic;
   background: linear-gradient(100deg, var(--gold-hot), var(--gold) 55%, var(--gold-deep));
@@ -79,6 +80,8 @@ em, .gold {
 .chat-body { display: flex; flex-direction: column; gap: 18px; }
 .phone.fixed { display: flex; flex-direction: column; }
 .phone.fixed .chat-body { flex: 1; min-height: 0; justify-content: flex-end; overflow: hidden; }
+/* Conversa que rola para cima: esmaece o topo em vez de cortar a bolha no meio. */
+.phone.fixed.scrolls .chat-body { -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 72px); mask-image: linear-gradient(to bottom, transparent 0, #000 72px); }
 .bubble { font-size: 34px; line-height: 1.36; padding: 18px 24px; max-width: 86%; box-shadow: 0 2px 0 rgba(11, 27, 51, 0.06); }
 .bubble.in { background: #fff; border-radius: 26px 26px 26px 8px; align-self: flex-start; }
 .bubble.out { background: var(--wa-out); color: #0b3d2a; border-radius: 26px 26px 8px 26px; align-self: flex-end; }

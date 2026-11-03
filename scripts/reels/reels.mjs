@@ -303,15 +303,16 @@ const r5 = {
   </div>
   <div class="stage">
     <span class="label-pill good safe-check">✓ Consultiva · LeadBellus</span>
-    <div class="phone fixed" style="height:800px">
+    <div class="phone fixed" style="height:840px">
       <div class="chat-head"><div class="avatar">C</div><div><p class="name">Cliente nova</p><p class="status">online</p></div></div>
       <div class="chat-body">
         <div class="divider">Hoje</div>
         <div class="bubble in safe-check">${R5_MSG}<span class="time">14:06</span></div>
-        <div class="toast safe-check" data-in="15.0" data-out="15.7" data-a="pop">📋 Consultiva copiada</div>
-        <div class="bubble out safe-check" data-in="15.9" data-a="right">${R5_REPLIES[1]}<span class="time">14:09 ${TICKS("#4fb6ec")}</span></div>
-        <div class="typing" data-in="16.8" data-out="17.4">digitando…</div>
-        <div class="bubble in safe-check" data-in="17.5" data-a="left">Quero suavizar a testa 😊 Como é a avaliação?<span class="time">14:11</span></div>
+        <div class="sys green safe-check" data-in="14.9" data-a="pop">☕ Intervalo · 14:08</div>
+        <div class="toast safe-check" data-in="15.3" data-out="16.0" data-a="pop">📋 Consultiva copiada</div>
+        <div class="bubble out safe-check" data-in="16.1" data-a="right">${R5_REPLIES[1]}<span class="time">14:09 ${TICKS("#4fb6ec")}</span></div>
+        <div class="typing" data-in="16.9" data-out="17.5">digitando…</div>
+        <div class="bubble in safe-check" data-in="17.6" data-a="left">Quero suavizar a testa 😊 Como é a avaliação?<span class="time">14:11</span></div>
       </div>
     </div>
   </div>
@@ -357,7 +358,7 @@ const r6 = {
     ${cap(12.6, null, `3 respostas que <em>acolhem o medo.</em>`, "mid")}
   </div>
   <div class="stage">
-    ${gerador({ at: 8.7, msg: "Oi! Tenho medo de ficar artificial", typed: "8.9,10.0", situacao: "Tem medo do procedimento", sitAt: 10.5, genAt: 11.7, replies: R6_REPLIES, pick: "Consultiva", pickAt: 14.0 })}
+    ${gerador({ at: 8.7, msg: R6_MSG, typed: "8.9,10.0", situacao: "Tem medo do procedimento", sitAt: 10.5, genAt: 11.7, replies: R6_REPLIES, pick: "Consultiva", pickAt: 14.0 })}
   </div>
 </section>
 
@@ -373,7 +374,7 @@ const r6 = {
       <div class="chat-body">
         <div class="bubble in safe-check">${R6_MSG}<span class="time">10:24</span></div>
         <div class="toast safe-check" data-in="15.6" data-out="16.3" data-a="pop">📋 Consultiva copiada</div>
-        <div class="bubble out safe-check" data-in="16.5" data-a="right">Faz todo sentido ter esse receio 💛 ${R6_REPLIES[1]}<span class="time">10:26 ${TICKS("#4fb6ec")}</span></div>
+        <div class="bubble out safe-check" data-in="16.5" data-a="right">${R6_REPLIES[1]}<span class="time">10:26 ${TICKS("#4fb6ec")}</span></div>
         <div class="typing" data-in="17.4" data-out="18.0">digitando…</div>
         <div class="bubble in safe-check" data-in="18.1" data-a="left">Assim fico mais tranquila. Como marco a avaliação?<span class="time">10:28</span></div>
       </div>
@@ -385,6 +386,8 @@ ${endcard(19.2, { bio: true })}`,
 
 // ── R7 — Perguntou o preço e sumiu (situação: Sumiu / não respondeu) ───────
 const R7_MSG = "Oi! Quanto fica o preenchimento labial?";
+// O que a clínica já tinha respondido (e ficou sem resposta) antes da retomada.
+const R7_CLINICA = "O valor depende da avaliação 😊 Posso te explicar como funciona?";
 const R7_REPLIES = [
   "Oi, Ana! Passando só pra saber se ficou alguma dúvida sobre o preenchimento 😊 Estou por aqui.",
   "Ana, quer que eu te explique como funciona a avaliação? Assim você decide com calma, no seu tempo.",
@@ -422,7 +425,7 @@ const r7 = {
 
 <section class="scene" data-from="7.4" data-to="14.0">
   <div class="capzone">
-    ${cap(7.5, 9.2, `<em>Cole</em> a última mensagem.`, "mid")}
+    ${cap(7.5, 9.2, `<em>Cole</em> a mensagem dela.`, "mid")}
     ${cap(9.2, 11.4, `Escolha: <em>Sumiu / não respondeu</em>`, "mid")}
     ${cap(11.4, null, `3 jeitos leves <em>de retomar.</em>`, "mid")}
   </div>
@@ -438,10 +441,11 @@ const r7 = {
   </div>
   <div class="stage">
     <span class="label-pill good safe-check">✓ Suave · LeadBellus</span>
-    <div class="phone fixed" style="height:800px">
+    <div class="phone fixed scrolls" style="height:840px">
       <div class="chat-head"><div class="avatar">A</div><div><p class="name">Ana Paula</p><p class="status">online</p></div></div>
       <div class="chat-body">
         <div class="bubble in safe-check">${R7_MSG}<span class="time">seg · 10:12</span></div>
+        <div class="bubble out safe-check">${R7_CLINICA}<span class="time">seg · 10:15 ${TICKS("#4fb6ec")}</span></div>
         <div class="divider">3 dias depois</div>
         <div class="toast safe-check" data-in="14.2" data-out="14.9" data-a="pop">📋 Suave copiada</div>
         <div class="bubble out safe-check" data-in="15.1" data-a="right">${R7_REPLIES[0]}<span class="time">09:30 ${TICKS("#4fb6ec")}</span></div>
@@ -467,6 +471,8 @@ export const REELS = [r1, r2, r3, r5, r6, r7];
 // Segue o caminho do CTA principal do hero, "Colar mensagem e ver 3 respostas
 // grátis" (leva a #demo): botão → simulador → situação → mensagem → 3
 // respostas → plano.
+// A legenda das abas usa os rótulos da demo da landing (Suave / Explica /
+// Fechamento, em components/landing-whatsapp-demo.tsx), não os do app.
 export const TOUR = {
   slug: "r4-tour",
   duration: 23.6,
@@ -492,12 +498,12 @@ export const TOUR = {
   html: `
 <section class="scene" data-from="0" data-to="20.4">
   <div class="capzone">
-    ${cap(-1, 3.0, `<p class="eyebrow">Tour de 20 segundos</p><h1>Responda antes dela <em>desistir.</em></h1>`, "x")}
+    ${cap(-1, 3.0, `<p class="eyebrow">Tour rápido</p><h1>Responda antes dela <em>desistir.</em></h1>`, "x")}
     ${cap(3.0, 5.8, `Toque em <em>“Colar mensagem”</em>`, "mid")}
     ${cap(5.8, 8.4, `Cai direto <em>no simulador.</em>`, "mid")}
     ${cap(8.4, 11.2, `Escolha a <em>situação</em>`, "mid")}
     ${cap(11.2, 14.0, `Cole a mensagem <em>e gere.</em>`, "mid")}
-    ${cap(14.0, 16.6, `3 respostas: <em>você revisa e envia.</em>`, "mid")}
+    ${cap(14.0, 16.6, `<p class="mid">3 abas: <em>Suave, Explica e Fechamento</em></p><p class="sub">você revisa e envia</p>`, "x")}
     ${cap(16.6, 18.6, `Plano Start: <em>R$ 97/mês</em>`, "mid")}
     ${cap(18.6, null, `<em>5 respostas grátis,</em> sem cartão`, "mid")}
   </div>
