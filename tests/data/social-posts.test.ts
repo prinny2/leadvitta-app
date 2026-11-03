@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it, expect } from "vitest";
 import { SOCIAL_POSTS } from "@/data/social-posts";
@@ -47,6 +47,19 @@ describe("data/social-posts", () => {
     for (const post of SOCIAL_POSTS) {
       if (post.videoUrl === undefined) continue;
       expect(post.videoUrl, `post ${post.id}`).toMatch(/^https:\/\/[^\s]+\.mp4$/i);
+    }
+  });
+
+  it("Reel servido pelo site existe em public/reels/ e tem < 15 MB", () => {
+    const PREFIXO_REELS = "https://www.leadbellus.com.br/reels/";
+    const LIMITE_BYTES = 15 * 1024 * 1024;
+    for (const post of SOCIAL_POSTS) {
+      if (!post.videoUrl?.startsWith(PREFIXO_REELS)) continue;
+      const nome = post.videoUrl.slice(PREFIXO_REELS.length);
+      expect(nome, `${post.id}: ${post.videoUrl}`).toMatch(/^[\w.-]+\.mp4$/i);
+      const arquivo = join(process.cwd(), "public/reels", nome);
+      expect(existsSync(arquivo), `${post.id}: falta ${arquivo}`).toBe(true);
+      expect(statSync(arquivo).size, `${post.id}: ${arquivo} passa de 15 MB`).toBeLessThan(LIMITE_BYTES);
     }
   });
 });

@@ -14,6 +14,8 @@ import {
 import type { SocialPost } from "@/data/social-posts";
 
 const GRAPH_BASE = "https://graph.facebook.com/v21.0";
+// Upload de vídeo da Página (/{page-id}/videos) vai pelo host dedicado de vídeo.
+const GRAPH_VIDEO_BASE = "https://graph-video.facebook.com/v21.0";
 const TIMEOUT_MS = 15_000;
 // Com file_url a Meta baixa o mp4 antes de responder; dá mais folga que a foto.
 const VIDEO_UPLOAD_TIMEOUT_MS = 60_000;
@@ -31,9 +33,9 @@ export type PublishResult = {
 async function graphPost(
   path: string,
   body: Record<string, string>,
-  timeoutMs: number = TIMEOUT_MS
+  { timeoutMs = TIMEOUT_MS, base = GRAPH_BASE }: { timeoutMs?: number; base?: string } = {}
 ): Promise<{ ok: boolean; status: number; data: any }> {
-  const res = await fetch(`${GRAPH_BASE}/${path}`, {
+  const res = await fetch(`${base}/${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ ...body, access_token: metaPageAccessToken }),
@@ -56,12 +58,22 @@ async function graphGet(
   return { ok: res.ok, status: res.status, data };
 }
 
+/** Tira o token da página de qualquer texto que vá pra resposta ou log. */
+function redactToken(text: string): string {
+  return metaPageAccessToken ? text.split(metaPageAccessToken).join("[token]") : text;
+}
+
 // O Instagram processa a mídia do container de forma assíncrona; publicar
 // antes de status_code=FINISHED dá "Media ID is not available". Imagem fica
-// pronta em segundos; Reel (vídeo) pode levar até ~1-2 min.
+// pronta em segundos; Reel (vídeo) pode levar alguns minutos.
+//
+// O limite é um PRAZO de relógio, não um número de tentativas: cada consulta
+// pode levar até TIMEOUT_MS, então contar tentativas deixaria o tempo total
+// crescer sem controle. Nova consulta só começa antes do prazo, então o pior
+// caso é o prazo + uma consulta em voo (TIMEOUT_MS).
 type ContainerPoll = {
   intervalMs: number;
-  maxTries: number;
+  timeoutMs: number;
   /** Prefixo da mensagem de erro (ex.: "container ERROR"). */
   label: string;
   timeoutError: string;
@@ -69,36 +81,50 @@ type ContainerPoll = {
 
 const IG_IMAGE_POLL: ContainerPoll = {
   intervalMs: 2_000,
-  maxTries: 15,
+  timeoutMs: 30_000,
   label: "container",
   timeoutError: "container não ficou pronto a tempo",
 };
 
 const IG_REEL_POLL_MS = 5_000;
-const IG_REEL_TIMEOUT_MS = 120_000;
+const IG_REEL_TIMEOUT_MS = 300_000;
 const IG_REEL_POLL: ContainerPoll = {
   intervalMs: IG_REEL_POLL_MS,
-  maxTries: Math.ceil(IG_REEL_TIMEOUT_MS / IG_REEL_POLL_MS),
+  timeoutMs: IG_REEL_TIMEOUT_MS,
   label: "container do reel",
   timeoutError: `container do reel não ficou pronto em ${IG_REEL_TIMEOUT_MS / 1000} s`,
 };
+
+/** Detalhe legível do campo `status` do container (ex.: "Error: ..."), sem token. */
+function containerStatusDetail(data: any): string {
+  const status = typeof data?.status === "string" ? data.status.trim() : "";
+  return redactToken(status).slice(0, 300);
+}
 
 async function waitForInstagramContainer(
   containerId: string,
   poll: ContainerPoll
 ): Promise<string | null> {
-  for (let i = 0; i < poll.maxTries; i++) {
-    const res = await graphGet(containerId, { fields: "status_code" });
-    const status = res.data?.status_code;
-    if (status === "FINISHED") return null;
-    if (status === "ERROR" || status === "EXPIRED") return `${poll.label} ${status}`;
-    await new Promise((r) => setTimeout(r, poll.intervalMs));
+  const deadline = Date.now() + poll.timeoutMs;
+
+  for (;;) {
+    const res = await graphGet(containerId, { fields: "status_code,status" });
+    const code = res.data?.status_code;
+    if (code === "FINISHED") return null;
+    if (code === "ERROR" || code === "EXPIRED") {
+      const detail = containerStatusDetail(res.data);
+      return detail ? `${poll.label} ${code}: ${detail}` : `${poll.label} ${code}`;
+    }
+
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) return poll.timeoutError;
+    await new Promise((r) => setTimeout(r, Math.min(poll.intervalMs, remaining)));
+    if (Date.now() >= deadline) return poll.timeoutError;
   }
-  return poll.timeoutError;
 }
 
 function graphError(data: any): string {
-  return data?.error?.message || "erro desconhecido da Graph API";
+  return redactToken(data?.error?.message || "erro desconhecido da Graph API");
 }
 
 async function publishToFacebook(post: SocialPost): Promise<PublishChannelResult> {
@@ -111,7 +137,7 @@ async function publishToFacebook(post: SocialPost): Promise<PublishChannelResult
     ? await graphPost(
         `${metaPageId}/videos`,
         { file_url: post.videoUrl, description: post.texto },
-        VIDEO_UPLOAD_TIMEOUT_MS
+        { timeoutMs: VIDEO_UPLOAD_TIMEOUT_MS, base: GRAPH_VIDEO_BASE }
       )
     : post.imagemUrl
       ? await graphPost(`${metaPageId}/photos`, {
@@ -169,7 +195,7 @@ export async function publishSocialPost(post: SocialPost): Promise<PublishResult
     result.facebook = await publishToFacebook(post).catch((err) => ({
       ok: false as const,
       reason: "failed" as const,
-      error: err instanceof Error ? err.message : String(err),
+      error: redactToken(err instanceof Error ? err.message : String(err)),
     }));
   }
 
@@ -177,7 +203,7 @@ export async function publishSocialPost(post: SocialPost): Promise<PublishResult
     result.instagram = await publishToInstagram(post).catch((err) => ({
       ok: false as const,
       reason: "failed" as const,
-      error: err instanceof Error ? err.message : String(err),
+      error: redactToken(err instanceof Error ? err.message : String(err)),
     }));
   }
 

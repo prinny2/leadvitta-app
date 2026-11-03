@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Publicador da Meta (Página FB + Instagram) com fetch mockado: nada de rede
-// nem token real. Timers falsos só para setTimeout (o polling do container),
-// para cobrir intervalo e timeout sem esperar de verdade.
+// nem token real. Timers falsos para setTimeout e Date (o polling do container
+// tem prazo de relógio), para cobrir intervalo e timeout sem esperar de verdade.
 
 vi.mock("@/lib/config", () => ({
   isMetaPublishConfigured: true,
@@ -19,8 +19,15 @@ const TOKEN = "tok-secreto";
 const VIDEO = "https://www.leadbellus.com.br/reels/r5-na-cadeira.mp4";
 const IMAGEM = "https://www.leadbellus.com.br/social/auto/post-teste.png";
 
-type Call = { method: string; path: string; version: string; params: URLSearchParams };
+type Call = {
+  method: string;
+  host: string;
+  path: string;
+  version: string;
+  params: URLSearchParams;
+};
 type FakeRes = { ok: boolean; status: number; json: () => Promise<unknown> };
+type Responder = () => FakeRes | Promise<FakeRes>;
 
 const reply = (data: unknown, status = 200): FakeRes => ({
   ok: status >= 200 && status < 300,
@@ -29,7 +36,7 @@ const reply = (data: unknown, status = 200): FakeRes => ({
 });
 
 let calls: Call[] = [];
-let handler: (call: Call) => FakeRes = () => reply({}, 500);
+let handler: (call: Call) => FakeRes | Promise<FakeRes> = () => reply({}, 500);
 
 const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
   const url = new URL(String(input));
@@ -37,19 +44,29 @@ const fetchMock = vi.fn(async (input: string | URL, init?: RequestInit) => {
   const [, version, ...rest] = url.pathname.split("/");
   const params =
     method === "POST" ? new URLSearchParams(String(init?.body ?? "")) : url.searchParams;
-  const call: Call = { method, path: rest.join("/"), version, params };
+  const call: Call = { method, host: url.host, path: rest.join("/"), version, params };
   calls.push(call);
   return handler(call);
 });
 
-/** Sequência de status_code do container; o último se repete. */
-function statusSeq(...statuses: string[]) {
+/** Sequência de respostas do container; a última se repete. */
+function seq(...datas: unknown[]): Responder {
   let i = 0;
-  return () => reply({ status_code: statuses[Math.min(i++, statuses.length - 1)] });
+  return () => reply(datas[Math.min(i++, datas.length - 1)]);
+}
+
+/** Sequência de status_code do container; o último se repete. */
+function statusSeq(...statuses: string[]): Responder {
+  return seq(...statuses.map((status_code) => ({ status_code })));
+}
+
+/** Responde depois de `ms` (timer falso): simula uma Graph API lenta. */
+function slow(ms: number, data: unknown): Responder {
+  return () => new Promise<FakeRes>((r) => setTimeout(() => r(reply(data)), ms));
 }
 
 /** Roteia as chamadas da Graph API por método + caminho. */
-function route(routes: Record<string, () => FakeRes>) {
+function route(routes: Record<string, Responder>) {
   handler = (call) => {
     const fn = routes[`${call.method} ${call.path}`];
     if (!fn) throw new Error(`chamada inesperada: ${call.method} ${call.path}`);
@@ -95,7 +112,7 @@ beforeEach(() => {
   handler = () => reply({}, 500);
   fetchMock.mockClear();
   vi.stubGlobal("fetch", fetchMock);
-  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
   for (const m of ["log", "info", "warn", "error", "debug"] as const) {
     consoleSpies.push(vi.spyOn(console, m).mockImplementation(() => {}));
   }
@@ -124,6 +141,7 @@ describe("publishSocialPost — Reel no Instagram (videoUrl)", () => {
     await flush();
 
     const [container] = postsTo("ig-123/media");
+    expect(container.host).toBe("graph.facebook.com");
     expect(container.version).toBe("v21.0");
     expect(container.params.get("media_type")).toBe("REELS");
     expect(container.params.get("video_url")).toBe(VIDEO);
@@ -142,8 +160,9 @@ describe("publishSocialPost — Reel no Instagram (videoUrl)", () => {
     expect(gets()).toHaveLength(3);
 
     for (const get of gets()) {
+      expect(get.host).toBe("graph.facebook.com");
       expect(get.version).toBe("v21.0");
-      expect(get.params.get("fields")).toBe("status_code");
+      expect(get.params.get("fields")).toBe("status_code,status");
     }
 
     expect(state.done).toBe(true);
@@ -155,27 +174,64 @@ describe("publishSocialPost — Reel no Instagram (videoUrl)", () => {
     });
   });
 
-  it.each(["ERROR", "EXPIRED"])("status %s falha com mensagem e não publica", async (status) => {
+  it.each(["ERROR", "EXPIRED"])(
+    "status %s falha com o detalhe de `status` na mensagem e não publica",
+    async (code) => {
+      route({
+        "POST ig-123/media": () => reply({ id: "cont-2" }),
+        "GET cont-2": seq(
+          { status_code: "IN_PROGRESS", status: "In Progress" },
+          { status_code: code, status: "Error: Video format not supported (2207026)" }
+        ),
+        "POST ig-123/media_publish": () => reply({ id: "nao-devia" }),
+      });
+
+      const state = track(publishSocialPost(reelPost()));
+      await flush();
+      await advance(5_000);
+
+      expect(state.done).toBe(true);
+      expect(state.value?.instagram).toEqual({
+        ok: false,
+        reason: "failed",
+        error: `container do reel ${code}: Error: Video format not supported (2207026)`,
+      });
+      expect(postsTo("ig-123/media_publish")).toHaveLength(0);
+    }
+  );
+
+  it("status ERROR sem campo `status` mantém a mensagem curta", async () => {
     route({
-      "POST ig-123/media": () => reply({ id: "cont-2" }),
-      "GET cont-2": statusSeq("IN_PROGRESS", status),
-      "POST ig-123/media_publish": () => reply({ id: "nao-devia" }),
+      "POST ig-123/media": () => reply({ id: "cont-2b" }),
+      "GET cont-2b": statusSeq("ERROR"),
     });
 
-    const state = track(publishSocialPost(reelPost()));
-    await flush();
-    await advance(5_000);
+    const result = await publishSocialPost(reelPost());
 
-    expect(state.done).toBe(true);
-    expect(state.value?.instagram).toEqual({
+    expect(result.instagram).toEqual({
       ok: false,
       reason: "failed",
-      error: `container do reel ${status}`,
+      error: "container do reel ERROR",
     });
-    expect(postsTo("ig-123/media_publish")).toHaveLength(0);
   });
 
-  it("timeout: sem FINISHED em ~120 s, falha e não publica", async () => {
+  it("o token da página nunca aparece na mensagem de erro", async () => {
+    route({
+      "POST ig-123/media": () => reply({ id: "cont-2c" }),
+      "GET cont-2c": seq({ status_code: "ERROR", status: `Error: falhou access_token=${TOKEN}` }),
+    });
+
+    const result = await publishSocialPost(reelPost());
+
+    expect(JSON.stringify(result)).not.toContain(TOKEN);
+    expect(result.instagram).toEqual({
+      ok: false,
+      reason: "failed",
+      error: "container do reel ERROR: Error: falhou access_token=[token]",
+    });
+  });
+
+  it("timeout: sem FINISHED em 300 s, falha e não publica", async () => {
     route({
       "POST ig-123/media": () => reply({ id: "cont-3" }),
       "GET cont-3": statusSeq("IN_PROGRESS"),
@@ -185,18 +241,45 @@ describe("publishSocialPost — Reel no Instagram (videoUrl)", () => {
     const state = track(publishSocialPost(reelPost()));
     await flush();
 
-    await advance(119_000);
+    await advance(299_000);
     expect(state.done).toBe(false);
-    // t = 0, 5, …, 115 s → 24 consultas.
-    expect(gets()).toHaveLength(24);
+    // t = 0, 5, …, 295 s → 60 consultas.
+    expect(gets()).toHaveLength(60);
 
     await advance(1_000);
     expect(state.done).toBe(true);
-    expect(gets()).toHaveLength(24);
+    expect(gets()).toHaveLength(60);
     expect(state.value?.instagram).toEqual({
       ok: false,
       reason: "failed",
-      error: "container do reel não ficou pronto em 120 s",
+      error: "container do reel não ficou pronto em 300 s",
+    });
+    expect(postsTo("ig-123/media_publish")).toHaveLength(0);
+  });
+
+  it("o prazo é de relógio: consultas lentas não esticam o limite de 300 s", async () => {
+    route({
+      "POST ig-123/media": () => reply({ id: "cont-lento" }),
+      // Cada consulta leva 10 s: ciclo de 15 s (10 s de resposta + 5 s de espera).
+      "GET cont-lento": slow(10_000, { status_code: "IN_PROGRESS" }),
+      "POST ig-123/media_publish": () => reply({ id: "nao-devia" }),
+    });
+
+    const state = track(publishSocialPost(reelPost()));
+    await flush();
+
+    await advance(299_000);
+    expect(state.done).toBe(false);
+    // Consultas começam em t = 0, 15, …, 285 s → 20 (por tentativas seriam 60, ~900 s).
+    expect(gets()).toHaveLength(20);
+
+    await advance(1_000);
+    expect(state.done).toBe(true);
+    expect(gets()).toHaveLength(20);
+    expect(state.value?.instagram).toEqual({
+      ok: false,
+      reason: "failed",
+      error: "container do reel não ficou pronto em 300 s",
     });
     expect(postsTo("ig-123/media_publish")).toHaveLength(0);
   });
@@ -218,7 +301,7 @@ describe("publishSocialPost — Reel no Instagram (videoUrl)", () => {
     expect(gets()).toHaveLength(0);
   });
 
-  it("Facebook publica o vídeo via /{page-id}/videos com file_url e description", async () => {
+  it("Facebook publica o vídeo em graph-video.facebook.com/{page-id}/videos com file_url e description", async () => {
     route({
       "POST page-456/videos": () => reply({ id: "fb-video-1" }),
       "POST ig-123/media": () => reply({ id: "cont-4" }),
@@ -235,6 +318,7 @@ describe("publishSocialPost — Reel no Instagram (videoUrl)", () => {
     const result = await publishSocialPost(post);
 
     const [video] = postsTo("page-456/videos");
+    expect(video.host).toBe("graph-video.facebook.com");
     expect(video.version).toBe("v21.0");
     expect(video.params.get("file_url")).toBe(VIDEO);
     expect(video.params.get("description")).toBe(post.texto);
@@ -242,6 +326,7 @@ describe("publishSocialPost — Reel no Instagram (videoUrl)", () => {
     expect(postsTo("page-456/feed")).toHaveLength(0);
 
     const [container] = postsTo("ig-123/media");
+    expect(container.host).toBe("graph.facebook.com");
     expect(container.params.get("media_type")).toBe("REELS");
     expect(container.params.has("image_url")).toBe(false);
 
@@ -271,6 +356,7 @@ describe("publishSocialPost — imagem continua igual", () => {
     await flush();
 
     const [photo] = postsTo("page-456/photos");
+    expect(photo.host).toBe("graph.facebook.com");
     expect(photo.params.get("url")).toBe(IMAGEM);
     expect(photo.params.get("caption")).toBe("Legenda da arte");
     expect(postsTo("page-456/videos")).toHaveLength(0);
@@ -297,7 +383,7 @@ describe("publishSocialPost — imagem continua igual", () => {
     });
   });
 
-  it("foto: timeout continua em 15 tentativas (~30 s) com a mesma mensagem", async () => {
+  it("foto: prazo de 30 s (15 consultas a cada 2 s) com a mesma mensagem", async () => {
     route({
       "POST ig-123/media": () => reply({ id: "cont-lento" }),
       "GET cont-lento": statusSeq("IN_PROGRESS"),
@@ -313,7 +399,9 @@ describe("publishSocialPost — imagem continua igual", () => {
       })
     );
     await flush();
-    await advance(30_000);
+    await advance(29_999);
+    expect(state.done).toBe(false);
+    await advance(1);
 
     expect(state.done).toBe(true);
     expect(gets()).toHaveLength(15);
@@ -336,6 +424,7 @@ describe("publishSocialPost — imagem continua igual", () => {
     });
 
     const [feed] = postsTo("page-456/feed");
+    expect(feed.host).toBe("graph.facebook.com");
     expect(feed.params.get("message")).toBe("Só texto");
     expect(feed.params.get("link")).toBe("https://www.leadbellus.com.br/");
     expect(result.facebook).toEqual({ ok: true, id: "fb-feed-1" });
