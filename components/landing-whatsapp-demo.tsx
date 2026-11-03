@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Loader2, Sparkles, Wand2, X } from "lucide-react";
 import { useSearchParams } from "next/navigation";
@@ -20,6 +20,8 @@ import { cn } from "@/lib/utils";
 import type { ComoChamar, RespostaTripla, Variante } from "@/lib/types";
 import { PlanCTA } from "@/components/plan-cta";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
+import { trackEvent } from "@/components/Analytics";
+import { trackFreeGeneration } from "@/lib/analytics/free-generation";
 
 const procOptions = procedimentos.slice(0, 10).map((p) => ({
   value: p.id,
@@ -77,6 +79,8 @@ const DEMO_LIMIT = 5;
 const DEMO_USAGE_KEY = "leadbellus_landing_demo_generations_v1";
 
 export function LandingWhatsAppDemo() {
+  const demoRef = useRef<HTMLDivElement>(null);
+  const demoViewed = useRef(false);
   const searchParams = useSearchParams();
   const demoParam = searchParams.get("demo") || "";
   const [nomeClinica, setNomeClinica] = useState("Clínica Aurora");
@@ -105,6 +109,22 @@ export function LandingWhatsAppDemo() {
   const demoRemaining = Math.max(0, DEMO_LIMIT - demoUses);
   const demoExhausted = limitLoaded && demoRemaining <= 0;
   const usageProgress = Math.min(100, (demoUses / DEMO_LIMIT) * 100);
+
+  useEffect(() => {
+    const target = demoRef.current;
+    if (!target || demoViewed.current || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || demoViewed.current) return;
+        demoViewed.current = true;
+        trackEvent("view_demo", { content_name: "landing_demo" });
+        observer.disconnect();
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     try {
@@ -201,6 +221,7 @@ export function LandingWhatsAppDemo() {
         return;
       }
 
+      trackFreeGeneration("landing_demo", { ...data, ok: res.ok }, trackEvent);
       setRespostas(data.respostas);
       setResponseKey((k) => k + 1);
       setDemoUses((current) => {
@@ -229,7 +250,7 @@ export function LandingWhatsAppDemo() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+    <div ref={demoRef} className="grid gap-6 lg:grid-cols-2 lg:items-start">
       <AnimatePresence>
         {upgradeOpen ? (
           <motion.div

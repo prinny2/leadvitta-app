@@ -32,6 +32,8 @@ import { FormSection } from "@/components/form-section";
 import { ErrorBanner } from "@/components/error-banner";
 import { cn } from "@/lib/utils";
 import type { RespostaTripla, Variante } from "@/lib/types";
+import { trackEvent } from "@/components/Analytics";
+import { trackFreeGeneration } from "@/lib/analytics/free-generation";
 
 const procOptions = procedimentos.map((p) => ({ value: p.id, label: p.label }));
 const sitOptions = situacoes.map((s) => ({ value: s.id, label: s.label }));
@@ -152,6 +154,7 @@ export default function GeradorPage() {
         }),
       });
       const data = await res.json();
+      trackFreeGeneration("gerador", { ...data, ok: res.ok }, trackEvent);
       if (res.status === 402 || data.limitReached) {
         setLimitReached(true);
         setFreeRemaining(0);
@@ -206,6 +209,7 @@ export default function GeradorPage() {
         }),
       });
       const data = await res.json();
+      trackFreeGeneration("gerador", { ...data, ok: res.ok }, trackEvent);
       if (res.ok && data.texto) {
         setRespostas((prev) => (prev ? { ...prev, [variante]: data.texto } : prev));
         setSalvo(false);
