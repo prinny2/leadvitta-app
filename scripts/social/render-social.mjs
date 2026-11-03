@@ -91,7 +91,7 @@ const LAYOUTS = {
           <p class="txt">${esc(a.fraca)}</p>
         </div>
         <div class="ad-card strong">
-          <p class="lbl">${icon(I.check, 24)} Resposta da secretária</p>
+          <p class="lbl">${icon(I.check, 24)} Resposta com o LeadBellus</p>
           <p class="txt">${esc(a.resposta)}</p>
         </div>
       </div>`,
