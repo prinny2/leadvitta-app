@@ -1,59 +1,61 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  Loader2,
-  MessageSquareText,
-  ShieldCheck,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { ArrowRight, Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { PlanCheckoutButton } from "@/components/plan-checkout-button";
 import { WaitlistForm } from "@/components/waitlist-form";
+import { StartPlanCard } from "@/components/start-plan-card";
+import { HeroLoop } from "@/components/hero-loop";
+import { AvisoIA } from "@/components/aviso-ia";
+import { TrackLink } from "@/components/track-link";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  ComoChamarChoice,
+  JeitoDeFalarChoice,
+  QuickReplyCards,
+  useLoadingStep,
+  useQuickReply,
+} from "@/components/quick-reply-demo";
 import { trackCheckoutReturn, trackEvent } from "@/components/Analytics";
-import { billingPlanList, parseBillingPlan } from "@/lib/billing";
-import { trackFreeGeneration } from "@/lib/analytics/free-generation";
+import { parseBillingPlan } from "@/lib/billing";
 import {
   isClerkClientConfigured,
   isFirebaseConfigured,
 } from "@/lib/config";
-import { getClinica, saveClinica } from "@/lib/store";
+import { DEMO_LIMIT } from "@/lib/quick-reply";
 import { clinicaVazia, type Clinica } from "@/lib/types";
-import { cn } from "@/lib/utils";
-import { procedimentos } from "@/data/procedimentos";
-import {
-  comoChamarOptions,
-  ctaOptions,
-  formalidadeLabel,
-} from "@/data/opcoes";
-import {
-  ctaLabel,
-  fallbackResponse,
-  getTreatment,
-  resolveUrlStep,
-} from "@/app/(marketing)/onboarding/helpers";
-
-type Step = "clinica" | "resposta" | "planos";
-
-const STEPS: { id: Step; n: number; label: string }[] = [
-  { id: "clinica", n: 1, label: "Sua clínica" },
-  { id: "resposta", n: 2, label: "A resposta" },
-  { id: "planos", n: 3, label: "Seu plano" },
-];
+import { resolveOnboardingView } from "@/app/(marketing)/onboarding/helpers";
 
 const DRAFT_KEY = "lb_dna_draft";
-const INITIAL_PROCEDURES = 8;
+const SIGNUP_START = "/signup?plan=start";
+
+const LOADING_STEPS = [
+  "Lendo a mensagem…",
+  "Entendendo a situação…",
+  "Escrevendo no tom da clínica…",
+];
+
+const PLAN_BULLETS = [
+  "3 respostas para cada mensagem, no tom da clínica",
+  "Follow-up e retorno pós-procedimento",
+  "Cancele quando quiser, no painel",
+];
+
+type ScrollTarget = "result" | "plans" | "personalizar" | "input";
+
+/**
+ * lib/store (Firebase + Supabase, ~180 KB gzip) só carrega quando há conta
+ * para ler/gravar o DNA (`canPersist`). No funil público com Firebase ligado e
+ * sem login, o onboarding nem baixa esse SDK.
+ */
+const loadStore = () => import("@/lib/store");
 
 function loadDraft(): Partial<Clinica> | null {
   try {
@@ -64,12 +66,20 @@ function loadDraft(): Partial<Clinica> | null {
   }
 }
 
+/**
+ * O visual-auth-panel lê esta chave no cadastro (persistDraft): é assim que o
+ * tom escolhido aqui chega na conta nova.
+ */
 function saveDraft(c: Clinica) {
   try {
     window.localStorage.setItem(DRAFT_KEY, JSON.stringify(c));
   } catch {
     // Storage indisponivel nao deve travar o funil publico.
   }
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 }
 
 type OnboardingCoreProps = {
@@ -81,55 +91,53 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planFromUrl = parseBillingPlan(searchParams.get("plan"));
-  const checkoutSuccess = searchParams.get("checkout") === "sucesso";
-  const checkoutCanceled = searchParams.get("checkout") === "cancelado";
+  const checkoutParam = searchParams.get("checkout");
+  const checkoutSuccess = checkoutParam === "sucesso";
+  const checkoutCanceled = checkoutParam === "cancelado";
   const tabFromUrl = searchParams.get("aba");
   const canPersist = signedIn || !isFirebaseConfigured;
+  const urlView = resolveOnboardingView(planFromUrl, tabFromUrl, checkoutParam);
 
-  const [step, setStep] = useState<Step>("clinica");
+  const qr = useQuickReply("onboarding");
+  const loadingStep = useLoadingStep(qr.loading, LOADING_STEPS.length, 1300);
+
   const [clinic, setClinic] = useState<Clinica>(clinicaVazia);
-  const [showAllProcedures, setShowAllProcedures] = useState(false);
+  const [showPlans, setShowPlans] = useState(urlView.showPlans);
+  const [editing, setEditing] = useState(true);
+  const [hasGenerated, setHasGenerated] = useState(false);
+  const [personalizarOpen, setPersonalizarOpen] = useState(false);
+  const [personalizado, setPersonalizado] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [generateFailed, setGenerateFailed] = useState(false);
-  const [generatedResponse, setGeneratedResponse] = useState("");
+  // Com `?aba=planos` / `?checkout=cancelado` os planos já abrem no topo
+  // (logo abaixo do aviso de pagamento): sem rolagem automática no mount, que
+  // esconderia o aviso "Pagamento cancelado".
+  const [scrollTarget, setScrollTarget] = useState<ScrollTarget | null>(null);
 
-  // Nome da clínica JÁ GRAVADO (rascunho local ou Firestore). A navegação por
-  // URL usa este valor, nunca o campo em edição.
-  const [storedName, setStoredName] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const resultTitleRef = useRef<HTMLHeadingElement>(null);
+  const plansRef = useRef<HTMLElement>(null);
+  const personalizarRef = useRef<HTMLDivElement>(null);
+
+  // A URL pode mudar sem remontar (ex.: link interno com ?plan=start).
+  useEffect(() => {
+    if (urlView.showPlans) setShowPlans(true);
+  }, [urlView.showPlans]);
 
   useEffect(() => {
     const draft = loadDraft();
     if (!draft) return;
     setClinic((prev) => ({ ...prev, ...draft }));
-    setStoredName(draft.nome_clinica ?? "");
   }, []);
-
-  // `?plan=` / `?aba=` só reposicionam o funil UMA vez e a partir do que já
-  // estava salvo. Antes o efeito acompanhava o que a pessoa estava digitando e
-  // pulava para os planos na primeira tecla do nome da clínica.
-  const urlStepApplied = useRef(false);
-  useEffect(() => {
-    if (urlStepApplied.current) return;
-    const nextStep = resolveUrlStep(planFromUrl, tabFromUrl, storedName);
-    if (nextStep === "clinica") return;
-    urlStepApplied.current = true;
-    setStep(nextStep);
-  }, [planFromUrl, tabFromUrl, storedName]);
-
-  useEffect(() => {
-    saveDraft(clinic);
-  }, [clinic]);
 
   useEffect(() => {
     if (!authLoaded || !canPersist) return;
 
-    getClinica()
+    loadStore()
+      .then(({ getClinica }) => getClinica())
       .then((saved) => {
         if (saved.nome_clinica || saved.onboarded) {
           setClinic((prev) => ({ ...prev, ...saved }));
-          if (saved.nome_clinica) setStoredName(saved.nome_clinica);
         }
       })
       .catch(() => {
@@ -143,110 +151,112 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
     void trackCheckoutReturn(sessionId);
   }, [checkoutSuccess, searchParams]);
 
-  const currentStepIndex = STEPS.findIndex((item) => item.id === step);
-  const progressPercent = Math.round(
-    ((currentStepIndex + 1) / STEPS.length) * 100
-  );
-  const canContinue = clinic.nome_clinica.trim().length > 0;
-  const visibleProcedures = useMemo(
-    () =>
-      showAllProcedures
-        ? procedimentos
-        : procedimentos.slice(0, INITIAL_PROCEDURES),
-    [showAllProcedures]
-  );
-  const response = generatedResponse || fallbackResponse(clinic);
+  // view_demo uma vez por visita ao onboarding (vira ViewContent no Meta).
+  const viewTracked = useRef(false);
+  useEffect(() => {
+    if (viewTracked.current) return;
+    viewTracked.current = true;
+    trackEvent("view_demo", { content_name: "onboarding" });
+  }, []);
 
-  function setClinicField<K extends keyof Clinica>(
-    key: K,
-    value: Clinica[K]
-  ) {
-    setClinic((prev) => ({ ...prev, [key]: value }));
+  // Esgotou os testes grátis: os planos passam a aparecer.
+  useEffect(() => {
+    if (qr.exhausted) setShowPlans(true);
+  }, [qr.exhausted]);
+
+  useEffect(() => {
+    if (!scrollTarget) return;
+    const el =
+      scrollTarget === "result"
+        ? resultTitleRef.current
+        : scrollTarget === "plans"
+          ? plansRef.current
+          : scrollTarget === "personalizar"
+            ? personalizarRef.current
+            : textareaRef.current;
+    if (!el) return;
+    setScrollTarget(null);
+    el.scrollIntoView({
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+      block: scrollTarget === "input" ? "center" : "start",
+    });
+    if (scrollTarget === "result") resultTitleRef.current?.focus({ preventScroll: true });
+    if (scrollTarget === "input") textareaRef.current?.focus({ preventScroll: true });
+  }, [scrollTarget, qr.respostas, showPlans, personalizarOpen, editing]);
+
+  function updateClinic(patch: Partial<Clinica>) {
+    setClinic((prev) => {
+      const next = { ...prev, ...patch };
+      saveDraft(next);
+      return next;
+    });
   }
 
-  function toggleProcedure(label: string) {
-    setClinic((prev) => ({
-      ...prev,
-      procedimentos: prev.procedimentos.includes(label)
-        ? prev.procedimentos.filter((item) => item !== label)
-        : [...prev.procedimentos, label],
-    }));
+  function clinicPayload() {
+    return {
+      nome_clinica: clinic.nome_clinica,
+      formalidade: clinic.formalidade,
+      como_chamar: clinic.como_chamar,
+      cta_preferido: clinic.cta_preferido,
+    };
+  }
+
+  async function gerar(
+    override?: { mensagem: string; situacao?: string; procedimento?: string },
+    origem: "tela1" | "refazer" = "tela1"
+  ) {
+    const outcome = await qr.generate({ clinica: clinicPayload(), override });
+    if (outcome.status === "ok") {
+      setHasGenerated(true);
+      setEditing(false);
+      if (origem === "refazer") setPersonalizado(true);
+      setScrollTarget("result");
+    } else if (outcome.status === "esgotado") {
+      setShowPlans(true);
+      setScrollTarget("plans");
+    }
+  }
+
+  function usarExemplo() {
+    trackEvent("cta_click", { source: "onboarding_example" });
+    const preset = qr.applyPreset("preco");
+    if (preset) void gerar(preset);
+  }
+
+  function trocarMensagem() {
+    qr.clearResult();
+    setEditing(true);
+    setScrollTarget("input");
+  }
+
+  function testarOutra() {
+    qr.clearResult();
+    qr.editMensagem("");
+    setEditing(true);
+    setScrollTarget("input");
+  }
+
+  function abrirPlanos() {
+    trackEvent("cta_click", { source: "onboarding_planos" });
+    setShowPlans(true);
+    setScrollTarget("plans");
+  }
+
+  function abrirPersonalizar() {
+    setPersonalizarOpen(true);
+    setScrollTarget("personalizar");
   }
 
   /** Único caminho de gravação do DNA — evita salvar duas vezes o mesmo estado. */
   async function persistClinic(): Promise<boolean> {
-    if (!canPersist || !canContinue) return false;
+    if (!canPersist) return false;
     try {
+      const { saveClinica } = await loadStore();
       await saveClinica({ ...clinic, onboarded: true });
       return true;
     } catch {
       setSaveFailed(true);
       return false;
-    }
-  }
-
-  function goTo(nextStep: Step) {
-    setStep(nextStep);
-    setSaveFailed(false);
-
-    if (nextStep === "planos") void persistClinic();
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  // Sequência da requisição: se a pessoa clicar em "gerar de novo" antes da
-  // anterior responder, só a última resposta pode vencer a corrida.
-  const generationSeq = useRef(0);
-
-  async function generateResponse() {
-    const seq = ++generationSeq.current;
-    setGenerating(true);
-    setGenerateFailed(false);
-    // Limpa a resposta anterior: se ESTA tentativa falhar, o aviso diz que o
-    // texto na tela é o exemplo local — e aí ele precisa mesmo ser o exemplo,
-    // não a geração antiga (que ainda por cima pode ser de um DNA já editado).
-    setGeneratedResponse("");
-
-    try {
-      const result = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          modo: "gerar",
-          procedimento: "botox",
-          situacao: "preco",
-          tom: "acolhedor",
-          objetivo: "direcionar para a avaliação",
-          nomeCliente: getTreatment(clinic.como_chamar) || "Ana",
-          mensagemCliente: "Oi! Quanto custa o botox?",
-          clinica: {
-            nome_clinica: clinic.nome_clinica || "Sua clinica",
-            formalidade: clinic.formalidade,
-            como_chamar: clinic.como_chamar,
-            cta_preferido:
-              clinic.cta_preferido || "marcar uma avaliação",
-          },
-        }),
-      });
-      const data = (await result.json().catch(() => ({}))) as {
-        respostas?: { consultiva?: string; curta?: string };
-        mock?: boolean;
-      };
-      trackFreeGeneration("onboarding", { ...data, ok: result.ok }, trackEvent);
-      if (seq !== generationSeq.current) return;
-
-      const texto = data.respostas?.consultiva || data.respostas?.curta || "";
-      if (!result.ok || !texto) {
-        // Sem resposta da IA seguimos mostrando o exemplo local (que acompanha
-        // as edições do DNA), mas dizemos que a geração ao vivo falhou.
-        setGenerateFailed(true);
-        return;
-      }
-      setGeneratedResponse(texto);
-    } catch {
-      if (seq === generationSeq.current) setGenerateFailed(true);
-    } finally {
-      if (seq === generationSeq.current) setGenerating(false);
     }
   }
 
@@ -268,19 +278,155 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
     }
   }
 
-  const autoGenerated = useRef(false);
-  useEffect(() => {
-    if (step !== "resposta" || autoGenerated.current) return;
-    autoGenerated.current = true;
-    generateResponse();
-    // A resposta deve ser gerada uma vez ao entrar na etapa.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
+  const erro = qr.erro;
+  const respostasVisiveis = !!qr.respostas && !editing;
+
+  const exhaustedBlock = (
+    <div className="mt-3 rounded-2xl border border-gold-500/40 bg-gold-500/10 p-5 text-center">
+      <p className="font-serif text-lg font-semibold text-champagne-100">
+        Seus 5 testes grátis acabaram.
+      </p>
+      <p className="mt-1 text-sm leading-relaxed text-champagne-300">
+        Crie sua conta grátis e ganhe mais 5 respostas, sem cartão.
+      </p>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <TrackLink
+          event="cta_click"
+          source="onboarding_signup"
+          href={SIGNUP_START}
+          className="btn-cta w-full text-sm"
+        >
+          Criar conta grátis
+        </TrackLink>
+        <button type="button" onClick={abrirPlanos} className="btn-cta-outline w-full text-sm">
+          Ver planos
+        </button>
+      </div>
+    </div>
+  );
+
+  const errorBlock = erro ? (
+    <div
+      role="alert"
+      className="mt-3 rounded-xl border border-pain-500/40 bg-pain-500/10 px-4 py-3 text-sm text-pain-300"
+    >
+      <p>{erro.mensagem}</p>
+      {erro.tipo === "api" || erro.tipo === "conexao" ? (
+        <button
+          type="button"
+          onClick={() => void gerar(undefined, editing ? "tela1" : "refazer")}
+          disabled={qr.loading}
+          className="mt-2 rounded-lg border border-pain-300/40 px-3 py-1.5 text-xs font-semibold text-pain-200 hover:bg-pain-500/10 disabled:opacity-60"
+        >
+          Tentar de novo
+        </button>
+      ) : null}
+      {erro.tipo === "limite_diario" ? (
+        <TrackLink
+          event="cta_click"
+          source="onboarding_signup"
+          href={SIGNUP_START}
+          className="mt-2 inline-flex items-center gap-1.5 font-semibold text-gold-300 hover:text-gold-200"
+        >
+          Criar conta grátis <ArrowRight size={14} />
+        </TrackLink>
+      ) : null}
+    </div>
+  ) : null;
+
+  const plansSection = showPlans ? (
+    <section
+      id="planos"
+      ref={plansRef}
+      aria-labelledby="planos-titulo"
+      className="scroll-mt-6 space-y-5"
+    >
+      {urlView.plansFirst ? (
+        <h1 id="planos-titulo" className="text-center font-serif text-3xl font-semibold text-ink">
+          Planos
+        </h1>
+      ) : (
+        <h2 id="planos-titulo" className="text-center font-serif text-2xl font-semibold text-ink">
+          Planos
+        </h2>
+      )}
+
+      <StartPlanCard bullets={PLAN_BULLETS}>
+        <PlanCheckoutButton
+          plan="start"
+          className="btn-cta w-full text-sm disabled:opacity-60"
+        >
+          Assinar o Start
+        </PlanCheckoutButton>
+      </StartPlanCard>
+
+      <div className="mx-auto max-w-[460px] rounded-2xl border border-navy-500 bg-navy-700 p-5">
+        <p className="text-sm font-semibold text-champagne-200">Pro e Premium · em breve</p>
+        <p className="mb-3 mt-0.5 text-sm text-muted">Me avise quando abrir</p>
+        <WaitlistForm plan="pro" />
+      </div>
+
+      {!signedIn && (
+        <p className="text-center text-sm text-champagne-300">
+          Prefere criar a conta antes?{" "}
+          <TrackLink
+            event="cta_click"
+            source="onboarding_signup"
+            href={SIGNUP_START}
+            className="font-semibold text-gold-400 hover:text-gold-300"
+          >
+            Criar conta grátis
+          </TrackLink>
+        </p>
+      )}
+
+      <div className="mx-auto flex max-w-[460px] items-start gap-3 rounded-2xl border border-lavender-200 bg-lavender-50 p-4 text-xs text-lavender-700">
+        <ShieldCheck size={18} className="mt-0.5 shrink-0" />
+        <p>
+          Respostas feitas para estética: sem promessa de resultado, sem preço
+          fixo de procedimento e sem diagnóstico.
+        </p>
+      </div>
+    </section>
+  ) : null;
+
+  const primaryCta = signedIn ? (
+    personalizado ? (
+      <Button
+        type="button"
+        variant="cta"
+        size="lg"
+        className="w-full font-bold"
+        onClick={saveAndEnter}
+        disabled={saving}
+      >
+        {saving ? <Loader2 size={16} className="animate-spin" /> : null}
+        Salvar e ir para o painel
+      </Button>
+    ) : (
+      <Link href="/gerador" className="btn-cta w-full">
+        Ir para o painel <ArrowRight size={16} />
+      </Link>
+    )
+  ) : (
+    <>
+      <TrackLink
+        event="cta_click"
+        source="onboarding_signup"
+        href={SIGNUP_START}
+        className="btn-cta w-full"
+      >
+        {personalizado ? "Criar conta grátis e salvar meu tom" : "Criar conta grátis"}{" "}
+        <ArrowRight size={16} />
+      </TrackLink>
+      <p className="mt-2 text-center text-xs text-muted">5 respostas grátis · sem cartão</p>
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-navy-900">
       <header className="border-b border-navy-500/50 bg-navy-900/80 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
           <Logo href="/" textClass="text-lg text-ink" />
           {signedIn ? (
             <Link
@@ -300,602 +446,258 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-10 sm:py-14">
-        {checkoutSuccess && (
-          <div className="mb-8 rounded-2xl border border-gold-500/30 bg-gold-500/10 px-5 py-4 text-center text-sm text-champagne-200">
-            <p className="font-semibold text-ink">Pagamento confirmado.</p>
-            <p className="mt-1">
-              Crie ou entre com o mesmo e-mail do pagamento para liberar o
-              acesso.
-            </p>
-          </div>
-        )}
-
-        {checkoutCanceled && (
-          <div className="mb-8 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-center text-sm text-amber-200">
-            Pagamento cancelado. Nada foi cobrado.
-          </div>
-        )}
-
-        <section className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
-            Etapa {currentStepIndex + 1} de {STEPS.length}
-          </p>
-          <h1 className="mx-auto mt-3 max-w-2xl font-serif text-3xl font-semibold leading-tight text-ink sm:text-5xl">
-            Ela perguntou o preço.{" "}
-            <span className="text-gold-gradient">
-              Veja como responder diferente.
-            </span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-            Monte o DNA da clínica, veja a resposta mudar no seu tom e escolha
-            como começar.
-          </p>
-        </section>
-
-        <nav className="mt-9 flex justify-center" aria-label="Etapas do cadastro">
-          <div className="inline-flex w-full max-w-md gap-1 rounded-2xl border border-navy-500 bg-navy-700 p-1.5 sm:w-auto">
-            {STEPS.map((item) => {
-              const active = step === item.id;
-              const enabled = item.id === "clinica" || canContinue;
-
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  disabled={!enabled}
-                  aria-current={active ? "step" : undefined}
-                  onClick={() => enabled && goTo(item.id)}
-                  className={cn(
-                    "flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2.5 text-center text-[11px] font-medium transition-colors sm:flex-row sm:gap-2 sm:px-5 sm:text-sm",
-                    active
-                      ? "border border-gold-500/40 bg-navy-600 text-champagne-100 shadow-sm"
-                      : "border border-transparent text-muted hover:text-ink",
-                    !enabled && "cursor-not-allowed opacity-40"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold",
-                      active
-                        ? "bg-gold-500 text-brand-900"
-                        : "bg-navy-600 text-navy-50"
-                    )}
-                  >
-                    {item.n}
-                  </span>
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </nav>
-
-        <div
-          className="mx-auto mt-4 h-2 w-full max-w-md overflow-hidden rounded-full bg-navy-600"
-          role="progressbar"
-          aria-label="Progresso do cadastro"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={progressPercent}
-        >
-          <div
-            className="h-full rounded-full bg-gold-500 transition-all duration-300"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-
-        <div className="mt-8">
-          {step === "clinica" && (
-            <Card>
-              <CardBody className="p-6 sm:p-8">
-                <form
-                  className="space-y-8"
-                  onSubmit={(event) => {
-                    event.preventDefault();
-                    if (canContinue) goTo("resposta");
-                  }}
-                >
-                <div className="rounded-3xl border border-navy-500 bg-navy-700 p-5 shadow-card">
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
-                        Seu estilo no LeadBellus
-                      </p>
-                      <h2 className="mt-2 text-lg font-semibold text-ink">
-                        A IA vai responder como a{" "}
-                        {clinic.nome_clinica.trim() || "sua clinica"}.
-                      </h2>
-                    </div>
-                    <span className="rounded-full border border-gold-500/30 bg-gold-500/15 px-3 py-1 text-xs font-semibold text-gold-300">
-                      {clinic.procedimentos.length} procedimentos
-                    </span>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <MiniStat label="Tom" value={formalidadeLabel(clinic.formalidade)} />
-                    <MiniStat
-                      label="Como chama"
-                      value={
-                        comoChamarOptions.find(
-                          (option) => option.value === clinic.como_chamar
-                        )?.label || "Linda"
-                      }
-                    />
-                    <MiniStat label="CTA" value={ctaLabel(clinic.cta_preferido)} />
-                  </div>
-                </div>
-
-                <div className="space-y-5">
-                  <div>
-                    <Label htmlFor="nome">Nome da clinica</Label>
-                    <Input
-                      id="nome"
-                      name="nome_clinica"
-                      aria-label="Nome da clinica"
-                      autoComplete="organization"
-                      value={clinic.nome_clinica}
-                      onChange={(event) =>
-                        setClinicField("nome_clinica", event.target.value)
-                      }
-                      placeholder="Ex.: Espaço Beleza & Cuidado"
-                      autoFocus
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="cidade">Cidade</Label>
-                    <Input
-                      id="cidade"
-                      name="cidade"
-                      aria-label="Cidade"
-                      autoComplete="address-level2"
-                      value={clinic.cidade}
-                      onChange={(event) =>
-                        setClinicField("cidade", event.target.value)
-                      }
-                      placeholder="Ex.: São Paulo - SP"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label>Procedimentos da agenda</Label>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {visibleProcedures.map((procedure) => {
-                      const active = clinic.procedimentos.includes(
-                        procedure.label
-                      );
-
-                      return (
-                        <button
-                          key={procedure.id}
-                          type="button"
-                          aria-pressed={active}
-                          onClick={() => toggleProcedure(procedure.label)}
-                          className={cn(
-                            "rounded-2xl border p-4 text-left transition-all",
-                            active
-                              ? "border-gold-500 bg-gold-500/10 text-champagne-100 shadow-sm"
-                              : "border-navy-500 bg-navy-700 text-champagne-300 hover:border-navy-300 hover:bg-navy-600"
-                          )}
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="text-sm font-semibold text-ink">
-                                {procedure.label}
-                              </p>
-                              <p className="mt-1 text-xs leading-relaxed text-muted">
-                                {procedure.beneficios[0] ||
-                                  procedure.duvidas[0]}
-                              </p>
-                            </div>
-                            <span
-                              className={cn(
-                                "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
-                                active
-                                  ? "border-gold-500 bg-gold-500 text-navy-900"
-                                  : "border-navy-400 bg-navy-600 text-champagne-300"
-                              )}
-                            >
-                              {active ? <Check size={14} /> : "+"}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {procedimentos.length > INITIAL_PROCEDURES && (
-                    <button
-                      type="button"
-                      onClick={() => setShowAllProcedures((value) => !value)}
-                      className="text-sm font-semibold text-gold-400 hover:text-gold-300"
-                    >
-                      {showAllProcedures
-                        ? "Ver menos procedimentos"
-                        : "Ver mais procedimentos"}
-                    </button>
-                  )}
-                </div>
-
-                <div className="space-y-5">
-                  <div>
-                    <Label>Como você chama a cliente?</Label>
-                    <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {comoChamarOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          aria-pressed={clinic.como_chamar === option.value}
-                          onClick={() =>
-                            setClinicField("como_chamar", option.value)
-                          }
-                          className={cn(
-                            "rounded-xl border px-4 py-3 text-sm font-medium transition-colors",
-                            clinic.como_chamar === option.value
-                              ? "border-gold-500 bg-gold-500/15 text-champagne-100"
-                              : "border-navy-500 bg-navy-700 text-champagne-300 hover:border-navy-300 hover:bg-navy-600"
-                          )}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="formalidade">Tom da conversa</Label>
-                    <input
-                      id="formalidade"
-                      name="formalidade"
-                      aria-label="Tom da conversa"
-                      type="range"
-                      min={0}
-                      max={100}
-                      step={5}
-                      value={clinic.formalidade}
-                      onChange={(event) =>
-                        setClinicField("formalidade", Number(event.target.value))
-                      }
-                      className="mt-2 h-11 w-full accent-gold-500"
-                    />
-                    <div className="flex justify-between text-xs text-muted">
-                      <span>Bem próximo</span>
-                      <span className="font-medium text-gold-400">
-                        {formalidadeLabel(clinic.formalidade)}
-                      </span>
-                      <span>Mais formal</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>Como você fecha?</Label>
-                    <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                      {ctaOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          aria-pressed={clinic.cta_preferido === option.value}
-                          onClick={() =>
-                            setClinicField("cta_preferido", option.value)
-                          }
-                          className={cn(
-                            "rounded-2xl border px-4 py-3 text-left text-sm font-medium transition-colors",
-                            clinic.cta_preferido === option.value
-                              ? "border-gold-500 bg-gold-500/15 text-champagne-100"
-                              : "border-navy-500 bg-navy-700 text-champagne-300 hover:border-navy-300 hover:bg-navy-600"
-                          )}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-stretch gap-3 border-t border-navy-500 pt-6 sm:flex-row sm:items-center sm:justify-end">
-                  {canPersist && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={saveAndEnter}
-                      disabled={saving || !canContinue}
-                    >
-                      {saving ? (
-                        <Loader2 size={16} className="animate-spin" />
-                      ) : null}
-                      Salvar e ir para o painel
-                    </Button>
-                  )}
-                  <Button
-                    type="submit"
-                    variant="cta"
-                    disabled={!canContinue}
-                    className="sm:min-w-[220px]"
-                  >
-                    Quero ver minha resposta <ArrowRight size={16} />
-                  </Button>
-                </div>
-
-                {!canContinue && (
-                  <p className="text-center text-xs text-muted sm:text-right">
-                    Coloque o nome da clínica para continuar.
-                  </p>
-                )}
-                {saveFailed && <SaveError onRetry={saveAndEnter} />}
-                </form>
-              </CardBody>
-            </Card>
-          )}
-
-          {step === "resposta" && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <h2 className="font-serif text-2xl font-semibold text-ink">
-                  Mesma cliente. Mesmo WhatsApp. Resultado diferente.
-                </h2>
-                <p className="mx-auto mt-2 max-w-xl text-sm text-muted">
-                  A cliente manda:{" "}
-                  <span className="font-medium text-ink">
-                    "Oi! Quanto custa o botox?"
-                  </span>
+      <main className="mx-auto max-w-xl space-y-10 px-4 py-8 sm:py-12">
+        {(checkoutSuccess || checkoutCanceled) && (
+          <div>
+            {checkoutSuccess && (
+              <div className="rounded-2xl border border-gold-500/30 bg-gold-500/10 px-5 py-4 text-center text-sm text-champagne-200">
+                <p className="font-semibold text-ink">Pagamento confirmado.</p>
+                <p className="mt-1">
+                  Crie ou entre com o mesmo e-mail do pagamento para liberar o
+                  acesso.
                 </p>
               </div>
+            )}
+            {checkoutCanceled && (
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-center text-sm text-amber-200">
+                Pagamento cancelado. Nada foi cobrado.
+              </div>
+            )}
+          </div>
+        )}
 
-              <div className="grid gap-5 md:grid-cols-2">
-                <ResponsePanel
-                  tone="bad"
-                  badge={
-                    <>
-                      <X size={13} /> Resposta qualquer
-                    </>
-                  }
-                  body="Botox é R$900. Qualquer dúvida, estou à disposição."
-                  caption="Joga o preço, não cria valor. A cliente compara com a concorrente mais barata e some."
+        {urlView.plansFirst ? plansSection : null}
+
+        {/* ── TELA 1 — COLAR ─────────────────────────────────────────────── */}
+        <section aria-labelledby="teste-titulo">
+          {urlView.plansFirst ? (
+            <h2
+              id="teste-titulo"
+              className="text-center font-serif text-2xl font-semibold leading-tight text-ink"
+            >
+              Ou teste grátis antes:
+            </h2>
+          ) : (
+            <h1
+              id="teste-titulo"
+              className="text-center font-serif text-3xl font-semibold leading-tight text-ink sm:text-4xl"
+            >
+              Cole a mensagem da cliente
+            </h1>
+          )}
+
+          {editing ? (
+            <>
+              <p className="mx-auto mt-3 max-w-md text-center text-base leading-relaxed text-muted">
+                Veja 3 respostas prontas em segundos. Grátis, sem cadastro.
+              </p>
+
+              <div className="mt-6">
+                <Textarea
+                  ref={textareaRef}
+                  aria-label="Mensagem da cliente"
+                  value={qr.mensagem}
+                  onChange={(event) => qr.editMensagem(event.target.value)}
+                  placeholder="Ex.: Oi! Quanto custa o botox?"
+                  className="min-h-[120px] text-base"
                 />
 
-                <div className="relative flex flex-col overflow-hidden rounded-3xl border-2 border-gold-500/50 bg-navy-700 p-6 shadow-cta">
-                  <div className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-gold-500/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold-300">
-                    <Check size={13} /> A resposta da{" "}
-                    {clinic.nome_clinica.trim() || "sua clinica"}
-                  </div>
-                  <div
-                    className="rounded-2xl rounded-br-md bg-navy-500 px-4 py-3 text-sm leading-relaxed text-champagne-100 shadow-soft"
-                    aria-live="polite"
-                    aria-busy={generating}
-                  >
-                    {generating ? (
-                      <span className="inline-flex items-center gap-2 text-white/90">
-                        <Loader2 size={15} className="animate-spin" />
-                        Escrevendo no seu tom...
-                      </span>
-                    ) : (
-                      <span className="whitespace-pre-wrap">{response}</span>
-                    )}
-                  </div>
-                  <p className="mt-4 text-sm leading-relaxed text-champagne-300">
-                    Acolhe, mostra valor e conduz para avaliação no seu jeito
-                    de falar.
-                  </p>
-                  {generateFailed && !generating && (
-                    <p className="mt-3 text-xs text-pain-300">
-                      Não conseguimos gerar ao vivo agora — este é um exemplo no
-                      seu tom. Tente de novo em instantes.
-                    </p>
-                  )}
-                  <button
-                    type="button"
-                    onClick={generateResponse}
-                    disabled={generating}
-                    className="mt-4 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-gold-400 hover:text-gold-300 disabled:opacity-60"
-                  >
-                    <Sparkles size={14} />
-                    {generating
-                      ? "Gerando..."
-                      : "Gerar de novo com a cara da minha clínica"}
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-3">
-                {[
-                  ["Acolhe", "A cliente sente atenção real."],
-                  ["Cria valor", "A avaliação vira parte da conversa."],
-                  ["Conduz", "O próximo passo fica claro."],
-                ].map(([title, description]) => (
-                  <div
-                    key={title}
-                    className="rounded-2xl border border-navy-500 bg-navy-700 p-4 shadow-card"
-                  >
-                    <p className="text-sm font-semibold text-ink">{title}</p>
-                    <p className="mt-1 text-sm leading-relaxed text-muted">
-                      {description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <Button variant="ghost" onClick={() => goTo("clinica")}>
-                  <ArrowLeft size={16} /> Voltar
-                </Button>
-                <Button
-                  variant="cta"
-                  onClick={() => goTo("planos")}
-                  className="sm:min-w-[220px]"
-                >
-                  Quero esse tipo de resposta <ArrowRight size={16} />
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {step === "planos" && (
-            <div className="space-y-6">
-              <div className="text-center">
-                <h2 className="font-serif text-2xl font-semibold text-ink">
-                  Uma cliente recuperada já paga o mês inteiro.
-                </h2>
-                <p className="mx-auto mt-2 max-w-xl text-sm text-muted">
-                  Comece pelo Start. Você cancela quando quiser.
-                </p>
-              </div>
-
-              {saveFailed && <SaveError onRetry={saveAndEnter} />}
-
-              <div className="grid gap-5 md:grid-cols-3">
-                {billingPlanList.map((plan) => (
-                  <div
-                    key={plan.id}
-                    className={cn(
-                      "relative flex flex-col rounded-3xl border bg-navy-700 p-6",
-                      plan.destaque
-                        ? "border-2 border-gold-500/60 bg-navy-600 shadow-soft"
-                        : "border-navy-500"
-                    )}
-                  >
-                    {plan.selo && (
-                      <span
-                        className={cn(
-                          "absolute -top-3 right-5 rounded-full px-3 py-1 text-xs font-semibold",
-                          plan.destaque
-                            ? "bg-gold-500 text-navy-900"
-                            : "bg-navy-600 text-champagne-300"
-                        )}
-                      >
-                        {plan.selo}
-                      </span>
-                    )}
-                    <p className="text-sm font-medium text-muted">
-                      Plano {plan.label}
-                    </p>
-                    <p
-                      className={cn(
-                        "mt-1 font-serif text-4xl font-semibold text-ink",
-                        plan.destaque && "text-gold-gradient"
-                      )}
+                {qr.exhausted ? (
+                  exhaustedBlock
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      variant="cta"
+                      size="lg"
+                      className="mt-3 w-full font-bold"
+                      onClick={() => void gerar()}
+                      disabled={qr.loading || !qr.limitLoaded}
                     >
-                      {plan.priceLabel}
-                      <span className="text-lg font-normal text-muted">
-                        {plan.periodLabel}
-                      </span>
+                      {qr.loading ? (
+                        <>
+                          <Loader2 size={18} className="animate-spin" /> Escrevendo 3 respostas…
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={18} /> Ver 3 respostas
+                        </>
+                      )}
+                    </Button>
+                    <p className="mt-2 text-center text-xs text-navy-50" aria-live="polite">
+                      {qr.loading
+                        ? LOADING_STEPS[loadingStep]
+                        : `${qr.limitLoaded ? qr.remaining : DEMO_LIMIT} de ${DEMO_LIMIT} testes grátis · sem cadastro`}
                     </p>
-                    <p className="mt-1 text-sm text-muted">{plan.tagline}</p>
-                    <ul className="mt-5 flex-1 space-y-2 text-sm text-ink">
-                      {plan.features.map((feature) => (
-                        <li
-                          key={feature}
-                          className={cn(
-                            "flex items-start gap-2",
-                            !plan.disponivel && "opacity-70"
-                          )}
-                        >
-                          <Check
-                            size={16}
-                            className="mt-0.5 shrink-0 text-gold-400"
-                          />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    {plan.disponivel ? (
-                      <PlanCheckoutButton
-                        plan={plan.id}
-                        className={cn(
-                          "mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-bold transition-colors disabled:opacity-60",
-                          plan.destaque ? "btn-cta" : "btn-cta-outline"
-                        )}
-                      >
-                        Assinar {plan.label}
-                        {plan.destaque && <ArrowRight size={16} />}
-                      </PlanCheckoutButton>
-                    ) : (
-                      <WaitlistForm plan={plan.id} className="mt-6" />
-                    )}
-                  </div>
-                ))}
-              </div>
+                  </>
+                )}
 
-              {!signedIn && (
-                <div className="rounded-2xl border border-navy-500 bg-navy-700 px-5 py-4 text-center text-sm text-champagne-300 shadow-card">
-                  Quer criar conta antes de pagar?{" "}
-                  <Link
-                    href="/signup?plan=start"
-                    className="font-semibold text-gold-400 hover:text-gold-300"
-                  >
-                    Criar conta grátis
-                  </Link>
-                </div>
-              )}
+                {editing ? errorBlock : null}
 
-              <div className="flex items-start gap-3 rounded-2xl border border-lavender-200 bg-lavender-50 p-4 text-xs text-lavender-700">
-                <ShieldCheck size={18} className="mt-0.5 shrink-0" />
-                <p>
-                  Respostas feitas para estética: sem promessa de resultado,
-                  sem diagnóstico e sempre valorizando a avaliação.
+                {!qr.exhausted && (
+                  <p className="mt-4 text-center">
+                    <button
+                      type="button"
+                      onClick={usarExemplo}
+                      disabled={qr.loading || !qr.limitLoaded}
+                      className="text-sm font-semibold text-gold-400 underline-offset-2 hover:text-gold-300 hover:underline disabled:opacity-60"
+                    >
+                      Não tenho uma agora · usar um exemplo
+                    </button>
+                  </p>
+                )}
+                <p className="mt-2 text-center text-xs text-muted">
+                  Não precisa colar nome nem telefone da cliente.
                 </p>
               </div>
 
-              <div className="flex justify-center">
-                <Button variant="ghost" onClick={() => goTo("resposta")}>
-                  <ArrowLeft size={16} /> Ver a diferença de novo
-                </Button>
-              </div>
-            </div>
+              {!hasGenerated && (
+                <figure className="mx-auto mt-8 w-full max-w-[240px]">
+                  <HeroLoop />
+                  <figcaption className="mt-2 text-center text-xs font-medium text-muted">
+                    Assim funciona
+                  </figcaption>
+                </figure>
+              )}
+            </>
+          ) : (
+            <p className="mt-4 rounded-2xl border border-navy-500 bg-navy-700 px-4 py-3 text-sm text-champagne-300">
+              <span className="text-muted">Mensagem:</span>{" "}
+              <span className="text-champagne-100">“{qr.mensagemRespondida}”</span>{" "}
+              ·{" "}
+              <button
+                type="button"
+                onClick={trocarMensagem}
+                className="font-semibold text-gold-400 hover:text-gold-300"
+              >
+                Trocar
+              </button>
+            </p>
           )}
-        </div>
+        </section>
 
-        <div className="mt-12 flex items-center justify-center gap-2 text-center text-xs text-muted">
-          <MessageSquareText size={14} /> Responda melhor. Agende mais.
-        </div>
+        {/* ── TELA 2 — AS 3 RESPOSTAS ────────────────────────────────────── */}
+        {respostasVisiveis && qr.respostas ? (
+          <section aria-labelledby="respostas-titulo" className="space-y-6">
+            <div>
+              <h2
+                id="respostas-titulo"
+                ref={resultTitleRef}
+                tabIndex={-1}
+                className="scroll-mt-6 text-center font-serif text-2xl font-semibold text-ink outline-none"
+              >
+                Suas 3 respostas
+              </h2>
+              <p className="mt-1 text-center text-sm text-muted">
+                Escolha uma, ajuste se quiser e envie pelo seu WhatsApp.
+              </p>
+            </div>
+
+            <QuickReplyCards respostas={qr.respostas} />
+            <AvisoIA aviso={qr.aviso} />
+
+            <div className="rounded-3xl border border-gold-500/40 bg-navy-700 p-5 shadow-card sm:p-6">
+              <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
+                E agora?
+              </p>
+              {primaryCta}
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="mt-3 w-full border-gold-500/40 text-gold-300 hover:bg-gold-500/10"
+                onClick={abrirPersonalizar}
+                aria-expanded={personalizarOpen}
+              >
+                Deixar no tom da minha clínica
+              </Button>
+              <p className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={testarOutra}
+                  className="text-sm font-semibold text-champagne-300 underline-offset-2 hover:text-champagne-100 hover:underline"
+                >
+                  Testar outra mensagem
+                </button>
+              </p>
+              <p className="mt-4 border-t border-navy-500 pt-4 text-center text-xs leading-relaxed text-muted">
+                Depois das 5 grátis, o Start custa R$97/mês. Cancele quando
+                quiser. ·{" "}
+                <button
+                  type="button"
+                  onClick={abrirPlanos}
+                  className="font-semibold text-gold-400 hover:text-gold-300"
+                >
+                  Ver planos
+                </button>
+              </p>
+              {saveFailed && <SaveError onRetry={saveAndEnter} />}
+            </div>
+
+            {/* ── PERSONALIZAR (opcional, só depois do resultado) ──────────── */}
+            {personalizarOpen && (
+              <div
+                ref={personalizarRef}
+                className="scroll-mt-6 space-y-5 rounded-3xl border border-navy-500 bg-navy-700 p-5 shadow-card sm:p-6"
+              >
+                <h3 className="font-serif text-xl font-semibold text-ink">
+                  No tom da sua clínica
+                </h3>
+                <div>
+                  <Label htmlFor="nome_clinica">Nome da clínica (opcional)</Label>
+                  <Input
+                    id="nome_clinica"
+                    name="nome_clinica"
+                    autoComplete="organization"
+                    value={clinic.nome_clinica}
+                    onChange={(event) => updateClinic({ nome_clinica: event.target.value })}
+                    placeholder="Ex.: Espaço Beleza & Cuidado"
+                  />
+                </div>
+                <ComoChamarChoice
+                  label="Como você chama a cliente?"
+                  value={clinic.como_chamar}
+                  onChange={(value) => updateClinic({ como_chamar: value })}
+                />
+                <JeitoDeFalarChoice
+                  value={clinic.formalidade}
+                  onChange={(value) => updateClinic({ formalidade: value })}
+                />
+                {qr.exhausted ? (
+                  exhaustedBlock
+                ) : (
+                  <Button
+                    type="button"
+                    variant="cta"
+                    size="lg"
+                    className="h-auto min-h-12 w-full py-3 font-bold leading-tight"
+                    onClick={() => void gerar(undefined, "refazer")}
+                    disabled={qr.loading || !qr.limitLoaded}
+                  >
+                    {qr.loading ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" /> {LOADING_STEPS[loadingStep]}
+                      </>
+                    ) : (
+                      "Refazer as 3 respostas no meu tom"
+                    )}
+                  </Button>
+                )}
+                {!editing ? errorBlock : null}
+              </div>
+            )}
+          </section>
+        ) : null}
+
+        {!urlView.plansFirst ? plansSection : null}
       </main>
-    </div>
-  );
-}
-
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-navy-500 bg-navy-600/70 px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
-        {label}
-      </p>
-      <p className="mt-1 text-sm font-medium text-ink first-letter:uppercase">{value}</p>
-    </div>
-  );
-}
-
-function ResponsePanel({
-  badge,
-  body,
-  caption,
-  tone,
-}: {
-  badge: React.ReactNode;
-  body: string;
-  caption: string;
-  tone: "bad";
-}) {
-  return (
-    <div
-      className={cn(
-        "flex flex-col rounded-3xl border p-6",
-        tone === "bad" && "border-pain-200 bg-pain-50/60"
-      )}
-    >
-      <div className="badge-pain mb-4 w-fit">{badge}</div>
-      <div className="rounded-2xl rounded-bl-md border border-pain-500/40 bg-pain-500/10 px-4 py-3 text-sm leading-relaxed text-champagne-100">
-        "{body}"
-      </div>
-      <p className="mt-4 text-sm leading-relaxed text-pain-600/90">
-        {caption}
-      </p>
     </div>
   );
 }
 
 function SaveError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <div className="mt-4 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
       Não conseguimos salvar o perfil da sua clínica agora.
       <button
         type="button"

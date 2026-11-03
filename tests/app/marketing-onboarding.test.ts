@@ -3,9 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   ctaLabel,
   fallbackResponse,
-  getStepFromUrl,
   getTreatment,
-  resolveUrlStep,
+  resolveOnboardingView,
 } from "@/app/(marketing)/onboarding/helpers";
 import { clinicaVazia } from "@/lib/types";
 
@@ -46,35 +45,49 @@ describe("marketing onboarding helpers", () => {
     expect(ctaLabel("   ")).toBe("Marcar avaliação");
   });
 
-  it("bloqueia etapas avançadas sem nome de clínica na URL", () => {
-    expect(getStepFromUrl("resposta", "")).toBe("clinica");
-    expect(getStepFromUrl("planos", "  ")).toBe("clinica");
-    expect(getStepFromUrl("planos", "Espaço Vida")).toBe("planos");
+  it("abre os planos acima do teste na volta do checkout cancelado, mesmo sem nome salvo", () => {
+    // cancel_url do Stripe para visitante (tests/app/stripe-checkout.test.ts).
+    const url = new URL("https://www.leadbellus.com.br/onboarding?checkout=cancelado&aba=planos");
+    expect(
+      resolveOnboardingView(
+        url.searchParams.get("plan"),
+        url.searchParams.get("aba"),
+        url.searchParams.get("checkout")
+      )
+    ).toEqual({ showPlans: true, plansFirst: true });
+    expect(resolveOnboardingView(null, null, "cancelado")).toEqual({
+      showPlans: true,
+      plansFirst: true,
+    });
   });
 
-  it("não pula etapas enquanto a pessoa digita o nome da clínica", () => {
-    // Com `?plan=start` e nada salvo, cada tecla digitada NÃO pode reposicionar
-    // o funil — só o nome já gravado conta.
-    expect(resolveUrlStep("start", null, "")).toBe("clinica");
-    expect(resolveUrlStep("start", null, "E")).toBe("planos");
-    expect(resolveUrlStep("start", null, "   ")).toBe("clinica");
+  it("abre os planos com `?aba=planos` sem exigir clínica cadastrada", () => {
+    expect(resolveOnboardingView(null, "planos", null)).toEqual({
+      showPlans: true,
+      plansFirst: true,
+    });
   });
 
-  it("leva direto aos planos quem chega por `?plan=` já com clínica salva", () => {
-    expect(resolveUrlStep("start", null, "Espaço Vida")).toBe("planos");
-    // `?plan=` vence a aba pedida na URL.
-    expect(resolveUrlStep("start", "resposta", "Espaço Vida")).toBe("planos");
+  it("`?plan=` mostra os planos, mas o teste continua sendo a 1ª tela", () => {
+    expect(resolveOnboardingView("start", null, null)).toEqual({
+      showPlans: true,
+      plansFirst: false,
+    });
   });
 
-  it("respeita `?aba=` quando não há plano na URL", () => {
-    expect(resolveUrlStep(null, "resposta", "Espaço Vida")).toBe("resposta");
-    expect(resolveUrlStep(null, "planos", "Espaço Vida")).toBe("planos");
-    expect(resolveUrlStep(null, null, "Espaço Vida")).toBe("clinica");
-    expect(resolveUrlStep(null, "planos", "")).toBe("clinica");
-  });
-
-  it("ignora aba desconhecida na URL", () => {
-    expect(getStepFromUrl("qualquer", "Espaço Vida")).toBe("clinica");
-    expect(getStepFromUrl(null, "Espaço Vida")).toBe("clinica");
+  it("sem parâmetro (ou com aba/checkout desconhecidos) começa só pelo teste", () => {
+    expect(resolveOnboardingView(null, null, null)).toEqual({
+      showPlans: false,
+      plansFirst: false,
+    });
+    expect(resolveOnboardingView(null, "resposta", null)).toEqual({
+      showPlans: false,
+      plansFirst: false,
+    });
+    // O sucesso não abre planos: o banner pede para criar/entrar com o e-mail.
+    expect(resolveOnboardingView(null, null, "sucesso")).toEqual({
+      showPlans: false,
+      plansFirst: false,
+    });
   });
 });

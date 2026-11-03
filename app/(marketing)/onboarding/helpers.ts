@@ -31,28 +31,26 @@ export function fallbackResponse(c: Clinica): string {
   return `${greeting}O valor do botox depende muito do seu objetivo e de uma avaliação, porque cada rosto pede um cuidado diferente.${clinicPrefix} prefere te entender primeiro para indicar o que faz sentido pra você. Quer que eu já deixe sua avaliação reservada?`;
 }
 
-export function getStepFromUrl(
-  tabFromUrl: string | null,
-  nomeClinica: string
-): "clinica" | "resposta" | "planos" {
-  if (!nomeClinica.trim()) return "clinica";
-  if (tabFromUrl === "resposta" || tabFromUrl === "planos") return tabFromUrl;
-  return "clinica";
-}
+export type OnboardingView = {
+  /** Mostra a seção de planos (#planos). */
+  showPlans: boolean;
+  /** Planos ACIMA do teste (e com rolagem até eles). */
+  plansFirst: boolean;
+};
 
 /**
- * Etapa pedida pela URL (`?plan=` / `?aba=`).
+ * O que a URL pede ao onboarding (`?plan=`, `?aba=`, `?checkout=`).
  *
- * `knownClinicName` é o nome JÁ GRAVADO (rascunho local ou Firestore) — nunca o
- * que está sendo digitado. Sem essa distinção, o funil reagia a cada tecla e
- * arrancava a pessoa da etapa 1 no meio do preenchimento.
+ * Não depende de nome de clínica salvo: o funil começa colando a mensagem e
+ * a pessoa pode nunca ter preenchido nada. Antes os planos só abriam com nome
+ * gravado, e quem cancelava o Stripe como visitante
+ * (`/onboarding?checkout=cancelado&aba=planos`) caía na etapa 1.
  */
-export function resolveUrlStep(
+export function resolveOnboardingView(
   planFromUrl: string | null,
   tabFromUrl: string | null,
-  knownClinicName: string
-): "clinica" | "resposta" | "planos" {
-  if (!knownClinicName.trim()) return "clinica";
-  if (planFromUrl) return "planos";
-  return getStepFromUrl(tabFromUrl, knownClinicName);
+  checkoutFromUrl: string | null
+): OnboardingView {
+  const plansFirst = tabFromUrl === "planos" || checkoutFromUrl === "cancelado";
+  return { showPlans: plansFirst || !!planFromUrl, plansFirst };
 }
