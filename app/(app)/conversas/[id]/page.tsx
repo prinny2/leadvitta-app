@@ -16,6 +16,8 @@ import {
 import { PRIO } from "@/lib/prioridade-ui";
 import type { Clinica, Conversa, MensagemConversa } from "@/lib/types";
 import { buildClinicaDnaPayload } from "@/lib/hooks/use-clinica";
+import { trackEvent } from "@/components/Analytics";
+import { trackFreeGeneration } from "@/lib/analytics/free-generation";
 
 export default function ConversaThreadPage() {
   const params = useParams();
@@ -127,6 +129,7 @@ export default function ConversaThreadPage() {
         }),
       });
       const data = await res.json();
+      trackFreeGeneration("conversa", { ...data, ok: res.ok }, trackEvent);
       if (res.ok && data?.respostas?.consultiva) {
         setTexto(data.respostas.consultiva);
       } else {

@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trackCheckoutReturn, trackEvent } from "@/components/Analytics";
 import { billingPlanList, parseBillingPlan } from "@/lib/billing";
+import { trackFreeGeneration } from "@/lib/analytics/free-generation";
 import {
   isClerkClientConfigured,
   isFirebaseConfigured,
@@ -229,7 +230,9 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
       });
       const data = (await result.json().catch(() => ({}))) as {
         respostas?: { consultiva?: string; curta?: string };
+        mock?: boolean;
       };
+      trackFreeGeneration("onboarding", { ...data, ok: result.ok }, trackEvent);
       if (seq !== generationSeq.current) return;
 
       const texto = data.respostas?.consultiva || data.respostas?.curta || "";

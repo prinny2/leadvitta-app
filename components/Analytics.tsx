@@ -8,6 +8,7 @@ import {
   META_PENDING_KEY,
   recordCheckoutReturn,
 } from "@/lib/analytics/checkout-return";
+import { dispatchMetaEvent } from "@/lib/analytics/meta-event";
 
 // Meta Pixel: só carrega quando há um ID REAL configurado via env
 // (NEXT_PUBLIC_META_PIXEL_ID). Sem fallback fixo.
@@ -127,14 +128,7 @@ export const trackEvent = (
     }
 
     if ((window as any).fbq && META_PIXEL_ID) {
-      const standardEvents: Record<string, string> = {
-        sign_up: "Lead",
-        checkout_click: "InitiateCheckout",
-        purchase: "Purchase",
-        contact_whatsapp: "Contact",
-      };
-      const metaEvent = standardEvents[eventName] || eventName;
-      (window as any).fbq("track", metaEvent, params);
+      dispatchMetaEvent((window as any).fbq, eventName, params);
     }
   } catch {
     // Falha de analytics é silenciosa por design.
