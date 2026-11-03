@@ -1,12 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-const { auditarCompliance } = vi.hoisted(() => ({
+const { auditarCompliance, verifyToken, adminConfigured, reserve, release } = vi.hoisted(() => ({
   auditarCompliance: vi.fn(),
+  verifyToken: vi.fn(),
+  adminConfigured: vi.fn(),
+  reserve: vi.fn(),
+  release: vi.fn(),
 }));
 
 vi.mock("@/lib/ai/provider", () => ({ auditarCompliance }));
+vi.mock("@/lib/firebase/admin", () => ({ verifyFirebaseIdToken: verifyToken, isFirebaseAdminConfigured: adminConfigured }));
+vi.mock("@/lib/usage-limit", () => ({ reserveGeneration: reserve, releaseGeneration: release }));
 
 import { POST } from "@/app/api/compliance/route";
+import { __resetAiGuardForTests } from "@/lib/ai-guard";
 
 function makeRequest(body: unknown) {
   return new Request("http://localhost:3000/api/compliance", {
@@ -20,10 +27,15 @@ function makeRequest(body: unknown) {
 }
 
 beforeEach(() => {
+  __resetAiGuardForTests();
   auditarCompliance.mockReset().mockResolvedValue({
     aprovado: true,
     problemas: [],
   });
+  verifyToken.mockReset().mockResolvedValue(null);
+  adminConfigured.mockReset().mockReturnValue(true);
+  reserve.mockReset().mockResolvedValue({ allowed: true, paid: true, remaining: Infinity, reserved: false });
+  release.mockReset().mockResolvedValue(undefined);
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -97,5 +109,23 @@ describe("POST /api/compliance", () => {
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.error).toBeDefined();
+  });
+
+  it("returns 402 when a logged-in free user has exhausted the shared quota", async () => {
+    verifyToken.mockResolvedValue({ uid: "free-user" });
+    reserve.mockResolvedValue({ allowed: false, paid: false, remaining: 0, reserved: false });
+    const res = await POST(makeRequest({ texto: "texto valido", firebaseIdToken: "valid" }));
+    expect(res.status).toBe(402);
+    await expect(res.json()).resolves.toMatchObject({ limitReached: true, freeRemaining: 0 });
+    expect(auditarCompliance).not.toHaveBeenCalled();
+  });
+
+  it("releases a free slot when AI generation fails", async () => {
+    verifyToken.mockResolvedValue({ uid: "free-user" });
+    reserve.mockResolvedValue({ allowed: true, paid: false, remaining: 4, reserved: true });
+    auditarCompliance.mockRejectedValue(new Error("AI down"));
+    const res = await POST(makeRequest({ texto: "texto valido", firebaseIdToken: "valid" }));
+    expect(res.status).toBe(500);
+    expect(release).toHaveBeenCalledWith("free-user");
   });
 });

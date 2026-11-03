@@ -55,7 +55,7 @@ function getAllowedOrigins(request: Request) {
   return allowed;
 }
 
-function getClientIp(request: Request) {
+export function getClientIp(request: Request) {
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
     return forwarded.split(",")[0]?.trim() || "unknown";

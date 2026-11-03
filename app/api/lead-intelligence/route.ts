@@ -1,6 +1,9 @@
 import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { isOpenAIConfigured, isAnthropicConfigured, openaiModel } from "@/lib/config";
 import { openaiChatParams } from "@/lib/ai/openai-chat";
+import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
+import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
+import { enforceAiDailyLimit } from "@/lib/ai-guard";
 
 export const runtime = "nodejs";
 
@@ -168,20 +171,48 @@ export async function POST(req: Request) {
   const rateLimitError = enforceRateLimit(req, { bucket: "lead-intelligence", limit: 20, windowMs: 60_000 });
   if (rateLimitError) return rateLimitError;
 
-  const parsed = await readJsonBody<{ mensagem: string }>(req, 4096);
+  const parsed = await readJsonBody<{ mensagem: string; firebaseIdToken?: string }>(req, 4096);
   if (parsed.error) return parsed.error;
 
   const mensagem = parsed.data?.mensagem?.trim() ?? "";
   if (!mensagem) return jsonNoStore({ error: "Mensagem obrigatória." }, { status: 400 });
   if (mensagem.length < 5) return jsonNoStore({ error: "Mensagem muito curta." }, { status: 400 });
 
+  const token = parsed.data?.firebaseIdToken;
+  const decoded = await verifyFirebaseIdToken(token);
+  if (token && !decoded?.uid && isFirebaseAdminConfigured()) {
+    return jsonNoStore(
+      { error: "Sessão expirada. Entre novamente para continuar.", reauth: true },
+      { status: 401 }
+    );
+  }
+
+  const limit = decoded?.uid ? await reserveGeneration(decoded.uid) : null;
+  if (limit && !limit.allowed) {
+    return jsonNoStore({
+      error: "Você usou suas respostas grátis. Assine o Start pra continuar gerando respostas ilimitadas.",
+      limitReached: true,
+      freeRemaining: 0,
+    }, { status: 402 });
+  }
+
+  const dailyLimit = enforceAiDailyLimit(req, { uid: decoded?.uid, paid: limit?.paid });
+  if (dailyLimit) {
+    if (decoded?.uid && limit?.reserved) await releaseGeneration(decoded.uid);
+    return dailyLimit;
+  }
+
   try {
     const result = isOpenAIConfigured || isAnthropicConfigured
       ? await aiAnalysis(mensagem)
       : mockAnalysis(mensagem);
-    return jsonNoStore(result);
+    const freeRemaining = limit?.reserved ? Math.max(0, limit.remaining - 1) : undefined;
+    return jsonNoStore(freeRemaining === undefined ? result : { ...result, freeRemaining });
   } catch (err) {
+    if (decoded?.uid && limit?.reserved) await releaseGeneration(decoded.uid);
     console.warn("[api/lead-intelligence] IA falhou, usando mock:", err instanceof Error ? err.message : err);
-    return jsonNoStore(mockAnalysis(mensagem));
+    const freeRemaining = limit?.reserved ? limit.remaining : undefined;
+    const fallback = mockAnalysis(mensagem);
+    return jsonNoStore(freeRemaining === undefined ? fallback : { ...fallback, freeRemaining });
   }
 }

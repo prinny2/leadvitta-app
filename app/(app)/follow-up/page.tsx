@@ -19,6 +19,8 @@ import { useApiAction } from "@/lib/hooks/use-api-action";
 import { FormSection } from "@/components/form-section";
 import { ErrorBanner } from "@/components/error-banner";
 import { cn } from "@/lib/utils";
+import { getFirebaseAuth } from "@/lib/firebase/client";
+import { FreeQuotaLimit } from "@/components/free-quota-limit";
 
 const fupOptions = followups.map((f) => ({ value: f.id, label: f.label }));
 const procOptions = procedimentos.map((p) => ({ value: p.id, label: p.label }));
@@ -41,6 +43,7 @@ export default function FollowUpPage() {
 
   const { loading, erro, aviso, call } = useApiAction();
   const [mensagens, setMensagens] = useState<string[] | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
 
   useEffect(() => {
     if (clinica?.tom_padrao) setTom(clinica.tom_padrao);
@@ -48,12 +51,17 @@ export default function FollowUpPage() {
 
   async function gerar() {
     setMensagens(null);
+    setLimitReached(false);
+    let firebaseIdToken: string | undefined;
+    try { firebaseIdToken = await getFirebaseAuth().currentUser?.getIdToken(); } catch { /* demo sem Firebase */ }
     await call<{ mensagens: string[]; mock?: boolean; aviso?: string }>({
       url: "/api/follow-up",
       body: {
         gatilho, contexto, detalhe, procedimento, tom, nomeCliente,
+        firebaseIdToken,
         clinica: buildClinicaDnaPayload(clinica),
       },
+      onLimitReached: () => setLimitReached(true),
       onSuccess: (data) => {
         setMensagens(data.mensagens);
         addHistorico({
@@ -125,6 +133,7 @@ export default function FollowUpPage() {
             </div>
 
             <ErrorBanner message={erro} />
+            {limitReached && <FreeQuotaLimit />}
 
             <button
               type="button"

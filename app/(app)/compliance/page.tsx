@@ -20,6 +20,8 @@ import { FormSection } from "@/components/form-section";
 import { ErrorBanner } from "@/components/error-banner";
 import { cn } from "@/lib/utils";
 import type { AuditoriaResultado, GravidadeRisco } from "@/lib/types";
+import { getFirebaseAuth } from "@/lib/firebase/client";
+import { FreeQuotaLimit } from "@/components/free-quota-limit";
 
 const EXEMPLO =
   "Oi! O botox aqui custa R$ 900 e o resultado é garantido, sem risco nenhum. Faz que você vai ficar perfeita! 😍";
@@ -62,6 +64,7 @@ export default function CompliancePage() {
   const [texto, setTexto] = useState("");
   const { loading, erro, aviso, call, setErro } = useApiAction();
   const [resultado, setResultado] = useState<AuditoriaResultado | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
 
   async function revisar() {
     if (!texto.trim()) {
@@ -69,10 +72,14 @@ export default function CompliancePage() {
       return;
     }
     setResultado(null);
+    setLimitReached(false);
+    let firebaseIdToken: string | undefined;
+    try { firebaseIdToken = await getFirebaseAuth().currentUser?.getIdToken(); } catch { /* demo sem Firebase */ }
     await call<AuditoriaResultado>({
       url: "/api/compliance",
-      body: { texto, clinica: buildClinicaDnaPayload(clinica) },
+      body: { texto, firebaseIdToken, clinica: buildClinicaDnaPayload(clinica) },
       onSuccess: setResultado,
+      onLimitReached: () => setLimitReached(true),
       demoAviso: "Modo demonstração — usando a checagem automática. A revisão com IA entra quando a clínica está ativa.",
     });
   }
@@ -121,6 +128,7 @@ export default function CompliancePage() {
             </div>
 
             <ErrorBanner message={erro} />
+            {limitReached && <FreeQuotaLimit />}
 
             <button
               type="button"

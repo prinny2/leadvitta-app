@@ -1,6 +1,9 @@
 import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { gerarFollowUp } from "@/lib/ai/provider";
 import type { FollowUpInput } from "@/lib/types";
+import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
+import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
+import { enforceAiDailyLimit } from "@/lib/ai-guard";
 
 export const runtime = "nodejs";
 
@@ -16,7 +19,7 @@ export async function POST(req: Request) {
   if (rateLimitError) return rateLimitError;
 
   try {
-    const parsed = await readJsonBody<Partial<FollowUpInput>>(req, 16_384);
+    const parsed = await readJsonBody<Partial<FollowUpInput> & { firebaseIdToken?: string }>(req, 16_384);
     if (parsed.error) return parsed.error;
 
     const body = parsed.data ?? {};
@@ -28,17 +31,48 @@ export async function POST(req: Request) {
       );
     }
 
-    const result = await gerarFollowUp({
-      gatilho: body.gatilho,
-      contexto: body.contexto ?? "",
-      detalhe: body.detalhe ?? "",
-      procedimento: body.procedimento ?? "",
-      tom: body.tom ?? "acolhedor",
-      nomeCliente: body.nomeCliente,
-      clinica: body.clinica,
-    });
+    const token = body.firebaseIdToken;
+    const decoded = await verifyFirebaseIdToken(token);
+    if (token && !decoded?.uid && isFirebaseAdminConfigured()) {
+      return jsonNoStore(
+        { error: "Sessão expirada. Entre novamente para continuar.", reauth: true },
+        { status: 401 }
+      );
+    }
 
-    return jsonNoStore(result);
+    const limit = decoded?.uid ? await reserveGeneration(decoded.uid) : null;
+    if (limit && !limit.allowed) {
+      return jsonNoStore({
+        error: "Você usou suas respostas grátis. Assine o Start pra continuar gerando respostas ilimitadas.",
+        limitReached: true,
+        freeRemaining: 0,
+      }, { status: 402 });
+    }
+
+    const dailyLimit = enforceAiDailyLimit(req, { uid: decoded?.uid, paid: limit?.paid });
+    if (dailyLimit) {
+      if (decoded?.uid && limit?.reserved) await releaseGeneration(decoded.uid);
+      return dailyLimit;
+    }
+
+    let result;
+    try {
+      result = await gerarFollowUp({
+        gatilho: body.gatilho,
+        contexto: body.contexto ?? "",
+        detalhe: body.detalhe ?? "",
+        procedimento: body.procedimento ?? "",
+        tom: body.tom ?? "acolhedor",
+        nomeCliente: body.nomeCliente,
+        clinica: body.clinica,
+      });
+    } catch (err) {
+      if (decoded?.uid && limit?.reserved) await releaseGeneration(decoded.uid);
+      throw err;
+    }
+
+    const freeRemaining = limit?.reserved ? Math.max(0, limit.remaining - 1) : undefined;
+    return jsonNoStore(freeRemaining === undefined ? result : { ...result, freeRemaining });
   } catch (err: unknown) {
     console.error("[api/follow-up] erro fatal:", err);
     return jsonNoStore(

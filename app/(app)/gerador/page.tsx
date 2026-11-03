@@ -196,13 +196,15 @@ export default function GeradorPage() {
     if (!respostas) return;
     setRefinando(variante);
     try {
+      // Com o token o refinar conta no teto diário da conta, não no do IP anônimo.
+      const firebaseIdToken = await getToken();
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           acao: "refinar", variante, respostaAtual: respostas[variante],
           procedimento, situacao, tom, objetivo, perfilCliente,
-          nomeCliente, mensagemCliente, clinica: buildClinicaDnaPayload(clinica),
+          nomeCliente, mensagemCliente, clinica: buildClinicaDnaPayload(clinica), firebaseIdToken,
         }),
       });
       const data = await res.json();
