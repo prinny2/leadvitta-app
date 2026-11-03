@@ -26,6 +26,8 @@ const MAX_BYTES = 1024 * 1024;
 const FORMATS = [
   { id: "1080", width: 1080, height: 1080 },
   { id: "1920", width: 1080, height: 1920 },
+  // 4:5 — formato do feed/grade do Instagram (a grade é 3:4; o 1:1 é cortado nas laterais).
+  { id: "1350", width: 1080, height: 1350 },
 ];
 
 function loadPlaywright() {
