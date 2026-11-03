@@ -227,6 +227,7 @@ export function QuickReplyCards({
             texto={respostas[v.key]}
             tone={tone}
             copiedLabel="Copiado"
+            copyClassName="min-h-[44px] px-4 text-sm"
           />
         ) : null
       )}

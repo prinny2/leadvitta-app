@@ -57,7 +57,7 @@ const LEGAL = [
 ];
 
 const STACK = [
-  { label: "Responde no WhatsApp", icon: MessageCircle },
+  { label: "Você revisa e envia", icon: MessageCircle },
   { label: "Entende o pedido", icon: Brain },
   { label: "Mantém o tom da clínica", icon: Sparkles },
   { label: "Pagamento seguro", icon: ShieldCheck },

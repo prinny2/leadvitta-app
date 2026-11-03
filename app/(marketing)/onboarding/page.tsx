@@ -535,12 +535,12 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                 {editing ? errorBlock : null}
 
                 {!qr.exhausted && (
-                  <p className="mt-4 text-center">
+                  <p className="mt-1 text-center">
                     <button
                       type="button"
                       onClick={usarExemplo}
                       disabled={qr.loading || !qr.limitLoaded}
-                      className="text-sm font-semibold text-gold-400 underline-offset-2 hover:text-gold-300 hover:underline disabled:opacity-60"
+                      className="inline-flex min-h-[44px] items-center px-3 text-sm font-semibold text-gold-400 underline-offset-2 hover:text-gold-300 hover:underline disabled:opacity-60"
                     >
                       Não tenho uma agora · usar um exemplo
                     </button>
@@ -611,11 +611,11 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
               >
                 Deixar no tom da minha clínica
               </Button>
-              <p className="mt-4 text-center">
+              <p className="mt-1 text-center">
                 <button
                   type="button"
                   onClick={testarOutra}
-                  className="text-sm font-semibold text-champagne-300 underline-offset-2 hover:text-champagne-100 hover:underline"
+                  className="inline-flex min-h-[44px] items-center px-3 text-sm font-semibold text-champagne-300 underline-offset-2 hover:text-champagne-100 hover:underline"
                 >
                   Testar outra mensagem
                 </button>

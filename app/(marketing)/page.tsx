@@ -457,7 +457,7 @@ export default function LandingPage() {
 
             <div style={{ maxWidth: "460px", margin: "22px auto 0", textAlign: "center" }}>
               <p style={{ fontSize: "13.5px", lineHeight: 1.6, color: "rgba(255,255,255,0.6)", margin: 0 }}>
-                Pro e Premium chegam em breve, com recursos para equipes maiores. O Start já inclui o essencial.
+                Pro e Premium chegam em breve. O Start já inclui o essencial.
               </p>
               <details className="lp-waitlist" style={{ marginTop: "8px" }}>
                 <summary style={{ cursor: "pointer", fontSize: "13.5px", fontWeight: 700, color: GOLD, listStyle: "none" }}>

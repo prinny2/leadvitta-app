@@ -241,8 +241,8 @@ export function LandingWhatsAppDemo() {
               aria-pressed={qr.situacao === ex.id}
               className={
                 qr.situacao === ex.id
-                  ? "min-h-[36px] rounded-full border border-gold-500 bg-gold-500/15 px-3.5 text-xs font-semibold text-champagne-100"
-                  : "min-h-[36px] rounded-full border border-gold-500/35 bg-transparent px-3.5 text-xs font-semibold text-champagne-300 transition-colors hover:border-gold-500/70 hover:bg-gold-500/10"
+                  ? "min-h-[44px] rounded-full border border-gold-500 bg-gold-500/15 px-3.5 text-sm font-semibold text-champagne-100"
+                  : "min-h-[44px] rounded-full border border-gold-500/35 bg-transparent px-3.5 text-sm font-semibold text-champagne-300 transition-colors hover:border-gold-500/70 hover:bg-gold-500/10"
               }
             >
               {ex.label}
