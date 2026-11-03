@@ -1,7 +1,9 @@
 // Calendário editorial de posts orgânicos (Facebook + Instagram) publicados
 // automaticamente pelo cron /api/marketing/social-post. Datas no fuso
-// America/Belem (YYYY-MM-DD). Post sem imagemUrl sai só no Facebook — o
-// Instagram exige imagem. Edite/adicione posts aqui; o cron cuida do resto.
+// America/Belem (YYYY-MM-DD). Post com videoUrl sai como Reel no Instagram e
+// vídeo na Página; senão, com imagemUrl, sai como foto. Post sem imagem nem
+// vídeo sai só no Facebook — o Instagram exige mídia. Edite/adicione posts
+// aqui; o cron cuida do resto.
 
 export type CanalSocial = "facebook" | "instagram";
 
@@ -14,8 +16,15 @@ export type SocialPost = {
   data: string;
   canais: CanalSocial[];
   texto: string;
-  /** URL pública da arte. Obrigatória para Instagram. */
+  /** URL pública da arte. Obrigatória para Instagram quando não há videoUrl. */
   imagemUrl?: string;
+  /**
+   * URL pública https do mp4 (9:16), ex.
+   * https://www.leadbellus.com.br/reels/r5-na-cadeira.mp4. Quando existe, o
+   * post sai como Reel no Instagram e como vídeo na Página do Facebook (tem
+   * prioridade sobre imagemUrl).
+   */
+  videoUrl?: string;
   /** Link anexado ao post do Facebook (feed). */
   link?: string;
   /** Qual disparo do cron publica o post. Sem valor = "manha". */

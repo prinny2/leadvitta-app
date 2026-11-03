@@ -32,11 +32,21 @@ describe("data/social-posts", () => {
     }
   });
 
-  it("posts de Instagram têm imagem (exigência da Graph API)", () => {
+  it("posts de Instagram têm imagem ou vídeo (exigência da Graph API)", () => {
     for (const post of SOCIAL_POSTS) {
       if (post.canais.includes("instagram")) {
-        expect(post.imagemUrl, `post ${post.id} precisa de imagemUrl`).toBeTruthy();
+        expect(
+          post.imagemUrl || post.videoUrl,
+          `post ${post.id} precisa de imagemUrl ou videoUrl`
+        ).toBeTruthy();
       }
+    }
+  });
+
+  it("videoUrl (Reel) é URL pública https de mp4", () => {
+    for (const post of SOCIAL_POSTS) {
+      if (post.videoUrl === undefined) continue;
+      expect(post.videoUrl, `post ${post.id}`).toMatch(/^https:\/\/[^\s]+\.mp4$/i);
     }
   });
 });
