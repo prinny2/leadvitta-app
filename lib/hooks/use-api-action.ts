@@ -13,6 +13,7 @@ type ApiActionOptions<T> = {
   body: Record<string, unknown>;
   onSuccess: (data: T) => void;
   demoAviso?: string;
+  onLimitReached?: () => void;
 };
 
 export function useApiAction() {
@@ -32,6 +33,7 @@ export function useApiAction() {
       body,
       onSuccess,
       demoAviso,
+      onLimitReached,
     }: ApiActionOptions<T>) => {
       setLoading(true);
       setErro("");
@@ -44,6 +46,9 @@ export function useApiAction() {
         });
         const data: T = await res.json();
         if (!res.ok) {
+          if (res.status === 402 || (data as T & { limitReached?: boolean }).limitReached) {
+            onLimitReached?.();
+          }
           setErro(data.error || "Não foi possível processar agora.");
           return null;
         }

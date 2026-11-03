@@ -4,6 +4,7 @@ import type { GerarInput, RefineInput, RespostaTripla } from "@/lib/types";
 import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 import { upsertClinica, upsertHistorico } from "@/lib/supabase/server";
 import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
+import { enforceAiDailyLimit } from "@/lib/ai-guard";
 
 export const runtime = "nodejs";
 
@@ -94,6 +95,16 @@ export async function POST(req: Request) {
           { status: 400 }
         );
       }
+      const token = body.firebaseIdToken;
+      const decoded = await verifyFirebaseIdToken(token);
+      if (token && !decoded?.uid && isFirebaseAdminConfigured()) {
+        return jsonNoStore(
+          { error: "Sessão expirada. Entre novamente para continuar.", reauth: true },
+          { status: 401 }
+        );
+      }
+      const dailyLimit = enforceAiDailyLimit(req, { uid: decoded?.uid });
+      if (dailyLimit) return dailyLimit;
       const r = await refinarResposta({
         variante: body.variante,
         respostaAtual: String(body.respostaAtual),
@@ -150,6 +161,12 @@ export async function POST(req: Request) {
           { status: 402 }
         );
       }
+    }
+
+    const dailyLimit = enforceAiDailyLimit(req, { uid: decoded?.uid, paid: limit?.paid });
+    if (dailyLimit) {
+      if (decoded?.uid && limit?.reserved) await releaseGeneration(decoded.uid);
+      return dailyLimit;
     }
 
     const providerChain = parseProviderChain(body.providerChain);

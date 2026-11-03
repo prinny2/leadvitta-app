@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import type { LeadIntelligenceResult } from "@/app/api/lead-intelligence/route";
+import { getFirebaseAuth } from "@/lib/firebase/client";
+import { FreeQuotaLimit } from "@/components/free-quota-limit";
 
 // ── Theme tokens ──────────────────────────────────────────────────────────────
 function useTokens() {
@@ -137,18 +139,22 @@ export default function LeadIntelligencePage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<LeadIntelligenceResult | null>(null);
   const [error, setError] = useState("");
+  const [limitReached, setLimitReached] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
   async function analisar() {
     if (!mensagem.trim() || loading) return;
-    setLoading(true); setError(""); setResult(null);
+    setLoading(true); setError(""); setResult(null); setLimitReached(false);
     try {
+      let firebaseIdToken: string | undefined;
+      try { firebaseIdToken = await getFirebaseAuth().currentUser?.getIdToken(); } catch { /* demo sem Firebase */ }
       const res = await fetch("/api/lead-intelligence", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mensagem }),
+        body: JSON.stringify({ mensagem, firebaseIdToken }),
       });
       const data = await res.json();
+      if (res.status === 402 || data.limitReached) setLimitReached(true);
       if (!res.ok) throw new Error(data.error || "Erro na análise");
       setResult(data);
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
@@ -283,6 +289,7 @@ export default function LeadIntelligencePage() {
             <AlertCircle size={14} /> {error}
           </div>
         )}
+        {limitReached && <div className="mt-3"><FreeQuotaLimit /></div>}
       </div>
 
       {/* ── Resultado ── */}

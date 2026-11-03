@@ -4,12 +4,28 @@ vi.mock("@/lib/config", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/config")>();
   return {
     ...actual,
-    isOpenAIConfigured: false,
+    isOpenAIConfigured: true,
     isAnthropicConfigured: false,
   };
 });
+vi.mock("openai", () => ({
+  default: class OpenAIMock {
+    chat = { completions: { create: vi.fn().mockRejectedValue(new Error("AI down")) } };
+    constructor() {}
+  },
+}));
+
+const { verifyToken, adminConfigured, reserve, release } = vi.hoisted(() => ({
+  verifyToken: vi.fn(),
+  adminConfigured: vi.fn(),
+  reserve: vi.fn(),
+  release: vi.fn(),
+}));
+vi.mock("@/lib/firebase/admin", () => ({ verifyFirebaseIdToken: verifyToken, isFirebaseAdminConfigured: adminConfigured }));
+vi.mock("@/lib/usage-limit", () => ({ reserveGeneration: reserve, releaseGeneration: release }));
 
 import { POST } from "@/app/api/lead-intelligence/route";
+import { __resetAiGuardForTests } from "@/lib/ai-guard";
 
 function makeRequest(body: unknown) {
   return new Request("http://localhost:3000/api/lead-intelligence", {
@@ -23,6 +39,11 @@ function makeRequest(body: unknown) {
 }
 
 beforeEach(() => {
+  __resetAiGuardForTests();
+  verifyToken.mockReset().mockResolvedValue(null);
+  adminConfigured.mockReset().mockReturnValue(true);
+  reserve.mockReset().mockResolvedValue({ allowed: true, paid: true, remaining: Infinity, reserved: false });
+  release.mockReset().mockResolvedValue(undefined);
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 afterEach(() => {
@@ -133,5 +154,24 @@ describe("POST /api/lead-intelligence — mock analysis", () => {
     if (body.score >= 72) expect(body.temperatura).toBe("quente");
     else if (body.score >= 50) expect(body.temperatura).toBe("morno");
     else expect(body.temperatura).toBe("frio");
+  });
+});
+
+describe("POST /api/lead-intelligence — free quota", () => {
+  it("returns 402 when a logged-in free user has exhausted the shared quota", async () => {
+    verifyToken.mockResolvedValue({ uid: "free-user" });
+    reserve.mockResolvedValue({ allowed: false, paid: false, remaining: 0, reserved: false });
+    const res = await POST(makeRequest({ mensagem: "mensagem válida", firebaseIdToken: "valid" }));
+    expect(res.status).toBe(402);
+    await expect(res.json()).resolves.toMatchObject({ limitReached: true, freeRemaining: 0 });
+  });
+
+  it("releases a free slot when AI analysis fails and falls back to mock", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "test-key");
+    verifyToken.mockResolvedValue({ uid: "free-user" });
+    reserve.mockResolvedValue({ allowed: true, paid: false, remaining: 4, reserved: true });
+    const res = await POST(makeRequest({ mensagem: "mensagem válida", firebaseIdToken: "valid" }));
+    expect(res.status).toBe(200);
+    expect(release).toHaveBeenCalledWith("free-user");
   });
 });
