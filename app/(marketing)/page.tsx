@@ -21,6 +21,7 @@ import { FooterSection } from "@/components/footer-section";
 import { LegalConsentLinks } from "@/components/legal-consent-links";
 import { MarketingMobileMenu } from "@/components/marketing-mobile-menu";
 import { RevealAfter } from "@/components/reveal-after";
+import { SectionTracker } from "@/components/section-tracker";
 import { EMPRESA } from "@/lib/empresa";
 import { pageMetadata } from "@/lib/seo";
 import { TrackLink } from "@/components/track-link";
@@ -273,7 +274,7 @@ export default function LandingPage() {
       <main>
         {/* ── HERO ─────────────────────────────────────────────────────────
             Sem animação de entrada: o H1 é o LCP e precisa vir visível no HTML. */}
-        <section className="landing-hero" style={{ padding: "64px 24px 72px", overflowX: "hidden", position: "relative", background: `linear-gradient(180deg, ${NAVY} 0%, #0D2038 100%)` }}>
+        <section data-track-section="hero" className="landing-hero" style={{ padding: "64px 24px 72px", overflowX: "hidden", position: "relative", background: `linear-gradient(180deg, ${NAVY} 0%, #0D2038 100%)` }}>
           {/* Glows suaves de fundo */}
           <div aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
             <div style={{ position: "absolute", top: "-180px", right: "-120px", width: "560px", height: "560px", borderRadius: "50%", background: "radial-gradient(circle, rgba(228,168,77,0.22), transparent 65%)", filter: "blur(44px)" }} />
@@ -343,7 +344,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── DEMO ─────────────────────────────────────────────────────────── */}
-        <section id="demo" className="lp-section" style={{ background: CREAM_2, padding: "72px 24px", scrollMarginTop: "64px" }}>
+        <section id="demo" data-track-section="demo" className="lp-section" style={{ background: CREAM_2, padding: "72px 24px", scrollMarginTop: "64px" }}>
           <div style={{ maxWidth: "720px", margin: "0 auto" }}>
             <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 28px" }}>
               <Eyebrow>Teste agora</Eyebrow>
@@ -362,7 +363,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── COMO FUNCIONA ────────────────────────────────────────────────── */}
-        <section id="como-funciona" className="lp-section" style={{ background: CREAM, padding: "76px 24px" }}>
+        <section id="como-funciona" data-track-section="como-funciona" className="lp-section" style={{ background: CREAM, padding: "76px 24px" }}>
           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
             <FadeUp>
               <div style={{ textAlign: "center", maxWidth: "620px", margin: "0 auto 36px" }}>
@@ -403,7 +404,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── SITUAÇÕES ────────────────────────────────────────────────────── */}
-        <section className="lp-section" style={{ background: CREAM_2, padding: "72px 24px" }}>
+        <section data-track-section="situacoes" className="lp-section" style={{ background: CREAM_2, padding: "72px 24px" }}>
           <div style={{ maxWidth: "820px", margin: "0 auto", textAlign: "center" }}>
             <FadeUp>
               <Eyebrow>Situações</Eyebrow>
@@ -420,7 +421,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── PREÇO ────────────────────────────────────────────────────────── */}
-        <section id="precos" className="lp-section" style={{ background: NAVY, padding: "80px 24px", position: "relative", overflow: "hidden" }}>
+        <section id="precos" data-track-section="precos" className="lp-section" style={{ background: NAVY, padding: "80px 24px", position: "relative", overflow: "hidden" }}>
           <div aria-hidden style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", width: "760px", height: "480px", borderRadius: "50%", background: "radial-gradient(circle, rgba(201,160,96,0.14), transparent 62%)", filter: "blur(52px)", pointerEvents: "none" }} />
           <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 1 }}>
             <FadeUp>
@@ -472,7 +473,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── CONFIANÇA ────────────────────────────────────────────────────── */}
-        <section className="lp-section" style={{ background: CREAM, padding: "76px 24px" }}>
+        <section data-track-section="confianca" className="lp-section" style={{ background: CREAM, padding: "76px 24px" }}>
           <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
             <FadeUp>
               <div style={{ textAlign: "center", maxWidth: "640px", margin: "0 auto 32px" }}>
@@ -500,7 +501,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── FAQ ──────────────────────────────────────────────────────────── */}
-        <section id="faq" className="lp-section" style={{ background: CREAM_2, padding: "76px 24px" }}>
+        <section id="faq" data-track-section="faq" className="lp-section" style={{ background: CREAM_2, padding: "76px 24px" }}>
           <div style={{ maxWidth: "720px", margin: "0 auto" }}>
             <FadeUp>
               <div style={{ textAlign: "center", marginBottom: "32px" }}>
@@ -522,7 +523,7 @@ export default function LandingPage() {
         </section>
 
         {/* ── CTA FINAL ────────────────────────────────────────────────────── */}
-        <section className="lp-section" style={{ background: NAVY, padding: "80px 24px" }}>
+        <section data-track-section="cta-final" className="lp-section" style={{ background: NAVY, padding: "80px 24px" }}>
           <div style={{ maxWidth: "640px", margin: "0 auto", textAlign: "center" }}>
             {/* O preflight do Tailwind deixa <svg> como block: centraliza na mão. */}
             <LogoMark size={42} stroke={GOLD} style={{ margin: "0 auto" }} />
@@ -678,6 +679,8 @@ export default function LandingPage() {
         </div>
       </RevealAfter>
       <WhatsAppCta />
+      {/* Alcance e tempo por seção (data-track-section), só no GA4. */}
+      <SectionTracker contentType="lp" />
     </div>
   );
 }

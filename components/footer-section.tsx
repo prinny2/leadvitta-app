@@ -91,6 +91,7 @@ export function FooterSection() {
   return (
     <footer
       className="lb-footer"
+      data-track-section="rodape"
       style={{
         background: "#050d17",
         borderTop: "1px solid rgba(201,160,96,0.12)",

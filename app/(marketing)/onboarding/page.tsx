@@ -12,6 +12,7 @@ import { StartPlanCard } from "@/components/start-plan-card";
 import { HeroLoop } from "@/components/hero-loop";
 import { AvisoIA } from "@/components/aviso-ia";
 import { TrackLink } from "@/components/track-link";
+import { SectionTracker } from "@/components/section-tracker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -338,6 +339,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
     <section
       id="planos"
       ref={plansRef}
+      data-track-section="planos"
       aria-labelledby="planos-titulo"
       className="scroll-mt-6 space-y-5"
     >
@@ -469,7 +471,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
         {urlView.plansFirst ? plansSection : null}
 
         {/* ── TELA 1 — COLAR ─────────────────────────────────────────────── */}
-        <section aria-labelledby="teste-titulo">
+        <section aria-labelledby="teste-titulo" data-track-section="colar">
           {urlView.plansFirst ? (
             <h2
               id="teste-titulo"
@@ -579,65 +581,70 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
         {/* ── TELA 2 — AS 3 RESPOSTAS ────────────────────────────────────── */}
         {respostasVisiveis && qr.respostas ? (
           <section aria-labelledby="respostas-titulo" className="space-y-6">
-            <div>
-              <h2
-                id="respostas-titulo"
-                ref={resultTitleRef}
-                tabIndex={-1}
-                className="scroll-mt-6 text-center font-serif text-2xl font-semibold text-ink outline-none"
-              >
-                Suas 3 respostas
-              </h2>
-              <p className="mt-1 text-center text-sm text-muted">
-                Escolha uma, ajuste se quiser e envie pelo seu WhatsApp.
-              </p>
-            </div>
-
-            <QuickReplyCards respostas={qr.respostas} />
-            <AvisoIA aviso={qr.aviso} />
-
-            <div className="rounded-3xl border border-gold-500/40 bg-navy-700 p-5 shadow-card sm:p-6">
-              <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
-                E agora?
-              </p>
-              {primaryCta}
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="mt-3 w-full border-gold-500/40 text-gold-300 hover:bg-gold-500/10"
-                onClick={abrirPersonalizar}
-                aria-expanded={personalizarOpen}
-              >
-                Deixar no tom da minha clínica
-              </Button>
-              <p className="mt-1 text-center">
-                <button
-                  type="button"
-                  onClick={testarOutra}
-                  className="inline-flex min-h-[44px] items-center px-3 text-sm font-semibold text-champagne-300 underline-offset-2 hover:text-champagne-100 hover:underline"
+            {/* Wrapper só para medir "respostas" sem somar o tempo do bloco de
+                tom logo abaixo (mesmo espaçamento de antes). */}
+            <div data-track-section="respostas" className="space-y-6">
+              <div>
+                <h2
+                  id="respostas-titulo"
+                  ref={resultTitleRef}
+                  tabIndex={-1}
+                  className="scroll-mt-6 text-center font-serif text-2xl font-semibold text-ink outline-none"
                 >
-                  Testar outra mensagem
-                </button>
-              </p>
-              <p className="mt-4 border-t border-navy-500 pt-4 text-center text-xs leading-relaxed text-muted">
-                Depois das 5 grátis, o Start custa R$97/mês. Cancele quando
-                quiser. ·{" "}
-                <button
+                  Suas 3 respostas
+                </h2>
+                <p className="mt-1 text-center text-sm text-muted">
+                  Escolha uma, ajuste se quiser e envie pelo seu WhatsApp.
+                </p>
+              </div>
+
+              <QuickReplyCards respostas={qr.respostas} />
+              <AvisoIA aviso={qr.aviso} />
+
+              <div className="rounded-3xl border border-gold-500/40 bg-navy-700 p-5 shadow-card sm:p-6">
+                <p className="mb-4 text-center text-xs font-semibold uppercase tracking-[0.2em] text-gold-400">
+                  E agora?
+                </p>
+                {primaryCta}
+                <Button
                   type="button"
-                  onClick={abrirPlanos}
-                  className="font-semibold text-gold-400 hover:text-gold-300"
+                  variant="outline"
+                  size="lg"
+                  className="mt-3 w-full border-gold-500/40 text-gold-300 hover:bg-gold-500/10"
+                  onClick={abrirPersonalizar}
+                  aria-expanded={personalizarOpen}
                 >
-                  Ver planos
-                </button>
-              </p>
-              {saveFailed && <SaveError onRetry={saveAndEnter} />}
+                  Deixar no tom da minha clínica
+                </Button>
+                <p className="mt-1 text-center">
+                  <button
+                    type="button"
+                    onClick={testarOutra}
+                    className="inline-flex min-h-[44px] items-center px-3 text-sm font-semibold text-champagne-300 underline-offset-2 hover:text-champagne-100 hover:underline"
+                  >
+                    Testar outra mensagem
+                  </button>
+                </p>
+                <p className="mt-4 border-t border-navy-500 pt-4 text-center text-xs leading-relaxed text-muted">
+                  Depois das 5 grátis, o Start custa R$97/mês. Cancele quando
+                  quiser. ·{" "}
+                  <button
+                    type="button"
+                    onClick={abrirPlanos}
+                    className="font-semibold text-gold-400 hover:text-gold-300"
+                  >
+                    Ver planos
+                  </button>
+                </p>
+                {saveFailed && <SaveError onRetry={saveAndEnter} />}
+              </div>
             </div>
 
             {/* ── PERSONALIZAR (opcional, só depois do resultado) ──────────── */}
             {personalizarOpen && (
               <div
                 ref={personalizarRef}
+                data-track-section="tom"
                 className="scroll-mt-6 space-y-5 rounded-3xl border border-navy-500 bg-navy-700 p-5 shadow-card sm:p-6"
               >
                 <h3 className="font-serif text-xl font-semibold text-ink">
@@ -691,6 +698,8 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
 
         {!urlView.plansFirst ? plansSection : null}
       </main>
+      {/* Respostas, tom e planos montam depois: observa as mutações. */}
+      <SectionTracker contentType="onboarding" observeMutations />
     </div>
   );
 }
