@@ -4,11 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const SECTIONS = [
+  { label: "Testar grátis", href: "#demo" },
   { label: "Como funciona", href: "#como-funciona" },
-  { label: "Piloto", href: "#piloto" },
-  { label: "Para quem é", href: "#para-quem" },
-  { label: "Demo", href: "#demo" },
-  { label: "Preços", href: "#precos" },
+  { label: "Preço", href: "#precos" },
+  { label: "Dúvidas", href: "#faq" },
 ];
 
 /**
@@ -131,7 +130,7 @@ export function MarketingMobileMenu() {
                 textAlign: "center",
               }}
             >
-              Testar grátis
+              Criar conta grátis
             </Link>
           </div>
         </>

@@ -5,7 +5,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({
   path: "/onboarding",
   title: "Teste grátis — LeadBellus",
-  description: "Teste o LeadBellus grátis: veja como responder a uma cliente que perguntou o preço.",
+  description: "Teste grátis: cole a mensagem da cliente e veja 3 respostas no tom da sua clínica.",
   index: false,
 });
 

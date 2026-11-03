@@ -5,7 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ptBR } from "@clerk/localizations";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import Ga4Analytics, { Ga4HeadTag } from "@/components/Analytics";
-import { FirebaseSessionSync } from "@/components/firebase-session-sync";
+import { LazyFirebaseSessionSync } from "@/components/firebase-session-sync-lazy";
 import { isClerkClientConfigured } from "@/lib/config";
 
 // Fontes versionadas em app/fonts (variáveis, subset latin — Fontsource 5.3.0,
@@ -84,7 +84,8 @@ export default function RootLayout({
 }) {
   const app = (
     <>
-      {isClerkClientConfigured && <FirebaseSessionSync />}
+      {/* Ponte Clerk→Firebase sob demanda: o SDK do Firebase fora do JS inicial. */}
+      {isClerkClientConfigured && <LazyFirebaseSessionSync />}
       {children}
       <Ga4Analytics />
       {/* Só existe na Vercel; fora dela o script /_vercel/insights dá 404. */}

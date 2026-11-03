@@ -7,12 +7,17 @@ export function ResponseCard({
   texto,
   accent = "brand",
   tone = "light",
+  copiedLabel,
+  copyClassName,
 }: {
   titulo: string;
   descricao?: string;
   texto: string;
   accent?: "brand" | "lavender";
   tone?: "light" | "dark";
+  copiedLabel?: string;
+  /** Classes extras do botão Copiar (ex.: alvo de toque maior na LP/onboarding). */
+  copyClassName?: string;
 }) {
   const dark = tone === "dark";
   return (
@@ -42,7 +47,7 @@ export function ResponseCard({
             </div>
           )}
         </div>
-        <CopyButton text={texto} />
+        <CopyButton text={texto} copiedLabel={copiedLabel} className={copyClassName} />
       </div>
       <p
         className={cn(

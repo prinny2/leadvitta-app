@@ -7,10 +7,12 @@ import { cn } from "@/lib/utils";
 export function CopyButton({
   text,
   label = "Copiar",
+  copiedLabel = "Copiado!",
   className,
 }: {
   text: string;
   label?: string;
+  copiedLabel?: string;
   className?: string;
 }) {
   const [copied, setCopied] = useState(false);
@@ -46,7 +48,7 @@ export function CopyButton({
       )}
     >
       {copied ? <Check size={15} /> : <Copy size={15} />}
-      {copied ? "Copiado!" : label}
+      {copied ? copiedLabel : label}
     </button>
   );
 }
