@@ -59,6 +59,17 @@ export function mockRefine(input: RefineInput): string {
 export function mockFollowup(input: FollowUpInput): string[] {
   const ola = abertura(input.clinica, input.nomeCliente);
   const p = procLabel(input.procedimento);
+  // Retorno pós-procedimento: é acompanhamento, não retomada de venda.
+  if (input.gatilho === "retorno_procedimento") {
+    const pedeFoto = /foto/i.test(input.contexto);
+    return [
+      `${ola} Passando pra saber como você está depois do ${p} 💛 Ficou alguma dúvida ou alguma coisa te incomodando? Pode me falar.`,
+      pedeFoto
+        ? `${ola} Já faz um tempinho do seu ${p} e eu queria acompanhar sua evolução. Se puder, me manda uma foto de frente com luz natural? É só para o seu acompanhamento aqui na clínica, não usamos em divulgação sem a sua autorização por escrito.`
+        : `${ola} Como você está se sentindo depois do ${p}? Quero saber como foi a sua experiência e se surgiu alguma dúvida nesses dias. Qualquer coisa, fala comigo por aqui.`,
+      `${ola} Tô por aqui pra acompanhar você 😊 Se algo te deixar em dúvida, me chama que eu converso com a profissional e te respondo. Como você está?`,
+    ];
+  }
   return [
     `${ola} Passando pra saber se ficou alguma dúvida sobre ${p} 😊 É super normal querer entender melhor antes de decidir. Posso te ajudar com alguma informação?`,
     `${ola} Vi que você teve interesse em ${p} e queria saber se ainda faz sentido pra você. Essa semana abrimos alguns horários de avaliação — quer que eu veja um pra você?`,

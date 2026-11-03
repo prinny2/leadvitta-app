@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
 import {
-  Home, Sparkles, MessagesSquare, Send, ListChecks, History, Settings, LogOut, Brain, ShieldCheck,
+  Home, Sparkles, MessagesSquare, Send, ListChecks, History, Settings, LogOut, Brain, ShieldCheck, CalendarClock,
 } from "lucide-react";
 import { signOut as firebaseSignOut } from "firebase/auth";
 import { isClerkClientConfigured, isFirebaseConfigured } from "@/lib/config";
@@ -18,6 +18,7 @@ const links = [
   { href: "/lead-intelligence",  label: "Lead Intelligence",  icon: Brain,         pro: true  },
   { href: "/objecoes",           label: "Objeções",           icon: MessagesSquare,pro: false },
   { href: "/follow-up",          label: "Follow-up",          icon: Send,          pro: false },
+  { href: "/retornos",           label: "Retornos",           icon: CalendarClock, pro: false },
   { href: "/scripts",            label: "Scripts",            icon: ListChecks,    pro: false },
   { href: "/compliance",         label: "Revisar texto",      icon: ShieldCheck,   pro: false },
   { href: "/historico",          label: "Histórico",          icon: History,       pro: false },

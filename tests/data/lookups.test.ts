@@ -67,6 +67,12 @@ describe("followUpPorId", () => {
   it("toda diretriz preenchida", () => {
     expect(followups.every((f) => f.diretriz.length > 0)).toBe(true);
   });
+
+  it("inclui gatilhos específicos de retorno e avaliação", () => {
+    expect(followUpPorId("retorno_procedimento")?.label).toBe("Retorno pós-procedimento");
+    expect(followUpPorId("avaliacao_nao_fechou_48h")).toBeDefined();
+    expect(followUpPorId("avaliacao_nao_fechou_7d")).toBeDefined();
+  });
 });
 
 describe("situacaoPorId", () => {

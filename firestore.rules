@@ -68,6 +68,25 @@ service cloud.firestore {
                     && resource.data.user_id == request.auth.uid;
     }
 
+    // ---- Retornos por procedimento — dados mínimos de acompanhamento ----
+    match /retornos/{docId} {
+      allow read: if request.auth != null && resource.data.user_id == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.user_id == request.auth.uid
+                    && request.resource.data.cliente is string
+                    && request.resource.data.cliente.size() <= 40
+                    && request.resource.data.dias is list
+                    && request.resource.data.dias.size() <= 6;
+      allow update: if request.auth != null
+                    && resource.data.user_id == request.auth.uid
+                    && request.resource.data.user_id == resource.data.user_id
+                    && request.resource.data.cliente is string
+                    && request.resource.data.cliente.size() <= 40
+                    && request.resource.data.dias is list
+                    && request.resource.data.dias.size() <= 6;
+      allow delete: if request.auth != null && resource.data.user_id == request.auth.uid;
+    }
+
     // ---- Conversas (inbox) — cada doc carrega clinica_id (uid do dono) ----
     // Criação/escrita das mensagens é só do servidor (Admin SDK, ignora regras).
     // O cliente só LÊ as próprias e pode marcar lida/arquivar — sem trocar o dono
