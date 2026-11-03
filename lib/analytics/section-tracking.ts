@@ -9,7 +9,8 @@
  * - `section_view` { content_type, content_id }: no máximo 1 por seção por
  *   montagem, depois de 1 s seguido de visibilidade "de verdade".
  * - `section_time` { content_type, content_id, value, transport_type }: segundos
- *   acumulados de visibilidade, enviados quando a página some ou desmonta.
+ *   acumulados de visibilidade, enviados quando a página some ou desmonta — só
+ *   de seção que já teve `section_view` (quem só passou rolando não entra).
  */
 
 /** Atributo que marca uma seção medida: `data-track-section="<id>"`. */
@@ -73,7 +74,7 @@ export type SectionTracker = {
   setQualifies: (contentId: string, qualifies: boolean) => void;
   /** `document.visibilityState === "visible"`. Aba escondida não conta tempo. */
   setPageVisible: (visible: boolean) => void;
-  /** Envia 1 `section_time` por seção com valor ≥ 1 e zera o acumulado. */
+  /** Envia 1 `section_time` por seção já vista com valor ≥ 1 e zera o acumulado. */
   flush: () => void;
   /** Envia o que falta e desliga (desmontagem / troca de rota). */
   dispose: () => void;
@@ -131,6 +132,10 @@ export function createSectionTracker(options: {
         state.pendingMs += Math.max(0, at - state.since);
         state.since = at;
       }
+      // Sem `section_view` ainda, o tempo fica guardado: só entra se a pessoa
+      // chegar a ver a seção (e se perde no dispose). Assim o tempo médio
+      // divide segundos e pessoas do mesmo grupo.
+      if (!state.viewed) return;
       const value = sectionTimeSeconds(state.pendingMs);
       // Menos de meio segundo fica guardado para o próximo envio.
       if (value < 1) return;

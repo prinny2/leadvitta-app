@@ -233,6 +233,37 @@ describe("section_time", () => {
     expect(views()).toEqual([]);
     expect(times()).toEqual([]);
   });
+
+  it("sem section_view não envia tempo; se a pessoa depois vê, as passadas entram", () => {
+    const { tracker, views, times } = setup();
+    // Duas passadas rápidas (< 1 s cada): 1,3 s acumulados, nenhum view.
+    tracker.setQualifies("situacoes", true);
+    vi.advanceTimersByTime(700);
+    tracker.setQualifies("situacoes", false);
+    tracker.setQualifies("situacoes", true);
+    vi.advanceTimersByTime(600);
+    tracker.setQualifies("situacoes", false);
+    tracker.flush();
+    expect(views()).toEqual([]);
+    expect(times()).toEqual([]);
+
+    // Agora fica 1,5 s: view dispara e o envio soma 1,3 + 1,5 = 2,8 s.
+    tracker.setQualifies("situacoes", true);
+    vi.advanceTimersByTime(1500);
+    tracker.flush();
+    expect(views()).toEqual(["situacoes"]);
+    expect(times().map((p) => p.value)).toEqual([3]);
+  });
+
+  it("dispose descarta o tempo de seção que nunca teve section_view", () => {
+    const { tracker, send } = setup();
+    tracker.setQualifies("situacoes", true);
+    vi.advanceTimersByTime(900);
+    tracker.setQualifies("situacoes", false);
+    tracker.dispose();
+    vi.advanceTimersByTime(5000);
+    expect(send).not.toHaveBeenCalled();
+  });
 });
 
 describe("trackGa4Event", () => {
