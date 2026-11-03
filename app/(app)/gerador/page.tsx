@@ -161,6 +161,19 @@ export default function GeradorPage() {
       setRespostas(data.respostas);
       setNlp({ intent: data.intent, sentiment: data.sentiment, score: data.score });
       if (typeof data.freeRemaining === "number") setFreeRemaining(data.freeRemaining);
+      // Toda geração entra no histórico (como no Follow-up): é de lá que saem os
+      // números do dashboard. "Salvar" continua para guardar uma versão refinada.
+      const r = data.respostas as RespostaTripla;
+      addHistorico({
+        tipo: modo === "reescrever" ? "reescrever" : "gerador",
+        contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
+        respostas: [r.curta, r.consultiva, r.persuasiva],
+        intent: data.intent, sentiment: data.sentiment, score: data.score,
+      })
+        .then(() => setSalvo(true))
+        .catch((err) => {
+          console.warn("[gerador] falha ao salvar histórico:", err instanceof Error ? err.message : err);
+        });
       if (data.mock) {
         setAviso(data.aviso || "Modo demonstração — mostrando um exemplo. As respostas reais entram quando a clínica está ativa.");
       } else if (data.aviso) {

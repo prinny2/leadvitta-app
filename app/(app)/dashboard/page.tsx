@@ -8,7 +8,10 @@ import {
 } from "recharts";
 import { Sparkles, TrendingUp, Flame, Snowflake, Sun, ArrowRight, ChevronRight,
   MessagesSquare, Send, ListChecks, History, Settings, Zap, Brain, Target } from "lucide-react";
-import { getClinica, getBillingPlan } from "@/lib/store";
+import { getClinica, getBillingPlan, getBillingStatus, listHistorico, type BillingStatus } from "@/lib/store";
+import { calcularDashboard, type DashboardStats } from "@/lib/dashboard-stats";
+import { FREE_GENERATION_LIMIT } from "@/lib/free-limit";
+import { isFirebaseConfigured } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/theme-provider";
 import { WelcomeOnboarding } from "@/components/welcome-onboarding";
@@ -28,39 +31,15 @@ function formatDate() {
   return `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}`;
 }
 
-// Dados mock para os gráficos
-const dadosSemanais = [
-  { dia: "Seg", respostas: 4, score: 62 },
-  { dia: "Ter", respostas: 7, score: 70 },
-  { dia: "Qua", respostas: 5, score: 58 },
-  { dia: "Qui", respostas: 9, score: 82 },
-  { dia: "Sex", respostas: 12, score: 76 },
-  { dia: "Sáb", respostas: 8, score: 85 },
-  { dia: "Dom", respostas: 3, score: 68 },
-];
-
-const dadosProcedimentos = [
-  { nome: "Botox",       qtd: 18 },
-  { nome: "Preench.",    qtd: 14 },
-  { nome: "Harmoniz.",   qtd: 11 },
-  { nome: "Skin Care",   qtd: 8  },
-  { nome: "Fios",        qtd: 6  },
-  { nome: "Outros",      qtd: 4  },
-];
-
-const dadosLeads = [
-  { name: "Quentes", value: 3,  color: "#F97316" },
-  { name: "Mornos",  value: 7,  color: "#C9A060" },
-  { name: "Frias",   value: 12, color: "#6B8CAE" },
-];
-
-const dadosSituacoes = [
-  { sit: "Preço",       qtd: 22 },
-  { sit: "Medo",        qtd: 14 },
-  { sit: "Confiança",   qtd: 10 },
-  { sit: "Agendamento", qtd: 8  },
-  { sit: "Pós-venda",   qtd: 4  },
-];
+// Os números vêm do histórico real (lib/dashboard-stats.ts). Conta nova começa
+// zerada — nunca mostrar valor inventado.
+function EmptyChart({ texto }: { texto: string }) {
+  return (
+    <div className="flex h-[160px] items-center justify-center rounded-xl border border-dashed border-navy-500 px-4 text-center text-xs text-navy-100">
+      {texto}
+    </div>
+  );
+}
 
 const MODULES = [
   { href: "/gerador",           label: "Gerador",           desc: "3 respostas no seu tom",          icon: Sparkles,       hot: true  },
@@ -94,12 +73,28 @@ export default function DashboardPage() {
   const isLight = theme === "light";
   const isPro = plano === "pro" || plano === "premium";
 
+  const [stats, setStats] = useState<DashboardStats>(() => calcularDashboard([]));
+  const [billing, setBilling] = useState<BillingStatus | null>(null);
+
   useEffect(() => {
     getClinica().then((c) => setNome(c.nome_clinica || ""));
     getBillingPlan().then((plan) => setPlano(plan));
+    getBillingStatus().then(setBilling).catch(() => setBilling(null));
+    listHistorico()
+      .then((itens) => setStats(calcularDashboard(itens)))
+      .catch(() => setStats(calcularDashboard([])));
   }, []);
 
+  const dadosLeads = [
+    { name: "Quentes", value: stats.leads.quentes, color: "#F97316" },
+    { name: "Mornos",  value: stats.leads.mornos,  color: "#C9A060" },
+    { name: "Frias",   value: stats.leads.frias,   color: "#6B8CAE" },
+  ];
   const totalLeads = dadosLeads.reduce((a, b) => a + b.value, 0);
+  const semDados = stats.totalSemana === 0;
+  const pago = billing?.paid === true;
+  const gratisRestantes =
+    typeof billing?.freeUsed === "number" ? Math.max(0, FREE_GENERATION_LIMIT - billing.freeUsed) : null;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -132,8 +127,8 @@ export default function DashboardPage() {
             <span className="text-[11px] font-semibold uppercase tracking-wider text-navy-100">Respostas hoje</span>
             <Zap size={16} className="text-gold-400" />
           </div>
-          <p className="font-serif text-3xl font-bold text-white">12</p>
-          <p className="text-xs text-navy-100 mt-0.5">+3 vs ontem</p>
+          <p className="font-serif text-3xl font-bold text-white">{stats.hoje}</p>
+          <p className="text-xs text-navy-100 mt-0.5">ontem: {stats.ontem}</p>
         </div>
 
         {/* Score médio — PRO / ou card de upgrade */}
@@ -159,13 +154,15 @@ export default function DashboardPage() {
                   style={{ background: "rgba(201,160,96,0.2)", color: "#C9A060", border: "1px solid rgba(201,160,96,0.3)" }}>PRO</span>
               </div>
             </div>
-            <p className="relative font-serif text-3xl font-bold" style={{ color: "#C9A060" }}>74%</p>
+            <p className="relative font-serif text-3xl font-bold" style={{ color: "#C9A060" }}>
+              {stats.scoreMedioSemana === null ? "—" : `${stats.scoreMedioSemana}%`}
+            </p>
             <p className="relative text-xs mt-0.5" style={{ color: isLight ? "#9A7A40" : "rgba(201,160,96,0.6)" }}>esta semana</p>
           </div>
         ) : (
-          /* Plano Start — card de upgrade */
+          /* Plano — mostra o estado REAL: pagante, grátis (com o que resta) ou demo */
           <Link
-            href="/configuracoes"
+            href={pago ? "/configuracoes" : "/configuracoes?plan=start&next=checkout"}
             className="group relative rounded-2xl p-4 overflow-hidden transition-all hover:-translate-y-0.5"
             style={{
               background: isLight ? "#FFFFFF" : "#0f1b2f",
@@ -180,21 +177,25 @@ export default function DashboardPage() {
               <span className="text-[11px] font-semibold uppercase tracking-wider text-navy-100">Seu plano</span>
               <span className="rounded-full px-2 py-0.5 text-[9px] font-bold uppercase"
                 style={{ background: "rgba(107,140,174,0.15)", color: "#6B8CAE", border: "1px solid rgba(107,140,174,0.25)" }}>
-                START
+                {pago ? "START ATIVO" : isFirebaseConfigured ? "GRÁTIS" : "DEMO"}
               </span>
             </div>
 
-            <p className="relative font-serif text-xl font-bold text-white mb-1">R$97<span className="text-sm font-normal text-navy-100">/mês</span></p>
+            {pago ? (
+              <p className="relative font-serif text-xl font-bold text-white mb-1">Ilimitado</p>
+            ) : gratisRestantes !== null ? (
+              <p className="relative font-serif text-xl font-bold text-white mb-1">
+                {gratisRestantes}<span className="text-sm font-normal text-navy-100"> de {FREE_GENERATION_LIMIT} grátis</span>
+              </p>
+            ) : (
+              <p className="relative font-serif text-xl font-bold text-white mb-1">Modo demonstração</p>
+            )}
 
             <div className="relative flex items-center gap-1 mt-2 text-[11px] font-semibold transition-all group-hover:gap-2"
               style={{ color: "#C9A060" }}>
-              <span>🔓 Ver planos Pro</span>
+              <span>{pago ? "Gerenciar assinatura" : "Assinar Start · R$97/mês"}</span>
               <ChevronRight size={11} className="transition-transform group-hover:translate-x-0.5" />
             </div>
-
-            <p className="relative text-[10px] mt-1 leading-snug" style={{ color: isLight ? "#9CA3AF" : "rgba(107,140,174,0.7)" }}>
-              Score Médio + Lead Intelligence no Pro
-            </p>
           </Link>
         )}
 
@@ -204,8 +205,8 @@ export default function DashboardPage() {
             <span className="text-[11px] font-semibold uppercase tracking-wider text-navy-100">Leads quentes</span>
             <Flame size={16} className="text-orange-400" />
           </div>
-          <p className="font-serif text-3xl font-bold text-white">3</p>
-          <p className="text-xs text-navy-100 mt-0.5">responda agora</p>
+          <p className="font-serif text-3xl font-bold text-white">{stats.leads.quentes}</p>
+          <p className="text-xs text-navy-100 mt-0.5">score acima de 70, na semana</p>
         </div>
 
         {/* Follow-ups feitos */}
@@ -214,7 +215,7 @@ export default function DashboardPage() {
             <span className="text-[11px] font-semibold uppercase tracking-wider text-navy-100">Follow-ups feitos</span>
             <Send size={16} className="text-blue-400" />
           </div>
-          <p className="font-serif text-3xl font-bold text-white">8</p>
+          <p className="font-serif text-3xl font-bold text-white">{stats.followUpsSemana}</p>
           <p className="text-xs text-navy-100 mt-0.5">esta semana</p>
         </div>
       </div>
@@ -291,11 +292,14 @@ export default function DashboardPage() {
               <p className="font-serif text-base font-semibold text-champagne-300">Respostas geradas</p>
             </div>
             <span className="inline-flex items-center gap-1 rounded-full bg-green-500/15 border border-green-500/25 px-2.5 py-1 text-xs font-semibold text-green-400">
-              <TrendingUp size={11} /> +24%
+              <TrendingUp size={11} /> {stats.totalSemana} na semana
             </span>
           </div>
+          {semDados ? (
+            <EmptyChart texto="Nenhuma resposta gerada nos últimos 7 dias. Gere a primeira no Gerador e ela aparece aqui." />
+          ) : (
           <ResponsiveContainer width="100%" height={160}>
-            <AreaChart data={dadosSemanais} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+            <AreaChart data={stats.semana} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%"  stopColor="#C9A060" stopOpacity={0.35}/>
@@ -308,12 +312,17 @@ export default function DashboardPage() {
               <Area type="monotone" dataKey="respostas" name="Respostas" stroke="#C9A060" strokeWidth={2.5} fill="url(#goldGrad)" dot={{ fill: "#C9A060", r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: "#D4A84A" }} />
             </AreaChart>
           </ResponsiveContainer>
+          )}
         </div>
 
         {/* Donut — Temperatura dos leads */}
         <div className="rounded-2xl border border-navy-500 bg-navy-700 p-5 shadow-card">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-navy-100 mb-1">Temperatura</p>
           <p className="font-serif text-base font-semibold text-champagne-300 mb-3">Seus leads</p>
+          {totalLeads === 0 ? (
+            <p className="text-xs text-navy-100">Aparece quando houver respostas com score nesta semana.</p>
+          ) : (
+          <>
           <div className="flex justify-center">
             <ResponsiveContainer width="100%" height={130}>
               <PieChart>
@@ -340,6 +349,8 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
+          </>
+          )}
         </div>
       </div>
 
@@ -350,8 +361,11 @@ export default function DashboardPage() {
         <div className="rounded-2xl border border-navy-500 bg-navy-700 p-5 shadow-card">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-navy-100 mb-1">Mais consultados</p>
           <p className="font-serif text-base font-semibold text-champagne-300 mb-4">Procedimentos</p>
+          {stats.procedimentos.length === 0 ? (
+            <EmptyChart texto="Os procedimentos das suas respostas aparecem aqui." />
+          ) : (
           <ResponsiveContainer width="100%" height={160}>
-            <BarChart data={dadosProcedimentos} margin={{ top: 0, right: 0, bottom: 0, left: -20 }} barSize={14}>
+            <BarChart data={stats.procedimentos} margin={{ top: 0, right: 0, bottom: 0, left: -20 }} barSize={14}>
               <defs>
                 <linearGradient id="barGold" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%"   stopColor="#D4A84A" stopOpacity={1}/>
@@ -361,17 +375,21 @@ export default function DashboardPage() {
               <XAxis dataKey="nome" tick={{ fill: "#6B8CAE", fontSize: 10 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#6B8CAE", fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<DarkTooltip />} />
-              <Bar dataKey="qtd" name="Consultas" fill="url(#barGold)" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="qtd" name="Respostas" fill="url(#barGold)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+          )}
         </div>
 
         {/* Linha — Score médio */}
         <div className="rounded-2xl border border-navy-500 bg-navy-700 p-5 shadow-card">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-navy-100 mb-1">Qualidade das respostas</p>
           <p className="font-serif text-base font-semibold text-champagne-300 mb-4">Score médio de conversão</p>
+          {stats.scoreMedioSemana === null ? (
+            <EmptyChart texto="O score aparece quando você gerar respostas com análise da mensagem." />
+          ) : (
           <ResponsiveContainer width="100%" height={160}>
-            <LineChart data={dadosSemanais} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+            <LineChart data={stats.semana} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
               <defs>
                 <linearGradient id="lineGold" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0%"   stopColor="#6B8CAE"/>
@@ -379,11 +397,12 @@ export default function DashboardPage() {
                 </linearGradient>
               </defs>
               <XAxis dataKey="dia" tick={{ fill: "#6B8CAE", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis domain={[40, 100]} tick={{ fill: "#6B8CAE", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis domain={[0, 100]} tick={{ fill: "#6B8CAE", fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip content={<DarkTooltip />} />
-              <Line type="monotone" dataKey="score" name="Score" stroke="url(#lineGold)" strokeWidth={2.5} dot={{ fill: "#C9A060", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="score" name="Score" stroke="url(#lineGold)" strokeWidth={2.5} dot={{ fill: "#C9A060", r: 3, strokeWidth: 0 }} activeDot={{ r: 5 }} connectNulls />
             </LineChart>
           </ResponsiveContainer>
+          )}
         </div>
       </div>
 
@@ -395,9 +414,12 @@ export default function DashboardPage() {
             <p className="font-serif text-base font-semibold text-champagne-300">Situações mais geradas</p>
           </div>
         </div>
+        {stats.situacoes.length === 0 && (
+          <p className="text-xs text-navy-100">As situações que você mais escolhe no Gerador aparecem aqui.</p>
+        )}
         <div className="space-y-3">
-          {dadosSituacoes.map((s, i) => {
-            const max = dadosSituacoes[0].qtd;
+          {stats.situacoes.map((s, i) => {
+            const max = stats.situacoes[0].qtd;
             const pct = Math.round(s.qtd / max * 100);
             return (
               <div key={s.sit} className="flex items-center gap-3">

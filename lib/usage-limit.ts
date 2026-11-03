@@ -1,8 +1,8 @@
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
+import { FREE_GENERATION_LIMIT } from "@/lib/free-limit";
 
-/** Quantas respostas grátis cada pessoa pode gerar antes de precisar assinar. */
-export const FREE_GENERATION_LIMIT = 5;
+export { FREE_GENERATION_LIMIT };
 
 /** Status de assinatura que contam como "pagante" (acesso ilimitado). */
 const PAID_STATUSES = new Set(["active", "trialing", "past_due"]);

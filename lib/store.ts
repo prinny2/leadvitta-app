@@ -148,6 +148,8 @@ export type BillingStatus = {
   status: string | null;
   /** True quando o webhook do Stripe já marcou a assinatura como paga. */
   paid: boolean;
+  /** Respostas grátis já usadas (só-servidor grava). Ausente no modo demo. */
+  freeUsed?: number;
 };
 
 const semAssinatura: BillingStatus = { plan: null, status: null, paid: false };
@@ -166,7 +168,13 @@ export async function getBillingStatus(): Promise<BillingStatus> {
     const status = typeof d?.billing?.status === "string" ? d.billing.status : null;
     const plan =
       rawPlan === "start" || rawPlan === "pro" || rawPlan === "premium" ? rawPlan : null;
-    return { plan, status, paid: !!status && PAID_BILLING_STATUSES.has(status) };
+    const freeUsed = Number(d?.usage?.free_generations ?? 0);
+    return {
+      plan,
+      status,
+      paid: !!status && PAID_BILLING_STATUSES.has(status),
+      freeUsed: Number.isFinite(freeUsed) ? freeUsed : 0,
+    };
   } catch (err) {
     console.warn("[store] falha ao ler status de billing:", err instanceof Error ? err.message : err);
     return semAssinatura;
