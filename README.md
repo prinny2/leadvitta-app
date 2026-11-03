@@ -1,15 +1,25 @@
 # LeadBellus
 
-**AI-assisted WhatsApp sales replies for Brazilian aesthetic clinics** — turns a
-client's message ("how much is Botox?", "that's expensive", silence after a quote)
-into three ready-to-send replies in the clinic's own tone, with compliance
-guardrails, usage-based paywall and Stripe subscriptions. Live, billing real
-customers, built and operated end-to-end by one developer.
+**AI-assisted WhatsApp sales replies for Brazilian aesthetic clinics.** A client's
+message ("how much is Botox?", "that's expensive", silence after a quote) becomes
+three ready-to-send replies in the clinic's own tone, with compliance guardrails.
+Built and operated end-to-end by one developer.
+
+- **Stack:** Next.js 16 · React 19 · TypeScript · Clerk → Firebase Auth · Firestore · Stripe · Z-API + Meta WhatsApp · OpenAI → Claude → Gemini
+- **Shipped:** ran in production on Vercel with live-mode Stripe subscriptions; a fixed-price VPS relaunch followed in Oct 2026, but the public domain is currently unreachable.
+- **Run it:** `npm install && npm run dev` → http://localhost:3000/dashboard (demo mode: no keys, AI mocked) · `npm test` → 418 Vitest tests
 
 > Product UI and copy are in Brazilian Portuguese (the target market). Code,
 > comments and this README are mixed EN/PT-BR.
 
-**Live:** https://www.leadbellus.com.br
+## Screenshots
+
+| | |
+| --- | --- |
+| **Landing — hero + WhatsApp demo** | **Generator — 3 reply variants** |
+| ![Landing](docs/screenshots/01-landing.png) | ![Generator](docs/screenshots/02-gerador.png) |
+| **Onboarding — generic reply vs. the clinic's reply** | **Dashboard** |
+| ![Onboarding](docs/screenshots/03-onboarding.png) | ![Dashboard](docs/screenshots/04-dashboard.png) |
 
 ---
 
@@ -17,7 +27,7 @@ customers, built and operated end-to-end by one developer.
 
 | Layer | What is used |
 | --- | --- |
-| Framework | **Next.js 15** (App Router, route groups, server routes) · **React 19** · **TypeScript** (strict) |
+| Framework | **Next.js 16** (App Router, route groups, server routes) · **React 19** · **TypeScript** (strict) |
 | Styling / UI | **Tailwind CSS 3.4**, custom navy/gold design system, `framer-motion`, `lucide-react`, `recharts` |
 | Auth | **Clerk** (public sign-in/sign-up, pt-BR localisation) bridged to **Firebase Auth** via server-minted custom tokens so Firestore security rules and billing keep working |
 | Data | **Cloud Firestore** (per-user rules, compound indexes) · **Firebase Admin SDK** for webhook writes · **Supabase/Postgres** as an additive analytics mirror |
@@ -43,19 +53,10 @@ customers, built and operated end-to-end by one developer.
 - **Conversion funnel** — 3-step onboarding (clinic DNA → "your reply vs. a generic one" → plans), campaign landing pages, waitlist for unreleased plans, GA4 + server-side purchase events, ops alerts via WhatsApp.
 - **Operational endpoints** — `/api/health` and `/api/config` report which capabilities are live (AI providers, Stripe, Clerk, Firebase Admin, selected WhatsApp provider) for deploy verification.
 
-## Live demo
+## Demo
 
-- **Production:** https://www.leadbellus.com.br (Stripe is in live mode — the free tier lets you try the generator on the landing page and after sign-up without a card).
 - **Local demo mode:** `npm install && npm run dev` with **no** `.env.local` → open http://localhost:3000/dashboard. Login is skipped and AI replies are mocked, so every screen is clickable offline.
-
-## Screenshots
-
-| | |
-| --- | --- |
-| **Landing — hero + WhatsApp demo** | **Generator — 3 reply variants** |
-| ![Landing](docs/screenshots/01-landing.png) | ![Generator](docs/screenshots/02-gerador.png) |
-| **Onboarding — generic reply vs. the clinic's reply** | **Dashboard** |
-| ![Onboarding](docs/screenshots/03-onboarding.png) | ![Dashboard](docs/screenshots/04-dashboard.png) |
+- **Production:** the Vercel deployment was retired in Oct 2026 and a fixed-price VPS relaunch is documented in [`deploy/vps/README.md`](deploy/vps/README.md). The public domain did not resolve at last check; Stripe was in live mode while the product was running.
 
 ## Setup
 
