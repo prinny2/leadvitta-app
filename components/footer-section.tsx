@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { FadeUp } from "@/components/fade-up";
 import Link from "next/link";
 import { Brain, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { EMPRESA } from "@/lib/empresa";
@@ -89,11 +89,7 @@ function FooterLink({ href, children, isNext }: { href: string; children: React.
 
 export function FooterSection() {
   return (
-    <motion.footer
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+    <footer
       className="lb-footer"
       style={{
         background: "#050d17",
@@ -113,13 +109,7 @@ export function FooterSection() {
         className="lb-footer-grid"
       >
         {/* Brand */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.55, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-          className="lb-footer-brand"
-        >
+        <FadeUp delay={0.05} className="lb-footer-brand">
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
             <LogoMark size={34} />
             <Wordmark />
@@ -145,16 +135,10 @@ export function FooterSection() {
               </span>
             ))}
           </div>
-        </motion.div>
+        </FadeUp>
 
         {/* Produto */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.55, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-          className="lb-footer-column"
-        >
+        <FadeUp delay={0.12} className="lb-footer-column">
           <p className="lb-footer-heading" style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: "16px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
             Produto
           </p>
@@ -163,16 +147,10 @@ export function FooterSection() {
               <FooterLink key={l.label} href={l.href}>{l.label}</FooterLink>
             ))}
           </div>
-        </motion.div>
+        </FadeUp>
 
         {/* Legal */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.55, delay: 0.19, ease: [0.22, 1, 0.36, 1] }}
-          className="lb-footer-column"
-        >
+        <FadeUp delay={0.19} className="lb-footer-column">
           <p className="lb-footer-heading" style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: "16px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
             Legal
           </p>
@@ -181,16 +159,10 @@ export function FooterSection() {
               <FooterLink key={l.label} href={l.href} isNext>{l.label}</FooterLink>
             ))}
           </div>
-        </motion.div>
+        </FadeUp>
 
         {/* Contato / Suporte */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.55, delay: 0.26, ease: [0.22, 1, 0.36, 1] }}
-          className="lb-footer-support"
-        >
+        <FadeUp delay={0.26} className="lb-footer-support">
           <p className="lb-footer-heading" style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: "16px", letterSpacing: "0.1em", textTransform: "uppercase" }}>
             Suporte
           </p>
@@ -205,16 +177,13 @@ export function FooterSection() {
               Suporte pelo chat no app
             </span>
           </div>
-        </motion.div>
+        </FadeUp>
       </div>
 
       <GoldDivider />
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
+      <FadeUp
+        delay={0.3}
         style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "12px" }}
         className="lb-footer-bottom"
       >
@@ -238,7 +207,7 @@ export function FooterSection() {
             Pagamento seguro · dados protegidos
           </span>
         </div>
-      </motion.div>
+      </FadeUp>
       <style>{`
         @media (max-width: 767px) {
           .lb-footer {
@@ -340,6 +309,6 @@ export function FooterSection() {
           }
         }
       `}</style>
-    </motion.footer>
+    </footer>
   );
 }

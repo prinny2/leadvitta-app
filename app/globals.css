@@ -254,3 +254,24 @@ html.light-theme [style*="background: linear-gradient(135deg, #0f1b2f"] {
     padding: 12px 20px;
   }
 }
+
+/* ─────────────────────────────────────────────
+   FadeUp (components/fade-up.tsx): entrada suave sem framer-motion.
+   O servidor entrega tudo visível; o JS só recolhe o que está abaixo da dobra.
+   ───────────────────────────────────────────── */
+.lb-fade[data-fade] {
+  transition:
+    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1) var(--lb-fade-delay, 0s),
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1) var(--lb-fade-delay, 0s);
+}
+.lb-fade[data-fade="out"] {
+  opacity: 0;
+  transform: translateY(28px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lb-fade[data-fade] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

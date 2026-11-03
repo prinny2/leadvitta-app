@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { isFirebaseConfigured } from "@/lib/config";
-import { getFirebaseAuth } from "@/lib/firebase/client";
-import { waitForAuthUser } from "@/lib/store";
 import type { BillingInterval, BillingPlan } from "@/lib/billing";
 import { getGaClientId, trackEvent } from "@/components/Analytics";
 
@@ -14,6 +12,18 @@ type PlanCheckoutButtonProps = {
   className?: string;
   children: React.ReactNode;
 };
+
+/**
+ * Firebase (Auth + store) só carrega no clique: este botão aparece na landing e
+ * o SDK estático somava ~137 KB gzip ao carregamento de quem nem vai assinar.
+ */
+async function loadAuthHelpers() {
+  const [{ getFirebaseAuth }, { waitForAuthUser }] = await Promise.all([
+    import("@/lib/firebase/client"),
+    import("@/lib/store"),
+  ]);
+  return { getFirebaseAuth, waitForAuthUser };
+}
 
 /** Abre Stripe Checkout — sem exigir login; o Stripe coleta o e-mail. */
 export function PlanCheckoutButton({
@@ -37,6 +47,7 @@ export function PlanCheckoutButton({
     setLoading(true);
     try {
       trackEvent("checkout_click", { plan, interval });
+      const { getFirebaseAuth, waitForAuthUser } = await loadAuthHelpers();
       // Com Clerk, `currentUser` fica null até a ponte Clerk→Firebase terminar.
       // Se há sessão (cookie da ponte), espera o usuário pra mandar o uid — senão
       // quem já está logado cai no checkout de visitante e volta pro /signup.

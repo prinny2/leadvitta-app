@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SearchX } from "lucide-react";
+import { SearchX } from "@/components/static-icons";
 import { Card, CardBody } from "@/components/ui/card";
 
 export default function NotFoundPage() {
