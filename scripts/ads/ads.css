@@ -34,6 +34,7 @@ body {
   background: linear-gradient(165deg, var(--navy-2) 0%, var(--navy) 45%, var(--navy-3) 100%);
 }
 .fmt-1920 .canvas { height: 1920px; }
+.fmt-1350 .canvas { height: 1350px; }
 
 .glow { position: absolute; border-radius: 50%; pointer-events: none; }
 .glow-a {
@@ -53,6 +54,8 @@ body {
   flex-direction: column;
 }
 .fmt-1920 .safe { inset: 250px 76px 250px; }
+/* 4:5: margem maior em cima/embaixo para a grade 3:4 do perfil não cortar o texto. */
+.fmt-1350 .safe { inset: 150px 76px 130px; }
 
 .eyebrow {
   font-size: 22px;
