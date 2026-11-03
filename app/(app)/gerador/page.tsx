@@ -209,7 +209,6 @@ export default function GeradorPage() {
         }),
       });
       const data = await res.json();
-      trackFreeGeneration("gerador", { ...data, ok: res.ok }, trackEvent);
       if (res.ok && data.texto) {
         setRespostas((prev) => (prev ? { ...prev, [variante]: data.texto } : prev));
         setSalvo(false);

@@ -115,12 +115,18 @@ export function LandingWhatsAppDemo() {
     if (!target || demoViewed.current || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting || demoViewed.current) return;
+        // A 1ª notificação chega com isIntersecting mesmo abaixo do threshold.
+        // No celular a demo é mais alta que a tela, então "40% da demo" pode
+        // nunca acontecer: conta também quando ela ocupa 40% da tela.
+        const visto =
+          entry.intersectionRatio >= 0.4 ||
+          entry.intersectionRect.height >= window.innerHeight * 0.4;
+        if (!entry.isIntersecting || !visto || demoViewed.current) return;
         demoViewed.current = true;
         trackEvent("view_demo", { content_name: "landing_demo" });
         observer.disconnect();
       },
-      { threshold: 0.4 }
+      { threshold: [0, 0.1, 0.2, 0.3, 0.4] }
     );
     observer.observe(target);
     return () => observer.disconnect();
