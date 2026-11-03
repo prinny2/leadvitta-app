@@ -1,19 +1,27 @@
 // Cron de publicação automática na Meta (Página FB + Instagram Business).
-// Chamado diariamente pela Vercel Cron (vercel.json) com
+// Chamado duas vezes por dia pelo cron do VPS (deploy/vps/bootstrap.sh) com
 // Authorization: Bearer ${CRON_SECRET}. Publica os posts de data/social-posts.ts
 // cuja data é hoje (fuso America/Belem), com idempotência via Firestore quando
-// o Admin SDK está configurado.
+// o Admin SDK está configurado. Post com vídeo (Reel) pode levar alguns minutos:
+// o polling do container do Instagram tem prazo de 300 s.
 
 import { NextResponse } from "next/server";
 import { jsonNoStore } from "@/lib/api-security";
 import { isMetaPublishConfigured } from "@/lib/config";
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { publishSocialPost, type PublishResult } from "@/lib/social/meta-publisher";
-import { SOCIAL_POSTS, turnoDoPost } from "@/data/social-posts";
+import { SOCIAL_POSTS, turnoDoPost, type SocialPost } from "@/data/social-posts";
 
 export const dynamic = "force-dynamic";
 
 const LOG_COLLECTION = "social_posts_log";
+
+/** Mesma prioridade do publicador: vídeo > imagem > só texto. */
+function midiaDoPost(post: SocialPost): "reel" | "foto" | "texto" {
+  if (post.videoUrl) return "reel";
+  if (post.imagemUrl) return "foto";
+  return "texto";
+}
 
 function todayInBelem(): string {
   // en-CA formata como YYYY-MM-DD.
@@ -86,7 +94,12 @@ export async function GET(request: Request) {
       turno,
       dry_run: true,
       configured: isMetaPublishConfigured,
-      due: due.map((p) => ({ id: p.id, canais: p.canais })),
+      due: due.map((p) => ({
+        id: p.id,
+        canais: p.canais,
+        midia: midiaDoPost(p),
+        videoUrl: p.videoUrl ?? null,
+      })),
     });
   }
 
