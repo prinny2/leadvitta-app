@@ -29,6 +29,7 @@ export function HeroLoop({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [src, setSrc] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -62,33 +63,55 @@ export function HeroLoop({
   }, [src]);
 
   return (
-    <video
-      ref={videoRef}
-      className={className}
-      autoPlay
-      muted
-      loop
-      playsInline
-      preload="metadata"
-      poster={POSTER_SRC}
-      width={544}
-      height={680}
-      disablePictureInPicture
-      disableRemotePlayback
-      aria-label={LABEL}
-      style={{
-        display: "block",
-        width: "100%",
-        height: "auto",
-        aspectRatio: "4 / 5",
-        borderRadius: "20px",
-        border: "1px solid rgba(228,168,77,0.35)",
-        boxShadow: "0 30px 70px rgba(0,0,0,0.35)",
-        background: "#0B1B33",
-        ...style,
-      }}
-    >
-      {src ? <source src={src} type="video/mp4" /> : null}
-    </video>
+    <div className="relative">
+      <video
+        ref={videoRef}
+        className={className}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        poster={POSTER_SRC}
+        width={544}
+        height={680}
+        disablePictureInPicture
+        disableRemotePlayback
+        aria-label={LABEL}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        style={{
+          display: "block",
+          width: "100%",
+          height: "auto",
+          aspectRatio: "4 / 5",
+          borderRadius: "20px",
+          border: "1px solid rgba(228,168,77,0.35)",
+          boxShadow: "0 30px 70px rgba(0,0,0,0.35)",
+          background: "#0B1B33",
+          ...style,
+        }}
+      >
+        {src ? <source src={src} type="video/mp4" /> : null}
+      </video>
+      {src && (
+        <button
+          type="button"
+          aria-label={isPlaying ? "Pausar vídeo de demonstração" : "Reproduzir vídeo de demonstração"}
+          onClick={() => {
+            const video = videoRef.current;
+            if (!video) return;
+            if (video.paused) {
+              video.play().catch(() => {});
+            } else {
+              video.pause();
+            }
+          }}
+          className="absolute bottom-3 right-3 z-10 rounded-full border border-white/30 bg-navy-950/90 px-3 py-2 text-xs font-semibold text-white shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-400"
+        >
+          {isPlaying ? "Pausar vídeo" : "Reproduzir vídeo"}
+        </button>
+      )}
+    </div>
   );
 }

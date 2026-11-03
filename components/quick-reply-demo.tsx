@@ -90,21 +90,19 @@ export function useQuickReply(source: QuickReplySource) {
   const exhausted = limitLoaded && remaining <= 0;
 
   function editMensagem(value: string) {
+    clearResult();
     setMensagem(value);
     setSituacao("");
     setPresetProcedimento("");
-    if (erro?.tipo === "vazio") setErro(null);
   }
 
   function applyPreset(id: string) {
     const preset = getQuickReplyPreset(id);
     if (!preset) return null;
+    clearResult();
     setMensagem(preset.mensagem);
     setSituacao(preset.situacao);
     setPresetProcedimento(preset.procedimento);
-    setRespostas(null);
-    setAviso("");
-    setErro(null);
     return preset;
   }
 
@@ -132,7 +130,6 @@ export function useQuickReply(source: QuickReplySource) {
     const current = ++seq.current;
     setLoading(true);
     setErro(null);
-    setAviso("");
 
     try {
       const res = await fetch("/api/generate", {
