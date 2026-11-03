@@ -88,7 +88,7 @@ export function VisualAuthPanel({
 
   async function persistDraft() {
     const draft = loadDnaDraft();
-    if (draft?.nome_clinica?.trim()) {
+    if (draft) {
       await saveClinica({ ...clinicaVazia, ...draft, onboarded: false });
     }
   }
