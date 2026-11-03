@@ -64,6 +64,52 @@ describe("GET /api/marketing/social-post", () => {
     expect(mocks.publishSocialPost).not.toHaveBeenCalled();
   });
 
+  it("dry run mostra a mídia (reel/foto/texto) e o videoUrl de cada post", async () => {
+    const auth = { authorization: "Bearer segredo-teste" };
+    const data = "2099-01-02";
+    const extras = [
+      {
+        id: `${data}-reel`,
+        data,
+        canais: ["facebook", "instagram"] as const,
+        texto: "Reel",
+        videoUrl: "https://www.leadbellus.com.br/reels/r4-tour.mp4",
+        imagemUrl: "https://www.leadbellus.com.br/reels/r4-tour-capa.png",
+      },
+      {
+        id: `${data}-foto`,
+        data,
+        canais: ["instagram"] as const,
+        texto: "Foto",
+        imagemUrl: "https://www.leadbellus.com.br/social/auto/x.png",
+        turno: "noite" as const,
+      },
+      { id: `${data}-texto`, data, canais: ["facebook"] as const, texto: "Texto" },
+    ].map((p) => ({ ...p, canais: [...p.canais] }));
+
+    SOCIAL_POSTS.push(...extras);
+    try {
+      const manha = await (await call(`?date=${data}&dry=1`, auth)).json();
+      expect(manha.due).toEqual([
+        {
+          id: `${data}-reel`,
+          canais: ["facebook", "instagram"],
+          midia: "reel",
+          videoUrl: "https://www.leadbellus.com.br/reels/r4-tour.mp4",
+        },
+        { id: `${data}-texto`, canais: ["facebook"], midia: "texto", videoUrl: null },
+      ]);
+
+      const noite = await (await call(`?date=${data}&dry=1&turno=noite`, auth)).json();
+      expect(noite.due).toEqual([
+        { id: `${data}-foto`, canais: ["instagram"], midia: "foto", videoUrl: null },
+      ]);
+    } finally {
+      SOCIAL_POSTS.splice(SOCIAL_POSTS.length - extras.length, extras.length);
+    }
+    expect(mocks.publishSocialPost).not.toHaveBeenCalled();
+  });
+
   it("separa os posts por turno (manhã por padrão, ?turno=noite à noite)", async () => {
     const auth = { authorization: "Bearer segredo-teste" };
     const noturno = SOCIAL_POSTS.find((p) => p.turno === "noite");

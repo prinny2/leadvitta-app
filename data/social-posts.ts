@@ -1,7 +1,9 @@
 // Calendário editorial de posts orgânicos (Facebook + Instagram) publicados
 // automaticamente pelo cron /api/marketing/social-post. Datas no fuso
-// America/Belem (YYYY-MM-DD). Post sem imagemUrl sai só no Facebook — o
-// Instagram exige imagem. Edite/adicione posts aqui; o cron cuida do resto.
+// America/Belem (YYYY-MM-DD). Post com videoUrl sai como Reel no Instagram e
+// vídeo na Página; senão, com imagemUrl, sai como foto. Post sem imagem nem
+// vídeo sai só no Facebook — o Instagram exige mídia. Edite/adicione posts
+// aqui; o cron cuida do resto.
 
 export type CanalSocial = "facebook" | "instagram";
 
@@ -14,8 +16,15 @@ export type SocialPost = {
   data: string;
   canais: CanalSocial[];
   texto: string;
-  /** URL pública da arte. Obrigatória para Instagram. */
+  /** URL pública da arte. Obrigatória para Instagram quando não há videoUrl. */
   imagemUrl?: string;
+  /**
+   * URL pública https do mp4 (9:16), ex.
+   * https://www.leadbellus.com.br/reels/r5-na-cadeira.mp4. Quando existe, o
+   * post sai como Reel no Instagram e como vídeo na Página do Facebook (tem
+   * prioridade sobre imagemUrl).
+   */
+  videoUrl?: string;
   /** Link anexado ao post do Facebook (feed). */
   link?: string;
   /** Qual disparo do cron publica o post. Sem valor = "manha". */
@@ -27,7 +36,7 @@ export type SocialPost = {
 /** Layouts de arte do renderer (scripts/social/render-social.mjs). */
 export type LayoutArte =
   | "chat" // mockup de WhatsApp: mensagem da cliente + resposta pronta
-  | "antesdepois" // resposta fraca × resposta da secretária
+  | "antesdepois" // resposta fraca × resposta com o LeadBellus
   | "citacao" // frase grande em destaque
   | "checklist" // lista com checks (ou X, com `negativo`)
   | "mito" // mito × verdade
@@ -48,7 +57,7 @@ export type ArteSocial = {
   tag?: string;
   /** chat/antesdepois: mensagem da cliente. */
   cliente?: string;
-  /** chat: resposta pronta; antesdepois: resposta da secretária. */
+  /** chat: resposta pronta; antesdepois: resposta com o LeadBellus. */
   resposta?: string;
   /** chat: "clinica" mostra a mensagem da clínica primeiro. */
   ordem?: "cliente" | "clinica";
@@ -74,7 +83,7 @@ const LP = "https://www.leadbellus.com.br";
 const HASHTAGS =
   "#clinicaestetica #estetica #whatsappdaclinica #atendimento #harmonizacaofacial #botox #leadbellus #secretariadaclinica";
 /** Hashtags fixas dos posts com arte única; cada post soma as suas, de nicho. */
-const HASHTAGS_BASE = "#clinicaestetica #estetica #whatsappdaclinica #secretariadaclinica #leadbellus";
+const HASHTAGS_BASE = "#clinicaestetica #estetica #whatsappdaclinica #assistentedeescrita #leadbellus";
 const ARTE = "https://www.leadbellus.com.br/social";
 const utm = (campanha: string, source: string) =>
   `${LP}/?utm_source=${source}&utm_medium=organic&utm_campaign=${campanha}`;
@@ -266,7 +275,7 @@ A segunda já leva para o próximo passo.`,
  * Compliance: sem promessa de resultado, sem preço de procedimento (só o
  * Start R$97/mês, raramente), sem diagnóstico e sem dizer que envia sozinha
  * ou que conecta ao WhatsApp (isso só como piloto/lista de espera).
- * Ela escreve; a equipe revisa e envia.
+ * O LeadBellus escreve; a equipe revisa e envia.
  */
 function secretariaArte(post: {
   id: string;
@@ -308,7 +317,7 @@ Ela responde rápido, só com o valor. Visualizado. Nenhuma resposta.
 
 Não foi o preço que espantou a cliente — foi a conversa ter acabado ali. Faltou explicar que o valor depende da avaliação, acolher a dúvida e oferecer um horário.
 
-A secretária do LeadBellus escreve essa resposta no tom da sua clínica, em segundos. Você revisa e envia.
+O assistente de escrita do LeadBellus escreve essa resposta no tom da sua clínica, em segundos. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -348,11 +357,11 @@ Qual dessas três a sua equipe mais esquece?`,
       texto: `“Tenho medo de ficar com a boca exagerada.”
 
 Resposta fraca: “Relaxa, fica natural!”
-Resposta da secretária: “Esse cuidado é muito comum — e é ótimo você falar. Na avaliação a gente conversa sobre o que você quer e planeja tudo com calma. Quer que eu veja um horário?”
+Resposta com o LeadBellus: “Esse cuidado é muito comum — e é ótimo você falar. Na avaliação a gente conversa sobre o que você quer e planeja tudo com calma. Quer que eu veja um horário?”
 
 A primeira tenta encerrar o medo. A segunda acolhe e leva para a avaliação, sem prometer resultado.
 
-Biomédica esteta que atende e responde ao mesmo tempo: a secretária escreve essa mensagem no seu tom. Você revisa e envia.
+Biomédica esteta que atende e responde ao mesmo tempo: o LeadBellus escreve essa mensagem no seu tom. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -405,7 +414,7 @@ Salve e mande para quem responde o WhatsApp da clínica.`,
 
 Quem atende sozinha não tem como parar o procedimento para digitar. Mas dá para, no intervalo, colar as mensagens e ter as respostas prontas.
 
-A secretária do LeadBellus escreve cada uma no seu tom. Você revisa e envia em poucos minutos.
+O assistente de escrita do LeadBellus escreve cada uma no seu tom. Você revisa e envia em poucos minutos.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -447,7 +456,7 @@ Para quem faz harmonização facial, essa frase chega toda semana. E a vontade �
 
 Antes de mexer no valor, dê contexto: como é a avaliação, o planejamento, o cuidado com a segurança e o acompanhamento. Muita gente compara números sem saber o que está incluso.
 
-A secretária do LeadBellus escreve essa resposta no tom da sua clínica — firme, gentil e sem prometer resultado. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve essa resposta no tom da sua clínica — firme, gentil e sem prometer resultado. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -455,7 +464,7 @@ A secretária do LeadBellus escreve essa resposta no tom da sua clínica — fir
       id: "2026-11-06-noite-bastidor-recepcao",
       data: "2026-11-06",
       turno: "noite",
-      tags: "#recepcionista #secretariadeclinica",
+      tags: "#recepcionista #recepcaodeclinica",
       arte: {
         layout: "citacao",
         hook: "Respondo entre o telefone e a *porta*.",
@@ -491,7 +500,7 @@ Checklist da primeira resposta:
 • explica que o plano e o valor saem da consulta de avaliação
 • termina com um horário concreto
 
-A secretária do LeadBellus escreve essa mensagem com tudo isso, no tom da clínica. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve essa mensagem com tudo isso, no tom da clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -530,7 +539,7 @@ Quarta, quinta, sexta: agenda cheia. Ninguém lembrou de chamar de volta. No dom
 
 Não foi preço. Foi silêncio.
 
-A secretária do LeadBellus escreve o retorno no tom da clínica — leve, sem pressão e com um próximo passo. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve o retorno no tom da clínica — leve, sem pressão e com um próximo passo. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -574,7 +583,7 @@ Por trás do “vou pensar” costuma ter uma dúvida que não foi dita: medo de
 
 Em vez de “ok, fico no aguardo”, pergunte com leveza: “claro! Ficou alguma dúvida que eu possa te ajudar a pensar?”.
 
-A secretária do LeadBellus escreve essa resposta no seu tom. Você revisa e envia.
+O assistente de escrita do LeadBellus escreve essa resposta no seu tom. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -605,7 +614,7 @@ Sem julgamento. Comenta a letra e amanhã a gente fala sobre isso.`,
       arte: {
         layout: "antesdepois",
         tag: "Depilação a laser",
-        hook: "Duas respostas. Só uma *agenda*.",
+        hook: "Duas respostas. Só uma abre *conversa*.",
         cliente: "Quanto custa o laser na axila?",
         fraca: "Segue a tabela em PDF.",
         resposta:
@@ -614,11 +623,11 @@ Sem julgamento. Comenta a letra e amanhã a gente fala sobre isso.`,
       texto: `“Quanto custa o laser na axila?”
 
 Resposta fraca: mandar a tabela inteira em PDF.
-Resposta da secretária: “Oi, Ju! O valor depende do número de sessões, que a gente define na avaliação. Quer que eu reserve um horário para você esta semana?”
+Resposta com o LeadBellus: “Oi, Ju! O valor depende do número de sessões, que a gente define na avaliação. Quer que eu reserve um horário para você esta semana?”
 
-A tabela faz a cliente comparar número com número. A conversa faz a cliente vir até a clínica.
+A tabela faz a cliente comparar número com número. A conversa convida a cliente para a avaliação.
 
-A secretária do LeadBellus escreve essa resposta no tom da sua clínica de depilação a laser. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve essa resposta no tom da sua clínica de depilação a laser. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -643,7 +652,7 @@ Antes de mexer no valor, explique o que está incluso: avaliação, planejamento
     secretariaArte({
       id: "2026-11-11-recepcao-remarcacoes",
       data: "2026-11-11",
-      tags: "#recepcionista #agendadeclinica #secretariadeclinica",
+      tags: "#recepcionista #agendadeclinica #recepcaodeclinica",
       arte: {
         layout: "agenda",
         tag: "Recepção · Remarcações",
@@ -665,7 +674,7 @@ E a recepção ainda está abrindo a clínica.
 
 Remarcação bem respondida segura a cliente na agenda: acolhe, oferece duas opções de horário e confirma. Mal respondida, vira cancelamento.
 
-A secretária do LeadBellus escreve essas mensagens no tom da clínica. A recepção revisa e envia.
+O assistente de escrita do LeadBellus escreve essas mensagens no tom da clínica. A recepção revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -706,7 +715,7 @@ Não houve reclamação. Só faltou alguém perguntar, alguns dias depois: “co
 
 A mensagem de pós-procedimento é a mais fácil de esquecer — e a que mais aproxima a cliente da próxima sessão.
 
-A secretária do LeadBellus escreve essa mensagem no tom da sua clínica. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve essa mensagem no tom da sua clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -736,13 +745,13 @@ Nenhuma vende. Todas cuidam. Os prazos certos são os que o profissional da clí
       arte: {
         layout: "mito",
         tag: "Clínica dermatológica",
-        hook: "Ela escreve. Sua equipe *decide*.",
+        hook: "O LeadBellus escreve. Sua equipe *decide*.",
         mito: "IA no WhatsApp fala sozinha com as pacientes.",
-        verdade: "No LeadBellus, a secretária só escreve. A equipe revisa, ajusta e decide o que enviar.",
+        verdade: "O LeadBellus só escreve. A equipe revisa, ajusta e decide o que enviar.",
       },
       texto: `Mito ou verdade: “Usar IA no WhatsApp da clínica é deixar um robô falando com as pacientes.”
 
-No LeadBellus, mito. A secretária só escreve: você cola a mensagem e recebe 3 opções — Suave, Consultiva e Fechamento. Quem revisa, ajusta e envia é a equipe.
+No LeadBellus, mito. É um assistente de escrita: você cola a mensagem e recebe 3 opções — Suave, Consultiva e Fechamento. Quem revisa, ajusta e envia é a equipe.
 
 Para a clínica dermatológica, isso importa: nada sai sem alguém da equipe ler antes, e as respostas evitam promessa de resultado e diagnóstico pelo WhatsApp.
 
@@ -786,7 +795,7 @@ A primeira promete. A segunda acolhe — e é honesta.`,
 
 Quem responde segunda de manhã chega depois de quem respondeu no sábado.
 
-A secretária do LeadBellus deixa as respostas prontas no intervalo, no tom da sua clínica. A equipe revisa e envia.
+O assistente de escrita do LeadBellus deixa as respostas prontas no intervalo, no tom da sua clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -834,7 +843,7 @@ Ela mostra que a mensagem foi vista, responde a dúvida e já oferece horário. 
 
 Quinze minutos hoje evitam uma segunda inteira apagando incêndio.
 
-A secretária do LeadBellus escreve todas essas mensagens no seu tom. Você revisa e envia.
+O assistente de escrita do LeadBellus escreve todas essas mensagens no seu tom. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -876,7 +885,7 @@ Essa frase não é uma objeção a vencer. É o motivo de a cliente ter escrito 
 
 A biomédica esteta que responde “fica natural, pode confiar” perde a chance de conversar. A que acolhe o medo — e explica que tudo começa por uma avaliação e um planejamento conjunto — abre espaço para a confiança.
 
-A secretária do LeadBellus escreve essa resposta no tom da sua clínica, sem prometer resultado. Você revisa e envia.
+O assistente de escrita do LeadBellus escreve essa resposta no tom da sua clínica, sem prometer resultado. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -922,7 +931,7 @@ Cris disse “vou pensar” sobre a toxina.
 Dani perguntou da drenagem e ninguém respondeu.
 Eli quer saber se o bioestimulador dói.
 
-Cinco conversas, cinco respostas diferentes. A secretária do LeadBellus escreve cada uma no tom da clínica. A equipe revisa e envia — em minutos.
+Cinco conversas, cinco respostas diferentes. O assistente de escrita do LeadBellus escreve cada uma no tom da clínica. A equipe revisa e envia — em minutos.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -959,11 +968,11 @@ Sem pergunta, a conversa acaba em você. Com pergunta, a próxima mensagem é de
       texto: `“Quanto fica o pacote de drenagem?”
 
 Resposta fraca: “10 sessões, valor na tabela.”
-Resposta da secretária: “Oi, Dani! A gente monta o pacote de acordo com a sua rotina e o seu objetivo. Posso te fazer duas perguntas rápidas para indicar o melhor formato?”
+Resposta com o LeadBellus: “Oi, Dani! A gente monta o pacote de acordo com a sua rotina e o seu objetivo. Posso te fazer duas perguntas rápidas para indicar o melhor formato?”
 
 A primeira entrega um número. A segunda começa um atendimento.
 
-Esteticista autônoma não tem tempo de pensar em cada resposta entre uma sessão e outra. A secretária do LeadBellus escreve no seu tom. Você revisa e envia.
+Esteticista autônoma não tem tempo de pensar em cada resposta entre uma sessão e outra. O assistente de escrita do LeadBellus escreve no seu tom. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1004,7 +1013,7 @@ Indicação é a cliente mais fácil de agendar — e a mais fácil de decepcion
 
 Uma boa resposta agradece a indicação, chama pelo nome, mostra que a clínica está feliz em receber e já oferece um horário.
 
-A secretária do LeadBellus escreve essa mensagem no tom da clínica. A recepção revisa e envia.
+O assistente de escrita do LeadBellus escreve essa mensagem no tom da clínica. A recepção revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1049,7 +1058,7 @@ Quatro respostas para deixar prontas antes de sair:
 • o retorno para quem pediu orçamento
 • a confirmação das clientes de segunda
 
-A secretária do LeadBellus escreve as quatro no tom da sua clínica. A equipe revisa e envia quando for a hora.
+O assistente de escrita do LeadBellus escreve as quatro no tom da sua clínica. A equipe revisa e envia quando for a hora.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1070,7 +1079,7 @@ A secretária do LeadBellus escreve as quatro no tom da sua clínica. A equipe r
 
 “Oi, Bel! No feriado a clínica fecha, mas segunda tenho horário às 11h e às 16h. Quer que eu reserve um para você?”
 
-Um não que já vira agendamento.`,
+Um não que já oferece o próximo passo.`,
     }),
     // ── 2026-11-21 (sáb) ──
     secretariaArte({
@@ -1097,7 +1106,7 @@ Sexta: fila de mensagens.
 
 Tendo promoção ou não, cada pergunta pede uma resposta clara — sem prometer o que a clínica não vai fazer.
 
-Com a secretária do LeadBellus, a equipe tem as respostas prontas no tom da clínica. Revisa e envia.
+Com o assistente de escrita do LeadBellus, a equipe tem as respostas prontas no tom da clínica. Revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1136,9 +1145,9 @@ Se não vai ter, diga com gentileza — e ofereça a avaliação mesmo assim.`,
 “Vai ter Black Friday aí?”
 
 Resposta fraca: “Não vamos ter promoção.”
-Resposta da secretária: “Oi, Mari! Este ano não teremos promoção, mas posso te explicar como funciona a avaliação e reservar um horário com calma. Quer ver as opções?”
+Resposta com o LeadBellus: “Oi, Mari! Este ano não teremos promoção, mas posso te explicar como funciona a avaliação e reservar um horário com calma. Quer ver as opções?”
 
-Um não que mantém a conversa viva. A secretária do LeadBellus escreve no tom da sua clínica. A equipe revisa e envia.
+Um não que mantém a conversa viva. O assistente de escrita do LeadBellus escreve no tom da sua clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1187,7 +1196,7 @@ Checklist da resposta:
 
 Sem isso, cada cliente faz cinco perguntas — e a equipe responde cinco vezes.
 
-A secretária do LeadBellus escreve essas respostas no tom da clínica, sem promessa de resultado. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve essas respostas no tom da clínica, sem promessa de resultado. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1218,7 +1227,7 @@ No meio de tantas promoções, a clínica que explica a avaliação e o cuidado 
         persona: "Harmonizadora (HOF)",
         tag: "Preenchimento labial",
         hook: "Ela está conversando com *três* clínicas.",
-        sub: "Sai na frente quem responde rápido — e bem.",
+        sub: "Ela compara rapidez, cuidado e clareza.",
       },
       texto: `Semana de Black Friday. Uma cliente quer preenchimento labial e mandou a mesma mensagem para três clínicas.
 
@@ -1226,7 +1235,7 @@ A primeira respondeu só o valor. A segunda respondeu no dia seguinte. A terceir
 
 Adivinha qual ela foi conhecer.
 
-A secretária do LeadBellus deixa a sua resposta pronta em segundos, no tom da sua clínica. A equipe revisa e envia.
+O assistente de escrita do LeadBellus deixa a sua resposta pronta em segundos, no tom da sua clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1274,7 +1283,7 @@ Quem pergunta como pagar já está imaginando fazer. Responda e leve para o pró
 
 Essas clientes já conhecem a sua clínica. Uma mensagem bem escrita, sem pressão, pode reabrir a conversa.
 
-A secretária do LeadBellus escreve cada retomada no tom da clínica. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve cada retomada no tom da clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1299,17 +1308,17 @@ Mesma intenção, sensação completamente diferente.`,
     secretariaArte({
       id: "2026-11-26-mito-cara-de-robo",
       data: "2026-11-26",
-      tags: "#recepcionista #iaparaclinicas #secretariadeclinica",
+      tags: "#recepcionista #iaparaclinicas #recepcaodeclinica",
       arte: {
         layout: "mito",
         tag: "Recepção",
         hook: "Resposta de IA tem cara de *robô*?",
         mito: "Resposta escrita com IA sempre parece robô.",
-        verdade: "A secretária usa o tom da sua clínica — e a equipe ajusta o que quiser antes de enviar.",
+        verdade: "O LeadBellus usa o tom da sua clínica — e a equipe ajusta o que quiser antes de enviar.",
       },
       texto: `Mito ou verdade: “Resposta escrita com IA sempre parece robô.”
 
-Mito — quando a ferramenta conhece a clínica. No LeadBellus, você cadastra o tom, os procedimentos e o jeito de falar da clínica. A secretária escreve 3 opções nesse tom: Suave, Consultiva e Fechamento.
+Mito — quando a ferramenta conhece a clínica. No LeadBellus, você cadastra o tom, os procedimentos e o jeito de falar da clínica. O assistente de escrita cria 3 opções nesse tom: Suave, Consultiva e Fechamento.
 
 A recepção escolhe uma, ajusta o que quiser e envia. Fica com cara de gente, porque quem decide é gente.
 
@@ -1352,7 +1361,7 @@ Mesmo que a resposta final seja não, ela se sente lembrada.`,
 
 “Vai ter promoção?” “Quanto fica?” “Dá para parcelar?” “Tem horário amanhã?” — tudo ao mesmo tempo, enquanto a equipe atende.
 
-A secretária do LeadBellus escreve a próxima mensagem de cada conversa no tom da sua clínica, em segundos. A equipe só revisa e envia.
+O assistente de escrita do LeadBellus escreve a próxima mensagem de cada conversa no tom da sua clínica, em segundos. A equipe só revisa e envia.
 
 Plano Start por R$97/mês. Para conhecer, as primeiras são por nossa conta: 5 respostas grátis, sem cartão.`,
     }),
@@ -1394,7 +1403,7 @@ Se a condição acabou, diga com clareza — e não feche a porta. “A condiç�
 
 Para a esteticista autônoma, cada conversa dessas é uma cliente que já levantou a mão.
 
-A secretária do LeadBellus escreve essa resposta no seu tom. Você revisa e envia.
+O assistente de escrita do LeadBellus escreve essa resposta no seu tom. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1431,7 +1440,7 @@ Na segunda, um follow-up leve, sem pressão, retoma de onde parou.`,
 
 Resultado: cada uma responde de um jeito. Uma é curta, outra promete demais, outra esquece de oferecer horário.
 
-A secretária do LeadBellus dá à equipe inteira respostas no tom da clínica, sem diagnóstico e sem promessa de resultado. Cada pessoa revisa e envia.
+O assistente de escrita do LeadBellus dá à equipe inteira respostas no tom da clínica, sem diagnóstico e sem promessa de resultado. Cada pessoa revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1470,11 +1479,11 @@ Segunda começa com lista pronta, não com susto.`,
       texto: `Dezembro chegando e com ele a mensagem: “Quero fazer o botox antes do Natal, dá tempo?”
 
 Resposta fraca: “Dá sim, pode vir.”
-Resposta da secretária: “Que bom que você se planejou! O melhor momento a gente define na avaliação. Dezembro costuma lotar, então que tal reservar já? Tenho quinta às 10h.”
+Resposta com o LeadBellus: “Que bom que você se planejou! O melhor momento a gente define na avaliação. Dezembro costuma lotar, então que tal reservar já? Tenho quinta às 10h.”
 
-A primeira promete. A segunda orienta, sem prometer, e já reserva o horário.
+A primeira promete. A segunda orienta, sem prometer, e já oferece um horário.
 
-A secretária do LeadBellus escreve no seu tom. Você revisa e envia.
+O assistente de escrita do LeadBellus escreve no seu tom. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1515,7 +1524,7 @@ Ela não foi para outra clínica. Só ninguém chamou.
 
 Em dezembro, uma mensagem simples reabre a conversa: “Oi, Re! Lembrei de você esta semana. Como você está? Se quiser, temos horários antes das festas.”
 
-A secretária do LeadBellus escreve essa retomada no tom da clínica — sem pressão, sem promessa. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve essa retomada no tom da clínica — sem pressão, sem promessa. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1564,7 +1573,7 @@ Checklist da resposta:
 
 Planejamento passa segurança. Promessa vira problema.
 
-A secretária do LeadBellus escreve essas respostas no tom da clínica. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve essas respostas no tom da clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1608,9 +1617,9 @@ Terça: “e dia 22?”
 Quarta: “qualquer dia antes do Natal!”
 Quinta: agenda quase cheia.
 
-Quem responde rápido e oferece horário concreto preenche a agenda com quem já estava decidida. Quem demora passa dezembro dizendo “não tenho mais”.
+Responder rápido, com um horário concreto, ajuda quem já está decidida a encontrar a vaga. Quando a resposta demora, a conversa costuma terminar em “não tenho mais”.
 
-A secretária do LeadBellus escreve essas respostas no tom da clínica. A recepção revisa e envia.
+O assistente de escrita do LeadBellus escreve essas respostas no tom da clínica. A recepção revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1656,7 +1665,7 @@ Em dezembro, “vou pensar” tem prazo: a agenda fecha. Avisar isso não é pre
 
 Para a esteticista autônoma que faz microagulhamento, é uma frase que ajuda a cliente a decidir sem empurrar.
 
-A secretária do LeadBellus escreve essa resposta no seu tom. Você revisa e envia.
+O assistente de escrita do LeadBellus escreve essa resposta no seu tom. Você revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1684,7 +1693,7 @@ Curto, claro e já com o próximo passo.`,
     secretariaArte({
       id: "2026-12-05-mito-contratar",
       data: "2026-12-05",
-      tags: "#donadeclinica #gestaodeclinica #secretariadeclinica",
+      tags: "#donadeclinica #gestaodeclinica #recepcaodeclinica",
       arte: {
         layout: "mito",
         tag: "Dona de clínica",
@@ -1696,7 +1705,7 @@ Curto, claro e já com o próximo passo.`,
 
 Às vezes é verdade. Mas muitas vezes o que falta não é gente — é tempo de pensar em cada resposta.
 
-Com a secretária do LeadBellus, a equipe que você já tem cola a mensagem, recebe 3 respostas no tom da clínica, revisa e envia. A fila anda mais rápido sem mudar o time.
+Com o assistente de escrita do LeadBellus, a equipe que você já tem cola a mensagem, recebe 3 respostas no tom da clínica, revisa e envia. A fila anda mais rápido sem mudar o time.
 
 Plano Start: R$97/mês. Para começar, 5 respostas grátis, sem cartão.`,
     }),
@@ -1736,11 +1745,11 @@ Comenta a letra. Semana que vem tem roteiro de aviso para cada caso.`,
       texto: `Três dias depois do preenchimento labial, chega: “É normal estar assim?”
 
 Resposta fraca: “É normal, relaxa.”
-Resposta da secretária: “Oi, Ká! Que bom que você chamou. Vou passar sua mensagem para a profissional agora e ela te orienta. Pode me contar como está se sentindo?”
+Resposta com o LeadBellus: “Oi, Ká! Que bom que você chamou. Vou passar sua mensagem para a profissional agora e ela te orienta. Pode me contar como está se sentindo?”
 
 No pós-procedimento, quem responde não avalia pelo WhatsApp: acolhe e encaminha para quem fez o procedimento. A segunda resposta faz isso — e a cliente se sente cuidada.
 
-A secretária do LeadBellus escreve respostas assim, sempre dentro dessas regras. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve respostas assim, sempre dentro dessas regras. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1780,7 +1789,7 @@ Uma pergunta simples — “como você está?” — vale mais que qualquer prom
 
 Na depilação a laser, em que o pacote depende da avaliação, isso pesa ainda mais.
 
-A secretária do LeadBellus escreve a resposta de preço no tom da clínica, evitando os três. A recepção revisa e envia.
+O assistente de escrita do LeadBellus escreve a resposta de preço no tom da clínica, evitando os três. A recepção revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1819,7 +1828,7 @@ Prometer resultado é risco para a clínica. Explicar o cuidado é o que passa c
 
 Entre uma cliente e outra, sobram poucos minutos. E cada mensagem pede uma resposta pensada: preço, horário, medo, “vou pensar”.
 
-Com a secretária do LeadBellus, ela cola a mensagem e recebe 3 respostas no tom dela — Suave, Consultiva e Fechamento. Escolhe, ajusta se quiser e envia.
+Com o assistente de escrita do LeadBellus, ela cola a mensagem e recebe 3 respostas no tom dela — Suave, Consultiva e Fechamento. Escolhe, ajusta se quiser e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1840,7 +1849,7 @@ B) Consultivo, explicando tudo.
 C) Direto ao ponto.
 D) Depende da cliente.
 
-Se você respondeu D, é exatamente por isso que a secretária entrega 3 versões.`,
+Se você respondeu D, é exatamente por isso que o LeadBellus entrega 3 versões.`,
     }),
     // ── 2026-12-09 (qua) ──
     secretariaArte({
@@ -1858,7 +1867,7 @@ Se você respondeu D, é exatamente por isso que a secretária entrega 3 versõe
           "4|Sua equipe envia, como sempre",
         ],
       },
-      texto: `Como funciona a secretária do LeadBellus, no meio de um dia corrido:
+      texto: `Como funciona o assistente de escrita do LeadBellus, no meio de um dia corrido:
 
 1. Chegou “quanto custa o preenchimento?” — você cola a mensagem.
 2. Em segundos, aparecem 3 respostas no tom da clínica: Suave, Consultiva e Fechamento.
@@ -1905,7 +1914,7 @@ Uma mensagem leve, alguns dias depois, costuma reabrir a conversa. O silêncio n
 
 Facilite: agradeça, explique em uma frase como funciona e ofereça preparar na hora.
 
-A secretária do LeadBellus escreve essa resposta no tom da sua clínica. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve essa resposta no tom da sua clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1931,7 +1940,7 @@ Ninguém gosta de ficar no vácuo nas festas — e janeiro começa com agenda.`,
     secretariaArte({
       id: "2026-12-11-recepcao-recesso",
       data: "2026-12-11",
-      tags: "#recepcionista #recesso #secretariadeclinica",
+      tags: "#recepcionista #recesso #recepcaodeclinica",
       arte: {
         layout: "citacao",
         tag: "Recepção · Recesso",
@@ -1942,7 +1951,7 @@ Ninguém gosta de ficar no vácuo nas festas — e janeiro começa com agenda.`,
 
 Uma mensagem clara — últimos dias de atendimento, data de volta, como reservar janeiro — evita cliente esperando resposta no meio das festas e já abre a agenda do ano novo.
 
-Para a recepção, é um texto a mais numa semana já cheia. A secretária do LeadBellus escreve esse aviso e as respostas da semana no tom da clínica. A recepção revisa e envia.
+Para a recepção, é um texto a mais numa semana já cheia. O assistente de escrita do LeadBellus escreve esse aviso e as respostas da semana no tom da clínica. A recepção revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -1954,7 +1963,7 @@ Para a recepção, é um texto a mais numa semana já cheia. A secretária do Le
       arte: {
         layout: "antesdepois",
         tag: "Recesso",
-        hook: "Um não que vira *agendamento*.",
+        hook: "Um não que deixa a porta *aberta*.",
         cliente: "Vocês abrem entre o Natal e o Ano Novo?",
         fraca: "Não.",
         resposta:
@@ -1965,7 +1974,7 @@ Para a recepção, é um texto a mais numa semana já cheia. A secretária do Le
 Resposta fraca: “Não.”
 Resposta melhor: “Nesse período a clínica faz uma pausa, mas voltamos dia 5. Quer que eu já reserve um horário na primeira semana de janeiro?”
 
-Um não que vira agendamento.`,
+Um não que deixa a porta aberta.`,
     }),
     // ── 2026-12-12 (sáb) ──
     secretariaArte({
@@ -1990,7 +1999,7 @@ Em janeiro: chame quem fez procedimento e não voltou, e confirme a primeira sem
 
 Quem chega em janeiro com conversas abertas não começa o ano do zero.
 
-A secretária do LeadBellus escreve cada uma dessas mensagens no tom da clínica. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve cada uma dessas mensagens no tom da clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -2037,7 +2046,7 @@ Estamos preparando um piloto conectado ao WhatsApp, com lista de espera no site.
 
 Não é para se culpar. É para começar 2027 diferente.
 
-A secretária do LeadBellus escreve a próxima mensagem de cada uma, no tom da clínica. A equipe revisa e envia.
+O assistente de escrita do LeadBellus escreve a próxima mensagem de cada uma, no tom da clínica. A equipe revisa e envia.
 
 5 respostas grátis, sem cartão.`,
     }),
@@ -2066,14 +2075,14 @@ Anote os nomes antes das festas.`,
       arte: {
         layout: "chat",
         tag: "Fim de ano · Toda a equipe",
-        hook: "Na cadeira, a equipe. Na conversa, a *secretária*.",
+        hook: "Na cadeira, a equipe. No rascunho, o *LeadBellus*.",
         cliente: "Oi! Queria marcar uma avaliação de harmonização antes do Ano Novo.",
         resposta:
           "Oi, Duda! Que bom que você chamou. Tenho quarta às 16h ou sexta às 10h — qual fica melhor? Na avaliação a gente conversa com calma.",
       },
       texto: `Nas festas, a equipe cuida de quem está na cadeira. E o WhatsApp continua chegando: avaliação de harmonização, horário de limpeza de pele, “ainda dá tempo?”.
 
-A secretária do LeadBellus escreve a próxima mensagem de cada conversa no tom da sua clínica. A equipe revisa e envia — sem trocar de número e sem nada sair sozinho.
+O assistente de escrita do LeadBellus escreve a próxima mensagem de cada conversa no tom da sua clínica. A equipe revisa e envia — sem trocar de número e sem nada sair sozinho.
 
 Comece antes da virada do ano.
 
