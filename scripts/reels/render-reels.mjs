@@ -4,13 +4,13 @@
 //   node scripts/reels/render-reels.mjs              # todos
 //   node scripts/reels/render-reels.mjs r1 r4        # só alguns (prefixo do slug)
 //
-// R1–R3: cenas HTML animadas (scripts/reels/reels.mjs + engine.js). Cada
-// quadro é renderizado de forma determinística (window.__seek(t)) e enviado
-// como JPEG para o ffmpeg — mais nítido que o recordVideo do Playwright.
+// R1–R3 e R5–R7: cenas HTML animadas (scripts/reels/reels.mjs + engine.js).
+// Cada quadro é renderizado de forma determinística (window.__seek(t)) e
+// enviado como JPEG para o ffmpeg — mais nítido que o recordVideo do Playwright.
 // R4: tour do site ao vivo (https://www.leadbellus.com.br) em viewport de
 // celular, rolagem suave quadro a quadro, encaixado numa moldura com a faixa
-// de legendas. Só rola a página: não faz login, não clica em "Gerar" e não
-// envia formulário.
+// de legendas. Só rola a página (e contorna em dourado o CTA do hero): não faz
+// login, não clica em nada e não envia formulário.
 //
 // Saída: public/reels/<slug>.mp4 (< 15 MB, sem áudio — o áudio em alta entra
 // no app) e public/reels/<slug>-capa.png (1080x1920).
@@ -97,7 +97,7 @@ function warnSafe(slug, problems) {
   return false;
 }
 
-// ── R1–R3: cenas animadas ──────────────────────────────────────────────────
+// ── R1–R3, R5–R7: cenas animadas ───────────────────────────────────────────
 async function renderAnimated(browser, reel, work) {
   const htmlPath = join(work, `${reel.slug}.html`);
   writeFileSync(htmlPath, pageHtml(reel.html));
@@ -144,7 +144,11 @@ async function renderTour(browser, work) {
   await site.goto(SITE, { waitUntil: "networkidle", timeout: 60000 });
   await site.evaluate(() => document.fonts.ready);
   // Com REELS_SITE apontando para `next dev`, esconde o indicador do Next.
-  await site.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
+  // `.reel-hl` é o contorno dourado dos destaques de TOUR.highlight.
+  await site.addStyleTag({
+    content: `nextjs-portal { display: none !important; }
+      .reel-hl { outline: 4px solid #F7C96B !important; outline-offset: 5px; box-shadow: 0 0 0 12px rgba(247, 201, 107, 0.28), 0 18px 44px rgba(228, 168, 77, 0.45) !important; }`,
+  });
 
   // Aquece: rola a página toda para disparar as animações de entrada (FadeUp)
   // e volta ao topo. Nada é clicado nem enviado.
@@ -177,6 +181,9 @@ async function renderTour(browser, work) {
     });
   }, R4.scroll);
   if (targets.some((v) => v === null)) throw new Error(`Alvo de rolagem não encontrado no site: ${JSON.stringify(targets)}`);
+  const highlights = R4.highlight || [];
+  const missing = await site.evaluate((sels) => sels.filter((s) => !document.querySelector(s)), highlights.map((h) => h.selector));
+  if (missing.length) throw new Error(`Destaque não encontrado no site: ${missing.join(", ")}`);
 
   // Página de composição: faixa de legendas + "tela" com o quadro do site.
   const htmlPath = join(work, `${R4.slug}.html`);
@@ -203,7 +210,15 @@ async function renderTour(browser, work) {
   for (let f = 0; f < frames; f++) {
     const t = f / FPS;
     if (t <= endAt || !captured) {
-      await site.evaluate((y) => window.scrollTo(0, y), scrollAt(t));
+      const hl = highlights.filter((h) => t >= h.from && t < h.to).map((h) => h.selector);
+      await site.evaluate(
+        ({ y, sels }) => {
+          document.querySelectorAll(".reel-hl").forEach((el) => el.classList.remove("reel-hl"));
+          sels.forEach((s) => document.querySelector(s)?.classList.add("reel-hl"));
+          window.scrollTo(0, y);
+        },
+        { y: scrollAt(t), sels: hl },
+      );
       await site.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
       const shot = (await site.screenshot({ type: "jpeg", quality: 90 })).toString("base64");
       await frame.evaluate(async (b64) => {

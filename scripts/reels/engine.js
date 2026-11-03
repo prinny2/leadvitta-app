@@ -43,9 +43,10 @@
   }
 
   // Guarda os textos originais para os efeitos de digitação.
+  // Fatiado por code point (Array.from) para nunca cortar um emoji ao meio.
   const typed = Array.from(document.querySelectorAll("[data-type]")).map((el) => ({
     el,
-    text: el.textContent,
+    chars: Array.from(el.textContent),
     range: el.dataset.type.split(",").map(num),
   }));
 
@@ -90,10 +91,10 @@
       }
     });
 
-    typed.forEach(({ el, text, range }) => {
+    typed.forEach(({ el, chars, range }) => {
       const p = clamp((t - range[0]) / (range[1] - range[0]));
-      const n = Math.round(text.length * p);
-      el.textContent = text.slice(0, n);
+      const n = Math.round(chars.length * p);
+      el.textContent = chars.slice(0, n).join("");
       el.classList.toggle("caret", p > 0 && p < 1);
     });
 
