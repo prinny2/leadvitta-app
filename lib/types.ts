@@ -10,6 +10,7 @@ export type Clinica = {
   zapi_client_token?: string;
   tom_padrao: string;
   procedimentos: string[];
+  protocolos_retorno?: Record<string, number[]>;
   /** 0 = bem íntimo, 100 = formal. */
   formalidade: number;
   /** Como chamar a cliente. */
@@ -20,6 +21,18 @@ export type Clinica = {
   whatsapp_channel_key?: string;
   /** Já concluiu o onboarding (DNA da Clínica). */
   onboarded: boolean;
+};
+
+export type Retorno = {
+  id: string;
+  user_id?: string;
+  cliente: string;
+  procedimento: string;
+  data_aplicacao: string;
+  dias: number[];
+  enviados: number[];
+  arquivado?: boolean;
+  created_at: string;
 };
 
 export const clinicaVazia: Clinica = {

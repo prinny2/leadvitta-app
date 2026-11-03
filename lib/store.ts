@@ -27,10 +27,13 @@ import {
   type HistoricoItem,
   type Conversa,
   type MensagemConversa,
+  type Retorno,
 } from "@/lib/types";
+import { sanitizarCliente } from "@/lib/retornos";
 
 const LS_CLINICA = "re_clinica";
 const LS_HISTORICO = "re_historico";
+const LS_RETORNOS = "re_retornos";
 
 // Cache do doc `clinicas/{uid}`: getClinica() e getBillingPlan() são chamados
 // em quase toda navegação e liam o MESMO doc em reads separados. A promise é
@@ -63,6 +66,51 @@ export function invalidateClinicaCache(): void {
   clinicaDocCache = null;
 }
 
+export async function listRetornos(): Promise<Retorno[]> {
+  if (isFirebaseConfigured) {
+    const user = await waitForAuthUser();
+    if (!user) return [];
+    const snap = await getDocs(query(collection(getFirebaseDb(), "retornos"), where("user_id", "==", user.uid)));
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Retorno));
+  }
+  if (typeof window === "undefined") return [];
+  return JSON.parse(window.localStorage.getItem(LS_RETORNOS) ?? "[]") as Retorno[];
+}
+
+export async function addRetorno(input: Pick<Retorno, "cliente" | "procedimento" | "data_aplicacao" | "dias">): Promise<void> {
+  const retorno = { ...input, cliente: sanitizarCliente(input.cliente), enviados: [], arquivado: false, created_at: new Date().toISOString() };
+  if (isFirebaseConfigured) {
+    const user = await waitForAuthUser();
+    if (!user) throw new Error("Não autenticado");
+    await addDoc(collection(getFirebaseDb(), "retornos"), { ...retorno, user_id: user.uid });
+    return;
+  }
+  if (typeof window === "undefined") return;
+  const list = await listRetornos();
+  const id = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now());
+  window.localStorage.setItem(LS_RETORNOS, JSON.stringify([{ ...retorno, id }, ...list]));
+}
+
+async function atualizarRetorno(id: string, patch: Partial<Retorno>): Promise<void> {
+  if (isFirebaseConfigured) {
+    const user = await waitForAuthUser();
+    if (!user) return;
+    await updateDoc(doc(getFirebaseDb(), "retornos", id), patch);
+    return;
+  }
+  if (typeof window === "undefined") return;
+  const list = await listRetornos();
+  window.localStorage.setItem(LS_RETORNOS, JSON.stringify(list.map((item) => item.id === id ? { ...item, ...patch } : item)));
+}
+
+export async function marcarEtapaEnviada(id: string, dia: number): Promise<void> {
+  const retorno = (await listRetornos()).find((item) => item.id === id);
+  if (!retorno) return;
+  await atualizarRetorno(id, { enviados: [...new Set([...retorno.enviados, dia])] });
+}
+
+export async function arquivarRetorno(id: string): Promise<void> { await atualizarRetorno(id, { arquivado: true }); }
+
 // ---------------- Clínica (configurações / DNA) ----------------
 export async function getClinica(): Promise<Clinica> {
   if (isFirebaseConfigured) {
@@ -76,6 +124,7 @@ export async function getClinica(): Promise<Clinica> {
       whatsapp: d.whatsapp ?? "",
       tom_padrao: d.tom_padrao ?? "acolhedor",
       procedimentos: d.procedimentos ?? [],
+      protocolos_retorno: d.protocolos_retorno ?? {},
       formalidade: d.formalidade ?? 40,
       como_chamar: d.como_chamar ?? "linda",
       cta_preferido: d.cta_preferido ?? "marcar uma avaliação",
