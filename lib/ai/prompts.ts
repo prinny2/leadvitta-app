@@ -312,6 +312,7 @@ export function denylistHits(texto: string): AuditoriaRisco[] {
 // ======================================================================
 const SEM_ACENTO = (t: string) =>
   t.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+const soPalavras = (t: string) => ` ${SEM_ACENTO(t).replace(/[^\p{L}\p{N}]+/gu, " ").trim()} `;
 
 // 3ª pessoa da clínica vira 1ª do plural: as regras só precisam de uma forma.
 const VOZ_DA_CLINICA: Record<string, string> = {
@@ -577,6 +578,8 @@ const DIAS_ABREVIADOS: Record<string, string> = {
 };
 const MESES = MES.split("|");
 const periodo = (hora: number) => (hora < 12 ? "manha" : hora < 18 ? "tarde" : "noite");
+const PAGAMENTO = /\b(?:cartao|cartoes|credito|debito|pix|boleto)\b/g;
+const ehPagamento = (d: string) => d.startsWith("pag:");
 
 /** Na fonte, a hora também vale o período: "às 15h" libera "à tarde". */
 function datasDe(texto: string, ehFonte = false): Set<string> {
@@ -600,7 +603,10 @@ function datasDe(texto: string, ehFonte = false): Set<string> {
     limpo.matchAll(/\b(?:promoc(?:ao|oes)|descontos?)\s+(?:de|do|da|no|na|em|pra|para)\s+(\p{L}+)/gu),
     (m) => `item:${m[1]}`
   );
-  return new Set([...datas, ...itens]);
+  const pagamentos = (limpo.split(NEGACAO)[0].match(PAGAMENTO) ?? []).map(
+    (p) => `pag:${/^(?:cart|cred|deb)/.test(p) ? "cartao" : p}`
+  );
+  return new Set([...datas, ...itens, ...pagamentos]);
 }
 
 function frasesDe(texto: string): string[][] {
@@ -621,6 +627,17 @@ const RELATO =
 const CONDICIONAL = new RegExp(
   `\\b(?:se|${NAO_E_SUBSTANTIVO}caso)\\s+(?!(?:voce\\s+|vc\\s+)?(?:quiser|quiserem|preferir|precisar|desejar)\\b)`
 );
+
+const DUVIDA = new RegExp(`${NEGACAO.source}|${HESITA.source}|${RELATO.source}`);
+
+/** Datas de cada frase da fonte: negação, hesitação ou relato tiram o que vem depois. */
+function fatosConfirmados(fontes: (string | undefined)[]): Set<string>[] {
+  return fontes.flatMap((f) =>
+    (f ? frasesDe(f) : []).map((oracoes) =>
+      datasDe(oracoes.map((o) => o.split(DUVIDA)[0]).join(" "), true)
+    )
+  );
+}
 
 /** Datas de cada oração que afirma alguma regra, somadas às do resto da frase. */
 function afirmacoes(
@@ -670,32 +687,80 @@ function afirmaSemFonte(
   const fatos = fontes.flatMap((f) => (f ? afirmacoes(regras, f, true) : []));
   if (!fatos.length) return true;
   const informadas = new Set(fatos.flatMap((f) => Array.from(f)));
+  const afirmadas = new Set(fatosConfirmados(fontes).flatMap((f) => Array.from(f)));
   const fortes = ehAgenda
     ? Array.from(datasDe(normaliza(texto))).filter((d) => DATA_FORTE.test(d))
     : [];
   return ![...achadas, new Set(fortes)].every((datas) =>
-    Array.from(datas).every((d) => informadas.has(d))
+    Array.from(datas).every((d) => (ehPagamento(d) ? afirmadas : informadas).has(d))
   );
 }
 
+// "Entendi que você só pode às 15h" devolve as palavras dela: não oferece horário.
+const ECO_DA_CLIENTE =
+  /^\W*(?:entendi|anotado|anotei)\b\W*(?:que\s+)?(?:voce|vc|(?:a\s+)?senhora)\s+(?:so\s+(?:pode|consegue)|prefere|quer)\s+(?:so\s+)?(.+?)\W*$/;
+
+/** O eco só vale seguido de verificação: "Entendi... Pode vir!" confirma a vaga. */
+function repeteEVerifica(frases: string[][], n: number, mensagemCliente: string): boolean {
+  const frase = frases[n].join("");
+  const eco = ECO_DA_CLIENTE.exec(frase);
+  if (!eco || frase.trimEnd().endsWith("?")) return false;
+  if (!VERIFICA_NA_FRASE.test((frases[n + 1] ?? []).join(""))) return false;
+  const dita = soPalavras(eco[1]);
+  return frasesDe(mensagemCliente)
+    .flat()
+    .some((o) => !o.trimEnd().endsWith("?") && soPalavras(o).includes(dita));
+}
+
 /** Hora ou "dia N" fora das fontes, em afirmação ou em pergunta que oferece a vaga. */
-function citaHoraSemFonte(texto: string, fontes: (string | undefined)[]): boolean {
-  const informadas = new Set(
-    fontes.flatMap((f) =>
-      f
-        ? frasesDe(f)
-            .flat()
-            .flatMap((o) => Array.from(datasDe(o.split(NEGACAO)[0], true)))
-        : []
-    )
-  );
-  return frasesDe(texto).some((oracoes) => {
+function citaHoraSemFonte(
+  texto: string,
+  fontes: (string | undefined)[],
+  mensagemCliente = ""
+): boolean {
+  const informadas = new Set(fatosConfirmados(fontes).flatMap((f) => Array.from(f)));
+  return frasesDe(texto).some((oracoes, n, frases) => {
     const frase = oracoes.join("");
-    if (VERIFICA_NA_FRASE.test(frase)) return false;
+    if (VERIFICA_NA_FRASE.test(frase) || repeteEVerifica(frases, n, mensagemCliente)) return false;
     return Array.from(frase.matchAll(HORA_EXATA)).some(
       (m) =>
         !CONDICAO.test(frase.slice(0, m.index)) &&
         !Array.from(datasDe(m[0])).every((d) => informadas.has(d))
+    );
+  });
+}
+
+const ehDia = (d: string) =>
+  /^(?:hoje|amanha|segunda|terca|quarta|quinta|sexta|sabado|domingo)$/.test(d);
+// Fato com mais de uma hora pode ser faixa: "sexta das 9h às 18h" inclui as 12h.
+const temFaixa = (fato: Set<string>) =>
+  Array.from(fato).filter((d) => /^\d/.test(d)).length > 1;
+
+/**
+ * Dia de uma oferta da fonte com hora de outra: com "sexta às 15h" e "sábado às 9h",
+ * "sexta às 9h" não existe. Hora de frase sem dia vale para qualquer dia informado.
+ */
+function misturaDiaEHora(
+  texto: string,
+  fontes: (string | undefined)[],
+  mensagemCliente = ""
+): boolean {
+  const fatos = fatosConfirmados(fontes);
+  return frasesDe(texto).some((oracoes, n, frases) => {
+    const frase = oracoes.join("");
+    if (VERIFICA_NA_FRASE.test(frase) || repeteEVerifica(frases, n, mensagemCliente)) return false;
+    const dias = Array.from(datasDe(frase)).filter(ehDia);
+    const horas = Array.from(frase.matchAll(HORA_EXATA))
+      .filter((m) => !CONDICAO.test(frase.slice(0, m.index)))
+      .flatMap((m) => Array.from(datasDe(m[0])));
+    if (dias.length !== 1 || horas.length !== 1) return false;
+    const comDia = fatos.filter((f) => f.has(dias[0]));
+    const comHora = fatos.filter((f) => f.has(horas[0]));
+    return (
+      comDia.length > 0 &&
+      comHora.length > 0 &&
+      !comDia.some((f) => f.has(horas[0]) || temFaixa(f)) &&
+      comHora.every((f) => Array.from(f).some(ehDia))
     );
   });
 }
@@ -710,11 +775,13 @@ function citaHoraSemFonte(texto: string, fontes: (string | undefined)[]): boolea
  */
 export function afirmaDisponibilidade(
   texto: string,
-  fontes: (string | undefined)[] = []
+  fontes: (string | undefined)[] = [],
+  mensagemCliente?: string
 ): boolean {
   return (
     [DISPONIBILIDADE, ESCASSEZ, RESERVA].some((r) => afirmaSemFonte(r, texto, fontes, true)) ||
-    citaHoraSemFonte(texto, fontes)
+    citaHoraSemFonte(texto, fontes, mensagemCliente) ||
+    misturaDiaEHora(texto, fontes, mensagemCliente)
   );
 }
 
@@ -729,9 +796,10 @@ export function afirmaCondicao(
 /** Fato de agenda ou condição comercial que não veio de uma fonte. */
 export function afirmaFatoSemFonte(
   texto: string,
-  fontes: (string | undefined)[] = []
+  fontes: (string | undefined)[] = [],
+  mensagemCliente?: string
 ): boolean {
-  return afirmaDisponibilidade(texto, fontes) || afirmaCondicao(texto, fontes);
+  return afirmaDisponibilidade(texto, fontes, mensagemCliente) || afirmaCondicao(texto, fontes);
 }
 
 // Em "Tem horário hoje?" o fato está na pergunta: "Tem sim!" basta para prometer.
@@ -749,11 +817,22 @@ const ABRE_COM_SIM =
 /** A mensagem da cliente, quando ela é a origem do que a resposta confirma. */
 export type PerguntaDaCliente = { mensagemCliente: string; situacao?: string };
 
+/** "Hoje fiz botox e ficou vermelho, é normal?": o dia não entra na única pergunta. */
+function soPerguntaSeENormal(mensagemCliente: string): boolean {
+  const perguntas = frasesDe(mensagemCliente)
+    .flat()
+    .filter((o) => o.trimEnd().endsWith("?"));
+  return perguntas.length === 1 && /\be normal\s*\?\s*$/.test(perguntas[0]);
+}
+
 /** True se a resposta só confirma o fato que a cliente perguntou. */
 function confirmaPergunta(texto: string, cliente?: PerguntaDaCliente): boolean {
   if (!cliente?.mensagemCliente) return false;
   const mensagem = normaliza(cliente.mensagemCliente);
-  if (!TEMA_DA_CLIENTE.test(mensagem) && !SITUACOES_DE_FATO.includes(cliente.situacao ?? "")) {
+  if (
+    !SITUACOES_DE_FATO.includes(cliente.situacao ?? "") &&
+    (!TEMA_DA_CLIENTE.test(mensagem) || soPerguntaSeENormal(cliente.mensagemCliente))
+  ) {
     return false;
   }
   const resposta = normaliza(texto);
@@ -772,7 +851,10 @@ export function inventaFato(
   fontes: (string | undefined)[] = [],
   cliente?: PerguntaDaCliente
 ): boolean {
-  return afirmaFatoSemFonte(texto, fontes) || confirmaPergunta(texto, cliente);
+  return (
+    afirmaFatoSemFonte(texto, fontes, cliente?.mensagemCliente) ||
+    confirmaPergunta(texto, cliente)
+  );
 }
 
 /** Reprova texto GERADO: denylist ou fato sem fonte. */
@@ -782,6 +864,17 @@ export function reprovaGeracao(
   cliente?: PerguntaDaCliente
 ): boolean {
   return violaCompliance(texto) || inventaFato(texto, fontes, cliente);
+}
+
+const SAUDACAO = /^\W*(?:oi|ol[aá]|bom dia|boa tarde|boa noite)\b[^,.!?]*[,.!?]+/i;
+
+/**
+ * True se o texto ainda traz o trecho apontado, mesmo com outra saudação ou pontuação.
+ * Trecho com menos de 3 palavras não decide: "resultado" também cabe em frase segura.
+ */
+export function trechoContinua(trecho: string, texto: string): boolean {
+  const risco = trecho.replace(SAUDACAO, "").trim();
+  return risco.split(/\s+/).length >= 3 && soPalavras(texto).includes(soPalavras(risco));
 }
 
 /** Acrescentado ao pedido de reescrita quando a geração afirma fato sem fonte. */

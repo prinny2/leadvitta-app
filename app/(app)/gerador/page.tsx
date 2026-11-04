@@ -77,8 +77,11 @@ const VARIANTES: {
 export default function GeradorPage() {
   const { clinica } = useClinica();
   const [modo, setModo] = useState<"gerar" | "reescrever">("gerar");
-  // O toggle pode mudar depois: o refino precisa do modo que gerou as respostas.
-  const [modoGerado, setModoGerado] = useState<"gerar" | "reescrever">("gerar");
+  // O formulário pode mudar depois: o refino precisa do modo e do texto que geraram as respostas.
+  const [geracao, setGeracao] = useState<{ modo: "gerar" | "reescrever"; mensagemCliente: string }>({
+    modo: "gerar",
+    mensagemCliente: "",
+  });
 
   const [nomeCliente, setNomeCliente] = useState("");
   const [procedimento, setProcedimento] = useState("");
@@ -173,7 +176,7 @@ export default function GeradorPage() {
       }
       if (!res.ok) { setErro(data.error || "Não foi possível gerar agora."); return; }
       setRespostas(data.respostas);
-      setModoGerado(modo);
+      setGeracao({ modo, mensagemCliente });
       setNlp({ intent: data.intent, sentiment: data.sentiment, score: data.score });
       if (typeof data.freeRemaining === "number") setFreeRemaining(data.freeRemaining);
       // Toda geração entra no histórico (como no Follow-up): é de lá que saem os
@@ -226,9 +229,9 @@ export default function GeradorPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          acao: "refinar", modo: modoGerado, variante, respostaAtual: respostas[variante],
+          acao: "refinar", modo: geracao.modo, variante, respostaAtual: respostas[variante],
           procedimento, situacao, tom, objetivo, perfilCliente,
-          nomeCliente, mensagemCliente, clinica: buildClinicaDnaPayload(clinica), firebaseIdToken,
+          nomeCliente, mensagemCliente: geracao.mensagemCliente, clinica: buildClinicaDnaPayload(clinica), firebaseIdToken,
         }),
       });
       const data = await res.json();
@@ -246,8 +249,8 @@ export default function GeradorPage() {
     if (!respostas) return;
     try {
       await addHistorico({
-        tipo: modo === "reescrever" ? "reescrever" : "gerador",
-        contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
+        tipo: geracao.modo === "reescrever" ? "reescrever" : "gerador",
+        contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente: geracao.mensagemCliente },
         respostas: [respostas.curta, respostas.consultiva, respostas.persuasiva],
         intent: nlp?.intent, sentiment: nlp?.sentiment, score: nlp?.score,
       });

@@ -261,7 +261,8 @@ describe("provider — OpenAI configurada", () => {
     const { gerarFollowUp } = await loadProvider();
     const res = await gerarFollowUp(followInput);
     expect(res.mock).toBe(false);
-    expect(res.mensagens).toEqual(["m1", "m2"]);
+    expect(res.mensagens.slice(0, 2)).toEqual(["m1", "m2"]);
+    expect(res.mensagens).toHaveLength(3);
   });
 
   it("gerarFollowUp tenta novamente e cai no mock quando vem vazio", async () => {
@@ -768,8 +769,52 @@ describe("provider — disponibilidade inventada", () => {
     ia(JSON.stringify({ mensagens: [proprio] }), JSON.stringify({ mensagens: [LIMPO] }));
     const { gerarFollowUp } = await loadProvider();
     const res = await gerarFollowUp({ ...followInput, detalhe: "temos horários na sexta" });
-    expect(res.mensagens).toEqual([proprio]);
+    expect(res.mensagens[0]).toBe(proprio);
+    expect(res.mensagens).toHaveLength(3);
+    expect(res.aviso).toBeUndefined();
     expect(pedidosDeReescrita()).toHaveLength(0);
+  });
+
+  it.each([
+    ["1 aprovada", ["um"]],
+    ["2 aprovadas", ["um", "dois"]],
+    ["4 aprovadas", ["um", "dois", "tres", "quatro"]],
+  ])("gerarFollowUp sempre devolve 3 mensagens, sem aviso falso: %s", async (_nome, mensagens) => {
+    ia(JSON.stringify({ mensagens }));
+    const { gerarFollowUp } = await loadProvider();
+    const res = await gerarFollowUp(followInput);
+    expect(res.mensagens).toHaveLength(3);
+    expect(res.mensagens.slice(0, Math.min(mensagens.length, 3))).toEqual(mensagens.slice(0, 3));
+    expect(res.aviso).toBeUndefined();
+  });
+
+  it("o Auditor avisa quando o trecho apontado continua na reescrita", async () => {
+    const texto = "Oi, Ana! Seu melasma é leve.";
+    openaiCreate.mockResolvedValue(
+      oai(
+        JSON.stringify({
+          riscos: [{ trecho: "seu melasma é leve", motivo: "Diagnóstico", gravidade: "alta" }],
+          reescrita: "Olá, Ana! Seu melasma é leve.",
+        })
+      )
+    );
+    const { auditarCompliance } = await loadProvider();
+    const res = await auditarCompliance({ texto });
+    expect(res.aviso).toBe(AVISO_REVISAO_MANUAL);
+  });
+
+  it("o Auditor não avisa quando o trecho apontado saiu da reescrita", async () => {
+    openaiCreate.mockResolvedValue(
+      oai(
+        JSON.stringify({
+          riscos: [{ trecho: "seu melasma é leve", motivo: "Diagnóstico", gravidade: "alta" }],
+          reescrita: "Olá, Ana! Cada caso precisa de avaliação.",
+        })
+      )
+    );
+    const { auditarCompliance } = await loadProvider();
+    const res = await auditarCompliance({ texto: "Oi, Ana! Seu melasma é leve." });
+    expect(res.aviso).toBeUndefined();
   });
 
   it("o Auditor não muda: agenda da clínica segue ok e intacta", async () => {

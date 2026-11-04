@@ -29,6 +29,7 @@ import {
   afirmaFatoSemFonte,
   denylistHits,
   pedidoDeReescrita,
+  trechoContinua,
   AVISO_FATOS_AUDITOR,
   AVISO_REVISAO_MANUAL,
   AVISO_SEM_LEITURA,
@@ -555,15 +556,12 @@ export async function gerarFollowUp(
       // Quem já passava fica na sua posição (a progressão vai da mais suave à mais
       // direta); só a reprovada troca pela reescrita, e as sobras completam a lista.
       const porPosicao = mensagens.map((m, i) => (reprova(m) ? reescritas[i] : m));
-      mensagens = Array.from(
-        new Set([...porPosicao, ...reescritas].filter(aprovada))
-      ).slice(0, 3);
-      // A tela promete 3 mensagens: o que faltar vem do mock seguro.
-      if (mensagens.length < 3) {
-        mensagens = Array.from(new Set([...mensagens, ...mockFollowup(input)])).slice(0, 3);
-        aviso = AVISO_TEXTO_SEGURO;
-      }
+      mensagens = Array.from(new Set([...porPosicao, ...reescritas].filter(aprovada)));
+      if (mensagens.length < 3) aviso = AVISO_TEXTO_SEGURO;
     }
+
+    // A tela promete 3 mensagens: o que faltar vem do mock seguro.
+    mensagens = Array.from(new Set([...mensagens, ...mockFollowup(input)])).slice(0, 3);
 
     return { mensagens, mock: false, aviso };
   } catch (err) {
@@ -674,9 +672,10 @@ export async function auditarCompliance(
       }
     }
     const reescrita = semVersaoSegura ? softenText(texto) : reescritaSegura(candidata || texto);
-    // Risco que só a IA viu continua no texto: não pode sair como versão segura.
+    // Risco apontado que continua no texto não pode sair como versão segura.
+    const riscoFicou = riscos.some((r) => trechoContinua(r.trecho, reescrita));
     const aviso =
-      semVersaoSegura || (riscos.length > 0 && reescrita === texto)
+      semVersaoSegura || riscoFicou || (riscos.length > 0 && reescrita === texto)
         ? AVISO_REVISAO_MANUAL
         : undefined;
 

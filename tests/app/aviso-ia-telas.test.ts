@@ -8,9 +8,17 @@ const fonte = (arquivo: string) => readFileSync(resolve(process.cwd(), arquivo),
 describe("gerador", () => {
   const page = fonte("app/(app)/gerador/page.tsx");
 
-  it("refina com o modo que gerou as respostas, não com o toggle atual", () => {
-    expect(page).toContain('acao: "refinar", modo: modoGerado,');
-    expect(page).toMatch(/setRespostas\(data\.respostas\);\s+setModoGerado\(modo\);/);
+  it("refina com o modo e o texto que geraram as respostas, não com o formulário atual", () => {
+    expect(page).toContain('acao: "refinar", modo: geracao.modo,');
+    expect(page).toContain("nomeCliente, mensagemCliente: geracao.mensagemCliente, clinica:");
+    expect(page).toMatch(
+      /setRespostas\(data\.respostas\);\s+setGeracao\(\{ modo, mensagemCliente \}\);/
+    );
+  });
+
+  it("salva no histórico o texto que gerou as respostas", () => {
+    expect(page).toContain('tipo: geracao.modo === "reescrever"');
+    expect(page).toContain("nomeCliente, mensagemCliente: geracao.mensagemCliente },");
   });
 
   it("o refino trata o aviso como a geração e não apaga o que já estava na tela", () => {

@@ -7,6 +7,7 @@ import {
   buildRefineUser,
   pedidoDeReescrita,
   reprovaGeracao,
+  trechoContinua,
   AVISO_FATOS,
   REGRA_FATOS,
   SYSTEM_GERADOR,
@@ -572,5 +573,214 @@ describe("texto dos prompts", () => {
       mensagemCliente: "x",
     });
     expect(out).toContain("PRIORIDADE ESPECIAL");
+  });
+});
+
+describe("revisão do PR #191", () => {
+  const sextaESabado = ["Temos horário sexta às 15h. Temos horário sábado às 9h."];
+
+  it.each([
+    "Hoje fiz botox e ficou vermelho, é normal?",
+    "Fiz botox na sexta. Isso é normal?",
+    "Fiz às 15h, é normal?",
+  ])("perguntar se é normal não vira pergunta de agenda: %s", (mensagemCliente) => {
+    expect(
+      reprovaGeracao("Claro! Cada caso precisa ser avaliado individualmente.", [], {
+        mensagemCliente,
+      })
+    ).toBe(false);
+  });
+
+  it.each([
+    "Tem horário hoje?",
+    "Sexta às 15h?",
+    "Sexta às 15h, pode ser?",
+    "Sexta às 15h, tudo bem?",
+    "Quero sexta. Pode ser?",
+    "Sábado às 10h fica bom?",
+    "Amanhã tem?",
+    "Pode ser sábado?",
+    "Vocês atendem domingo?",
+    "Vocês fazem botox no sábado?",
+    "Vocês funcionam no sábado de manhã?",
+    "Daria pra ir sexta às 15h?",
+    "Consigo ir amanhã de manhã?",
+    "Você consegue me atender? Só posso na sexta.",
+    "Fiz botox sexta, pode ser sábado?",
+    "Vocês fazem maquiagem no sábado?",
+    "Vocês atendem normal amanhã?",
+    "Posso ir hoje depois da academia?",
+    "Fiz a avaliação e quero voltar sexta, pode ser?",
+    "Ficou marcado pra sexta, né?",
+    "Vocês atendem sábado? Isso é normal?",
+    "Vocês atendem sábado? Fiquei com um hematoma do preenchimento.",
+    "Tô inchada, vocês atendem amanhã?",
+    "Hoje tem atendimento? Tô ardendo.",
+    "Posso ir aí sábado pra ver esse hematoma?",
+  ])("confirmar pergunta de agenda segue reprovado: %s", (mensagemCliente) => {
+    expect(reprovaGeracao("Claro! Te espero.", [], { mensagemCliente })).toBe(true);
+  });
+
+  it("em retorno, pedido de horário segue sendo agenda", () => {
+    expect(
+      reprovaGeracao("Claro! Te espero.", [], {
+        mensagemCliente: "Pode ser sexta às 15h?",
+        situacao: "retorno_procedimento",
+      })
+    ).toBe(true);
+  });
+
+  it.each([
+    ["Entendi que você só pode às 15h. Vou verificar a agenda e te aviso.", "Só posso às 15h"],
+    ["Entendi, você só pode às 15h. Vou verificar.", "Só posso às 15h"],
+    ["Entendi que você só pode às 15h. Vou verificar.", "Só posso às 15h, tem horário?"],
+    ["Entendi que você só pode sexta às 15h. Vou ver a agenda.", "Só posso sexta às 15h"],
+    ["Anotado, você só pode antes das 10h. Vou verificar.", "Só posso antes das 10h"],
+  ])("aceita repetir o que a cliente disse antes de verificar: %s", (texto, mensagemCliente) => {
+    expect(reprovaGeracao(texto, [], { mensagemCliente })).toBe(false);
+  });
+
+  it.each([
+    "Você prefere às 15h?",
+    "Temos às 15h.",
+    "Temos horário às 15h.",
+    "Entendi que você só pode às 16h.",
+    "Entendi que você só pode às 15h na sexta.",
+    "Entendi que você só pode às 15h, te espero!",
+    "Às 15h fica bom?",
+    "Você pode vir às 15h.",
+    "Você pode vir sexta às 15h.",
+    "Você pode às 15h, te espero!",
+    "Sim, você pode às 15h!",
+    "Como você disse, te espero às 15h.",
+    "Perfeito! Você prefere às 15h, então te aguardo!",
+    "Entendi que você só pode às 15h.",
+    "Entendi que você só pode às 15h. Pode vir!",
+    "Entendi que você só pode às 15h. Te espero!",
+    "Anotado, você só pode às 15h. Combinado!",
+    "Fechado! Entendi que você só pode às 15h.",
+  ])("a hora da cliente não vira agenda da clínica: %s", (texto) => {
+    expect(reprovaGeracao(texto, [], { mensagemCliente: "Só posso às 15h" })).toBe(true);
+  });
+
+  it.each([
+    ["Entendi, você só pode às 15h.", "Posso ir às 15h?"],
+    ["Anotado, você pode vir às 15h.", "Posso vir às 15h?"],
+    ["Anotado, você consegue encaixe às 15h.", "Consigo encaixe às 15h?"],
+  ])("responder a pergunta dela não é repetir o que ela disse: %s", (texto, mensagemCliente) => {
+    expect(reprovaGeracao(texto, [], { mensagemCliente })).toBe(true);
+  });
+
+  it.each([
+    "Temos horário sexta às 9h.",
+    "Temos horário às 9h na sexta.",
+    "Às 9h na sexta fica bom?",
+    "Sexta às 9h fica bom?",
+  ])("não mistura dia e hora de ofertas diferentes: %s", (texto) => {
+    expect(afirmaDisponibilidade(texto, sextaESabado)).toBe(true);
+  });
+
+  it.each([
+    ["Temos horário sexta às 15h.", sextaESabado],
+    ["Sexta às 15h fica bom?", sextaESabado],
+    ["Temos horário às 15h na sexta.", sextaESabado],
+    ["Temos horário sexta às 15h ou sábado às 9h.", sextaESabado],
+    ["Temos horário sexta às 15h.", ["Atendemos sexta e sábado às 15h."]],
+    ["Sábado às 15h fica bom?", ["Atendemos sexta e sábado às 15h."]],
+    ["Temos horário às 9h no sábado.", ["Temos horário às 15h na sexta e às 9h no sábado."]],
+    ["Temos horário às 15h ou às 17h.", ["Temos horário às 15h. Temos horário às 17h."]],
+    ["Temos horário sexta às 10h e às 15h.", ["Temos horário sexta às 10h. Temos horário sexta às 15h."]],
+    ["Sua avaliação é sexta às 15h.", ["Avaliação na sexta. Horário: 15h."]],
+    ["Sábado às 8h fica bom?", ["Atendemos aos sábados. Abrimos às 8h."]],
+    ["Terça às 9h fica bom?", ["Atendemos de segunda a sexta, das 9h às 18h."]],
+    ["Sua avaliação é sexta às 15h, e a sessão dura 30 minutos.", ["Avaliação sexta às 15h. A sessão dura 30 minutos."]],
+    ["Funcionamos das 9h às 18h.", ["Funcionamos das 9h às 18h, se tiver dúvidas é só chamar."]],
+    ["Lembrando do seu retorno sexta às 15h.", ["Retorno marcado para sexta às 15h, ela pediu para lembrar."]],
+    ["Temos horário amanhã às 14h. Posso confirmar?", ["Temos horário amanhã às 14h, posso confirmar?"]],
+    ["Olá, Ana! Sexta às 15h fica bom pra você?", ["Oi Ana, sexta às 15h fica bom pra você?"]],
+    ["Prefere sexta de manhã ou sábado às 15h?", ["Temos sexta de manhã. Temos sábado às 15h."]],
+    ["Se sexta não der, sábado às 9h fica bom?", sextaESabado],
+    ["Sexta às 12h fica bom?", ["Segunda a sexta das 9h às 18h. Sábado das 9h às 12h."]],
+    ["Sua avaliação é sexta às 15h.", ["Sua avaliação é sexta às 15h e não precisa de jejum."]],
+    ["Sexta às 15h fica bom?", ["Temos sexta às 15h mas não sábado."]],
+    ["Sexta às 15h fica bom?", ["Vou verificar o sábado, mas sexta às 15h está confirmada."]],
+    ["Sua avaliação é sexta às 15h.", ["Sua avaliação é sexta às 15h e vou confirmar o sábado."]],
+    ["Funcionamos das 9h às 18h.", ["Se tiver dúvidas, funcionamos das 9h às 18h."]],
+    ["Sua avaliação é sexta às 15h.", ["Lembre-se da sua avaliação sexta às 15h."]],
+  ])("oferta que a fonte traz segue valendo: %s", (texto, fontes) => {
+    expect(reprovaGeracao(texto, fontes)).toBe(false);
+  });
+
+  it.each([
+    "Vou verificar se tenho sexta às 15h.",
+    "Ela perguntou se temos sexta às 15h.",
+    "Acho que temos sexta às 15h.",
+  ])("hora de fonte não confirmada não libera oferta: %s", (fonte) => {
+    expect(afirmaDisponibilidade("Sexta às 15h fica bom?", [fonte])).toBe(true);
+  });
+
+  it.each([
+    ["Aceitamos Pix.", ["Aceitamos cartão."]],
+    ["Aceitamos Pix e boleto.", ["Aceitamos Pix."]],
+  ])("forma de pagamento fora da fonte não passa: %s", (texto, fontes) => {
+    expect(afirmaCondicao(texto, fontes)).toBe(true);
+  });
+
+  it.each([
+    ["Aceitamos cartões.", ["Aceitamos cartão."]],
+    ["Aceitamos cartão e Pix.", ["Aceitamos cartão e Pix."]],
+    ["Aceitamos cartão e Pix.", ["Aceitamos cartão. Aceitamos Pix."]],
+    ["Aceitamos cartão de crédito e débito.", ["Aceitamos crédito e débito."]],
+    ["Parcelamos em até 12x no cartão.", ["Parcelamos em até 12x no cartão de crédito."]],
+    ["Parcelamos em até 12x no cartão.", ["Parcelamos em até 12x. Aceitamos cartão."]],
+    ["Aceitamos Pix mas não cartão.", ["Aceitamos Pix. Não aceitamos cartão."]],
+    ["Aceitamos cartão.", ["Aceitamos cartão mas não parcelamos."]],
+  ])("forma de pagamento da fonte passa: %s", (texto, fontes) => {
+    expect(afirmaCondicao(texto, fontes)).toBe(false);
+  });
+
+  it("forma de pagamento citada em outra frase da fonte não barra a agenda", () => {
+    expect(
+      reprovaGeracao("Atendemos de segunda a sexta, e aceitamos Pix e cartão.", [
+        "Atendemos de segunda a sexta. Aceitamos Pix e cartão.",
+      ])
+    ).toBe(false);
+  });
+
+  it("palavra dinheiro não é forma de pagamento", () => {
+    expect(
+      reprovaGeracao("Temos promoção de botox e você economiza dinheiro.", [
+        "Temos promoção de botox.",
+      ])
+    ).toBe(false);
+  });
+
+  it("procedimento da promoção segue preso ao fato da regra", () => {
+    expect(
+      reprovaGeracao("Temos desconto no botox.", [
+        "Temos desconto no preenchimento. A promoção de botox acabou.",
+      ])
+    ).toBe(true);
+  });
+
+  it.each([
+    ["seu melasma é leve", "Olá, Ana! Seu melasma é leve."],
+    ["Oi, Ana, seu melasma é leve.", "Olá, Ana, seu melasma é leve."],
+    ["Seu melasma é leve.", "Olá, Ana! Seu melasma é leve 😊"],
+    ["Seu rosto fica impecável na hora!", "Olá! Seu rosto fica impecável na hora."],
+    ["Emagreça rápido, sem dor", "Olá, Ana! Emagreça rápido, sem dor."],
+  ])("trecho apontado continua mesmo com outra pontuação: %s", (trecho, texto) => {
+    expect(trechoContinua(trecho, texto)).toBe(true);
+  });
+
+  it.each([
+    ["R$ 900", "O botox é a partir de R$ 900, e o valor final depende da avaliação."],
+    ["resultado", "O resultado varia de pessoa para pessoa."],
+    ["R$ 1.500", "O botox é a partir de R$ 1.500, e o valor final depende da avaliação."],
+    ["cura", "Ajuda quem procura suavizar rugas."],
+    ["", "Olá!"],
+    ["Agende sua avaliação, resultado 100% garantido", "Agende sua avaliação e entenda o que é possível."],
+  ])("palavra solta ou parte segura não prova o risco: %s", (trecho, texto) => {
+    expect(trechoContinua(trecho, texto)).toBe(false);
   });
 });
