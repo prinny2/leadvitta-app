@@ -788,6 +788,8 @@ describe("revisão do PR #191", () => {
     "O Botox pode durar de 3 a 6 meses.",
     "O efeito dura entre 4 e 6 meses.",
     "Costuma durar cerca de 6 meses.",
+    "A duração do Botox pode variar entre 3 a 6 meses.",
+    "O resultado aparece em 2 a 3 semanas.",
   ])("duração sem fonte reprova: %s", (texto) => {
     expect(afirmaCondicao(texto)).toBe(true);
   });
