@@ -476,7 +476,9 @@ const CONDICOES: RegExp[] = [
   ),
   regra("\\bnao\\s+cobramos\\b"),
   regra("\\br\\$\\s*\\d"),
-  regra("\\bdura\\w*\\s+(?:(?:de|ate|cerca de|em media)\\s+)?\\d+\\s+(?:dias|semanas|meses|anos)\\b"),
+  regra(
+    "\\bdura\\w*\\s+(?:(?:de|ate|cerca de|em media|entre|por)\\s+)*\\d+(?:\\s*(?:a|e|-)\\s*\\d+)?\\s+(?:dias|semanas|meses|anos)\\b"
+  ),
   regra("\\b\\d+\\s+anos\\s+de\\s+(?:experiencia|mercado|atuacao|clinica)\\b"),
   regra(
     "\\bmais de \\d+(?:\\s*mil)?\\s+(?:clientes|pacientes|casos|procedimentos|atendimentos)\\b"
