@@ -77,6 +77,11 @@ const VARIANTES: {
 export default function GeradorPage() {
   const { clinica } = useClinica();
   const [modo, setModo] = useState<"gerar" | "reescrever">("gerar");
+  // O formulário pode mudar depois: o refino precisa do modo e do texto que geraram as respostas.
+  const [geracao, setGeracao] = useState<{ modo: "gerar" | "reescrever"; mensagemCliente: string }>({
+    modo: "gerar",
+    mensagemCliente: "",
+  });
 
   const [nomeCliente, setNomeCliente] = useState("");
   const [procedimento, setProcedimento] = useState("");
@@ -129,6 +134,15 @@ export default function GeradorPage() {
     }
   }
 
+  // Só troca o aviso quando vem um novo: o de outra variante continua valendo.
+  function mostrarAviso(data: { mock?: boolean; aviso?: string }) {
+    if (data.mock) {
+      setAviso(data.aviso || "Modo demonstração — mostrando um exemplo. As respostas reais entram quando a clínica está ativa.");
+    } else if (data.aviso) {
+      setAviso(data.aviso);
+    }
+  }
+
   async function gerar() {
     if (!mensagemCliente.trim()) {
       setErro(modo === "reescrever" ? "Escreva a mensagem que você quer melhorar." : "Cole a mensagem da cliente.");
@@ -162,6 +176,7 @@ export default function GeradorPage() {
       }
       if (!res.ok) { setErro(data.error || "Não foi possível gerar agora."); return; }
       setRespostas(data.respostas);
+      setGeracao({ modo, mensagemCliente });
       setNlp({ intent: data.intent, sentiment: data.sentiment, score: data.score });
       if (typeof data.freeRemaining === "number") setFreeRemaining(data.freeRemaining);
       // Toda geração entra no histórico (como no Follow-up): é de lá que saem os
@@ -177,11 +192,7 @@ export default function GeradorPage() {
         .catch((err) => {
           console.warn("[gerador] falha ao salvar histórico:", err instanceof Error ? err.message : err);
         });
-      if (data.mock) {
-        setAviso(data.aviso || "Modo demonstração — mostrando um exemplo. As respostas reais entram quando a clínica está ativa.");
-      } else if (data.aviso) {
-        setAviso(data.aviso);
-      }
+      mostrarAviso(data);
     } catch {
       setErro("Falha de conexão. Tente novamente.");
     } finally {
@@ -218,14 +229,15 @@ export default function GeradorPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          acao: "refinar", variante, respostaAtual: respostas[variante],
+          acao: "refinar", modo: geracao.modo, variante, respostaAtual: respostas[variante],
           procedimento, situacao, tom, objetivo, perfilCliente,
-          nomeCliente, mensagemCliente, clinica: buildClinicaDnaPayload(clinica), firebaseIdToken,
+          nomeCliente, mensagemCliente: geracao.mensagemCliente, clinica: buildClinicaDnaPayload(clinica), firebaseIdToken,
         }),
       });
       const data = await res.json();
       if (res.ok && data.texto) {
         setRespostas((prev) => (prev ? { ...prev, [variante]: data.texto } : prev));
+        mostrarAviso(data);
         setSalvo(false);
       }
     } catch (err) {
@@ -237,8 +249,8 @@ export default function GeradorPage() {
     if (!respostas) return;
     try {
       await addHistorico({
-        tipo: modo === "reescrever" ? "reescrever" : "gerador",
-        contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente },
+        tipo: geracao.modo === "reescrever" ? "reescrever" : "gerador",
+        contexto: { procedimento, situacao, tom, objetivo, perfilCliente, nomeCliente, mensagemCliente: geracao.mensagemCliente },
         respostas: [respostas.curta, respostas.consultiva, respostas.persuasiva],
         intent: nlp?.intent, sentiment: nlp?.sentiment, score: nlp?.score,
       });

@@ -213,7 +213,7 @@ export default function CompliancePage() {
                 <div className="mb-2 flex items-start justify-between gap-2">
                   <p className="flex items-center gap-1.5 text-sm font-semibold text-champagne-300">
                     <Sparkles size={15} className="text-gold-500" />
-                    Versão segura pra enviar
+                    {resultado.aviso ? "Texto para revisar antes de enviar" : "Versão segura pra enviar"}
                   </p>
                   <CopyButton text={resultado.reescrita} />
                 </div>

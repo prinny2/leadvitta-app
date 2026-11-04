@@ -30,12 +30,12 @@ export const objecoes: CategoriaObjecao[] = [
       {
         gatilho: "Tem desconto?",
         resposta:
-          "A gente sempre tenta facilitar pra você 😊 Temos condições de pagamento e, na avaliação, consigo te mostrar a melhor forma de encaixar no seu momento. Quer que eu veja um horário pra te explicar tudo certinho?",
+          "A gente sempre tenta facilitar pra você 😊 Vou confirmar as formas de pagamento e, na avaliação, te explico tudo certinho. Quer que eu veja um horário pra você?",
       },
       {
         gatilho: "Faz por menos?",
         resposta:
-          "Eu entendo 🙏 O valor reflete a segurança, a avaliação individual e o cuidado com o seu resultado. O que posso fazer é te mostrar as condições de pagamento na avaliação, pra ficar tranquilo pra você. Quer que eu te explique?",
+          "Eu entendo 🙏 O valor reflete a segurança, a avaliação individual e o cuidado com o seu resultado. O que posso fazer é confirmar as formas de pagamento e te explicar tudo na avaliação, pra ficar tranquilo pra você. Quer que eu veja isso?",
       },
       {
         gatilho: "Vou pensar.",
@@ -87,7 +87,7 @@ export const objecoes: CategoriaObjecao[] = [
       {
         gatilho: "Você tem antes e depois?",
         resposta:
-          "Tenho sim 😊 Posso te mostrar alguns casos respeitando a privacidade das clientes. Lembrando que cada pessoa é única e o resultado varia conforme a avaliação. Quer que eu te envie alguns exemplos e já veja um horário pra avaliarmos o seu caso?",
+          "Vou verificar o que posso compartilhar, sempre respeitando a privacidade das clientes 😊 Lembrando que cada pessoa é única e o resultado varia conforme a avaliação. Quer que eu veja um horário pra avaliarmos o seu caso?",
       },
       {
         gatilho: "Quem realiza o procedimento?",
@@ -107,7 +107,7 @@ export const objecoes: CategoriaObjecao[] = [
       {
         gatilho: "Tem registro?",
         resposta:
-          "Sim, trabalhamos com responsabilidade e dentro das boas práticas 😊 Na avaliação você conhece a estrutura e tira todas as dúvidas com tranquilidade. Quer que eu veja um horário pra você?",
+          "Vou confirmar essa informação certinho pra você 😊 Na avaliação você tira todas as dúvidas com tranquilidade. Quer que eu veja um horário pra você?",
       },
     ],
   },
@@ -118,27 +118,27 @@ export const objecoes: CategoriaObjecao[] = [
       {
         gatilho: "Tem horário hoje?",
         resposta:
-          "Deixa eu verificar pra você agora mesmo 😊 Me confirma: você prefere de manhã ou à tarde? Assim já encaixo o melhor horário disponível.",
+          "Deixa eu verificar pra você agora mesmo 😊 Me confirma: você prefere de manhã ou à tarde? Assim já vejo o melhor horário pra você.",
       },
       {
         gatilho: "Só posso sábado.",
         resposta:
-          "Perfeito, vamos achar um sábado que funcione pra você 💕 Você prefere começo da manhã ou mais pro fim da tarde? Já reservo pra você.",
+          "Anotado, vou verificar a agenda de sábado pra você 💕 Você prefere começo da manhã ou mais pro fim da tarde?",
       },
       {
         gatilho: "Vou ver minha agenda.",
         resposta:
-          "Claro 😊 Se quiser, já deixo dois horários separados pra você e você me confirma qual encaixa melhor. Prefere início ou fim da semana?",
+          "Claro 😊 Se quiser, me diz o melhor dia e eu vejo um horário pra você. Prefere início ou fim da semana?",
       },
       {
         gatilho: "Depois eu marco.",
         resposta:
-          "Sem problema 💕 Pra facilitar, posso já deixar um horário pré-reservado pra você não perder a vaga — e você confirma quando puder. Prefere essa ou a próxima semana?",
+          "Sem problema 💕 Quando quiser, é só me chamar que eu vejo um horário pra você. Prefere que eu te lembre essa semana ou na próxima?",
       },
       {
         gatilho: "Preciso falar com meu marido.",
         resposta:
-          "Faz todo sentido conversar com calma 😊 Se ajudar, posso te enviar as informações certinhas pra vocês decidirem juntos, e já deixo um horário sugerido. O que acha?",
+          "Faz todo sentido conversar com calma 😊 Se ajudar, posso te enviar as informações certinhas pra vocês decidirem juntos. Depois, se quiserem, eu vejo um horário. O que acha?",
       },
     ],
   },

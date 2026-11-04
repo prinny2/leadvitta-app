@@ -29,13 +29,13 @@ export const followups: FollowUp[] = [
     id: "sumiu_7d",
     label: "Sumiu há 7 dias",
     diretriz:
-      "Última reativação suave. Oferecer uma condição/horário de avaliação e deixar a porta aberta com carinho, sem insistência.",
+      "Última reativação suave. Perguntar se ela quer que você veja um horário de avaliação e deixar a porta aberta com carinho, sem insistência.",
   },
   {
     id: "cliente_antiga",
     label: "Cliente antiga",
     diretriz:
-      "Reaproximar com afeto, lembrando do cuidado contínuo. Trazer uma novidade ou convite de retorno, valorizando o vínculo.",
+      "Reaproximar com afeto, lembrando do cuidado contínuo. Fazer um convite de retorno, valorizando o vínculo, sem citar novidade que não foi informada.",
   },
   {
     id: "orcou_nao_fechou",
@@ -47,7 +47,7 @@ export const followups: FollowUp[] = [
     id: "fez_nao_voltou",
     label: "Fez procedimento e não voltou",
     diretriz:
-      "Falar de manutenção e continuidade do resultado. Convidar para um retorno de acompanhamento de forma cuidadosa.",
+      "Falar de manutenção e continuidade do cuidado, sem citar prazo ou duração. Convidar para um retorno de acompanhamento de forma cuidadosa.",
   },
   {
     id: "retorno_procedimento",
@@ -57,12 +57,12 @@ export const followups: FollowUp[] = [
   {
     id: "avaliacao_nao_fechou_48h",
     label: "Fez avaliação e não fechou (48h)",
-    diretriz: "Retome com leveza e sem pressão, lembre o que foi conversado na avaliação, ofereça esclarecer dúvidas e proponha um próximo passo simples. Não confunda com acompanhamento pós-procedimento.",
+    diretriz: "Retome com leveza e sem pressão, lembre o que foi conversado na avaliação só se isso estiver no contexto, ofereça esclarecer dúvidas e proponha um próximo passo simples. Não confunda com acompanhamento pós-procedimento.",
   },
   {
     id: "avaliacao_nao_fechou_7d",
     label: "Fez avaliação e não fechou (7 dias)",
-    diretriz: "Retome com leveza e sem pressão, lembre o que foi conversado na avaliação, ofereça esclarecer dúvidas e proponha um próximo passo simples. Não confunda com acompanhamento pós-procedimento.",
+    diretriz: "Retome com leveza e sem pressão, lembre o que foi conversado na avaliação só se isso estiver no contexto, ofereça esclarecer dúvidas e proponha um próximo passo simples. Não confunda com acompanhamento pós-procedimento.",
   },
 ];
 

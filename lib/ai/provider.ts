@@ -24,9 +24,18 @@ import {
   buildFollowupUser,
   buildAuditoriaUser,
   violaCompliance,
+  reprovaGeracao,
+  inventaFato,
+  afirmaFatoSemFonte,
   denylistHits,
+  pedidoDeReescrita,
+  trechoContinua,
+  AVISO_FATOS_AUDITOR,
+  AVISO_REVISAO_MANUAL,
+  AVISO_SEM_LEITURA,
+  AVISO_TEXTO_SEGURO,
 } from "@/lib/ai/prompts";
-import { mockGerador, mockRefine, mockFollowup, softenText } from "@/lib/ai/mock";
+import { mockGerador, mockNeutro, mockRefine, mockFollowup, softenText } from "@/lib/ai/mock";
 import { openaiChatParams } from "@/lib/ai/openai-chat";
 import type {
   AIProviderId,
@@ -249,30 +258,57 @@ export type GerarResultado = {
   score?: number;
 };
 
+/** De onde um fato de agenda pode vir: CTA da clínica e texto da profissional. */
+function fontesDoFato(input: GerarInput | RefineInput): (string | undefined)[] {
+  return [
+    input.clinica?.cta_preferido,
+    input.modo === "reescrever" ? input.mensagemCliente : undefined,
+  ];
+}
+
+/** No reescrever a mensagem é da profissional: não há pergunta da cliente a confirmar. */
+function perguntaDaCliente(input: GerarInput | RefineInput) {
+  return input.modo === "reescrever" ? undefined : input;
+}
+
+/** No reescrever, o texto da profissional sem termos proibidos, se ele passar. */
+function textoDaProfissional(input: GerarInput | RefineInput): string | undefined {
+  if (input.modo !== "reescrever") return undefined;
+  const texto = softenText(input.mensagemCliente);
+  return texto && !reprovaGeracao(texto, fontesDoFato(input)) ? texto : undefined;
+}
+
 /**
- * Garante que NENHUMA das 3 respostas viole a denylist: se alguma violar, pede
- * UMA reescrita, RE-VALIDA o resultado e — como última linha de defesa — troca
- * qualquer campo que ainda viole (ou venha vazio) pelo texto seguro do mock
- * (compliant por construção). Nunca devolve texto proibido para a cliente.
+ * Garante que NENHUMA das 3 respostas viole a denylist nem afirme fato sem fonte:
+ * se alguma reprovar, pede UMA reescrita, RE-VALIDA o resultado e — como última
+ * linha de defesa — troca qualquer campo que ainda reprove (ou venha vazio) pelo
+ * texto da profissional, no reescrever, ou pelo texto neutro, avisando a troca.
+ * Nunca devolve texto proibido para a cliente.
  */
 async function garantirCompliance(
   respostas: RespostaTripla,
   user: string,
   input: GerarInput,
   callOptions?: CallAIOptions
-): Promise<RespostaTripla> {
+): Promise<{ respostas: RespostaTripla; aviso?: string }> {
+  const fontes = fontesDoFato(input);
+  const cliente = perguntaDaCliente(input);
+  const reprova = (t: string) => reprovaGeracao(t, fontes, cliente);
   const algumViola = (r: RespostaTripla) =>
-    violaCompliance(r.curta) ||
-    violaCompliance(r.consultiva) ||
-    violaCompliance(r.persuasiva);
+    reprova(r.curta) || reprova(r.consultiva) || reprova(r.persuasiva);
 
-  if (!algumViola(respostas)) return respostas;
+  if (!algumViola(respostas)) return { respostas };
 
+  const inventou = Object.values(respostas).some((t) => inventaFato(t, fontes, cliente));
   try {
     const revisaoRaw = await callAI(
       SYSTEM_GERADOR,
       user +
-        "\n\nATENÇÃO: a resposta anterior usou termos proibidos (promessa de resultado, cura, ausência de risco ou preço fixo). Reescreva as 3 respostas evitando QUALQUER promessa desse tipo. Responda só com o JSON.",
+        pedidoDeReescrita(
+          "a resposta anterior usou termos proibidos (promessa de resultado, cura, ausência de risco ou preço fixo) ou afirmou um fato sem fonte. Reescreva as 3 respostas evitando QUALQUER promessa desse tipo.",
+          inventou,
+          input.situacao
+        ),
       1,
       callOptions
     );
@@ -282,13 +318,13 @@ async function garantirCompliance(
       // já passava não pode ser sobrescrito (e depois virar mock) por causa de uma
       // reescrita ruim de OUTRO campo.
       respostas = {
-        curta: violaCompliance(respostas.curta)
+        curta: reprova(respostas.curta)
           ? rev.resposta_curta?.trim() || respostas.curta
           : respostas.curta,
-        consultiva: violaCompliance(respostas.consultiva)
+        consultiva: reprova(respostas.consultiva)
           ? rev.resposta_consultiva?.trim() || respostas.consultiva
           : respostas.consultiva,
-        persuasiva: violaCompliance(respostas.persuasiva)
+        persuasiva: reprova(respostas.persuasiva)
           ? rev.resposta_persuasiva?.trim() || respostas.persuasiva
           : respostas.persuasiva,
       };
@@ -297,14 +333,20 @@ async function garantirCompliance(
     console.warn("[gerarRespostas] reescrita de compliance falhou:", err);
   }
 
-  const seguro = mockGerador(input);
-  const safe = (t: string, v: keyof RespostaTripla) =>
-    t && !violaCompliance(t) ? t : seguro[v];
-  return {
+  const neutro = mockNeutro(input);
+  const proprio = textoDaProfissional(input);
+  let trocou = false;
+  const safe = (t: string, v: keyof RespostaTripla) => {
+    if (t && !reprova(t)) return t;
+    trocou = true;
+    return proprio ?? neutro[v];
+  };
+  const finais = {
     curta: safe(respostas.curta, "curta"),
     consultiva: safe(respostas.consultiva, "consultiva"),
     persuasiva: safe(respostas.persuasiva, "persuasiva"),
   };
+  return { respostas: finais, aviso: trocou ? AVISO_TEXTO_SEGURO : undefined };
 }
 
 /**
@@ -383,7 +425,7 @@ export async function gerarRespostas(
       };
     }
 
-    const respostas = await garantirCompliance(
+    const { respostas, aviso } = await garantirCompliance(
       {
         curta: parsed.resposta_curta?.trim() ?? "",
         consultiva: parsed.resposta_consultiva?.trim() ?? "",
@@ -394,7 +436,7 @@ export async function gerarRespostas(
       callOptions
     );
 
-    return { respostas, mock: false, ...nlp };
+    return { respostas, mock: false, aviso, ...nlp };
   } catch (err) {
     console.error("[gerarRespostas] erro na IA:", err);
     return {
@@ -417,15 +459,34 @@ export async function refinarResposta(
     const raw = await callAI(SYSTEM_REFINE, buildRefineUser(input));
     const parsed = parseJson<{ resposta?: string }>(raw);
     let texto = parsed?.resposta?.trim();
-    if (texto && violaCompliance(texto)) {
-      const rev = await callAI(
-        SYSTEM_REFINE,
-        buildRefineUser(input) +
-          "\n\nATENÇÃO: evite QUALQUER promessa de resultado/cura/ausência de risco ou preço fixo. Responda só com o JSON."
-      );
-      texto = parseJson<{ resposta?: string }>(rev)?.resposta?.trim() || texto;
+    const fontes = fontesDoFato(input);
+    const cliente = perguntaDaCliente(input);
+    const reprova = (t: string) => reprovaGeracao(t, fontes, cliente);
+    if (texto && reprova(texto)) {
+      try {
+        const rev = await callAI(
+          SYSTEM_REFINE,
+          buildRefineUser(input) +
+            pedidoDeReescrita(
+              "evite QUALQUER promessa de resultado/cura/ausência de risco ou preço fixo.",
+              inventaFato(texto, fontes, cliente),
+              input.situacao
+            )
+        );
+        texto = parseJson<{ resposta?: string }>(rev)?.resposta?.trim() || texto;
+      } catch (err) {
+        console.warn("[refinarResposta] reescrita de compliance falhou:", err);
+      }
     }
-    if (!texto) return { texto: mockRefine(input), mock: false };
+    if (!texto || reprova(texto)) {
+      // Melhor manter o que a profissional já tinha na tela do que trocar de assunto.
+      const atual = reprova(input.respostaAtual) ? undefined : input.respostaAtual;
+      return {
+        texto: atual || textoDaProfissional(input) || mockNeutro(input)[input.variante],
+        mock: false,
+        aviso: texto ? AVISO_TEXTO_SEGURO : AVISO_SEM_LEITURA,
+      };
+    }
     return { texto, mock: false };
   } catch (err) {
     console.error("[refinarResposta] erro na IA:", err);
@@ -468,33 +529,41 @@ export async function gerarFollowUp(
       return { mensagens: mockFollowup(input), mock: false };
     }
 
-    // Compliance: o follow-up também não pode prometer resultado/cura/preço fixo.
-    if (mensagens.some(violaCompliance)) {
-      // Preserva as mensagens que já passam — uma reescrita curta não pode
-      // descartar mensagens compliant que vieram na primeira geração.
-      const compliantOriginais = mensagens.filter((m) => !violaCompliance(m));
+    // Compliance: o follow-up também não pode prometer resultado/cura/preço fixo
+    // nem afirmar fato sem fonte (o detalhe é digitado pela profissional).
+    const fontes = [input.clinica?.cta_preferido, input.detalhe];
+    const reprova = (m: string) => reprovaGeracao(m, fontes);
+    let aviso: string | undefined;
+    if (mensagens.some(reprova)) {
       let reescritas: string[] = [];
       try {
         const revRaw = await callAI(
           SYSTEM_FOLLOWUP,
           user +
-            "\n\nATENÇÃO: a resposta anterior usou termos proibidos. Reescreva as 3 mensagens sem QUALQUER promessa de resultado, cura, ausência de risco ou preço fixo. Responda só com o JSON."
+            pedidoDeReescrita(
+              "a resposta anterior usou termos proibidos ou afirmou um fato sem fonte. Reescreva as 3 mensagens sem QUALQUER promessa de resultado, cura, ausência de risco ou preço fixo.",
+              mensagens.some((m) => inventaFato(m, fontes)),
+              input.gatilho
+            )
         );
-        reescritas = (parseJson<{ mensagens?: string[] }>(revRaw)?.mensagens ?? [])
-          .map((m) => String(m).trim())
-          .filter((m) => m && !violaCompliance(m));
+        reescritas = (parseJson<{ mensagens?: string[] }>(revRaw)?.mensagens ?? []).map(
+          (m) => String(m).trim()
+        );
       } catch (err) {
         console.warn("[gerarFollowUp] reescrita de compliance falhou:", err);
       }
-      // Reescritas compliant primeiro, completadas pelas originais que já passavam
-      // (sem duplicar). Se nada sobrar compliant, usa o mock seguro.
-      mensagens = Array.from(new Set([...reescritas, ...compliantOriginais]));
-      if (mensagens.length === 0) {
-        mensagens = mockFollowup(input);
-      }
+      const aprovada = (m?: string) => !!m && !reprova(m);
+      // Quem já passava fica na sua posição (a progressão vai da mais suave à mais
+      // direta); só a reprovada troca pela reescrita, e as sobras completam a lista.
+      const porPosicao = mensagens.map((m, i) => (reprova(m) ? reescritas[i] : m));
+      mensagens = Array.from(new Set([...porPosicao, ...reescritas].filter(aprovada)));
+      if (mensagens.length < 3) aviso = AVISO_TEXTO_SEGURO;
     }
 
-    return { mensagens, mock: false };
+    // A tela promete 3 mensagens: o que faltar vem do mock seguro.
+    mensagens = Array.from(new Set([...mensagens, ...mockFollowup(input)])).slice(0, 3);
+
+    return { mensagens, mock: false, aviso };
   } catch (err) {
     console.error("[gerarFollowUp] erro na IA:", err);
     return {
@@ -575,10 +644,42 @@ export async function auditarCompliance(
       riscos.push(r);
     }
 
-    const reescritaBruta = parsed?.reescrita?.trim();
-    const reescrita = reescritaSegura(reescritaBruta || texto);
+    // A reescrita é texto de IA: o que a clínica escreveu é fonte, o que a IA somou não.
+    const fontes = [texto, input.clinica?.cta_preferido];
+    const inventou = (t: string) => afirmaFatoSemFonte(t, fontes);
+    let candidata = parsed?.reescrita?.trim();
+    let semVersaoSegura = false;
+    if (candidata && inventou(candidata)) {
+      try {
+        const rev = await callAI(
+          SYSTEM_AUDITORIA,
+          buildAuditoriaUser({ ...input, texto }) +
+            `\n\nATENÇÃO: a reescrita anterior acrescentou fato que não está no texto original. ${AVISO_FATOS_AUDITOR} Responda só com o JSON.`,
+          1,
+          callOptions
+        );
+        candidata = parseJson<{ reescrita?: string }>(rev)?.reescrita?.trim() || candidata;
+      } catch (err) {
+        console.warn("[auditarCompliance] reescrita de fatos falhou:", err);
+      }
+      // Ainda somando fato: fica só o que a IA escreveu sem somar nada.
+      if (inventou(candidata)) {
+        candidata = candidata
+          .split(/(?<=[.!?…])\s+/)
+          .filter((frase) => !inventou(frase))
+          .join(" ");
+        if (!candidata) semVersaoSegura = true;
+      }
+    }
+    const reescrita = semVersaoSegura ? softenText(texto) : reescritaSegura(candidata || texto);
+    // Risco apontado que continua no texto não pode sair como versão segura.
+    const riscoFicou = riscos.some((r) => trechoContinua(r.trecho, reescrita));
+    const aviso =
+      semVersaoSegura || riscoFicou || (riscos.length > 0 && reescrita === texto)
+        ? AVISO_REVISAO_MANUAL
+        : undefined;
 
-    return { status: statusDe(riscos), riscos, reescrita, mock: false };
+    return { status: statusDe(riscos), riscos, reescrita, mock: false, ...(aviso && { aviso }) };
   } catch (err) {
     console.error("[auditarCompliance] erro na IA:", err);
     return {

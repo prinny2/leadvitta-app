@@ -1,6 +1,63 @@
 import { describe, it, expect } from "vitest";
-import { mockGerador, mockRefine, mockFollowup } from "@/lib/ai/mock";
+import { mockGerador, mockNeutro, mockRefine, mockFollowup, softenText } from "@/lib/ai/mock";
+import { afirmaDisponibilidade, reprovaGeracao } from "@/lib/ai/prompts";
+import { situacoes } from "@/data/situacoes";
 import type { GerarInput, RefineInput, FollowUpInput } from "@/lib/types";
+
+describe("textos seguros não afirmam disponibilidade", () => {
+  const procedimento = "botox";
+  const comum = { procedimento, situacao: "preco", tom: "acolhedor", objetivo: "" };
+
+  it("mockGerador faz o fechamento perguntando", () => {
+    const r = mockGerador({ ...comum, modo: "gerar", mensagemCliente: "Oi" });
+    expect(Object.values(r).some((t) => afirmaDisponibilidade(t))).toBe(false);
+    expect(r.persuasiva).toContain("?");
+  });
+
+  it.each(["curta", "consultiva", "persuasiva"] as const)("mockRefine (%s)", (variante) => {
+    const texto = mockRefine({ ...comum, variante, respostaAtual: "x", mensagemCliente: "Oi" });
+    expect(afirmaDisponibilidade(texto)).toBe(false);
+  });
+
+  it("mockFollowup não afirma disponibilidade", () => {
+    const msgs = mockFollowup({ gatilho: "sumiu_7d", contexto: "", procedimento, tom: "acolhedor" });
+    expect(msgs.some((m) => afirmaDisponibilidade(m))).toBe(false);
+    expect(msgs.join(" ")).not.toMatch(/abrimos|tenho horários|horário sugerido/i);
+  });
+
+  it.each(situacoes.map((s) => s.id))("mockNeutro não fala de preço nem reprova: %s", (situacao) => {
+    const r = mockNeutro({ situacao });
+    for (const texto of Object.values(r)) {
+      expect(texto).not.toMatch(/valor|preço/i);
+      expect(reprovaGeracao(texto)).toBe(false);
+    }
+  });
+
+  it("no pós-atendimento e no review o texto seguro não pede horário", () => {
+    for (const situacao of ["pos_atendimento", "pedir_avaliacao"]) {
+      expect(Object.values(mockNeutro({ situacao })).join(" ")).not.toMatch(/horário/i);
+    }
+  });
+
+  it.each(["agendar", "desmarcou", "pos_atendimento", "pedir_avaliacao"])(
+    "mockGerador em %s não responde com preço",
+    (situacao) => {
+      const r = mockGerador({ ...comum, situacao, modo: "gerar", mensagemCliente: "Oi" });
+      expect(Object.values(r).join(" ")).not.toMatch(/valor/i);
+    }
+  );
+
+  it("mockRefine não fala de valor no fechamento", () => {
+    const texto = mockRefine({ ...comum, variante: "persuasiva", respostaAtual: "x", mensagemCliente: "Oi" });
+    expect(texto).not.toMatch(/valor/i);
+  });
+
+  it("softenText não introduz disponibilidade nem remove a da própria clínica", () => {
+    const seguro = softenText("Resultado garantido, sem risco e custa R$ 900.");
+    expect(afirmaDisponibilidade(seguro)).toBe(false);
+    expect(softenText("Temos horários essa semana")).toBe("Temos horários essa semana");
+  });
+});
 
 describe("mockGerador", () => {
   const base: GerarInput = {

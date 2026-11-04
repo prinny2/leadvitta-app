@@ -106,6 +106,7 @@ export async function POST(req: Request) {
       const dailyLimit = enforceAiDailyLimit(req, { uid: decoded?.uid });
       if (dailyLimit) return dailyLimit;
       const r = await refinarResposta({
+        modo: body.modo === "reescrever" ? "reescrever" : "gerar",
         variante: body.variante,
         respostaAtual: String(body.respostaAtual),
         procedimento: body.procedimento ?? "",

@@ -14,6 +14,7 @@ import {
   marcarConversaLida,
 } from "@/lib/store";
 import { PRIO } from "@/lib/prioridade-ui";
+import { AvisoIA } from "@/components/aviso-ia";
 import type { Clinica, Conversa, MensagemConversa } from "@/lib/types";
 import { buildClinicaDnaPayload } from "@/lib/hooks/use-clinica";
 import { trackEvent } from "@/components/Analytics";
@@ -30,6 +31,7 @@ export default function ConversaThreadPage() {
   const [enviando, setEnviando] = useState(false);
   const [sugerindo, setSugerindo] = useState(false);
   const [erro, setErro] = useState("");
+  const [aviso, setAviso] = useState("");
   const [erroCarregamento, setErroCarregamento] = useState(false);
   const fimRef = useRef<HTMLDivElement>(null);
 
@@ -96,6 +98,7 @@ export default function ConversaThreadPage() {
         { id: `local-${Date.now()}`, direcao: "out", texto: corpo, em: new Date().toISOString() },
       ]);
       setTexto("");
+      setAviso("");
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Erro ao enviar.");
     } finally {
@@ -113,6 +116,7 @@ export default function ConversaThreadPage() {
     if (!aguardandoResposta || !ultimaMsg || sugerindo) return;
     setSugerindo(true);
     setErro("");
+    setAviso("");
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -132,6 +136,7 @@ export default function ConversaThreadPage() {
       trackFreeGeneration("conversa", { ...data, ok: res.ok }, trackEvent);
       if (res.ok && data?.respostas?.consultiva) {
         setTexto(data.respostas.consultiva);
+        setAviso(data.aviso ?? "");
       } else {
         setErro(data?.error || "Não consegui sugerir agora.");
       }
@@ -223,6 +228,7 @@ export default function ConversaThreadPage() {
       {/* responder */}
       <div className="border-t border-navy-500 pt-3">
         {erro && <p className="mb-2 text-xs text-red-600">{erro}</p>}
+        <AvisoIA aviso={aviso} className="mb-2" />
         {aguardandoResposta && (
           <button
             type="button"

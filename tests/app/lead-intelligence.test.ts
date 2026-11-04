@@ -8,24 +8,25 @@ vi.mock("@/lib/config", async (importOriginal) => {
     isAnthropicConfigured: false,
   };
 });
-vi.mock("openai", () => ({
-  default: class OpenAIMock {
-    chat = { completions: { create: vi.fn().mockRejectedValue(new Error("AI down")) } };
-    constructor() {}
-  },
-}));
-
-const { verifyToken, adminConfigured, reserve, release } = vi.hoisted(() => ({
+const { openaiCreate, verifyToken, adminConfigured, reserve, release } = vi.hoisted(() => ({
+  openaiCreate: vi.fn(),
   verifyToken: vi.fn(),
   adminConfigured: vi.fn(),
   reserve: vi.fn(),
   release: vi.fn(),
+}));
+vi.mock("openai", () => ({
+  default: class OpenAIMock {
+    chat = { completions: { create: openaiCreate } };
+    constructor() {}
+  },
 }));
 vi.mock("@/lib/firebase/admin", () => ({ verifyFirebaseIdToken: verifyToken, isFirebaseAdminConfigured: adminConfigured }));
 vi.mock("@/lib/usage-limit", () => ({ reserveGeneration: reserve, releaseGeneration: release }));
 
 import { POST } from "@/app/api/lead-intelligence/route";
 import { __resetAiGuardForTests } from "@/lib/ai-guard";
+import { afirmaFatoSemFonte } from "@/lib/ai/prompts";
 
 function makeRequest(body: unknown) {
   return new Request("http://localhost:3000/api/lead-intelligence", {
@@ -40,6 +41,7 @@ function makeRequest(body: unknown) {
 
 beforeEach(() => {
   __resetAiGuardForTests();
+  openaiCreate.mockReset().mockRejectedValue(new Error("AI down"));
   verifyToken.mockReset().mockResolvedValue(null);
   adminConfigured.mockReset().mockReturnValue(true);
   reserve.mockReset().mockResolvedValue({ allowed: true, paid: true, remaining: Infinity, reserved: false });
@@ -154,6 +156,66 @@ describe("POST /api/lead-intelligence — mock analysis", () => {
     if (body.score >= 72) expect(body.temperatura).toBe("quente");
     else if (body.score >= 50) expect(body.temperatura).toBe("morno");
     else expect(body.temperatura).toBe("frio");
+  });
+});
+
+describe("POST /api/lead-intelligence — não inventa fatos", () => {
+  // IP próprio: estes casos não dividem o limite por minuto com o resto do arquivo.
+  const pedir = (mensagem: string) => {
+    const req = makeRequest({ mensagem });
+    req.headers.set("x-forwarded-for", "10.0.0.1");
+    return POST(req);
+  };
+
+  it.each([
+    "Quero agendar um horário",
+    "Quanto custa? Dá pra parcelar?",
+    "Voltei, o resultado sumiu",
+    "bom dia, tudo bem com vocês?",
+    "tenho medo de fazer botox",
+  ])("o texto pronto não afirma fato: %s", async (mensagem) => {
+    const body = await (await pedir(mensagem)).json();
+    expect(afirmaFatoSemFonte(body.gatilho)).toBe(false);
+    expect(afirmaFatoSemFonte(body.abordagem)).toBe(false);
+  });
+
+  const analise = (gatilho: string) => ({
+    choices: [{
+      message: {
+        content: JSON.stringify({
+          score: 80,
+          temperatura: "quente",
+          perfil: "Lead decidido.",
+          abordagem: "Responda rápido.",
+          gatilho,
+          eixos: { urgencia: 1, intencao: 2, confianca: 3, receptividade: 4, maturidade: 5 },
+          intent: "agendamento",
+          sentiment: "positivo",
+        }),
+      },
+    }],
+  });
+
+  it.each([
+    "Crie urgência com disponibilidade limitada. 'Tenho horário amanhã às 14h ou quinta às 10h.'",
+    "Ofereça 2 opções de horário.",
+    "Mencionar parcelamento pode reduzir a resistência.",
+    "Ofereça desconto exclusivo de fidelidade.",
+    "Ofereça uma avaliação gratuita.",
+  ])("a sugestão da IA que inventa fato cai no texto seguro: %s", async (gatilho) => {
+    openaiCreate.mockResolvedValue(analise(gatilho));
+    const body = await (await pedir("Quero agendar um horário")).json();
+    expect(body.score).toBe(80);
+    expect(body.gatilho).not.toBe(gatilho);
+    expect(afirmaFatoSemFonte(body.gatilho)).toBe(false);
+  });
+
+  it("a sugestão honesta da IA passa, com a regra de fatos no prompt", async () => {
+    const gatilho = "Pergunte qual período é melhor pra ela.";
+    openaiCreate.mockResolvedValue(analise(gatilho));
+    const body = await (await pedir("Quero agendar um horário")).json();
+    expect(body.gatilho).toBe(gatilho);
+    expect(openaiCreate.mock.calls[0][0].messages[0].content).toContain("NÃO INVENTE FATOS");
   });
 });
 
