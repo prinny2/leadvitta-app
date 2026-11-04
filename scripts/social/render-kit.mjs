@@ -230,7 +230,7 @@ const PIECES = [
       <div class="cover">
         <div class="cv-left">
           ${brand()}
-          <h1 class="hook">A secretária de WhatsApp da <em>clínica de estética</em>.</h1>
+          <h1 class="hook">Respostas de WhatsApp para <em>clínica de estética</em>.</h1>
           <p class="sub">Cole a mensagem da cliente e receba 3 respostas no tom da sua clínica. Sua equipe revisa e envia.</p>
           <div class="cv-cta">
             <span class="pill">Teste grátis · 5 respostas, sem cartão</span>
