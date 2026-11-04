@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 /** Rotas públicas indexáveis — fonte única para o sitemap. */
-export const PUBLIC_ROUTES = ["/", "/termos", "/privacidade", "/reembolso"] as const;
+export const PUBLIC_ROUTES = ["/", "/setup-whatsapp", "/termos", "/privacidade", "/reembolso"] as const;
 
 export const NOINDEX: Metadata = { robots: { index: false, follow: false } };
 
