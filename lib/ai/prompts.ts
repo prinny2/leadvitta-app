@@ -479,6 +479,7 @@ const CONDICOES: RegExp[] = [
   regra(
     "\\bdura\\w*\\s+(?:(?:de|ate|cerca de|em media|entre|por)\\s+)*\\d+(?:\\s*(?:a|e|-)\\s*\\d+)?\\s+(?:dias|semanas|meses|anos)\\b"
   ),
+  regra("\\b\\d+\\s*(?:a|e|-)\\s*\\d+\\s+(?:semanas|meses|anos)\\b"),
   regra("\\b\\d+\\s+anos\\s+de\\s+(?:experiencia|mercado|atuacao|clinica)\\b"),
   regra(
     "\\bmais de \\d+(?:\\s*mil)?\\s+(?:clientes|pacientes|casos|procedimentos|atendimentos)\\b"
