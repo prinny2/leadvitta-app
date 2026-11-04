@@ -44,7 +44,7 @@ export const scripts: Script[] = [
         etapa: "Direcionar",
         intervalo: "Ainda na mesma conversa",
         mensagem:
-          "Tenho horários de avaliação essa semana. Você prefere de manhã ou à tarde?",
+          "Quer que eu veja um horário de avaliação pra você? Prefere de manhã ou à tarde?",
       },
     ],
   },
@@ -68,13 +68,13 @@ export const scripts: Script[] = [
         etapa: "Orientar",
         intervalo: "Na sequência",
         mensagem:
-          "Aqui a gente preza pela avaliação individual e pelo cuidado em cada etapa, porque é isso que protege o seu resultado. E temos condições de pagamento pra facilitar.",
+          "Aqui a gente preza pela avaliação individual e pelo cuidado em cada etapa, porque é isso que protege o seu resultado. E posso confirmar as formas de pagamento pra você.",
       },
       {
         etapa: "Direcionar",
         intervalo: "Ainda na mesma conversa",
         mensagem:
-          "Que tal fazermos uma avaliação pra eu te mostrar exatamente o que faz sentido pra você e as condições? Prefere essa semana ou a próxima?",
+          "Que tal fazermos uma avaliação pra eu te mostrar exatamente o que faz sentido pra você? Prefere essa semana ou a próxima?",
       },
     ],
   },
@@ -105,7 +105,7 @@ export const scripts: Script[] = [
         etapa: "Direcionar",
         intervalo: "Ainda na mesma conversa",
         mensagem:
-          "Tenho horários essa semana. Prefere começo ou fim de semana? Já reservo pra você 💕",
+          "Quer que eu veja um horário pra você? Prefere começo ou fim de semana? 💕",
       },
     ],
   },
@@ -130,7 +130,7 @@ export const scripts: Script[] = [
         etapa: "Direcionar",
         intervalo: "Na sequência",
         mensagem:
-          "Se quiser, posso reservar um horário de avaliação pra a gente conversar com calma e ver o melhor pra você. O que acha?",
+          "Se quiser, posso ver um horário de avaliação pra a gente conversar com calma e ver o melhor pra você. O que acha?",
       },
     ],
   },

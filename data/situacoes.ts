@@ -29,13 +29,13 @@ export const situacoes: Situacao[] = [
     id: "desconto",
     label: "Pediu desconto",
     diretriz:
-      "Valorizar o serviço sem desvalorizá-lo. Em vez de desconto, oferecer condição (parcelamento, avaliação) e reforçar o cuidado e a segurança. Manter percepção premium.",
+      "Valorizar o serviço sem desvalorizá-lo. Não prometer desconto nem condição de pagamento que não foi informada; dizer que vai verificar o que é possível e reforçar o cuidado e a segurança. Manter percepção premium.",
   },
   {
     id: "dor",
     label: "Quer saber se dói",
     diretriz:
-      "Acolher o receio. Explicar com honestidade e cuidado, sem prometer 'não dói'. Falar de conforto, técnica e da avaliação para esclarecer o caso dela.",
+      "Acolher o receio. Explicar com honestidade e cuidado, sem prometer 'não dói'. Falar de acolhimento e de que o conforto é conversado na avaliação, sem citar anestesia, técnica ou produto que não foram informados.",
   },
   {
     id: "medo",
@@ -47,13 +47,13 @@ export const situacoes: Situacao[] = [
     id: "parcelar",
     label: "Quer parcelar",
     diretriz:
-      "Confirmar que há formas de pagamento facilitadas e conduzir para a avaliação, onde os detalhes do valor e do parcelamento são acertados.",
+      "Não afirmar parcelamento nem número de parcelas que não foram informados. Dizer que vai confirmar as formas de pagamento e conduzir para a avaliação, onde os detalhes do valor são acertados.",
   },
   {
     id: "antes_depois",
     label: "Quer ver antes e depois",
     diretriz:
-      "Oferecer mostrar casos respeitando a privacidade das clientes. Reforçar que cada caso é único e que o resultado varia. Conduzir para a avaliação.",
+      "Não afirmar que há fotos ou casos para mostrar; dizer que vai verificar o que pode compartilhar, respeitando a privacidade das clientes. Reforçar que cada caso é único e que o resultado varia. Conduzir para a avaliação.",
   },
   {
     id: "instagram",
@@ -65,7 +65,7 @@ export const situacoes: Situacao[] = [
     id: "agendar",
     label: "Quer agendar",
     diretriz:
-      "Facilitar ao máximo. Confirmar o procedimento/avaliação e oferecer opções de horário de forma objetiva e gentil.",
+      "Facilitar ao máximo. Confirmar qual procedimento ela quer, perguntar a preferência de dia e período e dizer que vai verificar a agenda, de forma objetiva e gentil, sem citar horários específicos, a menos que a própria profissional os tenha informado.",
   },
   {
     id: "desmarcou",
@@ -77,19 +77,19 @@ export const situacoes: Situacao[] = [
     id: "promocao",
     label: "Quer promoção",
     diretriz:
-      "Não desvalorizar o serviço. Falar de condições e do valor entregue (segurança/avaliação) e conduzir para a avaliação.",
+      "Não desvalorizar o serviço. Não afirmar promoção nem condição que não foi informada; falar do valor entregue (segurança/avaliação) e conduzir para a avaliação.",
   },
   {
     id: "comparou",
     label: "Comparou com outra clínica",
     diretriz:
-      "Nunca falar mal da concorrência. Reforçar diferenciais (segurança, avaliação individual, profissional responsável, produtos) e valor acima do preço.",
+      "Nunca falar mal da concorrência. Reforçar segurança, avaliação individual e valor acima do preço, sem citar marcas, formação ou números que não foram informados.",
   },
   {
     id: "pos_atendimento",
     label: "Pós-atendimento",
     diretriz:
-      "Demonstrar cuidado e acompanhamento. Reforçar orientações pós-procedimento e abrir canal para dúvidas, com carinho.",
+      "Demonstrar cuidado e acompanhamento. Lembrar de seguir as orientações já passadas pela profissional, sem criar orientação nova; dúvida clínica vai para a profissional. Abrir canal para dúvidas, com carinho.",
   },
   {
     id: "pedir_avaliacao",
@@ -101,7 +101,7 @@ export const situacoes: Situacao[] = [
     id: "reativar",
     label: "Reativar cliente antiga",
     diretriz:
-      "Reaproximar com carinho, lembrando do cuidado contínuo. Oferecer um retorno ou novidade sem soar invasivo.",
+      "Reaproximar com carinho, lembrando do cuidado contínuo. Convidar para um retorno sem soar invasivo, sem citar novidade que não foi informada.",
   },
 ];
 

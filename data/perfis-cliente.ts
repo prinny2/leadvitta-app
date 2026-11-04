@@ -9,7 +9,7 @@ export const perfisCliente = [
   {
     value: "já conhece a clínica",
     label: "Já conhece a clínica",
-    diretriz: "Reforce o vínculo e o histórico; pode ser mais direta ao conduzir.",
+    diretriz: "Reforce o vínculo, sem inventar histórico; pode ser mais direta ao conduzir.",
   },
   {
     value: "veio pelo Instagram",
@@ -29,7 +29,7 @@ export const perfisCliente = [
   {
     value: "parece focada em qualidade e segurança",
     label: "Focada em qualidade",
-    diretriz: "Destaque diferenciais de segurança, avaliação individual e cuidado.",
+    diretriz: "Enfatize segurança, avaliação individual e cuidado, sem citar diferenciais que não foram informados.",
   },
 ];
 

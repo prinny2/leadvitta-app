@@ -92,6 +92,8 @@ export type GerarInput = {
 
 /** Entrada para "Melhorar essa resposta" (refina uma variante). */
 export type RefineInput = {
+  /** "reescrever": `mensagemCliente` é o texto da própria profissional. */
+  modo?: GerarInput["modo"];
   variante: Variante;
   respostaAtual: string;
   procedimento: string;

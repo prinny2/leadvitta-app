@@ -1,6 +1,7 @@
 import { jsonNoStore, enforceRateLimit, readJsonBody, rejectCrossOriginRequest } from "@/lib/api-security";
 import { isOpenAIConfigured, isAnthropicConfigured, openaiModel } from "@/lib/config";
 import { openaiChatParams } from "@/lib/ai/openai-chat";
+import { afirmaFatoSemFonte, REGRA_FATOS } from "@/lib/ai/prompts";
 import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
 import { enforceAiDailyLimit } from "@/lib/ai-guard";
@@ -39,7 +40,7 @@ function mockAnalysis(msg: string): LeadIntelligenceResult {
   let urgencia = 40, intencao = 50, confianca = 55, receptividade = 60, maturidade = 45;
   let perfil = "Lead em fase de consideração, avaliando opções antes de decidir.";
   let abordagem = "Use tom consultivo. Mostre diferenciais antes de falar em valor.";
-  let gatilho = "Ofereça uma avaliação gratuita para reduzir a barreira de entrada.";
+  let gatilho = "Convide para uma avaliação e pergunte o que ela quer melhorar.";
   let intent = "informacao";
   let sentiment: "positivo" | "neutro" | "negativo" = "neutro";
 
@@ -47,7 +48,7 @@ function mockAnalysis(msg: string): LeadIntelligenceResult {
     score = 58; urgencia = 55; intencao = 65; confianca = 40; receptividade = 50; maturidade = 60;
     perfil = "Cliente sensível a preço. Precisa de justificativa de valor antes de qualquer número.";
     abordagem = "Não revele valores imediatamente. Primeiro entenda o objetivo, depois apresente o investimento como solução.";
-    gatilho = "Mencionar parcelamento e custo-benefício a longo prazo pode reduzir resistência de preço.";
+    gatilho = "Mostre o custo-benefício a longo prazo e diga que vai confirmar as formas de pagamento.";
     intent = "preco"; sentiment = "neutro";
   }
   if (hasMedo) {
@@ -60,8 +61,8 @@ function mockAnalysis(msg: string): LeadIntelligenceResult {
   if (hasAgendar) {
     score = 82; urgencia = 85; intencao = 88; confianca = 70; receptividade = 80; maturidade = 78;
     perfil = "Lead quente — já decidiu pelo procedimento, está escolhendo quando e onde fazer.";
-    abordagem = "Responda rápido. Ofereça 2 opções de horário e confirme em seguida. Não deixe esfriar.";
-    gatilho = "Crie urgência com disponibilidade limitada. 'Tenho horário amanhã às 14h ou quinta às 10h.'";
+    abordagem = "Responda rápido. Pergunte a preferência de dia e período e diga que vai verificar a agenda. Não deixe esfriar.";
+    gatilho = "Pergunte: 'Quer que eu veja um horário pra você?'";
     intent = "agendamento"; sentiment = "positivo";
   }
   if (hasConfia) {
@@ -75,7 +76,7 @@ function mockAnalysis(msg: string): LeadIntelligenceResult {
     score = 71; urgencia = 60; intencao = 70; confianca = 65; receptividade = 75; maturidade = 68;
     perfil = "Ex-cliente ativo — alta probabilidade de retorno. Já conhece e confiou na clínica.";
     abordagem = "Trate como VIP. Reconheça a relação anterior e apresente manutenção como continuidade natural.";
-    gatilho = "Ofereça desconto exclusivo de fidelidade ou pacote de manutenção com condições especiais.";
+    gatilho = "Proponha a manutenção como continuidade do cuidado e pergunte se ela quer que você veja um horário.";
     intent = "retorno"; sentiment = "positivo";
   }
   if (hasInterest && !hasPreco && !hasMedo && !hasAgendar) {
@@ -112,6 +113,16 @@ function isValidAnalysis(value: unknown): value is LeadIntelligenceResult {
   );
 }
 
+/** Abordagem e gatilho vão parar na conversa: fato inventado cai no texto do mock. */
+function semFatoInventado(analise: LeadIntelligenceResult, msg: string): LeadIntelligenceResult {
+  const inventou = [analise.abordagem, analise.gatilho].some((t) =>
+    afirmaFatoSemFonte(String(t ?? ""))
+  );
+  if (!inventou) return analise;
+  const { abordagem, gatilho } = mockAnalysis(msg);
+  return { ...analise, abordagem, gatilho };
+}
+
 async function aiAnalysis(msg: string): Promise<LeadIntelligenceResult> {
   const systemPrompt = `Você é um especialista em vendas para clínicas de estética brasileiras.
 Analise a mensagem de um potencial cliente e retorne JSON com esta estrutura exata:
@@ -131,6 +142,8 @@ Analise a mensagem de um potencial cliente e retorne JSON com esta estrutura exa
   "intent": "preco" | "agendamento" | "medo" | "confianca" | "retorno" | "interesse" | "informacao",
   "sentiment": "positivo" | "neutro" | "negativo"
 }
+${REGRA_FATOS}
+Na abordagem e no gatilho, nunca sugira urgência falsa, escassez ou condição que a clínica não informou.
 Responda APENAS com o JSON, sem explicações.`;
 
   const userMsg = `Mensagem do lead: "${msg}"`;
@@ -144,7 +157,7 @@ Responda APENAS com o JSON, sem explicações.`;
       response_format: { type: "json_object" },
     });
     const parsed = JSON.parse(res.choices[0].message.content ?? "{}");
-    return isValidAnalysis(parsed) ? parsed : mockAnalysis(msg);
+    return isValidAnalysis(parsed) ? semFatoInventado(parsed, msg) : mockAnalysis(msg);
   }
 
   if (isAnthropicConfigured) {
@@ -158,7 +171,7 @@ Responda APENAS com o JSON, sem explicações.`;
     const text = res.content[0].type === "text" ? res.content[0].text : "{}";
     const match = text.match(/\{[\s\S]+\}/);
     const parsed = JSON.parse(match?.[0] ?? "{}");
-    return isValidAnalysis(parsed) ? parsed : mockAnalysis(msg);
+    return isValidAnalysis(parsed) ? semFatoInventado(parsed, msg) : mockAnalysis(msg);
   }
 
   return mockAnalysis(msg);

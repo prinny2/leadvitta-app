@@ -53,7 +53,7 @@ export const tons: Tom[] = [
     id: "urgencia_leve",
     label: "Urgência leve",
     instrucao:
-      "Cria um leve senso de oportunidade (horários, agenda) para estimular a ação, SEM pressão agressiva.",
+      "Convida a decidir agora perguntando se ela quer que você veja um horário, sem citar vagas, prazos ou escassez e SEM pressão agressiva.",
   },
 ];
 

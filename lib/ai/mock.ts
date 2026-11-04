@@ -27,7 +27,35 @@ function abertura(clinica: GerarInput["clinica"], nome?: string): string {
   return n ? `Oi, ${n}!` : "Oi, linda!"; // 'linda' (padrão)
 }
 
+const SITUACOES_POS = ["pos_atendimento", "pedir_avaliacao"];
+const SITUACOES_AGENDA = ["agendar", "desmarcou"];
+
+/**
+ * Texto seguro sem preço: última defesa quando a IA é reprovada duas vezes, e base
+ * do demo em agenda e pós-atendimento. Só pergunta, nunca afirma fato da clínica.
+ */
+export function mockNeutro(
+  input: Pick<GerarInput, "clinica" | "nomeCliente" | "situacao">
+): RespostaTripla {
+  const ola = abertura(input.clinica, input.nomeCliente);
+  if (SITUACOES_POS.includes(input.situacao)) {
+    return {
+      curta: `${ola} Como você está se sentindo? Qualquer dúvida, pode me chamar 💛`,
+      consultiva: `${ola} Quero saber como foi a sua experiência. Ficou alguma dúvida? Se algo te incomodar, me conta que eu falo com a profissional.`,
+      persuasiva: `${ola} Obrigada pela confiança 💕 Me conta como você está?`,
+    };
+  }
+  return {
+    curta: `${ola} 😊 Me conta um pouquinho mais pra eu te orientar do jeito certo?`,
+    consultiva: `${ola} Cada caso é único, por isso quero entender melhor o que você precisa. O que é mais importante pra você agora?`,
+    persuasiva: `${ola} Quer que eu veja um horário pra você? Prefere manhã ou tarde? 💕`,
+  };
+}
+
 export function mockGerador(input: GerarInput): RespostaTripla {
+  if ([...SITUACOES_POS, ...SITUACOES_AGENDA].includes(input.situacao)) {
+    return mockNeutro(input);
+  }
   const ola = abertura(input.clinica, input.nomeCliente);
   const p = procLabel(input.procedimento);
 
@@ -52,7 +80,7 @@ export function mockRefine(input: RefineInput): string {
       )} é bem individual: o melhor caminho depende da sua avaliação e do que você deseja alcançar. Posso te explicar as opções e como funciona a avaliação?`;
     case "persuasiva":
     default:
-      return `${ola} Que tal a gente reservar um horário de avaliação? Assim eu te oriento com segurança, vejo o melhor pra você e já explico o valor certinho. Tenho horários essa semana — prefere manhã ou tarde? ✨`;
+      return `${ola} Quer que eu veja um horário de avaliação pra você? Assim eu te oriento com segurança e vejo o melhor pra você. Prefere manhã ou tarde? ✨`;
   }
 }
 
@@ -72,8 +100,8 @@ export function mockFollowup(input: FollowUpInput): string[] {
   }
   return [
     `${ola} Passando pra saber se ficou alguma dúvida sobre ${p} 😊 É super normal querer entender melhor antes de decidir. Posso te ajudar com alguma informação?`,
-    `${ola} Vi que você teve interesse em ${p} e queria saber se ainda faz sentido pra você. Essa semana abrimos alguns horários de avaliação — quer que eu veja um pra você?`,
-    `${ola} Tô por aqui se quiser retomar quando for melhor pra você 💕 Se preferir, já deixo um horário sugerido pra avaliarmos com calma. O que acha?`,
+    `${ola} Vi que você teve interesse em ${p} e queria saber se ainda faz sentido pra você. Quer que eu veja um horário de avaliação pra você?`,
+    `${ola} Tô por aqui se quiser retomar quando for melhor pra você 💕 Se preferir, me diz o melhor dia e eu vejo um horário pra avaliarmos com calma. O que acha?`,
   ];
 }
 
