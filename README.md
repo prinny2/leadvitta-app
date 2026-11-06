@@ -3,8 +3,8 @@
 **AI-assisted WhatsApp sales replies for Brazilian aesthetic clinics** — turns a
 client's message ("how much is Botox?", "that's expensive", silence after a quote)
 into three ready-to-send replies in the clinic's own tone, with compliance
-guardrails, usage-based paywall and Stripe subscriptions. Live, billing real
-customers, built and operated end-to-end by one developer.
+guardrails, usage-based paywall and Stripe subscriptions. Live and pre-revenue,
+built and operated end-to-end by one developer.
 
 > Product UI and copy are in Brazilian Portuguese (the target market). Code,
 > comments and this README are mixed EN/PT-BR.
