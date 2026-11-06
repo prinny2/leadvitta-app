@@ -8,11 +8,11 @@ vi.mock("firebase-admin/firestore", () => ({
   FieldValue: { increment: (n: number) => ({ __increment: n }) },
 }));
 
-import {
-  reserveGeneration,
-  releaseGeneration,
-  FREE_GENERATION_LIMIT,
-} from "@/lib/usage-limit";
+import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
+import { TRIAL_DAYS, trialDaysLeft } from "@/lib/free-limit";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const daysAgo = (days: number) => new Date(Date.now() - days * DAY_MS).toISOString();
 
 function makeFirestore(seed: Record<string, any> = {}) {
   const store = new Map<string, any>(Object.entries(seed));
@@ -98,12 +98,12 @@ describe("reserveGeneration", () => {
     getDb.mockReturnValue(db);
     const res = await reserveGeneration("u1");
     expect(res.paid).toBe(false);
-    expect(res.remaining).toBe(FREE_GENERATION_LIMIT);
+    expect(res.remaining).toBe(TRIAL_DAYS);
     expect(res.reserved).toBe(true);
     expect(sets[0].data.usage.free_generations).toEqual({ __increment: 1 });
   });
 
-  it("grátis sem uso prévio: permite, reserva e incrementa", async () => {
+  it("primeira geração: permite, reserva, incrementa e marca o início do teste", async () => {
     const { db, sets } = makeFirestore({ "clinicas/u1": {} });
     getDb.mockReturnValue(db);
     const res = await reserveGeneration("u1");
@@ -111,29 +111,41 @@ describe("reserveGeneration", () => {
       allowed: true,
       paid: false,
       used: 0,
-      remaining: FREE_GENERATION_LIMIT,
+      remaining: TRIAL_DAYS,
       reserved: true,
     });
     expect(sets).toHaveLength(1);
     expect(sets[0].merge).toBe(true);
     expect(sets[0].data.usage.free_generations).toEqual({ __increment: 1 });
+    expect(Date.parse(sets[0].data.usage.trial_started_at)).not.toBeNaN();
   });
 
-  it("grátis com uso parcial calcula o restante e reserva", async () => {
-    const { db } = makeFirestore({
-      "clinicas/u1": { usage: { free_generations: 3 } },
+  it("teste em andamento: calcula os dias e não reinicia o prazo", async () => {
+    const { db, sets } = makeFirestore({
+      "clinicas/u1": { usage: { free_generations: 3, trial_started_at: daysAgo(2) } },
     });
     getDb.mockReturnValue(db);
     const res = await reserveGeneration("u1");
     expect(res.used).toBe(3);
-    expect(res.remaining).toBe(FREE_GENERATION_LIMIT - 3);
+    expect(res.remaining).toBe(5);
     expect(res.allowed).toBe(true);
     expect(res.reserved).toBe(true);
+    expect(sets[0].data.usage).not.toHaveProperty("trial_started_at");
   });
 
-  it("grátis no limite: bloqueia (allowed=false, reserved=false, sem incremento)", async () => {
+  it("volume não encerra o teste: só o prazo bloqueia", async () => {
+    const { db } = makeFirestore({
+      "clinicas/u1": { usage: { free_generations: 200, trial_started_at: daysAgo(1) } },
+    });
+    getDb.mockReturnValue(db);
+    const res = await reserveGeneration("u1");
+    expect(res.allowed).toBe(true);
+    expect(res.remaining).toBe(6);
+  });
+
+  it("teste vencido: bloqueia (allowed=false, reserved=false, sem incremento)", async () => {
     const { db, sets } = makeFirestore({
-      "clinicas/u1": { usage: { free_generations: FREE_GENERATION_LIMIT } },
+      "clinicas/u1": { usage: { free_generations: 5, trial_started_at: daysAgo(7) } },
     });
     getDb.mockReturnValue(db);
     const res = await reserveGeneration("u1");
@@ -143,15 +155,15 @@ describe("reserveGeneration", () => {
     expect(sets).toHaveLength(0); // bloqueado não pode incrementar
   });
 
-  it("não fica negativo se o uso ultrapassou o limite", async () => {
-    const { db } = makeFirestore({
-      "clinicas/u1": { usage: { free_generations: FREE_GENERATION_LIMIT + 10 } },
+  it("conta antiga que usou as 5 respostas ganha os 7 dias", async () => {
+    const { db, sets } = makeFirestore({
+      "clinicas/u1": { usage: { free_generations: 5 } },
     });
     getDb.mockReturnValue(db);
     const res = await reserveGeneration("u1");
-    expect(res.remaining).toBe(0);
-    expect(res.allowed).toBe(false);
-    expect(res.reserved).toBe(false);
+    expect(res.allowed).toBe(true);
+    expect(res.remaining).toBe(TRIAL_DAYS);
+    expect(sets[0].data.usage.trial_started_at).toBeTypeOf("string");
   });
 
   it("doc inexistente é tratado como grátis sem uso", async () => {
@@ -161,6 +173,28 @@ describe("reserveGeneration", () => {
     expect(res.allowed).toBe(true);
     expect(res.used).toBe(0);
     expect(res.reserved).toBe(true);
+  });
+});
+
+describe("trialDaysLeft", () => {
+  const start = "2026-11-06T12:00:00.000Z";
+  const at = (iso: string) => Date.parse(iso);
+
+  it("teste não iniciado ou data inválida tem os 7 dias inteiros", () => {
+    expect(trialDaysLeft(undefined)).toBe(7);
+    expect(trialDaysLeft("não é data")).toBe(7);
+  });
+
+  it("arredonda para cima e zera no fim exato do prazo", () => {
+    expect(trialDaysLeft(start, at("2026-11-06T12:00:00.000Z"))).toBe(7);
+    expect(trialDaysLeft(start, at("2026-11-06T12:00:01.000Z"))).toBe(7);
+    expect(trialDaysLeft(start, at("2026-11-13T11:59:59.000Z"))).toBe(1);
+    expect(trialDaysLeft(start, at("2026-11-13T12:00:00.000Z"))).toBe(0);
+    expect(trialDaysLeft(start, at("2026-12-01T12:00:00.000Z"))).toBe(0);
+  });
+
+  it("data futura não dá mais que 7 dias", () => {
+    expect(trialDaysLeft("2027-01-01T00:00:00.000Z", at(start))).toBe(7);
   });
 });
 

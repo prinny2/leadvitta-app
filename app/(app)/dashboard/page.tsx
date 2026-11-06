@@ -10,7 +10,7 @@ import { Sparkles, TrendingUp, Flame, Snowflake, Sun, ArrowRight, ChevronRight,
   MessagesSquare, Send, ListChecks, History, Settings, Zap, Brain, Target } from "lucide-react";
 import { getClinica, getBillingPlan, getBillingStatus, listHistorico, type BillingStatus } from "@/lib/store";
 import { calcularDashboard, type DashboardStats } from "@/lib/dashboard-stats";
-import { FREE_GENERATION_LIMIT } from "@/lib/free-limit";
+import { TRIAL_DAYS } from "@/lib/free-limit";
 import { isFirebaseConfigured } from "@/lib/config";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/theme-provider";
@@ -93,8 +93,7 @@ export default function DashboardPage() {
   const totalLeads = dadosLeads.reduce((a, b) => a + b.value, 0);
   const semDados = stats.totalSemana === 0;
   const pago = billing?.paid === true;
-  const gratisRestantes =
-    typeof billing?.freeUsed === "number" ? Math.max(0, FREE_GENERATION_LIMIT - billing.freeUsed) : null;
+  const diasDeTeste = billing?.trialDaysLeft ?? null;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -183,9 +182,11 @@ export default function DashboardPage() {
 
             {pago ? (
               <p className="relative font-serif text-xl font-bold text-white mb-1">Ilimitado</p>
-            ) : gratisRestantes !== null ? (
+            ) : diasDeTeste === 0 ? (
+              <p className="relative font-serif text-xl font-bold text-white mb-1">Teste encerrado</p>
+            ) : diasDeTeste !== null ? (
               <p className="relative font-serif text-xl font-bold text-white mb-1">
-                {gratisRestantes}<span className="text-sm font-normal text-navy-100"> de {FREE_GENERATION_LIMIT} grátis</span>
+                {diasDeTeste}<span className="text-sm font-normal text-navy-100"> de {TRIAL_DAYS} dias grátis</span>
               </p>
             ) : (
               <p className="relative font-serif text-xl font-bold text-white mb-1">Modo demonstração</p>

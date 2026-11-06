@@ -7,7 +7,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/reembolso",
   title: "Política de Reembolso — LeadBellus",
   description:
-    "Política de Reembolso do LeadBellus: teste grátis com 5 respostas, assinatura Start mensal, cancelamento quando quiser e análise de cobranças indevidas.",
+    "Política de Reembolso do LeadBellus: teste grátis de 7 dias, assinatura Start mensal, cancelamento quando quiser e análise de cobranças indevidas.",
 });
 
 export default function ReembolsoPage() {
@@ -21,14 +21,17 @@ export default function ReembolsoPage() {
         <h1 className="mt-6 font-serif text-3xl font-semibold text-champagne-300 sm:text-4xl">
           Política de Reembolso
         </h1>
-        <p className="mt-2 text-xs text-navy-100">Última atualização: outubro de 2026</p>
+        <p className="mt-2 text-xs text-navy-100">Última atualização: novembro de 2026</p>
 
         <div className="mt-8 space-y-8 text-sm leading-relaxed text-navy-50">
           <section>
             <h2 className="font-serif text-xl font-semibold text-champagne-200">1. Teste grátis</h2>
             <p className="mt-2">
-              A demo pública do LeadBellus permite gerar até 5 respostas grátis para
-              avaliar o produto antes de contratar o plano Start.
+              A demo pública do LeadBellus permite gerar até 5 respostas grátis, sem
+              cadastro. Ao criar a conta, você tem 7 dias corridos de teste grátis,
+              sem cartão, contados da primeira resposta gerada, para avaliar o produto
+              antes de contratar o plano Start. Sem assinatura, o acesso à geração
+              termina no fim do teste, e nada é cobrado.
             </p>
           </section>
 

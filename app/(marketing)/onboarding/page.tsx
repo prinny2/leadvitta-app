@@ -288,7 +288,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
         Seus 5 testes grátis acabaram.
       </p>
       <p className="mt-1 text-sm leading-relaxed text-champagne-300">
-        Crie sua conta grátis e ganhe mais 5 respostas, sem cartão.
+        Crie sua conta e teste por 7 dias, sem cartão.
       </p>
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         <TrackLink
@@ -421,7 +421,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
         {personalizado ? "Criar conta grátis e salvar meu tom" : "Criar conta grátis"}{" "}
         <ArrowRight size={16} />
       </TrackLink>
-      <p className="mt-2 text-center text-xs text-muted">5 respostas grátis · sem cartão</p>
+      <p className="mt-2 text-center text-xs text-muted">7 dias grátis · sem cartão</p>
     </>
   );
 
@@ -626,7 +626,7 @@ function OnboardingCore({ authLoaded, signedIn }: OnboardingCoreProps) {
                   </button>
                 </p>
                 <p className="mt-4 border-t border-navy-500 pt-4 text-center text-xs leading-relaxed text-muted">
-                  Depois das 5 grátis, o Start custa R$97/mês. Cancele quando
+                  Depois dos 7 dias grátis, o Start custa R$97/mês. Cancele quando
                   quiser. ·{" "}
                   <button
                     type="button"

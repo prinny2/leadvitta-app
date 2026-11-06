@@ -413,8 +413,8 @@ export default function GeradorPage() {
 
           {freeRemaining !== null && freeRemaining > 0 && !limitReached && (
             <div className="rounded-xl border border-gold-500/30 bg-gold-500/8 px-4 py-2.5 text-xs text-champagne-300">
-              Plano grátis · <strong className="text-gold-400">faltam {freeRemaining}</strong>{" "}
-              {freeRemaining === 1 ? "resposta grátis" : "respostas grátis"}. Assine o Start pra liberar ilimitado.
+              Teste grátis · <strong className="text-gold-400">{freeRemaining === 1 ? "falta 1 dia" : `faltam ${freeRemaining} dias`}</strong>.
+              Assine o Start pra continuar depois.
             </div>
           )}
 
@@ -424,7 +424,7 @@ export default function GeradorPage() {
                 <Sparkles size={22} className="text-gold-400" />
               </div>
               <p className="font-serif text-lg font-semibold text-champagne-300 mb-1">
-                Você usou suas respostas grátis 🎉
+                Seu teste grátis acabou
               </p>
               <p className="text-sm text-navy-100 mb-4 max-w-[340px] mx-auto leading-relaxed">
                 Assine o <strong className="text-gold-400">Start (R$97/mês)</strong> e gere

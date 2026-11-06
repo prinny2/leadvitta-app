@@ -63,7 +63,7 @@ const FAQ = [
   },
   {
     q: "Preciso de cartão para testar?",
-    a: "Não. Você testa aqui sem cadastro e, ao criar a conta, ganha 5 respostas grátis. Assine o Start (R$97/mês) só se fizer sentido para a sua rotina.",
+    a: "Não. Você testa aqui sem cadastro e, ao criar a conta, ganha 7 dias grátis. Assine o Start (R$97/mês) só se fizer sentido para a sua rotina.",
   },
   {
     q: "As respostas ficam no tom da minha clínica?",
@@ -79,7 +79,7 @@ export const metadata: Metadata = pageMetadata({
   path: "/",
   title: "Respostas de WhatsApp para clínicas de estética | LeadBellus",
   description:
-    "Transforme mensagens de clientes em três respostas no tom da sua clínica. A equipe revisa e envia pelo WhatsApp, com 5 respostas grátis e sem cartão.",
+    "Transforme mensagens de clientes em três respostas no tom da sua clínica. A equipe revisa e envia pelo WhatsApp, com 7 dias grátis e sem cartão.",
 });
 
 function StructuredDataTags() {
@@ -442,7 +442,7 @@ export default function LandingPage() {
                 Criar conta grátis <ArrowRight size={17} aria-hidden="true" />
               </TrackLink>
               <p style={{ fontSize: "12.5px", color: "rgba(255,255,255,0.62)", textAlign: "center", margin: "10px 0 0" }}>
-                5 respostas grátis, sem cartão. Assine só se fizer sentido.
+                7 dias grátis, sem cartão. Assine só se fizer sentido.
               </p>
               <PlanCTA
                 plan="start"

@@ -1,8 +1,6 @@
 import { getFirebaseAdminDb } from "@/lib/firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
-import { FREE_GENERATION_LIMIT } from "@/lib/free-limit";
-
-export { FREE_GENERATION_LIMIT };
+import { trialDaysLeft, trialStartMs } from "@/lib/free-limit";
 
 /** Status de assinatura que contam como "pagante" (acesso ilimitado). */
 const PAID_STATUSES = new Set(["active", "trialing", "past_due"]);
@@ -11,18 +9,18 @@ export type LimitCheck = {
   allowed: boolean;
   paid: boolean;
   used: number;
-  /** Quantas grátis ainda restam (Infinity se pagante). */
+  /** Dias de teste grátis que restam (Infinity se pagante). */
   remaining: number;
   /** True quando esta chamada consumiu (reservou) um slot grátis. */
   reserved: boolean;
 };
 
 /**
- * Reserva uma geração grátis de forma ATÔMICA (server-side).
+ * Reserva uma geração do teste grátis de forma ATÔMICA (server-side).
  * - Pagante (billing.status ativo) → ilimitado, não reserva nada.
- * - Grátis → checa o limite e incrementa o contador na MESMA transação, pra
- *   que requisições concorrentes do mesmo usuário não furem o teto (corrida:
- *   sem transação, N chamadas leem used=4 e todas passam).
+ * - Grátis → checa o prazo de 7 dias e, na MESMA transação, incrementa o
+ *   contador e marca o início do teste na primeira geração. Conta antiga, que já
+ *   tinha usado as 5 respostas, ganha os 7 dias a partir da próxima geração.
  * - Sem Admin SDK (ex.: ambiente sem credencial) falha ABERTO — não bloqueia.
  *
  * Reserva ANTES de gerar; se a geração falhar, chame `releaseGeneration` para
@@ -46,7 +44,9 @@ export async function reserveGeneration(uid: string): Promise<LimitCheck> {
     }
 
     const used = Number(data?.usage?.free_generations ?? 0);
-    const remaining = Math.max(0, FREE_GENERATION_LIMIT - used);
+    const startedAt = data?.usage?.trial_started_at;
+    const nowMs = Date.now();
+    const remaining = trialDaysLeft(startedAt, nowMs);
     if (remaining <= 0) {
       return { allowed: false, paid: false, used, remaining: 0, reserved: false };
     }
@@ -54,8 +54,13 @@ export async function reserveGeneration(uid: string): Promise<LimitCheck> {
     tx.set(
       ref,
       {
-        usage: { free_generations: FieldValue.increment(1) },
-        updated_at: new Date().toISOString(),
+        usage: {
+          free_generations: FieldValue.increment(1),
+          ...(trialStartMs(startedAt) === null
+            ? { trial_started_at: new Date(nowMs).toISOString() }
+            : {}),
+        },
+        updated_at: new Date(nowMs).toISOString(),
       },
       { merge: true }
     );

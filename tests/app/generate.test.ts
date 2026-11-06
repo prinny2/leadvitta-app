@@ -176,7 +176,7 @@ describe("generate — plano grátis (logado)", () => {
     expect(reserve).toHaveBeenCalledWith("u1");
     expect(release).not.toHaveBeenCalled();
     const body = await res.json();
-    expect(body.freeRemaining).toBe(2); // remaining 3 - 1
+    expect(body.freeRemaining).toBe(3); // dias de teste que restam
   });
 
   it("usuário pagante gera ilimitado e NÃO reserva nem devolve freeRemaining", async () => {

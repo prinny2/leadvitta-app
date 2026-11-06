@@ -8,7 +8,7 @@ export function FreeQuotaLimit() {
         <Sparkles size={22} className="text-gold-400" />
       </div>
       <p className="mb-1 font-serif text-lg font-semibold text-champagne-300">
-        Você usou suas respostas grátis 🎉
+        Seu teste grátis acabou
       </p>
       <p className="mx-auto mb-4 max-w-[340px] text-sm leading-relaxed text-navy-100">
         Assine o Start para continuar usando as ferramentas de IA da clínica.

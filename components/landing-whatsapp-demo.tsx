@@ -194,7 +194,7 @@ export function LandingWhatsAppDemo() {
               Seus 5 testes grátis acabaram.
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-white/70">
-              Crie sua conta grátis e ganhe mais 5 respostas, sem cartão. Para
+              Crie sua conta e teste por 7 dias, sem cartão. Para
               usar todo dia no atendimento, o Start custa R$97/mês.
             </p>
 
