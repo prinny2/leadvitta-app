@@ -57,6 +57,9 @@ export default function TermosPage() {
             <h2 className="font-serif text-xl font-semibold text-champagne-200">4. Planos, pagamento e cancelamento</h2>
             <p className="mt-2">
               A demonstração pública permite até 5 respostas gratuitas por navegador.
+              A conta tem 7 dias corridos de teste gratuito, sem cartão, contados da
+              primeira resposta gerada, com os limites diários de uso que protegem o
+              serviço.
               O plano Start é uma assinatura mensal paga, cobrada via Stripe, para uso
               contínuo do gerador enquanto a assinatura estiver ativa. A assinatura é
               renovada automaticamente a cada período até que seja cancelada. Você

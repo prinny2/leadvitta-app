@@ -151,7 +151,7 @@ function LaunchBanner() {
         letterSpacing: "0.02em",
       }}
     >
-      Oferta de lançamento: teste 5 respostas grátis e veja se o Start encaixa na rotina.
+      Oferta de lançamento: teste 7 dias grátis e veja se o Start encaixa na rotina.
     </div>
   );
 }
@@ -240,7 +240,7 @@ export default async function CampaignPage({ params }: Props) {
               subtitle={campaignSubtitle}
               bullets={campaignBullets}
               ctaHref="/signup?plan=start"
-              ctaText="Gerar 5 respostas grátis"
+              ctaText="Testar 7 dias grátis"
               hideSimuladorLink={true}
             />
 
@@ -335,7 +335,7 @@ export default async function CampaignPage({ params }: Props) {
             R$97<span style={{ fontSize: "12px", fontWeight: 400, color: "rgba(255,255,255,0.5)" }}>/mês</span>
           </p>
           <p style={{ margin: 0, fontSize: "11px", color: "rgba(255,255,255,0.55)" }}>
-            5 respostas grátis · sem cartão
+            7 dias grátis · sem cartão
           </p>
         </div>
         <Link

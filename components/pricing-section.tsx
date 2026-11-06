@@ -9,8 +9,8 @@ const PLAN_META = {
   start: {
     eyebrow: "Disponível agora",
     scope: "Plano pago de entrada",
-    bestFor: "Para usar no atendimento real depois das 5 respostas grátis.",
-    contrast: "Demo: 5 respostas. Start: uso contínuo.",
+    bestFor: "Para usar no atendimento real depois do teste grátis.",
+    contrast: "Teste: 7 dias. Start: uso contínuo.",
   },
   pro: {
     eyebrow: "Próximo degrau",
@@ -272,7 +272,7 @@ export function PricingSection({ ctaHref }: { ctaHref?: string } = {}) {
             Demo grátis
           </strong>
           <span style={{ color: "rgba(255,255,255,0.62)", fontSize: "13px" }}>
-            5 respostas para testar, sem cartão
+            7 dias para testar, sem cartão
           </span>
           <span style={{ color: "#D9B66D", fontSize: "12px", fontWeight: 800 }}>
             Limitada

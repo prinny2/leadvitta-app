@@ -3,6 +3,7 @@ import { gerarFollowUp } from "@/lib/ai/provider";
 import type { FollowUpInput } from "@/lib/types";
 import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
+import { TRIAL_ENDED_MESSAGE } from "@/lib/free-limit";
 import { enforceAiDailyLimit } from "@/lib/ai-guard";
 
 export const runtime = "nodejs";
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
     const limit = decoded?.uid ? await reserveGeneration(decoded.uid) : null;
     if (limit && !limit.allowed) {
       return jsonNoStore({
-        error: "Você usou suas respostas grátis. Assine o Start pra continuar gerando respostas ilimitadas.",
+        error: TRIAL_ENDED_MESSAGE,
         limitReached: true,
         freeRemaining: 0,
       }, { status: 402 });
@@ -71,7 +72,7 @@ export async function POST(req: Request) {
       throw err;
     }
 
-    const freeRemaining = limit?.reserved ? Math.max(0, limit.remaining - 1) : undefined;
+    const freeRemaining = limit?.reserved ? limit.remaining : undefined;
     return jsonNoStore(freeRemaining === undefined ? result : { ...result, freeRemaining });
   } catch (err: unknown) {
     console.error("[api/follow-up] erro fatal:", err);

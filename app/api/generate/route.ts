@@ -4,6 +4,7 @@ import type { GerarInput, RefineInput, RespostaTripla } from "@/lib/types";
 import { verifyFirebaseIdToken, isFirebaseAdminConfigured } from "@/lib/firebase/admin";
 import { upsertClinica, upsertHistorico } from "@/lib/supabase/server";
 import { reserveGeneration, releaseGeneration } from "@/lib/usage-limit";
+import { TRIAL_ENDED_MESSAGE } from "@/lib/free-limit";
 import { enforceAiDailyLimit } from "@/lib/ai-guard";
 
 export const runtime = "nodejs";
@@ -128,7 +129,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Plano grátis: usuário LOGADO grátis tem limite; pagante é ilimitado.
+    // Teste grátis: usuário LOGADO tem 7 dias; pagante é ilimitado.
     // Sem token (ex.: demo pública da landing) não conta nem bloqueia.
     // CLERK_MIGRATION: this firebaseIdToken pattern is used across many routes.
     const token = (body as { firebaseIdToken?: string }).firebaseIdToken;
@@ -147,15 +148,14 @@ export async function POST(req: Request) {
 
     // Reserva ATÔMICA do slot grátis ANTES de gerar (check + increment na mesma
     // transação) pra fechar a corrida: sem isso, chamadas concorrentes do mesmo
-    // usuário leem used=4 e todas passam, furando o teto de grátis.
+    // usuário não contam errado nem marcam o início do teste duas vezes.
     let limit = null as Awaited<ReturnType<typeof reserveGeneration>> | null;
     if (decoded?.uid) {
       limit = await reserveGeneration(decoded.uid);
       if (!limit.allowed) {
         return jsonNoStore(
           {
-            error:
-              "Você usou suas respostas grátis. Assine o Start pra continuar gerando respostas ilimitadas.",
+            error: TRIAL_ENDED_MESSAGE,
             limitReached: true,
             freeRemaining: 0,
           },
@@ -193,10 +193,8 @@ export async function POST(req: Request) {
       throw genErr;
     }
 
-    // O slot grátis já foi consumido na reserva (só pra não-pagante).
-    const freeRemaining = limit?.reserved
-      ? Math.max(0, limit.remaining - 1)
-      : undefined;
+    // Dias que restam do teste (só pra não-pagante).
+    const freeRemaining = limit?.reserved ? limit.remaining : undefined;
 
     if (decoded?.uid) {
       try {
