@@ -65,13 +65,19 @@ export async function POST(request: Request) {
 
   const plan = parseBillingPlan(body.plan);
   if (!plan) {
-    return jsonNoStore({ error: "Plano inválido." }, { status: 400 });
+    return jsonNoStore(
+      { error: "Plano inválido.", reason: "invalid_plan" },
+      { status: 400 }
+    );
   }
 
   const planConfig = getBillingPlan(plan);
   if (!planConfig.disponivel) {
     return jsonNoStore(
-      { error: "Esse plano ainda não está disponível — entre na lista de espera." },
+      {
+        error: "Esse plano ainda não está disponível — entre na lista de espera.",
+        reason: "plan_unavailable",
+      },
       { status: 400 }
     );
   }
@@ -88,6 +94,7 @@ export async function POST(request: Request) {
       {
         error:
           "Checkout indisponível para este plano no momento. Fale com o suporte.",
+        reason: "price_id_missing",
       },
       { status: 503 }
     );
@@ -96,7 +103,10 @@ export async function POST(request: Request) {
   if (!isStripeConfigured) {
     console.error("[stripe.checkout] Stripe não configurado neste ambiente.");
     return jsonNoStore(
-      { error: "Checkout indisponível no momento. Fale com o suporte." },
+      {
+        error: "Checkout indisponível no momento. Fale com o suporte.",
+        reason: "stripe_not_configured",
+      },
       { status: 503 }
     );
   }
@@ -106,7 +116,10 @@ export async function POST(request: Request) {
       `[stripe.checkout] Price ID fora da allowlist LeadBellus: ${priceId}.`
     );
     return jsonNoStore(
-      { error: "Checkout em manutenção. Fale com o suporte para ativar." },
+      {
+        error: "Checkout em manutenção. Fale com o suporte para ativar.",
+        reason: "price_id_not_allowed",
+      },
       { status: 503 }
     );
   }
@@ -199,7 +212,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("[stripe.checkout] erro ao criar sessão", err);
     return jsonNoStore(
-      { error: "Não foi possível iniciar o checkout." },
+      { error: "Não foi possível iniciar o checkout.", reason: "stripe_session_failed" },
       { status: 500 }
     );
   }

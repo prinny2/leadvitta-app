@@ -32,7 +32,7 @@ import { FormSection } from "@/components/form-section";
 import { ErrorBanner } from "@/components/error-banner";
 import { cn } from "@/lib/utils";
 import type { RespostaTripla, Variante } from "@/lib/types";
-import { trackEvent } from "@/components/Analytics";
+import { getGaClientId, trackEvent } from "@/components/Analytics";
 import { trackFreeGeneration } from "@/lib/analytics/free-generation";
 
 const procOptions = procedimentos.map((p) => ({ value: p.id, label: p.label }));
@@ -207,12 +207,30 @@ export default function GeradorPage() {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: "start", interval: "monthly", firebaseIdToken }),
+        body: JSON.stringify({
+          plan: "start",
+          interval: "monthly",
+          firebaseIdToken,
+          // Sem o client id o begin_checkout da rota cai em missing_client_id, e
+          // o purchase do webhook perde a atribuicao junto.
+          gaClientId: getGaClientId(),
+        }),
       });
       const data = await res.json();
       if (data.url) { window.location.href = data.url; return; }
+      trackEvent("checkout_failed", {
+        plan: "start",
+        origem: "gerador",
+        status: res.status,
+        reason: data.reason || "sem_url",
+      });
       setErro(data.error || "Não foi possível abrir o checkout.");
     } catch {
+      trackEvent("checkout_failed", {
+        plan: "start",
+        origem: "gerador",
+        reason: "excecao",
+      });
       setErro("Falha ao abrir o checkout.");
     } finally {
       setAssinando(false);

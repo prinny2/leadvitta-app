@@ -101,6 +101,7 @@ describe("Stripe checkout — validações", () => {
   it("rejeita plano inválido com 400", async () => {
     const res = await POST(checkoutRequest({ plan: "enterprise" }));
     expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({ reason: "invalid_plan" });
     expect(sessionsCreate).not.toHaveBeenCalled();
   });
 
@@ -108,18 +109,21 @@ describe("Stripe checkout — validações", () => {
     billingState.priceId = undefined as unknown as string;
     const res = await POST(checkoutRequest({ plan: "pro" }));
     expect(res.status).toBe(503);
+    expect(await res.json()).toMatchObject({ reason: "price_id_missing" });
   });
 
   it("retorna 503 quando o Stripe não está configurado", async () => {
     cfg.isStripeConfigured = false;
     const res = await POST(checkoutRequest({ plan: "pro" }));
     expect(res.status).toBe(503);
+    expect(await res.json()).toMatchObject({ reason: "stripe_not_configured" });
   });
 
   it("retorna 503 quando o price id não é da conta LeadBellus esperada", async () => {
     billingState.priceId = "price_1ThIde6Qz7MOnODLInHcArD4";
     const res = await POST(checkoutRequest({ plan: "pro" }));
     expect(res.status).toBe(503);
+    expect(await res.json()).toMatchObject({ reason: "price_id_not_allowed" });
     expect(sessionsCreate).not.toHaveBeenCalled();
   });
 
@@ -127,6 +131,7 @@ describe("Stripe checkout — validações", () => {
     billingState.disponivel = false;
     const res = await POST(checkoutRequest({ plan: "premium" }));
     expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({ reason: "plan_unavailable" });
     expect(sessionsCreate).not.toHaveBeenCalled();
   });
 });
@@ -224,5 +229,6 @@ describe("Stripe checkout — criação da sessão", () => {
     sessionsCreate.mockRejectedValue(new Error("Stripe down"));
     const res = await POST(checkoutRequest({ plan: "pro" }));
     expect(res.status).toBe(500);
+    expect(await res.json()).toMatchObject({ reason: "stripe_session_failed" });
   });
 });

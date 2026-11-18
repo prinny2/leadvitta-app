@@ -54,6 +54,9 @@ export function PlanCheckoutButton({
     }
 
     setLoading(true);
+    // Um unico checkout_failed por clique: o branch de !ok lanca, e o catch
+    // cobre fetch/json que estouram antes disso.
+    let falhaRegistrada = false;
     try {
       trackEvent("checkout_click", { plan, interval });
       // Com Clerk, `currentUser` fica null até a ponte Clerk→Firebase terminar.
@@ -78,14 +81,28 @@ export function PlanCheckoutButton({
           gaClientId: getGaClientId(),
         }),
       });
-      const data = (await response.json()) as { url?: string; error?: string };
+      const data = (await response.json()) as {
+        url?: string;
+        error?: string;
+        reason?: string;
+      };
 
       if (!response.ok || !data.url) {
+        falhaRegistrada = true;
+        trackEvent("checkout_failed", {
+          plan,
+          interval,
+          status: response.status,
+          reason: data.reason || "sem_url",
+        });
         throw new Error(data.error || "Não foi possível abrir o pagamento.");
       }
 
       window.location.assign(data.url);
     } catch (err) {
+      if (!falhaRegistrada) {
+        trackEvent("checkout_failed", { plan, interval, reason: "excecao" });
+      }
       setErro(err instanceof Error ? err.message : "Erro ao abrir pagamento.");
       setLoading(false);
     }

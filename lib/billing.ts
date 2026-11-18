@@ -40,6 +40,13 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
     tagline: "Pra parar de perder cliente no WhatsApp.",
     selo: "Preço de lançamento",
     destaque: true,
+    // NAO derive isto de STRIPE_PRICE_ID_START. Este mapa e isomorfico: ele e
+    // importado por client components (configuracoes/page.tsx, pricing-section)
+    // e o Next so expoe NEXT_PUBLIC_* ao browser, entao a env server-only vira
+    // undefined no bundle e o plano apareceria como "Em breve" para todo
+    // visitante. Quem garante que existe price id e a rota, que responde
+    // price_id_missing. Alinhar UI e rota exige resolver no servidor e passar a
+    // disponibilidade como prop/endpoint.
     disponivel: true,
     features: [
       "Gerações ilimitadas enquanto a assinatura estiver ativa",

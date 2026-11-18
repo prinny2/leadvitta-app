@@ -60,3 +60,21 @@ describe("getStripeCheckoutMode", () => {
     expect(getStripeCheckoutMode()).toBe("subscription");
   });
 });
+
+describe("billingPlans.start — disponibilidade", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+
+  // Regressao: billingPlans e importado por client components, e o Next so
+  // expoe NEXT_PUBLIC_* ao browser. Derivar isto de STRIPE_PRICE_ID_START faz
+  // o plano aparecer como "Em breve" para todo visitante.
+  it("nao depende de env server-only do Stripe", async () => {
+    vi.stubEnv("STRIPE_PRICE_ID_START", "");
+    vi.resetModules();
+    const { billingPlans: plans } = await import("@/lib/billing");
+    expect(plans.start.disponivel).toBe(true);
+    expect(plans.start.selo).toBe("Preço de lançamento");
+  });
+});
