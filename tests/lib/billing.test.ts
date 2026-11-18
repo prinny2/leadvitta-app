@@ -60,3 +60,39 @@ describe("getStripeCheckoutMode", () => {
     expect(getStripeCheckoutMode()).toBe("subscription");
   });
 });
+
+describe("billingPlans.start — disponibilidade", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+  });
+
+  async function reimportBilling() {
+    vi.resetModules();
+    return (await import("@/lib/billing")).billingPlans;
+  }
+
+  it("fica indisponível e marcado 'Em breve' sem STRIPE_PRICE_ID_START", async () => {
+    vi.stubEnv("STRIPE_PRICE_ID_START", "");
+    const plans = await reimportBilling();
+    expect(plans.start.disponivel).toBe(false);
+    expect(plans.start.selo).toBe("Em breve");
+  });
+
+  it("fica vendável quando o price id existe", async () => {
+    vi.stubEnv("STRIPE_PRICE_ID_START", "price_123");
+    const plans = await reimportBilling();
+    expect(plans.start.disponivel).toBe(true);
+    expect(plans.start.selo).toBe("Preço de lançamento");
+  });
+
+  it("segue a mesma regra de Pro e Premium", async () => {
+    vi.stubEnv("STRIPE_PRICE_ID_START", "");
+    vi.stubEnv("STRIPE_PRICE_ID_PRO", "");
+    vi.stubEnv("STRIPE_PRICE_ID_PREMIUM", "");
+    const plans = await reimportBilling();
+    for (const plan of ["start", "pro", "premium"] as const) {
+      expect(plans[plan].disponivel).toBe(false);
+    }
+  });
+});

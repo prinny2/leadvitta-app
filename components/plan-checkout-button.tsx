@@ -78,9 +78,19 @@ export function PlanCheckoutButton({
           gaClientId: getGaClientId(),
         }),
       });
-      const data = (await response.json()) as { url?: string; error?: string };
+      const data = (await response.json()) as {
+        url?: string;
+        error?: string;
+        reason?: string;
+      };
 
       if (!response.ok || !data.url) {
+        trackEvent("checkout_failed", {
+          plan,
+          interval,
+          status: response.status,
+          reason: data.reason || "sem_url",
+        });
         throw new Error(data.error || "Não foi possível abrir o pagamento.");
       }
 

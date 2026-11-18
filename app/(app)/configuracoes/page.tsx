@@ -147,8 +147,20 @@ export default function ConfiguracoesPage() {
             gaClientId: getGaClientId(),
           }),
         });
-        const data = (await res.json()) as { url?: string; error?: string };
-        if (!res.ok || !data.url) throw new Error(data.error || "Não foi possível abrir o pagamento.");
+        const data = (await res.json()) as {
+          url?: string;
+          error?: string;
+          reason?: string;
+        };
+        if (!res.ok || !data.url) {
+          trackEvent("checkout_failed", {
+            plan,
+            origem: "funil_pos_cadastro",
+            status: res.status,
+            reason: data.reason || "sem_url",
+          });
+          throw new Error(data.error || "Não foi possível abrir o pagamento.");
+        }
         window.location.assign(data.url);
       } catch (err) {
         setAbrindoCheckout(false);

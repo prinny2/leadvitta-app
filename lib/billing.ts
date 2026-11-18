@@ -38,9 +38,11 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
     priceLabel: "R$97",
     periodLabel: "/mês",
     tagline: "Pra parar de perder cliente no WhatsApp.",
-    selo: "Preço de lançamento",
+    // Sem price id a rota de checkout responde 503 (price_id_missing), entao o
+    // card nao pode se anunciar como vendavel — mesma regra do Pro e do Premium.
+    selo: process.env.STRIPE_PRICE_ID_START ? "Preço de lançamento" : "Em breve",
     destaque: true,
-    disponivel: true,
+    disponivel: !!process.env.STRIPE_PRICE_ID_START,
     features: [
       "Gerações ilimitadas enquanto a assinatura estiver ativa",
       "Respostas prontas pra preço, “achou caro” e cliente que sumiu",
