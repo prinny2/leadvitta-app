@@ -17,7 +17,7 @@ built and operated end-to-end by one developer.
 
 | Layer | What is used |
 | --- | --- |
-| Framework | **Next.js 15** (App Router, route groups, server routes) · **React 19** · **TypeScript** (strict) |
+| Framework | **Next.js 16** (App Router, route groups, server routes) · **React 19** · **TypeScript** (strict) |
 | Styling / UI | **Tailwind CSS 3.4**, custom navy/gold design system, `framer-motion`, `lucide-react`, `recharts` |
 | Auth | **Clerk** (public sign-in/sign-up, pt-BR localisation) bridged to **Firebase Auth** via server-minted custom tokens so Firestore security rules and billing keep working |
 | Data | **Cloud Firestore** (per-user rules, compound indexes) · **Firebase Admin SDK** for webhook writes · **Supabase/Postgres** as an additive analytics mirror |
