@@ -328,9 +328,13 @@ const ga4Conversions = {
   propertyId: "G-223KR63TS8",
   conversionsToImport: [
     { name: "sign_up", category: "Sign-up", includeIn: "Conversions" },
+    // begin_checkout e purchase saem do servidor, via Measurement Protocol
+    // (app/api/stripe/checkout/route.ts e app/api/stripe/webhook/route.ts).
     { name: "begin_checkout", category: "Begin checkout", includeIn: "Conversions" },
     { name: "purchase", category: "Purchase", includeIn: "Conversions", value: true },
-    { name: "generate", category: "Generate response", includeIn: "All" },
+    // O gerador gratuito emite free_generation (lib/analytics/free-generation.ts);
+    // nao existe evento "generate" no stream.
+    { name: "free_generation", category: "Generate response", includeIn: "All" },
   ],
   linkInstructions: "Link the GA4 property to this Google Ads account in Google Ads > Tools > Conversions > Google Analytics 4.",
 };
@@ -609,6 +613,9 @@ function ga4Markdown() {
     "",
     "Recommended conversions to bring in (create as 'Import from Google Analytics 4' or use the link):",
     "",
+    "`sign_up` and `free_generation` are browser events; `begin_checkout` and `purchase` are sent",
+    "server-side from the Stripe routes, so they stay at zero until a real checkout happens.",
+    "",
   ];
 
   ga4Conversions.conversionsToImport.forEach((c) => {
@@ -622,12 +629,15 @@ function ga4Markdown() {
     "- Attribution model: Data-driven (recommended) or Last click (non-direct).",
     "- Conversion window: 30 days (or match your sales cycle).",
     "- Count: Every (for sign_up / begin_checkout) or One (for purchase if needed).",
-    "- Make 'purchase' the primary conversion for bidding.",
+    "- Bidding target: start on the conversion that has volume. `begin_checkout` and `purchase` are",
+    "  sent server-side and read zero until a real Stripe checkout happens, so bidding on `purchase`",
+    "  before the first sale gives the campaign no signal. Move the primary to `purchase` once it has volume.",
     "",
     "## Step 4: Use in Bidding & Editor",
     "",
     "After import:",
-    "- In the imported campaign, set Bid strategy to 'Maximize conversions' or 'Target CPA' using the imported purchase/sign_up.",
+    "- In the imported campaign, set Bid strategy to 'Maximize conversions' or 'Target CPA' using a",
+    "  conversion that actually has volume (sign_up first; purchase once sales exist).",
     "- In Editor, after importing keywords/ads, verify the conversion column shows the GA4 ones.",
     "- Use automated rules that reference conversions (see 06_automation_rules.md).",
     "",
