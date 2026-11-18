@@ -134,6 +134,9 @@ export default function ConfiguracoesPage() {
       disparado = true;
       clearTimeout(timeout);
       unsub();
+      // Um unico checkout_failed por clique: o branch de !ok lanca, e o catch
+      // cobre fetch/json que estouram antes disso.
+      let falhaRegistrada = false;
       try {
         trackEvent("checkout_click", { plan, origem: "funil_pos_cadastro" });
         const firebaseIdToken = await user.getIdToken();
@@ -153,6 +156,7 @@ export default function ConfiguracoesPage() {
           reason?: string;
         };
         if (!res.ok || !data.url) {
+          falhaRegistrada = true;
           trackEvent("checkout_failed", {
             plan,
             origem: "funil_pos_cadastro",
@@ -163,6 +167,13 @@ export default function ConfiguracoesPage() {
         }
         window.location.assign(data.url);
       } catch (err) {
+        if (!falhaRegistrada) {
+          trackEvent("checkout_failed", {
+            plan,
+            origem: "funil_pos_cadastro",
+            reason: "excecao",
+          });
+        }
         setAbrindoCheckout(false);
         setErro(err instanceof Error ? err.message : "Não foi possível abrir o pagamento.");
       }

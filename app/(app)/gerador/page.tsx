@@ -226,6 +226,11 @@ export default function GeradorPage() {
       });
       setErro(data.error || "Não foi possível abrir o checkout.");
     } catch {
+      trackEvent("checkout_failed", {
+        plan: "start",
+        origem: "gerador",
+        reason: "excecao",
+      });
       setErro("Falha ao abrir o checkout.");
     } finally {
       setAssinando(false);

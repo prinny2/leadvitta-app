@@ -38,11 +38,16 @@ export const billingPlans: Record<BillingPlan, BillingPlanConfig> = {
     priceLabel: "R$97",
     periodLabel: "/mês",
     tagline: "Pra parar de perder cliente no WhatsApp.",
-    // Sem price id a rota de checkout responde 503 (price_id_missing), entao o
-    // card nao pode se anunciar como vendavel — mesma regra do Pro e do Premium.
-    selo: process.env.STRIPE_PRICE_ID_START ? "Preço de lançamento" : "Em breve",
+    selo: "Preço de lançamento",
     destaque: true,
-    disponivel: !!process.env.STRIPE_PRICE_ID_START,
+    // NAO derive isto de STRIPE_PRICE_ID_START. Este mapa e isomorfico: ele e
+    // importado por client components (configuracoes/page.tsx, pricing-section)
+    // e o Next so expoe NEXT_PUBLIC_* ao browser, entao a env server-only vira
+    // undefined no bundle e o plano apareceria como "Em breve" para todo
+    // visitante. Quem garante que existe price id e a rota, que responde
+    // price_id_missing. Alinhar UI e rota exige resolver no servidor e passar a
+    // disponibilidade como prop/endpoint.
+    disponivel: true,
     features: [
       "Gerações ilimitadas enquanto a assinatura estiver ativa",
       "Respostas prontas pra preço, “achou caro” e cliente que sumiu",

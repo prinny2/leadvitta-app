@@ -25,6 +25,10 @@ export function CheckoutButton({
     setLoading(true);
     setErro("");
 
+    // Garante um unico checkout_failed por clique: o branch de !ok lanca, e o
+    // catch cobre fetch/json que estouram antes disso.
+    let falhaRegistrada = false;
+
     try {
       trackEvent("checkout_click", { plan });
       const user = isFirebaseConfigured ? getFirebaseAuth().currentUser : null;
@@ -49,6 +53,7 @@ export function CheckoutButton({
       if (!response.ok || !data.url) {
         // checkout_click ja foi disparado acima; sem este evento a falha nao
         // deixa rastro nenhum no GA4.
+        falhaRegistrada = true;
         trackEvent("checkout_failed", {
           plan,
           status: response.status,
@@ -59,6 +64,9 @@ export function CheckoutButton({
 
       window.location.assign(data.url);
     } catch (err) {
+      if (!falhaRegistrada) {
+        trackEvent("checkout_failed", { plan, reason: "excecao" });
+      }
       setErro(err instanceof Error ? err.message : "Erro ao iniciar checkout.");
       setLoading(false);
     }
