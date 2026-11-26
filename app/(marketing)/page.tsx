@@ -27,6 +27,7 @@ import { pageMetadata } from "@/lib/seo";
 import { TrackLink } from "@/components/track-link";
 import { WaitlistForm } from "@/components/waitlist-form";
 import { WhatsAppCta } from "@/components/whatsapp-cta";
+import { ImplantacaoCta } from "@/components/implantacao-cta";
 import { situacaoPorId } from "@/data/situacoes";
 
 const SIGNUP_START = "/signup?plan=start";
@@ -54,6 +55,19 @@ const START_BULLETS = [
   "Follow-up e mensagem de retorno pós-procedimento",
   "Copiar e colar no WhatsApp, pelo celular",
   "Sem fidelidade: cancele quando quiser, no painel",
+];
+
+/** Implantação presencial (preços = produtos Stripe "Implantação Salão/Essencial/Completa"). */
+const IMPLANTACAO_PASSOS = [
+  { t: "1. Conversa rápida", c: "Entendemos quem responde, o que mais chega e onde a cliente esfria." },
+  { t: "2. Montagem no seu tom", c: "Respostas para preço, dúvidas, objeções e retorno, por serviço ou procedimento." },
+  { t: "3. Treino da equipe", c: "Quem atende aprende a usar em poucos minutos, direto no celular." },
+];
+
+const IMPLANTACAO_PACOTES = [
+  { t: "Salões e nail designers", preco: "R$197", destaque: false, itens: ["Visita no salão", "Respostas dos seus serviços", "Treino de quem atende"] },
+  { t: "Clínicas", preco: "R$497", destaque: true, itens: ["Visita na clínica", "Respostas por procedimento", "Treino da recepção"] },
+  { t: "Completa", preco: "R$997", destaque: false, itens: ["Duas visitas e revisão em 30 dias", "Campanhas e objeções da sua casa", "Manutenção opcional R$197/mês"] },
 ];
 
 const FAQ = [
@@ -296,7 +310,7 @@ export default function LandingPage() {
             }}
           >
             <div className="hero-copy-col" style={{ minWidth: 0 }}>
-              <Eyebrow onNavy>Para clínicas de estética</Eyebrow>
+              <Eyebrow onNavy>Para clínicas de estética e salões de beleza</Eyebrow>
               <h1
                 className="hero-title"
                 style={{
@@ -415,7 +429,7 @@ export default function LandingPage() {
             </FadeUp>
             <DemoSituationChips items={SITUACOES_CHIPS} />
             <p style={{ color: INK_SOFT, fontSize: "14px", lineHeight: 1.6, margin: "24px auto 0", maxWidth: "520px" }}>
-              Serve para os procedimentos da sua clínica, de botox e preenchimento a limpeza de pele.
+              Serve para clínicas e salões: de botox e limpeza de pele a alongamento e manutenção de unha.
             </p>
           </div>
         </section>
@@ -468,6 +482,61 @@ export default function LandingPage() {
                   <WaitlistForm plan="pro" />
                 </div>
               </details>
+            </div>
+          </div>
+        </section>
+
+        {/* ── IMPLANTAÇÃO ──────────────────────────────────────────────────── */}
+        <section id="implantacao" data-track-section="implantacao" className="lp-section" style={{ background: CREAM_2, padding: "76px 24px", scrollMarginTop: "64px" }}>
+          <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+            <FadeUp>
+              <div style={{ textAlign: "center", maxWidth: "660px", margin: "0 auto 32px" }}>
+                <Eyebrow>📍 Belém e região</Eyebrow>
+                <SectionTitle>Prefere que a gente monte com você?</SectionTitle>
+                <p style={{ color: INK_SOFT, fontSize: "16px", lineHeight: 1.6, margin: 0 }}>
+                  Vamos até o seu espaço, entendemos a rotina do WhatsApp e deixamos tudo pronto: respostas dos serviços que você mais vende, no jeito de falar da casa, e a equipe treinada.
+                </p>
+              </div>
+            </FadeUp>
+            <div className="passos-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px", marginBottom: "18px" }}>
+              {IMPLANTACAO_PASSOS.map((s) => (
+                <div key={s.t} style={{ minWidth: 0 }}>
+                  <h3 style={{ fontSize: "16px", fontWeight: 700, color: INK, margin: "0 0 4px" }}>{s.t}</h3>
+                  <p style={{ fontSize: "14px", lineHeight: 1.6, color: INK_SOFT, margin: 0 }}>{s.c}</p>
+                </div>
+              ))}
+            </div>
+            <div className="confianca-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px" }}>
+              {IMPLANTACAO_PACOTES.map((p) => (
+                <div
+                  key={p.t}
+                  className="lp-card"
+                  style={{
+                    background: "#ffffff",
+                    border: p.destaque ? `2px solid ${GOLD}` : "1px solid rgba(16,35,59,0.07)",
+                    boxShadow: p.destaque ? "0 18px 40px rgba(16,35,59,0.08)" : undefined,
+                    borderRadius: "16px",
+                    padding: "22px",
+                  }}
+                >
+                  <h3 style={{ fontSize: "17px", fontWeight: 700, color: INK, margin: 0 }}>{p.t}</h3>
+                  <p style={{ margin: "8px 0 2px", color: INK }}>
+                    <span style={{ fontSize: "28px", fontWeight: 800 }}>{p.preco}</span>{" "}
+                    <span style={{ fontSize: "13px", color: INK_SOFT }}>pagamento único</span>
+                  </p>
+                  <ul style={{ margin: "10px 0 0", paddingLeft: "18px", color: INK_SOFT, fontSize: "14px", lineHeight: 1.7 }}>
+                    {p.itens.map((i) => (
+                      <li key={i}>{i}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <div style={{ textAlign: "center", marginTop: "28px" }}>
+              <ImplantacaoCta className="lp-btn-primary" style={PRIMARY_BUTTON_STYLE} />
+              <p style={{ fontSize: "13px", lineHeight: 1.6, color: INK_SOFT, margin: "12px auto 0", maxWidth: "520px" }}>
+                Fora de Belém, fazemos por chamada de vídeo. A assinatura continua R$97/mês, com 7 dias grátis e sem fidelidade.
+              </p>
             </div>
           </div>
         </section>
