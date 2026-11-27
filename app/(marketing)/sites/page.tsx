@@ -82,11 +82,11 @@ const FAQ = [
   },
   {
     q: "Não tenho foto profissional. Serve?",
-    a: "Serve. Foto boa de celular, com luz do dia, já funciona. A gente recorta e padroniza para a página ficar organizada.",
+    a: "Serve. Foto boa de celular, com luz do dia, já funciona. Na página, todas aparecem no mesmo formato, lado a lado.",
   },
   {
     q: "Precisa ser de Belém?",
-    a: "Não. Tudo é feito pelo WhatsApp. A gente é daqui de Belém, então conhece bem a rotina das lojas da cidade.",
+    a: "Não. Tudo é feito pelo WhatsApp. A gente é daqui de Belém, mas atende loja de qualquer cidade.",
   },
 ];
 
@@ -407,7 +407,7 @@ export default function SitesPage() {
               <p style={{ margin: 0, fontSize: "14px", fontWeight: 700, color: GOLD }}>Site-catálogo em 48h</p>
               <p style={{ margin: "6px 0 2px", color: "#FFFFFF" }}>
                 <span style={{ fontSize: "44px", fontWeight: 800, letterSpacing: "-0.02em" }}>{PRECO}</span>{" "}
-                <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)" }}>pagamento único</span>
+                <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)" }}>pelo site pronto</span>
               </p>
               <p style={{ margin: "0 0 18px", fontSize: "14px", color: "rgba(255,255,255,0.72)" }}>
                 50% para começar, 50% na entrega.
@@ -544,7 +544,7 @@ export default function SitesPage() {
           .sites-mobile-spacer { height: 88px; }
         }
       `}</style>
-      <div className="sites-mobile-spacer" />
+      <div className="sites-mobile-spacer" style={{ background: NAVY }} />
       {/* Barra fixa do mobile: aparece depois que o CTA do hero sai da tela. */}
       <RevealAfter targetId="sites-hero-cta">
         <div
