@@ -25,7 +25,7 @@ export function SectionTracker({
   contentType,
   observeMutations = false,
 }: {
-  contentType: "lp" | "onboarding";
+  contentType: "lp" | "onboarding" | "sites";
   observeMutations?: boolean;
 }) {
   useEffect(() => {
